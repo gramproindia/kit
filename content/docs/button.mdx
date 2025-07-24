@@ -1,0 +1,57 @@
+---
+title: "Button"
+description: "Learn how to get started with our components"
+order: 2
+---
+
+import { Button } from "../../component-lib/button";
+
+# Button
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Button
+```
+
+The **Button** component is a versatile and customizable button that serves as a foundational building block for your UI. It accepts various props to allow for flexibility in styling and functionality
+
+#### **Default Button**
+
+<Button>Click Me!</Button>
+
+#### **Props Table**
+
+| Prop Name     | Type                   | Default Value                                                  | Description                                                                                        |
+| ------------- | ---------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `children`    | `React.ReactNode`      | `undefined`                                                    | The content to be displayed inside the button.                                                     |
+| `buttonClass` | `string`               | `"px-2 py-1 bg-black text-white rounded-md hover:bg-gray-700"` | Custom CSS classes for styling the button.                                                         |
+| `...props`    | `ButtonHTMLAttributes` | `-`                                                            | Any additional props that can be passed to the button element, such as `onClick`, `disabled`, etc. |
+
+#### **Usage Example**
+
+Here’s an example of how to use the **Button** component in your project:
+
+```jsx
+import { Button } from "your-library";
+
+const App = () => {
+  return (
+    <div>
+      <Button onClick={() => alert("Button clicked!")}>Click Me!</Button>
+    </div>
+  );
+};
+
+export default App;
+```
+
+#### **Customization**
+
+You can customize the button's appearance by passing your own CSS classes to the `buttonClass` prop:
+
+```jsx
+<Button buttonClass="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
+  Custom Button
+</Button>
+```

@@ -1,0 +1,683 @@
+---
+title: "Data Grid"
+description: "Learn how to get started with our components"
+order: 3
+---
+
+import { DataGridWrapper } from "@components/DataGridWrapper";
+
+# Data Grid
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a DataGrid
+```
+
+The DataGrid component is a customizable and feature-rich data grid built with React. It supports functionalities such as pagination, filtering, searching, and exporting data to Excel and PDF formats. This documentation outlines the component's props, usage, and key functionalities.
+
+#### **Default**
+
+<DataGridWrapper />
+
+### Props Table
+
+| Prop                       | Type                      | Default Value                                                                             | Description                                                                                                           |
+| -------------------------- | ------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `dataSource`               | `Array` \| `String`       | `[]`                                                                                      | The source data for the grid. Can be an array of objects or a string URL to fetch data.                               |
+| `columns`                  | `Array`                   | `[]`                                                                                      | An array of column definitions, where each column is an object containing properties like `field`, `headerText`, etc. |
+| `pageSettings`             | `Object`                  | `{ pageNumber: 10 }`                                                                      | Configuration for pagination, e.g., the number of items per page.                                                     |
+| `enableSearch`             | `Boolean`                 | `false`                                                                                   | Whether to enable the global search functionality.                                                                    |
+| `lazy`                     | `Boolean`                 | `false`                                                                                   | If true, will use lazy loading for the grid data.                                                                     |
+| `enableExcelExport`        | `Boolean`                 | `false`                                                                                   | Enables the option to export grid data to an Excel file.                                                              |
+| `excelName`                | `String`                  | `"data"`                                                                                  | The default name for the exported Excel file.                                                                         |
+| `enablePdfExport`          | `Boolean`                 | `false`                                                                                   | Enables the option to export grid data to a PDF file.                                                                 |
+| `pdfName`                  | `String`                  | `"data"`                                                                                  | The default name for the exported PDF file.                                                                           |
+| `pdfOptions`               | `Object`                  | `{}`                                                                                      | Options for PDF export, such as page size and margins.                                                                |
+| `gridButtonClass`          | `String`                  | `"px-1 py-2 bg-white border rounded-lg text-xs text-black dark:bg-black dark:text-white"` | CSS classes for grid buttons.                                                                                         |
+| `selectAll`                | `Boolean`                 | `false`                                                                                   | If true, enables a checkbox to select/deselect all rows in the grid.                                                  |
+| `onSelectRow`              | `Function`                | `undefined`                                                                               | Callback function executed when a row is selected or deselected.                                                      |
+| `isFetching`               | `Boolean`                 | `false`                                                                                   | Indicates whether data is currently being fetched.                                                                    |
+| `tableHeaderStyle`         | `String`                  | `"text-left border-b border-t bg-gray-50 px-2 py-4 dark:bg-gray-700 dark:text-white"`     | CSS classes for the table header.                                                                                     |
+| `gridContainerClass`       | `String`                  | `"flex flex-col min-w-screen border rounded-md overflow-hidden dark:bg-black"`            | CSS classes for the grid container.                                                                                   |
+| `gridColumnStyleSelectAll` | `String`                  | `"border-b px-4 text-sm dark:text-white"`                                                 | CSS classes for the select-all column.                                                                                |
+| `gridColumnStyle`          | `String`                  | `"border-b p-2 text-sm dark:text-white"`                                                  | CSS classes for grid columns.                                                                                         |
+| `rowChange`                | `any`                     |                                                                                           | This will shows the rowchanges in the DataGrid Template                                                               |
+| `pageStatus`               | `any`                     |                                                                                           | Gives the pagination status like current page, total pages, etc                                                       |
+| `activeFilterArrayValue`   | `(filterObject) ⇒ void`   |                                                                                           | This will give the currnet filter details in grid                                                                     |
+| `searchParamValue`         | `(value: string) ⇒ void`  |                                                                                           | Search param value from the data grid toolbar                                                                         |
+| `showTotalPages`           | `boolean`                 |                                                                                           | show or hide total pages in pagination                                                                                |
+| `onSearch`                 | () ⇒ {}                   |                                                                                           | triggers when search button is pressed                                                                                |
+| `onToolbarButtonClick`     | `(action: string) ⇒ void` |                                                                                           | triggers when grid toolbox actions works(eg: pdfExport or excelExport)                                                |
+
+### Usage Guide
+
+To use the `Grid` component, you can import it into your React application and provide the necessary props. Below is an example usage of the `Grid` component:
+
+```jsx
+import React from "react";
+import { DataGrid } from "./path/to/Grid";
+import { CustomTemplate } from "./path";
+
+const ExampleComponent = () => {
+  const data = [
+    { id: 1, name: "John Doe", age: 28 },
+    { id: 2, name: "Jane Smith", age: 32 },
+    // Add more data as needed
+  ];
+
+  const columns = [
+    { field: "id", headerText: "ID", width: 50 },
+    { field: "name", headerText: "Name", width: 150, tooltip: true }, // enable tooltip for longer content
+    { field: "age", headerText: "Age", width: 50, filter: true }, // this will enable filter
+    {
+      field: "action",
+      headerText: "Action",
+      width: 150,
+      template: CustomTemplate,
+    }, // Rendering custom template
+  ];
+
+  return (
+    <DataGrid
+      dataSource={data}
+      columns={columns}
+      pageSettings={{ pageNumber: 10 }}
+      enableSearch={true}
+      enableExcelExport={true}
+      excelName="User_Data"
+      enablePdfExport={true}
+      pdfName="User_Data"
+      onSelectRow={(selectedRows) => {
+        console.log("Selected Rows:", selectedRows);
+      }}
+    />
+  );
+};
+
+export default ExampleComponent;
+```
+
+#### Key Functionalities
+
+- **Pagination:** Navigate through pages using provided pagination controls.
+- **Filtering:** Apply filters to columns with the option to clear filters.
+- **Searching:** Utilize the global search feature to find specific data entries.
+- **Exporting Data:** Export the grid data as Excel or PDF files with customizable names.
+
+### Usage of template
+
+We try to provide a modularized approach on passing templates in Grid for better readability and debugging. For eg. template can be a separate component as below:
+
+```tsx
+import React from 'react'
+
+export default function GridTemplate({ rowData, rowIndex, rowChange }: any) {
+    const handleEdit = () => {
+        rowChange({ action: "edit", id: rowData })
+    }
+
+    const handleDelete = () => {
+        rowChange({ action: "delete", id: rowData.id })
+    }
+
+    return (
+        <div className='flex gap-2'>
+            <button className='p-2 bg-blue-500 rounded-lg' onClick={handleEdit}>Edit</button>
+            <button className='p-2 bg-red-500 rounded-lg' onClick={handleDelete}>Delete</button>
+            <button className='p-2 bg-yellow-500 rounded-lg'>View</button>
+        </div>
+    )
+```
+
+The changes can be consumed from the parent (where you consume Grid) as below:
+
+```tsx
+<DataGrid
+  dataSource={state}
+  columns={EmployeeColumn}
+  pageSettings={{ pageNumber: 6 }}
+  rowChange={(rowChangeData: any) => {
+    console.log("rowChangeData", rowChangeData);
+  }}
+/>
+```
+
+Advanced Example can be found here: [https://github.com/anandhuremanan/headless-gbs-components/blob/main/examples/gridTemplate.tsx](https://github.com/anandhuremanan/headless-gbs-components/blob/main/examples/gridTemplate.tsx)
+
+### Server Side Pagination Using Managed Flow
+
+Data Grid makes the server side lazy loading easy for you with the help of custom hook from `headless-helper` . This can be done with `usePaginatedData` hook. In order to make the hook work you need to format your API response in a certain format that the component can understand otherwise you can use your own logic to handle this(Not Recommended). Following is a managed flow of how to do this.
+
+#### GET Request Based
+
+- The default method will be "GET" for `usePaginatedData` hook.
+- The Filter Value and Other Values will be appended with your API URL AS Follow
+
+```bash
+  http://localhost:3002/api/paginated-data?page=1&pageSize=10&filters=%5B%7B%22filterValue%22%3A%22hr%22%2C%22filterCondition%22%3A%22contains%22%2C%22filterColumn%22%3A%22department%22%2C%22type%22%3A%22filter%22%7D%5D
+```
+
+- You can further append your parameters as well to the url as long as you manage them in the backend.
+- The Response of your API should be in the following Object format
+
+```typescript
+{
+    data: [] // this will be the source data for grid,
+    pagination: {
+        totalPages: 10, // total pages
+        totalItems: 10, // total count of data
+    }
+}
+```
+
+#### Usage Example
+
+```tsx
+"use client";
+
+import React from "react";
+import { DataGrid } from "@/component-lib/datagrid";
+import { columns } from "./utils";
+import { usePaginatedData } from "@grampro/headless-helpers";
+
+const SimpleDataGrid = () => {
+  const {
+    data,
+    loading,
+    pagination,
+    handlePageChange,
+    handleFilterChange,
+    handleSearch,
+  } = usePaginatedData("/api/paginated-data", 10);
+
+  return (
+    <div className="px-10 py-5">
+      <DataGrid
+        dataSource={data}
+        pageSettings={{
+          pageNumber: pagination.pageSize,
+          totalCount: pagination.totalCount,
+        }}
+        lazy={true}
+        isFetching={loading}
+        pageStatus={handlePageChange}
+        activeFilterArrayValue={handleFilterChange}
+        enableSearch={true}
+        showTotalPages
+        columns={columns}
+        onSearch={handleSearch}
+      />
+    </div>
+  );
+};
+
+export default SimpleDataGrid;
+```
+
+#### POST Request Based
+
+```tsx
+"use client";
+
+import React from "react";
+import { DataGrid } from "@/component-lib/datagrid";
+import { columns } from "./utils";
+import { usePaginatedData } from "./usePaginatedData";
+
+const SimpleDataGrid = () => {
+  const {
+    data,
+    loading,
+    pagination,
+    handlePageChange,
+    handleFilterChange,
+    handleSearch,
+    handleExports,
+  } = usePaginatedData("/api/paginated-data", 5, "POST", columns, {
+    userId: "099def4b-1c2a-4d3e-8b5c-9f0e1a2b3c4d",
+  }); // You can pass additional parameters to post body to extract it in the API.
+
+  return (
+    <div className="px-4 md:px-50 py-5">
+      <DataGrid
+        dataSource={data}
+        pageSettings={{
+          pageNumber: pagination.pageSize,
+          totalCount: pagination.totalCount,
+        }}
+        lazy={true}
+        isFetching={loading}
+        pageStatus={handlePageChange}
+        activeFilterArrayValue={handleFilterChange}
+        enableSearch={true}
+        columns={columns}
+        onSearch={handleSearch}
+        enableExcelExport
+        enablePdfExport
+        onToolbarButtonClick={handleExports}
+      />
+    </div>
+  );
+};
+
+export default SimpleDataGrid;
+```
+
+#### Handling excel and pdf exports in server side pagination
+
+```tsx
+"use client";
+
+import React from "react";
+import { DataGrid } from "@/component-lib/datagrid";
+import { columns } from "./utils";
+import { usePaginatedData } from "@grampro/headless-helpers";
+
+const SimpleDataGrid = () => {
+  const {
+    data,
+    loading,
+    pagination,
+    handlePageChange,
+    handleFilterChange,
+    handleSearch,
+    handleExports, // Add this and pass columns array to the hook
+  } = usePaginatedData("/api/paginated-data", 10, "GET", columns);
+
+  return (
+    <div className="px-4 md:px-50 py-5">
+      <DataGrid
+        dataSource={data}
+        pageSettings={{
+          pageNumber: pagination.pageSize,
+          totalCount: pagination.totalCount,
+        }}
+        lazy={true}
+        isFetching={loading}
+        pageStatus={handlePageChange}
+        activeFilterArrayValue={handleFilterChange}
+        enableSearch={true}
+        columns={columns}
+        onSearch={handleSearch}
+        enableExcelExport
+        enablePdfExport
+        onToolbarButtonClick={handleExports} // this will enable exporting utils when lazy loaded.
+      />
+    </div>
+  );
+};
+
+export default SimpleDataGrid;
+```
+
+### Manual Pagination Logic
+
+```tsx
+"use client";
+
+import React, { useEffect, useState, useCallback } from "react";
+import { DataGrid } from "@/component-lib/datagrid";
+
+const ExampleComponent = () => {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    currentPage: 0,
+    totalPages: 0,
+    totalCount: 0,
+    pageSize: 10,
+  });
+  const [activeFilters, setActiveFilters] = useState<any[]>([]);
+
+  const gridRef = React.useRef<any>(null);
+
+  // Fetch data function with proper error handling
+  const fetchPaginatedData = useCallback(
+    async (page: number, pageSize: number) => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `/api/paginated-data?page=${page + 1}&pageSize=${pageSize}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Update states with API response
+        setData(result.data);
+        setPagination((prev) => ({
+          ...prev,
+          currentPage: page,
+          totalPages: result.pagination.totalPages,
+          totalCount: result.pagination.totalItems,
+        }));
+
+        return result;
+      } catch (error) {
+        console.error("Failed to fetch paginated data:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const handlePageStatus = useCallback(
+    (status: { currentPage: number; totalPages: number }) => {
+      // Only fetch if the page actually changed
+      if (status.currentPage !== pagination.currentPage) {
+        fetchPaginatedData(status.currentPage, pagination.pageSize);
+      }
+    },
+    [fetchPaginatedData, pagination.currentPage, pagination.pageSize]
+  );
+
+  // Handle filter changes
+  const handleFilterChange = useCallback(
+    (filters: any[]) => {
+      setActiveFilters(filters);
+      // Reset to first page when filters change
+      fetchPaginatedData(0, pagination.pageSize);
+    },
+    [fetchPaginatedData, pagination.pageSize]
+  );
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchPaginatedData(0, pagination.pageSize);
+  }, [fetchPaginatedData, pagination.pageSize]);
+
+  return (
+    <div className="w-full h-screen flex items-center justify-center">
+      <div className="w-[80%] h-[80%]">
+        <DataGrid
+          ref={gridRef}
+          dataSource={data}
+          pageSettings={{
+            pageNumber: pagination.pageSize,
+            totalCount: pagination.totalCount,
+          }}
+          enableSearch={true}
+          lazy={true}
+          isFetching={loading}
+          pageStatus={handlePageStatus}
+          activeFilterArrayValue={handleFilterChange}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default ExampleComponent;
+```
+
+### API Documentation for fetching data
+
+#### **Query Parameters**
+
+| Parameter      | Type           | Required | Description                                                          |
+| -------------- | -------------- | -------- | -------------------------------------------------------------------- |
+| `page`         | number         | No       | Page number (default: 1)                                             |
+| `pageSize`     | number         | No       | Number of items per page (default: 10, max: 100)                     |
+| `filters`      | string         | No       | JSON string array of filters. Can include a special "search" filter. |
+| `isExportCall` | boolean/string | No       | If `true`, returns **all** filtered results, bypassing pagination    |
+
+#### **Filter Object Format (JSON string in `filters`)**
+
+Each object in the `filters` array can be:
+
+- A **search object**: `{ type: "search", value: "john" }`
+- A **filter object**:
+
+```json
+{
+  "type": "filter",
+  "filterColumn": "status",
+  "filterValue": "active",
+  "filterCondition": "equals"
+}
+```
+
+**Supported Conditions:**
+
+- `contains`
+- `equals`
+- `startsWith`
+- `endsWith`
+- `greaterThan`
+- `lessThan`
+- `notEquals`
+
+---
+
+#### **Response Format**
+
+```json
+{
+  "data": [...], // filtered and paginated or exported data
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 10,
+    "totalItems": 100,
+    "pageSize": 10,
+    "hasNext": true,
+    "hasPrevious": false
+  },
+  "meta": {
+    "search": "john",
+    "filters": [...],
+    "timestamp": "2025-05-26T10:30:00.000Z"
+  }
+}
+```
+
+---
+
+#### **Error Responses**
+
+- `400 Bad Request`: Invalid pagination parameters.
+- `500 Internal Server Error`: Any other unhandled error.
+
+### Implementations in Other Languages(GET Method)
+
+---
+
+#### .NET 8 (ASP.NET Core Minimal API)
+
+```csharp
+app.MapGet("/api/data", (HttpRequest request) =>
+{
+    var query = request.Query;
+
+    int page = int.TryParse(query["page"], out var p) ? p : 1;
+    int pageSize = int.TryParse(query["pageSize"], out var ps) ? ps : 10;
+    var filtersJson = query["filters"].ToString();
+    var isExportCall = query["isExportCall"].ToString();
+
+    if (page < 1 || pageSize < 1 || pageSize > 100)
+        return Results.BadRequest(new { error = "Invalid page or pageSize parameters" });
+
+    // Deserialize filters, apply logic here
+    // Use LINQ to filter and paginate SAMPLE_DATA
+
+    var response = new
+    {
+        data = SAMPLE_DATA, // filtered and paginated
+        pagination = new { currentPage = page, totalPages = 1, totalItems = SAMPLE_DATA.Count, pageSize },
+        meta = new { search = "", filters = filtersJson, timestamp = DateTime.UtcNow }
+    };
+
+    return Results.Ok(response);
+});
+```
+
+---
+
+#### Go (Gin)
+
+```go
+r.GET("/api/data", func(c *gin.Context) {
+    page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+    pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+    filters := c.Query("filters")
+    isExportCall := c.Query("isExportCall")
+
+    if page < 1 || pageSize < 1 || pageSize > 100 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page or pageSize"})
+        return
+    }
+
+    var parsedFilters []map[string]interface{}
+    if filters != "" {
+        if err := json.Unmarshal([]byte(filters), &parsedFilters); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid filters format"})
+            return
+        }
+    }
+
+    // Apply filtering logic here...
+
+    response := gin.H{
+        "data": SAMPLE_DATA,
+        "pagination": gin.H{
+            "currentPage": page, "totalPages": 1, "totalItems": len(SAMPLE_DATA), "pageSize": pageSize,
+        },
+        "meta": gin.H{"search": "", "filters": parsedFilters, "timestamp": time.Now().UTC()},
+    }
+    c.JSON(http.StatusOK, response)
+})
+```
+
+---
+
+#### Python (FastAPI)
+
+```python
+from fastapi import FastAPI, Request, Query
+from typing import Optional
+import json
+from datetime import datetime
+
+app = FastAPI()
+
+@app.get("/api/data")
+async def get_data(request: Request,
+                   page: int = 1,
+                   pageSize: int = 10,
+                   filters: Optional[str] = None,
+                   isExportCall: Optional[str] = None):
+    if page < 1 or pageSize < 1 or pageSize > 100:
+        return {"error": "Invalid page or pageSize parameters"}
+
+    search = ""
+    parsed_filters = []
+
+    if filters:
+        try:
+            parsed_filters = json.loads(filters)
+            for f in parsed_filters:
+                if f.get("type") == "search":
+                    search = f.get("value", "")
+        except Exception as e:
+            return {"error": f"Failed to parse filters: {str(e)}"}
+
+    # Apply filters to SAMPLE_DATA
+
+    response = {
+        "data": SAMPLE_DATA,  # Apply filtering + pagination
+        "pagination": {
+            "currentPage": page,
+            "totalPages": 1,
+            "totalItems": len(SAMPLE_DATA),
+            "pageSize": pageSize,
+            "hasNext": False,
+            "hasPrevious": page > 1
+        },
+        "meta": {
+            "search": search,
+            "filters": parsed_filters,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    }
+    return response
+```
+
+---
+
+#### Node.js (Express)
+
+```js
+app.get("/api/data", (req, res) => {
+  const page = parseInt(req.query.page || "1");
+  const pageSize = parseInt(req.query.pageSize || "10");
+  const filters = req.query.filters || "";
+  const isExportCall = req.query.isExportCall;
+
+  if (page < 1 || pageSize < 1 || pageSize > 100) {
+    return res
+      .status(400)
+      .json({ error: "Invalid page or pageSize parameters" });
+  }
+
+  let search = "";
+  let parsedFilters = [];
+
+  try {
+    if (filters) {
+      parsedFilters = JSON.parse(filters);
+      const searchFilter = parsedFilters.find((f) => f.type === "search");
+      if (searchFilter?.value) search = searchFilter.value;
+    }
+  } catch (e) {
+    return res.status(400).json({ error: "Invalid filters format" });
+  }
+
+  // Apply filters to SAMPLE_DATA
+
+  const filteredData = SAMPLE_DATA; // Replace with actual filtering
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedData = isExportCall
+    ? filteredData
+    : filteredData.slice((page - 1) * pageSize, page * pageSize);
+
+  res.json({
+    data: paginatedData,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalItems,
+      pageSize,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    },
+    meta: {
+      search,
+      filters: parsedFilters,
+      timestamp: new Date().toISOString(),
+    },
+  });
+});
+```
+
+### More Control?
+
+Need more control over fetching with `usePaginatedData` ?
+
+add the hook with code to your project with the command
+
+```
+npx gbs-add-block@latest -a UsePaginatedData
+```
+
+#### Notes
+
+- Ensure the `dataSource` prop is provided with valid data to render the grid.
+- Customize column headers and their widths by modifying the `columns` prop.
+
+For more information on additional functionalities and styling, please refer to the extended documentation linked above.
