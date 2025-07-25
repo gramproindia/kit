@@ -1,18 +1,29 @@
 import { ReactNode } from "react";
 import { DocsSidebar } from "./DocsSidebar";
 import { getDocsStructure } from "@/lib/docs";
+import { TableOfContents } from "./TableOfContents";
+import { ScrollToTop } from "./ScrollToTop";
 
 interface DocsLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
+  content: ReactNode;
+  tocItems: any[];
+  frontmatter?: any;
 }
 
-export async function DocsLayout({ children }: DocsLayoutProps) {
+export async function DocsLayout({ content, tocItems }: DocsLayoutProps) {
   const docsStructure = await getDocsStructure();
 
   return (
     <div className="flex min-h-screen">
+      <ScrollToTop />
       <DocsSidebar docsStructure={docsStructure} />
-      <main className="flex-1 overflow-x-auto">{children}</main>
+      <main className="flex-1 overflow-x-auto">
+        <article className="flex-1 max-w-4xl mx-auto py-12 px-6">
+          {content}
+        </article>
+      </main>
+      <TableOfContents items={tocItems} />
     </div>
   );
 }

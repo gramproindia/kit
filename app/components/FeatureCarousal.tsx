@@ -21,7 +21,7 @@ const FeatureCarousel = () => {
 
   return (
     <div className="w-full">
-      <div className="relative overflow-hidden rounded-lg shadow-lg">
+      <div className="relative overflow-hidden rounded-lg md:h-[280px]">
         <div
           className="flex transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}

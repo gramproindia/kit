@@ -59,16 +59,16 @@ export function TableOfContents({ items }: TableOfContentsProps) {
   }
 
   return (
-    <aside className="w-64 border-l border-gray-200">
+    <aside className="hidden md:block w-64 border-l border-gray-200">
       <div className="sticky top-0 max-h-screen overflow-y-auto p-6">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 uppercase tracking-wide">
           On This Page
         </h3>
 
         <nav className="space-y-1">
-          {items.map((item) => (
+          {items.map((item, index) => (
             <button
-              key={item.id}
+              key={`${item.id}-${index}`}
               onClick={() => scrollToHeading(item.id)}
               className={`block w-full text-left text-sm py-1 transition-colors ${
                 activeId === item.id
