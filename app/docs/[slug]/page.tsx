@@ -6,30 +6,46 @@ import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import { Button } from "@/component-lib/button";
 import DataGridWrapper from "@/app/components/DataGridWrapper";
+import { CodeBlock } from "@/app/components/CodeBlock";
+import FeatureCarousel from "@/app/components/FeatureCarousal";
+import React from "react";
+import { extractTocFromMdx } from "@/lib/toc";
+import { TableOfContents } from "@/app/components/TableOfContents";
 
-const CodeBlock = ({ children, className, ...props }: any) => {
-  const isInline = !className;
+const createHeadingComponent = (level: number) => {
+  return ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
+    const text =
+      typeof children === "string"
+        ? children
+        : Array.isArray(children)
+        ? children.join("")
+        : "";
 
-  if (isInline) {
-    return (
-      <code
-        className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-red-600 dark:text-red-400"
-        {...props}
-      >
-        {children}
-      </code>
+    const id = text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .trim();
+
+    const baseClasses = {
+      1: "text-4xl font-bold text-gray-900 dark:text-gray-100 mb-8 mt-12 first:mt-0 pb-4 border-b border-gray-200 dark:border-gray-700",
+      2: "text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-6 mt-10 pb-2 border-b border-gray-200 dark:border-gray-700",
+      3: "text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4 mt-8",
+      4: "text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3 mt-6",
+      5: "text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 mt-4",
+      6: "text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 mt-4",
+    };
+
+    return React.createElement(
+      `h${level}`,
+      {
+        id,
+        className: baseClasses[level as keyof typeof baseClasses],
+        ...props,
+      },
+      children
     );
-  }
-
-  return (
-    <div className="relative my-6">
-      <pre className="bg-gray-900 dark:bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto border border-gray-200 dark:border-gray-700">
-        <code className={className} {...props}>
-          {children}
-        </code>
-      </pre>
-    </div>
-  );
+  };
 };
 
 const Callout = ({
@@ -59,54 +75,12 @@ const Callout = ({
 // MDX Components
 const mdxComponents = {
   // Headings
-  h1: ({ children, ...props }: any) => (
-    <h1
-      className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-8 mt-12 first:mt-0 pb-4 border-b border-gray-200 dark:border-gray-700"
-      {...props}
-    >
-      {children}
-    </h1>
-  ),
-  h2: ({ children, ...props }: any) => (
-    <h2
-      className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-6 mt-10 pb-2 border-b border-gray-200 dark:border-gray-700"
-      {...props}
-    >
-      {children}
-    </h2>
-  ),
-  h3: ({ children, ...props }: any) => (
-    <h3
-      className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4 mt-8"
-      {...props}
-    >
-      {children}
-    </h3>
-  ),
-  h4: ({ children, ...props }: any) => (
-    <h4
-      className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3 mt-6"
-      {...props}
-    >
-      {children}
-    </h4>
-  ),
-  h5: ({ children, ...props }: any) => (
-    <h5
-      className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 mt-4"
-      {...props}
-    >
-      {children}
-    </h5>
-  ),
-  h6: ({ children, ...props }: any) => (
-    <h6
-      className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 mt-4"
-      {...props}
-    >
-      {children}
-    </h6>
-  ),
+  h1: createHeadingComponent(1),
+  h2: createHeadingComponent(2),
+  h3: createHeadingComponent(3),
+  h4: createHeadingComponent(4),
+  h5: createHeadingComponent(5),
+  h6: createHeadingComponent(6),
 
   // Paragraphs
   p: ({ children, ...props }: any) => (
@@ -227,6 +201,7 @@ const mdxComponents = {
     </kbd>
   ),
 
+  FeatureCarousel,
   Button,
   DataGridWrapper,
 };
@@ -254,6 +229,8 @@ export default async function DocsPage({
     notFound();
   }
 
+  const tocItems = extractTocFromMdx(source);
+
   const mdxResult = await compileMDX({
     source,
     components: mdxComponents, // Pass components here
@@ -266,8 +243,12 @@ export default async function DocsPage({
   });
 
   return (
-    <article className="overflow-hidden px-4 py-4 md:px-20 md:py-12">
-      {mdxResult.content}
-    </article>
+    <div className="flex">
+      <article className="flex-1 max-w-4xl mx-auto py-12 px-6">
+        {mdxResult.content}
+      </article>
+
+      <TableOfContents items={tocItems} />
+    </div>
   );
 }

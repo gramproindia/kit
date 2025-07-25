@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="px-12">
+    <div className="px-12 overflow-hidden">
       <div
         aria-hidden="true"
         className="flex h-16 items-end px-2 font-mono text-xs/6 whitespace-pre text-black/20 max-sm:px-4 sm:h-24 dark:text-white/25"
@@ -19,7 +19,10 @@ export default function Home() {
       <div className="relative before:absolute before:top-0 before:h-px before:w-[200vw] before:bg-gray-950/5 dark:before:bg-white/10 before:-left-[100vw] after:absolute after:bottom-0 after:h-px after:w-[200vw] after:bg-gray-950/5 dark:after:bg-white/10 after:-left-[100vw]">
         <h1 className="px-2 text-4xl tracking-tighter text-balance max-lg:font-medium max-sm:px-4 sm:text-5xl lg:text-6xl xl:text-8xl">
           Rapidly build modern websites without ever thinking about component
-          LOGIC!.
+          <span className="bg-blue-600 ml-4 rounded-2xl text-white">
+            LOGIC!
+          </span>
+          .
         </h1>
       </div>
 
@@ -37,13 +40,13 @@ export default function Home() {
           <span className="font-mono text-[1.0625rem] text-sky-500 dark:text-sky-400">
             flex
           </span>
-          <span className="font-mono text-[1.0625rem] text-sky-500 dark:text-sky-400">
+          <span className="font-mono text-[1.0625rem] text-sky-500 dark:text-sky-400 pl-2">
             pt-4
           </span>
-          <span className="font-mono text-[1.0625rem] text-sky-500 dark:text-sky-400">
+          <span className="font-mono text-[1.0625rem] text-sky-500 dark:text-sky-400 pl-2">
             text-center
           </span>{" "}
-          <span className="font-mono text-[1.0625rem] text-sky-500 dark:text-sky-400">
+          <span className="font-mono text-[1.0625rem] text-sky-500 dark:text-sky-400 pl-2">
             rotate-90
           </span>{" "}
           that can be composed to build any design, directly in your markup.

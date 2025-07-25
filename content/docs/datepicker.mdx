@@ -1,0 +1,63 @@
+---
+category: "Components"
+---
+
+# Date Picker
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a DatePicker
+```
+
+The Date Picker component allows users to select a date from a calendar interface. It supports various customization options such as minimum and maximum date limits, and it also handles outside clicks to close the date picker.
+
+#### Props Table
+
+| Prop Name           | Type                   | Default Value | Description                                                                                      |
+| ------------------- | ---------------------- | ------------- | ------------------------------------------------------------------------------------------------ |
+| `placeholder`       | `string`               | `undefined`   | Placeholder text displayed when no date is selected.                                             |
+| `selectedDateValue` | `Date`                 | `new Date()`  | The currently selected date.                                                                     |
+| `minDate`           | `Date`                 | `null`        | Minimum date that can be selected.                                                               |
+| `maxDate`           | `Date`                 | `null`        | Maximum date that can be selected.                                                               |
+| `yearLimitStart`    | `number`               | `50`          | The starting limit for displaying years in the year picker.                                      |
+| `yearLimitEnd`      | `number`               | `30`          | The ending limit for displaying years in the year picker.                                        |
+| `onDateChange`      | `(date: Date) => void` | `undefined`   | Callback function triggered when the date is changed. Receives the selected date as an argument. |
+
+#### Usage Example
+
+```javascript
+import React, { useState } from "react";
+import DatePicker from "./DatePicker";
+
+const App = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    console.log("Selected Date:", date.toLocaleDateString());
+  };
+
+  return (
+    <div className="app-container">
+      <h1 className="text-xl font-bold mb-4">Date Picker Example</h1>
+      <DatePicker
+        placeholder="Select a date"
+        selectedDateValue={selectedDate}
+        minDate={new Date(2020, 0, 1)} // January 1, 2020
+        maxDate={new Date(2025, 11, 31)} // December 31, 2025
+        onDateChange={handleDateChange}
+        yearLimitStart={30} // This will Shows the Year Start Date 30 Years back from current year
+        yearLimitEnd={0} // This will Shows the Year End Date 0 Years from current year
+      />
+      <div className="mt-4">
+        <p className="text-lg">
+          Currently Selected Date: {selectedDate.toLocaleDateString()}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default App;
+```

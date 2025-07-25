@@ -1,0 +1,68 @@
+---
+category: "Components"
+---
+
+# Spinner
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Spinner
+```
+
+The `Spinner` component provides a versatile loading indicator that can be styled and configured for various use cases. It supports multiple visual styles, including circles, bouncing dots, and stroke-based animations. This documentation details the component's props, usage, and main features.
+
+### Props Table
+
+| Prop              | Type     | Default Value        | Description                                                                                                   |
+| ----------------- | -------- | -------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `size`            | `String` | `"h-10 w-10"`        | Sets the height and width of the spinner.                                                                     |
+| `color`           | `String` | `"border-blue-600"`  | Specifies the border color of the spinner.                                                                    |
+| `fullCircleColor` | `String` | `"border-t-red-400"` | Sets the border color for the full-circle spinner variant.                                                    |
+| `dotColor`        | `String` | `"bg-blue-500"`      | Defines the background color of the dots in the dot spinner variant.                                          |
+| `duration`        | `String` | `"duration-500"`     | Controls the duration of the animation for the spinner.                                                       |
+| `type`            | `String` | `"circle"`           | Determines the type of spinner to render. Options include `"circle"`, `"circle-bg"`, `"dot"`, and `"stroke"`. |
+| `strokeColor`     | `String` | `"stroke-blue-500"`  | Sets the stroke color for the stroke spinner variant.                                                         |
+
+### Usage Guide
+
+To use the `Spinner` component, import it into your React application and configure it according to your needs. Below is an example of how to implement the `Spinner` component:
+
+```jsx
+import React from "react";
+import { Spinner } from "./path/to/Spinner";
+
+const LoadingExample = () => {
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <Spinner
+        size="h-12 w-12"
+        color="border-green-600"
+        fullCircleColor="border-t-yellow-400"
+        dotColor="bg-green-500"
+        duration="duration-700"
+        type="circle"
+      />
+      {/* You can change the type to "dot", "circle-bg", or "stroke" */}
+    </div>
+  );
+};
+
+export default LoadingExample;
+```
+
+#### Key Functionalities
+
+- Multiple Spinner Types: Choose between different types of spinners including:
+- Circle: A classic spinning circle loader.
+- Circle with Background: A circle loader with a solid background color.
+- Bouncing Dots: A set of dots that bounce in a sequence, providing a different loading effect.
+- Stroke: A more stylized spinner based on strokes.
+- Customizable Size and Color: Easily adjust the spinner’s size and colors to match your application's theme.
+- Animation Control: Customize the duration of the animation for a smoother user experience.
+
+#### Notes
+
+- Ensure to set the `type` prop to one of the supported spinner types for correct rendering.
+- The `size`, `color`, and other props can be modified to fit your design needs.
+- For the `stroke` type, ensure that the `Stroke` component is correctly imported and defined in your project.

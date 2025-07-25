@@ -1,0 +1,84 @@
+---
+category: "Components"
+---
+
+# MultiSelect
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a MultiSelect
+```
+
+The `MultiSelect` component is a customizable dropdown selection box that allows users to select multiple items from a list. It includes features such as a search bar, clear selection option, and dynamic data loading. This documentation outlines the component's props, usage, and key functionalities.
+
+### Props Table
+
+| Prop            | Type                | Default Value         | Description                                                                             |
+| --------------- | ------------------- | --------------------- | --------------------------------------------------------------------------------------- |
+| `placeholder`   | `String`            | `"Select an Item..."` | Placeholder text displayed when no items are selected.                                  |
+| `items`         | `Array` \| `String` | `[]`                  | Array of items to select from or an API endpoint for dynamic loading of items.          |
+| `lazy`          | `Boolean`           | `false`               | If true, the filtering will not occur until the search input changes.                   |
+| `showSearch`    | `Boolean`           | `true`                | If true, displays a search input for filtering items.                                   |
+| `onSelect`      | `Function`          | `undefined`           | Callback function called when selection changes, receiving the array of selected items. |
+| `truncate`      | `Boolean`           | `true`                | If true, truncates the display of selected items when more than three are selected.     |
+| `selectedItems` | `Array`             | `[]`                  | Array of initially selected items.                                                      |
+
+### Usage Guide
+
+To use the `MultiSelect` component, import it into your React application and manage the selected items through a state variable. Below is an example usage of the `MultiSelect` component:
+
+```jsx
+import React, { useState } from "react";
+import { MultiSelect } from "./path/to/MultiSelect";
+
+const ExampleComponent = () => {
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  const handleSelect = (selected) => {
+    setSelectedItems(selected);
+  };
+
+  const items = [
+    { value: "apple", label: "Apple" },
+    { value: "banana", label: "Banana" },
+    { value: "cherry", label: "Cherry" },
+    { value: "date", label: "Date" },
+  ];
+
+  return (
+    <div>
+      <MultiSelect
+        placeholder="Select Fruits"
+        items={items}
+        selectedItems={selectedItems}
+        onSelect={handleSelect}
+        showSearch={true}
+      />
+      <div>
+        <h3>Selected Items:</h3>
+        <ul>
+          {selectedItems.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default ExampleComponent;
+```
+
+#### Key Functionalities
+
+- Multiple Item Selection: Users can select multiple items from the dropdown list.
+- Search Feature: The `showSearch` prop enables a search input to filter the displayed items.
+- Dynamic Data Loading: The component can handle both static item arrays and dynamic loading from an API endpoint.
+- Clear Selection: Users can clear all selected items with a clear button.
+
+#### Notes
+
+- Ensure to provide `items` as an array of objects with `value` and `label` properties for proper functionality.
+- Use the `onSelect` prop to handle changes in the selection state.
+- The `truncate` prop can be set to false if you want to display all selected items without truncation.

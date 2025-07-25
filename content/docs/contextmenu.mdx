@@ -1,0 +1,58 @@
+---
+category: "Components"
+---
+
+# Context Menu
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a ContextMenu
+```
+
+The `ContextMenu` component provides a customizable right-click menu, allowing users to access additional options in your UI. It comes with default styling that can be easily overridden.
+
+#### Props Table
+
+| Prop       | Type        | Description                                     |
+| ---------- | ----------- | ----------------------------------------------- |
+| `children` | `ReactNode` | Menu items to be displayed in the context menu. |
+
+### Usage Example
+
+Here’s an example of how to use the `ContextMenu` component in your project:
+
+```
+import { ContextMenu, ContextMenuItem, ContextMenuDivider } from 'your-library';
+
+const App = () => {
+  const handleEdit = () => console.log("Edit clicked");
+  const handleDelete = () => console.log("Delete clicked");
+  const handleShare = () => console.log("Share clicked");
+
+  return (
+    <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
+      <div className="p-8 bg-white rounded-lg shadow">
+        <p>Right-click anywhere to see the context menu</p>
+
+        <ContextMenu>
+          <ContextMenuItem onClick={handleEdit}>Edit</ContextMenuItem>
+          <ContextMenuItem onClick={handleDelete} disabled>Delete</ContextMenuItem>
+          <ContextMenuDivider />
+          <ContextMenuItem onClick={handleShare}>Share</ContextMenuItem>
+        </ContextMenu>
+      </div>
+    </div>
+  );
+};
+
+export default App;
+```
+
+### Customization
+
+You can customize the appearance of the context menu and its items by overriding the default styles. For instance, you can add additional Tailwind CSS classes directly to the components:
+
+```
+<ContextMenuItem className="text-blue-500 font-semibold" />
+```

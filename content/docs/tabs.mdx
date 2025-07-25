@@ -1,0 +1,74 @@
+---
+category: "Components"
+---
+
+# Tabs
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Tabs
+```
+
+A simple and accessible tab interface component built with React. It supports dynamic content rendering, disabled tabs, and customizable styles.
+
+### Props
+
+#### `TabsProps`
+
+| Prop            | Type                                 | Description                                                                   |
+| --------------- | ------------------------------------ | ----------------------------------------------------------------------------- |
+| `tabs`          | `TabItem[]`                          | An array of tab definitions. Each item must have an `id` and `label`.         |
+| `defaultTabId`  | `string`                             | The ID of the tab that should be active initially. Defaults to the first tab. |
+| `renderContent` | `(activeTabId: string) => ReactNode` | A render function to display content based on the active tab.                 |
+| `onChange`      | `(tabId: string) => void`            | Callback fired when the tab changes.                                          |
+| `className`     | `string`                             | Additional classes to apply to the root container.                            |
+
+Tab Item
+
+| Property   | Type      | Description                    |
+| ---------- | --------- | ------------------------------ |
+| `id`       | `string`  | Unique identifier for the tab. |
+| `label`    | `string`  | Display text for the tab.      |
+| `disabled` | `boolean` | Whether the tab is disabled.   |
+
+### Usage Example
+
+```tsx
+import { TabItem, Tabs } from "@/component-lib/tabs";
+
+export default function TabsWrapper() {
+  const tabs: TabItem[] = [
+    { id: "total", label: "Total" },
+    { id: "transaction", label: "Transaction" },
+    { id: "day-sale", label: "Day Sale" },
+    { id: "inactive", label: "Inactive Tab", disabled: true },
+  ];
+
+  const renderContent = (activeTabId: string) => {
+    switch (activeTabId) {
+      case "total":
+        return <div>Total content goes here...</div>;
+      case "transaction":
+        return <div>Transaction content goes here...</div>;
+      case "day-sale":
+        return <div>Day Sale content goes here...</div>;
+      default:
+        return <div>No content available</div>;
+    }
+  };
+
+  const handleTabChange = (tabId: string) => {
+    console.log(`Tab changed to: ${tabId}`);
+  };
+
+  return (
+    <Tabs
+      tabs={tabs}
+      defaultTabId="day-sale"
+      renderContent={renderContent}
+      onChange={handleTabChange}
+    />
+  );
+}
+```

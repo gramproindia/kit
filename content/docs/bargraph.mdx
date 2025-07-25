@@ -1,0 +1,71 @@
+---
+category: "Components"
+---
+
+# Bar Graph
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Bargraph
+```
+
+The `BarChart` component is a clean, minimal bar graph component built with React and Tailwind CSS . It allows you to visualize numerical data with hover tooltips, dynamic heights, Y-axis ticks, and optional X-axis value display.
+
+### Props Table
+
+| Prop         | Type                                      | Default   | Description                                                                     |
+| ------------ | ----------------------------------------- | --------- | ------------------------------------------------------------------------------- |
+| `data`       | `Array<{ label: string; value: number }>` | required  | Data to be visualized as bars. Each item must have a label and a numeric value. |
+| `height`     | `number`                                  | `300`     | Total height of the chart container (affects bar scaling).                      |
+| `title`      | `string`                                  | `"Title"` | Title displayed above the chart.                                                |
+| `showXValue` | `boolean`                                 |           |                                                                                 |
+
+### Usage Example
+
+Here’s an example of how to use the `BarChart` component in your React app:
+
+```tsx
+import React from "react";
+import { BarChart } from "path_to_component";
+
+const data = [
+  { label: "Jan", value: 40 },
+  { label: "Feb", value: 55 },
+  { label: "Mar", value: 75 },
+  { label: "Apr", value: 20 },
+  { label: "May", value: 90 },
+];
+
+const App = () => {
+  return (
+    <div className="max-w-xl mx-auto mt-10">
+      <BarChart
+        data={data}
+        height={300}
+        title="Monthly Sales"
+        showXValue={true}
+      />
+    </div>
+  );
+};
+
+export default App;
+```
+
+### Customization
+
+You can customize this component further by tweaking styles or extending the props:
+
+#### Change Bar Color
+
+Replace this part of the code:
+
+```tsx
+<div
+  className={`w-full ${
+    isHovered ? "bg-zinc-800" : "bg-black"
+  } rounded-t ...`}
+```
+
+With a custom color (e.g., Tailwind `bg-blue-600`, or a prop-controlled class).

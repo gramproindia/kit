@@ -1,0 +1,104 @@
+---
+category: "Components"
+---
+
+# Dark Mode
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a DarkMode
+```
+
+The Dark Mode component allows users to toggle between light and dark themes in your application. It automatically detects user preferences and saves the selection in `localStorage`, ensuring a consistent experience across sessions.
+
+#### Props Table
+
+| Prop Name | Type | Default Value | Description                                                                                |
+| --------- | ---- | ------------- | ------------------------------------------------------------------------------------------ |
+| `-`       | `-`  | `-`           | This component does not accept any props directly. It manages its own state for dark mode. |
+
+#### Usage Example
+
+Here’s an example of how to use the Dark Mode component in your project:
+
+```jsx
+import { DarkMode } from "your-library";
+
+const App = () => {
+  return (
+    <div>
+      <h1>Your Application</h1>
+      <DarkMode />
+    </div>
+  );
+};
+
+export default App;
+```
+
+#### Style Update
+
+In Case of Next JS please update the global.css as follows
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* :root {
+  --background: #ffffff;
+  --foreground: #171717;
+} */
+
+html {
+  background-color: #ffffff;
+  color: #171717;
+}
+
+html.dark {
+  background-color: #0a0a0a;
+  color: #ededed;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+} */
+```
+
+Also Add the `darkMode: "class"`
+
+```typescript
+import type { Config } from "tailwindcss";
+
+export default {
+  content: [
+    "./pages/ /*.{js,ts,jsx,tsx,mdx}",
+    "./components/ /*.{js,ts,jsx,tsx,mdx}",
+    "./app/ /*.{js,ts,jsx,tsx,mdx}",
+  ],
+  darkMode: "class", // Add this
+  theme: {
+    extend: {
+      colors: {
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+      },
+    },
+  },
+  plugins: [],
+} satisfies Config;
+```
+
+#### Customization
+
+You can customize the icons displayed in the dark mode toggle by modifying the `elements` prop of the `Icon` component. Ensure the icons for both light and dark modes are defined in your icon paths.

@@ -1,0 +1,78 @@
+---
+category: "Components"
+---
+
+# Dialog
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Dialog
+```
+
+The Dialog component is a reusable modal dialog that allows users to display messages and confirm actions. It can be customized with different messages and button labels, and can be styled using Tailwind CSS.
+
+Props Table
+
+| Prop                     | Type         | Default Value                                                           | Description                                                           |
+| ------------------------ | ------------ | ----------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `showDialog`             | `boolean`    | `false`                                                                 | Controls the visibility of the dialog.                                |
+| `dialogMessage`          | `string`     | `"Are you sure?"`                                                       | The message displayed in the dialog.                                  |
+| `dialogActionOne`        | `string`     | `"OK"`                                                                  | Label for the first action button.                                    |
+| `dialogActionTwo`        | `string`     | `"Cancel"`                                                              | Label for the second action button.                                   |
+| `onDialogActionOneClick` | `() => void` | `undefined`                                                             | Callback function triggered when the first action button is clicked.  |
+| `onDialogActionTwoClick` | `() => void` | `undefined`                                                             | Callback function triggered when the second action button is clicked. |
+| `dialogClass`            | `string`     | `"bg-white p-4 rounded-lg shadow-lg w-96"`                              | Custom class for styling the dialog.                                  |
+| `dialogContentClass`     | `string`     | `"text-lg"`                                                             | Custom class for styling the dialog content.                          |
+| `dialogActionOneStyle`   | `string`     | `"bg-black hover:bg-black text-white font-bold px-2 py-1 rounded mt-4"` | Custom class for styling the first action button.                     |
+| `dialogActionTwoStyle`   | `string`     | `"border text-black font-bold px-2 py-1 rounded mt-4 ml-2"`             | Custom class for styling the second action button.                    |
+
+#### Usage Example
+
+Here's an example of how to use the Dialog component in your application:
+
+```javascript
+import React, { useState } from "react";
+import Dialog from "./Dialog";
+
+const App = () => {
+  const [showDialog, setShowDialog] = useState(false);
+
+  const handleOpenDialog = () => {
+    setShowDialog(true);
+  };
+
+  const handleActionOne = () => {
+    console.log("Action One Clicked");
+    setShowDialog(false);
+  };
+
+  const handleActionTwo = () => {
+    console.log("Action Two Clicked");
+    setShowDialog(false);
+  };
+
+  return (
+    <div className="app-container">
+      <h1 className="text-xl font-bold mb-4">Dialog Example</h1>
+      <button
+        onClick={handleOpenDialog}
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        Open Dialog
+      </button>
+
+      <Dialog
+        showDialog={showDialog}
+        dialogMessage="Do you want to proceed with this action?"
+        dialogActionOne="Yes"
+        dialogActionTwo="No"
+        onDialogActionOneClick={handleActionOne}
+        onDialogActionTwoClick={handleActionTwo}
+      />
+    </div>
+  );
+};
+
+export default App;
+```

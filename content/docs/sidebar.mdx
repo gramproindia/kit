@@ -1,0 +1,162 @@
+---
+category: "Components"
+---
+
+# SideBar
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a SideBar
+```
+
+The `SideBarWrapper` component is a React wrapper around a reusable `Sidebar` component. It configures and provides icons and menu data dynamically, making it easy to manage navigation items for applications like admin panels, dashboards, or SaaS UIs.
+
+### Features
+
+- Dynamically provides icons to the `Sidebar` via an `iconMap`.
+- Uses `initialMenuData` to structure sections and items.
+- Clean integration with SVG icons.
+- Easy to extend and customize.
+
+#### Props&#x20;
+
+| Prop     | Type                        | Description                          |
+| -------- | --------------------------- | ------------------------------------ |
+| menuData | `MenuData`                  | Menu content with sections and items |
+| iconMap  | `Record<string, Component>` | Mapping of menu item keys to icons   |
+
+### Icon Mapping (`iconMap`)
+
+Each entry in the sidebar is represented by a key (e.g., `dashboard`, `payment`) which is mapped to a corresponding icon React component.
+
+```ts
+const DashboardIcon: IconComponent = () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 16a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" />
+    </svg>
+  );
+  const PaymentIcon: IconComponent = () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fillRule="evenodd"
+        d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+
+const iconMap: Record<string, IconComponent> = {
+  dashboard: DashboardIcon,
+  payment: PaymentIcon,
+  ...
+};
+```
+
+### Imports
+
+```tsx
+import { Sidebar } from "@/component-lib/sidebar";
+import { IconComponent } from "@/component-lib/sidebar/type";
+import { initialMenuData } from "@/utils/sidebar";
+import React from "react";
+
+export default function SideBarWrapper() {
+  return <Sidebar menuData={initialMenuData} iconMap={iconMap} />;
+}
+```
+
+### Menu Data (`initialMenuData`)
+
+The `initialMenuData` defines:
+
+- Logo : name and image URL
+- Sections : groupings of sidebar links
+
+Sample structure MenuItem:
+
+```ts
+import { MenuData } from "@/component-lib/sidebar/type";
+import SideBarButton from "@/components/ui/SideBarButton";
+
+// Sample menu data - this can be passed as a prop
+export const initialMenuData: MenuData = {
+  logo: {
+    name: "Sequence",
+    logoUrl: "/file.svg", // Replace with your actual logo path
+  },
+  sections: [
+    {
+      title: "GENERAL",
+      items: [
+        {
+          id: 1,
+          name: "Dashboard",
+          icon: "dashboard",
+          path: "/dashboard",
+          active: true,
+        },
+        { id: 2, name: "Payment", icon: "payment", path: "/payment" },
+        {
+          id: 3,
+          name: "Transaction",
+          icon: "transaction",
+          path: "/transaction",
+        },
+        {
+          id: 4,
+          name: "Cards",
+          icon: "cards",
+          path: "/cards",
+          expandable: true,
+          expanded: false,
+        },
+      ],
+    },
+    {
+      title: "SUPPORT",
+      items: [
+        { id: 5, name: "Capital", icon: "capital", path: "/capital" },
+        { id: 6, name: "Vaults", icon: "vaults", path: "/vaults" },
+        { id: 7, name: "Reports", icon: "reports", path: "/reports" },
+        { id: 8, name: "Earn", icon: "earn", path: "/earn", badge: "150" },
+        {
+          id: 890,
+          name: "Custoime",
+          icon: "earn",
+          type: "custom",
+          component: SideBarButton,
+        }, // Renders Custom Components
+      ],
+    },
+  ],
+  footer: [
+    { id: 9, name: "Settings", icon: "settings", path: "/settings" },
+    { id: 10, name: "Help", icon: "help", path: "/help" },
+    {
+      type: "custom",
+      id: 11,
+      name: "Dark Mode",
+      icon: "pro",
+      toggle: false,
+      active: false,
+      component: SideBarButton, // Renders Custom Components
+    },
+  ],
+  profile: {
+    name: "Young Alaska",
+    email: "young@alaskan.com",
+    avatarUrl: "/avatar.jpg", // Replace with your actual avatar path
+  },
+};
+```

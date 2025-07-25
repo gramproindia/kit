@@ -1,0 +1,69 @@
+---
+category: "Components"
+---
+
+# Input
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Input
+```
+
+The `Input` component is a versatile input field designed for both general text input and OTP (One-Time Password) entry. It supports error handling, password visibility toggling, and customizable styles through Tailwind CSS. This documentation outlines the component's props, usage, and key functionalities.
+
+### Props Table
+
+| Prop               | Type         | Default Value                                                  | Description                                                            |
+| ------------------ | ------------ | -------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `OTPField`         | `Boolean`    | `false`                                                        | If true, renders the component as an OTP input field.                  |
+| `OTPValue`         | `String`     | `""`                                                           | The current value of the OTP input fields.                             |
+| `OTPLength`        | `Number`     | `4`                                                            | The number of OTP input fields to render.                              |
+| `OTPClass`         | `String`     | `"w-8 h-10 m-1 border border-gray-600 rounded-lg text-center"` | CSS classes for the OTP input fields.                                  |
+| `onOTPValueChange` | `Function`   | `undefined`                                                    | Callback function executed when the OTP value changes.                 |
+| `error`            | `String`     | `undefined`                                                    | Error message to display below the input field when validation fails.  |
+| `...props`         | `InputProps` | `{}`                                                           | Other props passed to the input element (e.g., `type`, `placeholder`). |
+
+### Usage Guide
+
+To use the `Input` component, you can import it into your React application and provide the necessary props. Below is an example usage of the `Input` component:
+
+```jsx
+import React, { useState } from "react";
+import { Input } from "./path/to/Input";
+
+const ExampleComponent = () => {
+  const [otp, setOtp] = useState("");
+
+  const handleOTPChange = (value) => {
+    setOtp(value);
+  };
+
+  return (
+    <div>
+      <h1>Enter OTP</h1>
+      <Input
+        OTPField={true}
+        OTPValue={otp}
+        onOTPValueChange={handleOTPChange}
+        OTPLength={6}
+        error={otp.length < 6 ? "Please enter a 6-digit OTP" : undefined}
+      />
+    </div>
+  );
+};
+
+export default ExampleComponent;
+```
+
+#### Key Functionalities
+
+- OTP Input: Automatically handles focus transitions between OTP input fields, allowing for a seamless user experience.
+- Password Visibility Toggle: If the input type is set to "password", users can toggle visibility by clicking the eye icon.
+- Error Handling: Displays an error message below the input field when validation fails, such as incomplete OTP entry.
+
+#### Notes
+
+- Ensure the `onOTPValueChange` prop is provided to capture changes in OTP input values.
+- The `OTPClass` prop allows customization of the OTP input fields' styles.
+- For password inputs, the component will render a toggle button for visibility.

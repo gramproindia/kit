@@ -1,0 +1,52 @@
+---
+category: "Components"
+---
+
+# Checkbox
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Checkbox
+```
+
+The Checkbox component provides a customizable checkbox input, allowing users to select options in your UI. It comes with default styling that can be easily overridden.
+
+#### Props Table
+
+| Prop Name  | Type                  | Default Value | Description                                                                                                      |
+| ---------- | --------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `...props` | `InputHTMLAttributes` | `-`           | Any additional props that can be passed to the checkbox element, such as `onChange`, `checked`, `disabled`, etc. |
+
+#### Usage Example
+
+Here’s an example of how to use the Checkbox component in your project:
+
+```jsx
+import { Checkbox } from "your-library";
+
+const App = () => {
+  const handleCheckboxChange = (event) => {
+    console.log("Checkbox checked:", event.target.checked);
+  };
+
+  return (
+    <div>
+      <label>
+        <Checkbox onChange={handleCheckboxChange} />
+        Accept Terms and Conditions
+      </label>
+    </div>
+  );
+};
+
+export default App;
+```
+
+#### Customization
+
+You can customize the checkbox's appearance by overriding the default styles. For instance, you can add additional Tailwind CSS classes directly to the component:
+
+```jsx
+<Checkbox className="w-6 h-6 text-blue-500" />
+```

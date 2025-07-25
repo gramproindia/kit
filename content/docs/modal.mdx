@@ -1,0 +1,98 @@
+---
+category: "Components"
+---
+
+# Modal
+
+### Installation
+
+To install the Modal component, use the following command:
+
+```sh
+npx gbs-add-block@latest -a Modal
+```
+
+### Overview
+
+The `Modal` component provides a flexible and customizable modal dialog box for displaying content over a semi-transparent backdrop. It supports automatic closing, customizable styling, and seamless integration into any React application.
+
+### Props Table
+
+| Prop                 | Type                      | Default         | Description                                                         |
+| -------------------- | ------------------------- | --------------- | ------------------------------------------------------------------- |
+| `showModal`          | `boolean`                 | `false`         | Controls the visibility of the modal.                               |
+| `setShowModal`       | `(show: boolean) => void` | Required        | Function to toggle the modal state.                                 |
+| `modalTitle`         | `string`                  | `"Modal Title"` | Title of the modal.                                                 |
+| `modalClass`         | `string`                  | Default styles  | Additional classes for modal styling.                               |
+| `modalContentClass`  | `string`                  | Default styles  | Classes for modal content customization.                            |
+| `classModalContent`  | `string`                  | `""`            | Additional class for modal content.                                 |
+| `modalTitleClass`    | `string`                  | Default styles  | Classes for modal title.                                            |
+| `classModalTitle`    | `string`                  | `""`            | Additional class for modal title.                                   |
+| `children`           | `React.ReactNode`         | Required        | Content to be displayed inside the modal.                           |
+| `showCloseButton`    | `boolean`                 | `false`         | Determines if a close button should be displayed.                   |
+| `dismissible`        | `boolean`                 | `false`         | Allows modal to be dismissed by clicking outside or pressing `Esc`. |
+| `titleId`            | `string`                  | `"modal-title"` | ID for the modal title, useful for accessibility.                   |
+| `closeButtonContent` | `React.ReactNode`         | `undefined`     | Custom close button content.                                        |
+| `animationDuration`  | `number`                  | `200`           | Duration for fade-in and fade-out animations.                       |
+| `showTitle`          | `boolean`                 | `false`         | Shows title in the Modal                                            |
+
+### Usage Guide
+
+To use the Modal component, import it into your React application and manage its visibility with a state variable.
+
+```tsx
+import React, { useState } from "react";
+import { Modal } from "./path/to/Modal";
+
+const ExampleComponent = () => {
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  return (
+    <div>
+      <button onClick={toggleModal} className="btn">
+        Open Modal
+      </button>
+
+      <Modal
+        showModal={isModalVisible}
+        setShowModal={setModalVisible}
+        modalTitle="Example Modal"
+        modalContentClass="bg-white rounded-lg shadow-lg"
+        showCloseButton={true}
+        dismissible={true}
+      >
+        <p>This is the content of the modal!</p>
+        <button onClick={toggleModal} className="btn">
+          Close
+        </button>
+      </Modal>
+    </div>
+  );
+};
+
+export default ExampleComponent;
+```
+
+### Key Functionalities
+
+#### 1. Visibility Control
+
+- The modal's visibility is managed via the `showModal` prop and the `setShowModal` function.
+
+#### 2. Automatic Closing
+
+- The `dismissible` prop allows users to close the modal by clicking outside it or pressing `Esc`.
+
+#### 3. Customizable Styling
+
+- You can customize the modal's appearance using Tailwind CSS classes, particularly via `modalClass`, `modalContentClass`, and `modalTitleClass`.
+
+### Notes
+
+- Ensure to provide `children` for the content displayed inside the modal.
+- Customize modal styles by overriding the default classes.
+- When using the `dismissible` feature, ensure it does not close unexpectedly, maintaining a good user experience.

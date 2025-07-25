@@ -1,7 +1,5 @@
 ---
-title: "Data Grid"
-description: "Learn how to get started with our components"
-order: 3
+category: "Components"
 ---
 
 import { DataGridWrapper } from "@components/DataGridWrapper";
@@ -16,7 +14,7 @@ npx gbs-add-block@latest -a DataGrid
 
 The DataGrid component is a customizable and feature-rich data grid built with React. It supports functionalities such as pagination, filtering, searching, and exporting data to Excel and PDF formats. This documentation outlines the component's props, usage, and key functionalities.
 
-#### **Default**
+#### Default
 
 <DataGridWrapper />
 
@@ -100,10 +98,10 @@ export default ExampleComponent;
 
 #### Key Functionalities
 
-- **Pagination:** Navigate through pages using provided pagination controls.
-- **Filtering:** Apply filters to columns with the option to clear filters.
-- **Searching:** Utilize the global search feature to find specific data entries.
-- **Exporting Data:** Export the grid data as Excel or PDF files with customizable names.
+- Pagination: Navigate through pages using provided pagination controls.
+- Filtering: Apply filters to columns with the option to clear filters.
+- Searching: Utilize the global search feature to find specific data entries.
+- Exporting Data: Export the grid data as Excel or PDF files with customizable names.
 
 ### Usage of template
 
@@ -418,21 +416,21 @@ export default ExampleComponent;
 
 ### API Documentation for fetching data
 
-#### **Query Parameters**
+#### Query Parameters
 
 | Parameter      | Type           | Required | Description                                                          |
 | -------------- | -------------- | -------- | -------------------------------------------------------------------- |
 | `page`         | number         | No       | Page number (default: 1)                                             |
 | `pageSize`     | number         | No       | Number of items per page (default: 10, max: 100)                     |
 | `filters`      | string         | No       | JSON string array of filters. Can include a special "search" filter. |
-| `isExportCall` | boolean/string | No       | If `true`, returns **all** filtered results, bypassing pagination    |
+| `isExportCall` | boolean/string | No       | If `true`, returns all filtered results, bypassing pagination        |
 
-#### **Filter Object Format (JSON string in `filters`)**
+#### Filter Object Format (JSON string in `filters`)
 
 Each object in the `filters` array can be:
 
-- A **search object**: `{ type: "search", value: "john" }`
-- A **filter object**:
+- A search object : `{ type: "search", value: "john" }`
+- A filter object :
 
 ```json
 {
@@ -443,7 +441,7 @@ Each object in the `filters` array can be:
 }
 ```
 
-**Supported Conditions:**
+Supported Conditions:
 
 - `contains`
 - `equals`
@@ -455,7 +453,7 @@ Each object in the `filters` array can be:
 
 ---
 
-#### **Response Format**
+#### Response Format
 
 ```json
 {
@@ -478,7 +476,7 @@ Each object in the `filters` array can be:
 
 ---
 
-#### **Error Responses**
+#### Error Responses
 
 - `400 Bad Request`: Invalid pagination parameters.
 - `500 Internal Server Error`: Any other unhandled error.
