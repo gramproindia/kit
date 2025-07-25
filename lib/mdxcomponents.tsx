@@ -130,11 +130,8 @@ export const mdxComponents = {
 
   // Tables
   table: ({ children, ...props }: any) => (
-    <div className="my-6 overflow-x-auto">
-      <table
-        className="min-w-full border-collapse border border-gray-300 dark:border-gray-600"
-        {...props}
-      >
+    <div className="my-6 overflow-x-auto rounded-2xl border-collapse border border-gray-300 dark:border-gray-600">
+      <table className="min-w-full border-collapse" {...props}>
         {children}
       </table>
     </div>
