@@ -14,9 +14,9 @@ export default async function Layout({
   params,
 }: {
   children: ReactNode;
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
+  const { slug } = await params;
   const filePath = path.join(process.cwd(), "content", "docs", `${slug}.mdx`);
 
   let source;
