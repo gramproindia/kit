@@ -22,8 +22,15 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
+            echo "👉 Pulling latest code"
             cd /var/www/headlessdocs
             git pull origin main
+
+            echo "👉 Installing dependencies"
             npm install
+
+            echo "👉 Building project"
             npm run build
+
+            echo "👉 Restarting pm2"
             pm2 restart headlessdocs
