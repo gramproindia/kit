@@ -2,7 +2,7 @@
 category: "Components"
 ---
 
-import { Button } from "../../component-lib/button";
+import { ButtonWrapper } from "@/app/components/examples";
 
 # Button
 
@@ -14,10 +14,6 @@ npx gbs-add-block@latest -a Button
 
 The Button component is a versatile and customizable button that serves as a foundational building block for your UI. It accepts various props to allow for flexibility in styling and functionality
 
-#### Default Button
-
-<Button>Click Me!</Button>
-
 #### Props Table
 
 | Prop Name     | Type                   | Default Value                                                  | Description                                                                                        |
@@ -26,22 +22,30 @@ The Button component is a versatile and customizable button that serves as a fou
 | `buttonClass` | `string`               | `"px-2 py-1 bg-black text-white rounded-md hover:bg-gray-700"` | Custom CSS classes for styling the button.                                                         |
 | `...props`    | `ButtonHTMLAttributes` | `-`                                                            | Any additional props that can be passed to the button element, such as `onClick`, `disabled`, etc. |
 
+### Example
+
+<ButtonWrapper />
+
 #### Usage Example
 
 Heres an example of how to use the Button component in your project:
 
 ```jsx
-import { Button } from "your-library";
+import { Button } from "@/component-lib/button";
 
-const App = () => {
+export const ButtonWrapper = () => {
   return (
-    <div>
-      <Button onClick={() => alert("Button clicked!")}>Click Me!</Button>
+    <div className="flex gap-4">
+      <Button>Click Me!</Button>
+      <Button className="bg-red-800 px-2 py-1 rounded-2xl cursor-pointer">
+        Click Me!
+      </Button>
+      <Button className="border px-2 py-1 rounded-2xl cursor-pointer">
+        Click Me!
+      </Button>
     </div>
   );
 };
-
-export default App;
 ```
 
 #### Customization

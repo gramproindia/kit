@@ -1,8 +1,17 @@
 import React, { ReactNode } from "react";
 import { Button } from "@/component-lib/button";
-import DataGridWrapper from "@/app/components/DataGridWrapper";
+import DataGridWrapper from "@/app/components/examples/DataGridWrapper";
 import { CodeBlock } from "@/app/components/CodeBlock";
 import FeatureCarousel from "@/app/components/FeatureCarousal";
+import {
+  BarGraphWrapper,
+  BreadcrumbWrapper,
+  ButtonWrapper,
+  CardWrapper,
+  DatePickerWrapper,
+  DialogWrapper,
+} from "@/app/components/examples";
+import { ContextMenuWrapper } from "@/app/components/examples/ContextMenuWrapper";
 
 const createHeadingComponent = (level: number) => {
   return ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
@@ -192,4 +201,11 @@ export const mdxComponents = {
   FeatureCarousel,
   Button,
   DataGridWrapper,
+  BarGraphWrapper,
+  BreadcrumbWrapper,
+  ButtonWrapper,
+  CardWrapper,
+  ContextMenuWrapper,
+  DatePickerWrapper,
+  DialogWrapper,
 };
