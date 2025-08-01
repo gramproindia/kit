@@ -2,6 +2,7 @@
 
 import { slides } from "@/lib/featurecarousal";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
 const FeatureCarousel = () => {
@@ -28,7 +29,7 @@ const FeatureCarousel = () => {
         >
           {slides.map((slide) => (
             <div key={slide.id} className="w-full flex-shrink-0">
-              <a href={slide.link} target="_blank" rel="noopener noreferrer">
+              <Link href={slide.link} rel="noopener noreferrer">
                 <Image
                   src={slide.src}
                   alt={`Slide ${slide.id}`}
@@ -36,7 +37,7 @@ const FeatureCarousel = () => {
                   height={450}
                   className="w-full object-cover hover:opacity-90 transition-opacity duration-200"
                 />
-              </a>
+              </Link>
             </div>
           ))}
         </div>
