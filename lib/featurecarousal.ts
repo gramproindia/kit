@@ -2,16 +2,16 @@ export const slides = [
   {
     id: 1,
     src: "/images/frame1.png",
-    link: "https://example.com/mountain",
+    link: "https://gramprokit.vercel.app/docs/superstate",
   },
   {
     id: 2,
     src: "/images/frame2.png",
-    link: "https://example.com/beach",
+    link: "https://gbs-form-builder.vercel.app/bblock-chat",
   },
   {
     id: 3,
     src: "/images/frame3.png",
-    link: "https://example.com/forest",
+    link: "https://gramprokit.vercel.app/docs/formrenderer",
   },
 ];
