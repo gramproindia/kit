@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { MessageCircle, X, Minimize2 } from "lucide-react";
+import { MessageCircle, X, Minimize2, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 interface FloatingChatbotProps {
   chatbotUrl?: string;
@@ -117,13 +118,9 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
               <span className="font-medium text-sm">{chatTitle}</span>
             </div>
             <div className="flex items-center space-x-1">
-              <button
-                onClick={minimizeChat}
-                className="p-1 hover:bg-white/20 rounded transition-colors duration-200"
-                aria-label="Minimize chat"
-              >
-                <Minimize2 className="w-4 h-4" />
-              </button>
+              <Link href={chatbotUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="w-4 h-4" />
+              </Link>
               <button
                 onClick={closeChat}
                 className="p-1 hover:bg-white/20 rounded transition-colors duration-200"
