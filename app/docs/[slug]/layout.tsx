@@ -17,11 +17,19 @@ export default async function Layout({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const filePath = path.join(process.cwd(), "content", "docs", `${slug}.mdx`);
+  const filePath = path.join(
+    process.cwd(),
+    "app",
+    "content",
+    "docs",
+    `${slug}.mdx`
+  );
 
   let source;
   try {
     source = await fs.readFile(filePath, "utf8");
+    console.log(`Reading file: ${filePath}`);
+    console.log(`File content: ${source}`);
   } catch {
     notFound();
   }

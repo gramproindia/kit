@@ -32,7 +32,7 @@ function formatTitle(filename: string): string {
 
 // Get all docs and organize them
 export async function getDocsStructure(): Promise<DocsStructure> {
-  const docsDir = path.join(process.cwd(), "content", "docs");
+  const docsDir = path.join(process.cwd(), "app", "content", "docs");
 
   try {
     const files = await fs.readdir(docsDir);
