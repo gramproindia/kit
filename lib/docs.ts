@@ -35,31 +35,47 @@ export async function getDocsStructure(): Promise<DocsStructure> {
   const docsDir = path.join(process.cwd(), "app", "content", "docs");
 
   try {
+    // Check if directory exists
+    await fs.access(docsDir);
+
     const files = await fs.readdir(docsDir);
     const mdxFiles = files.filter(
       (file) => file.endsWith(".mdx") || file.endsWith(".md")
     );
 
+    if (mdxFiles.length === 0) {
+      console.warn("No MDX files found in docs directory");
+      return {
+        categories: [],
+        uncategorized: [],
+      };
+    }
+
     const docs: DocItem[] = [];
 
     // Process each file
     for (const file of mdxFiles) {
-      const filePath = path.join(docsDir, file);
-      const fileContent = await fs.readFile(filePath, "utf8");
-      const { data: frontMatter } = matter(fileContent);
+      try {
+        const filePath = path.join(docsDir, file);
+        const fileContent = await fs.readFile(filePath, "utf8");
+        const { data: frontMatter } = matter(fileContent);
 
-      const slug = file.replace(/\.mdx?$/, "");
+        const slug = file.replace(/\.mdx?$/, "");
 
-      const docItem: DocItem = {
-        slug,
-        title: frontMatter.title || formatTitle(slug),
-        description: frontMatter.description,
-        order: frontMatter.order || 999,
-        category: frontMatter.category,
-        href: `/docs/${slug}`,
-      };
+        const docItem: DocItem = {
+          slug,
+          title: frontMatter.title || formatTitle(slug),
+          description: frontMatter.description,
+          order: frontMatter.order || 999,
+          category: frontMatter.category,
+          href: `/docs/${slug}`,
+        };
 
-      docs.push(docItem);
+        docs.push(docItem);
+      } catch (fileError) {
+        console.error(`Error processing file ${file}:`, fileError);
+        // Continue processing other files
+      }
     }
 
     // Sort docs by order
@@ -98,6 +114,7 @@ export async function getDocsStructure(): Promise<DocsStructure> {
     };
   } catch (error) {
     console.error("Error reading docs directory:", error);
+    // Return empty structure instead of throwing
     return {
       categories: [],
       uncategorized: [],
