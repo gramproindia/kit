@@ -13,6 +13,8 @@ import {
 } from "@/app/components/examples";
 import { ContextMenuWrapper } from "@/app/components/examples/ContextMenuWrapper";
 import Notice from "@/app/components/Notice";
+import { MaterialInputWrapper } from "@/app/components/examples/MaterialInputWrapper";
+import { FileUploaderWrapper } from "@/app/components/examples/UploaderWrapper";
 
 const createHeadingComponent = (level: number) => {
   return ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
@@ -209,5 +211,7 @@ export const mdxComponents = {
   ContextMenuWrapper,
   DatePickerWrapper,
   DialogWrapper,
+  MaterialInputWrapper,
+  FileUploaderWrapper,
   Notice,
 };
