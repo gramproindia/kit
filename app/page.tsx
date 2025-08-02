@@ -50,6 +50,8 @@ export default function Home() {
             rotate-90
           </span>{" "}
           that can be composed to build any design, directly in your markup.
+          BTW, Yeah we copied this page from Tailwind CSS landing page, but we
+          are not ashamed of it.
         </p>
       </div>
 
