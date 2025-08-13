@@ -71,7 +71,7 @@ export const CodeBlock = ({ children, className, ...props }: any) => {
           fontSize: "0.875rem",
           lineHeight: "1.5",
         }}
-        showLineNumbers={codeContent.split("\n").length > 3}
+        showLineNumbers={false}
         wrapLines={true}
         wrapLongLines={true}
         {...props}
