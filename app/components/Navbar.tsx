@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import DocSearch from "./searchBox";
 
 export default function Navbar() {
   return (
@@ -65,6 +66,7 @@ export default function Navbar() {
             </button>
           </div>
           <div className="flex items-center gap-6 max-md:hidden">
+            <DocSearch />
             <Link
               className="text-sm/6 text-gray-950 dark:text-white"
               href="/docs/getting-started"
