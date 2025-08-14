@@ -1,0 +1,80 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- Gradients for dragonfly bodies -->
+        <linearGradient id="bodyGradient1" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#2E5BBA;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="bodyGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#E94B4B;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#C73E3E;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="bodyGradient3" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#50E3C2;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#3BB3A4;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <!-- Dragonfly 1 -->
+    <g>
+        <animateTransform attributeName="transform" attributeType="XML" type="translate"
+            values="-100,300; 200,250; 500,200; 900,150" dur="8s" repeatCount="indefinite" />
+        <!-- Wings -->
+        <ellipse cx="-20" cy="0" rx="25" ry="8" fill="#87CEEB" opacity="0.6">
+            <animateTransform attributeName="transform" type="rotate" values="-45 0 0; 45 0 0; -45 0 0" dur="0.3s"
+                repeatCount="indefinite" />
+        </ellipse>
+        <ellipse cx="20" cy="0" rx="25" ry="8" fill="#87CEEB" opacity="0.6">
+            <animateTransform attributeName="transform" type="rotate" values="45 0 0; -45 0 0; 45 0 0" dur="0.3s"
+                repeatCount="indefinite" />
+        </ellipse>
+        <!-- Body & head -->
+        <ellipse cx="0" cy="0" rx="3" ry="20" fill="url(#bodyGradient1)" />
+        <circle cx="0" cy="-18" r="4" fill="#4A90E2" />
+        <!-- Eyes -->
+        <circle cx="-2" cy="-20" r="1.5" fill="#000" opacity="0.8" />
+        <circle cx="2" cy="-20" r="1.5" fill="#000" opacity="0.8" />
+        <circle cx="-1.5" cy="-20.5" r="0.3" fill="white" />
+        <circle cx="2.5" cy="-20.5" r="0.3" fill="white" />
+    </g>
+
+    <!-- Dragonfly 2 -->
+    <g>
+        <animateTransform attributeName="transform" attributeType="XML" type="translate"
+            values="850,100; 600,200; 300,350; -150,500" dur="10s" repeatCount="indefinite" />
+        <ellipse cx="-20" cy="0" rx="25" ry="8" fill="#FFD700" opacity="0.7">
+            <animateTransform attributeName="transform" type="rotate" values="-45 0 0; 45 0 0; -45 0 0" dur="0.1s"
+                repeatCount="indefinite" />
+        </ellipse>
+        <ellipse cx="20" cy="0" rx="25" ry="8" fill="#FFD700" opacity="0.7">
+            <animateTransform attributeName="transform" type="rotate" values="45 0 0; -45 0 0; 45 0 0" dur="0.1s"
+                repeatCount="indefinite" />
+        </ellipse>
+        <ellipse cx="0" cy="0" rx="3" ry="20" fill="url(#bodyGradient2)" />
+        <circle cx="0" cy="-18" r="4" fill="#E94B4B" />
+        <circle cx="-2" cy="-20" r="1.5" fill="#000" opacity="0.8" />
+        <circle cx="2" cy="-20" r="1.5" fill="#000" opacity="0.8" />
+        <circle cx="-1.5" cy="-20.5" r="0.3" fill="white" />
+        <circle cx="2.5" cy="-20.5" r="0.3" fill="white" />
+    </g>
+
+    <!-- Dragonfly 3 -->
+    <g>
+        <animateTransform attributeName="transform" attributeType="XML" type="translate"
+            values="-120,500; 100,400; 500,350; 820,-50" dur="9s" repeatCount="indefinite" />
+        <ellipse cx="-20" cy="0" rx="25" ry="8" fill="#72e24a" opacity="0.6">
+            <animateTransform attributeName="transform" type="rotate" values="-45 0 0; 45 0 0; -45 0 0" dur="0.3s"
+                repeatCount="indefinite" />
+        </ellipse>
+        <ellipse cx="20" cy="0" rx="25" ry="8" fill="#72e24a" opacity="0.6">
+            <animateTransform attributeName="transform" type="rotate" values="45 0 0; -45 0 0; 45 0 0" dur="0.3s"
+                repeatCount="indefinite" />
+        </ellipse>
+        <ellipse cx="0" cy="0" rx="3" ry="20" fill="url(#bodyGradient3)" />
+        <circle cx="0" cy="-18" r="4" fill="#72e24a" />
+        <circle cx="-2" cy="-20" r="1.5" fill="#000" opacity="0.8" />
+        <circle cx="2" cy="-20" r="1.5" fill="#000" opacity="0.8" />
+        <circle cx="-1.5" cy="-20.5" r="0.3" fill="white" />
+        <circle cx="2.5" cy="-20.5" r="0.3" fill="white" />
+    </g>
+</svg>

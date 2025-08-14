@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { MessageCircle, X, Minimize2, ExternalLink } from "lucide-react";
 import Link from "next/link";
+// import Image from "next/image";
 
 interface FloatingChatbotProps {
   chatbotUrl?: string;
@@ -91,7 +92,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
         ) : (
           <MessageCircle className="w-6 h-6 transition-transform duration-300" />
         )}
-
+        {/* <Image src={"/pookalam.svg"} width={80} height={80} alt="pookalam" /> */}
         {/* Pulse effect when closed */}
         {!isOpen && (
           <div

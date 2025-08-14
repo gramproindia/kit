@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import FloatingChatbot from "./components/ChatBot";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* <div className="fixed inset-0 w-full h-full -z-10">
+          <Image
+            src={"/flies.svg"}
+            className="w-full h-full object-cover"
+            alt="flies"
+            fill
+          />
+        </div> */}
+
         <Navbar />
         <FloatingChatbot />
         {children}
