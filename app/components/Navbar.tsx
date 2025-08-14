@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import React from "react";
 import DocSearch from "./searchBox";
@@ -75,9 +77,9 @@ export default function Navbar() {
             </Link>
             <Link
               className="text-sm/6 text-gray-950 dark:text-white"
-              href="/blog"
+              href="/bug-tracker"
             >
-              Blog
+              Bug Report
             </Link>
             <Link
               className="text-sm/6 text-gray-950 dark:text-white"
