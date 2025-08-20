@@ -5,6 +5,27 @@ import React from "react";
 import DocSearch from "./searchBox";
 
 export default function Navbar() {
+  const [latestVersion, setLatestVersion] = React.useState("v1.1");
+
+  const getLatestVersion = async () => {
+    try {
+      const response = await fetch(
+        "https://registry.npmjs.org/gbs-add-block/latest"
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setLatestVersion(data.version);
+    } catch (error) {
+      console.error("Failed to fetch latest version:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    getLatestVersion();
+  }, []);
+
   return (
     <nav className="">
       <div className="relative before:absolute before:top-0 before:h-px before:w-[200vw] before:bg-gray-950/5 dark:before:bg-white/10 before:-left-[100vw] after:absolute after:bottom-0 after:h-px after:w-[200vw] after:bg-gray-950/5 dark:after:bg-white/10 after:-left-[100vw]">
@@ -50,21 +71,7 @@ export default function Navbar() {
               aria-expanded="false"
               data-headlessui-state=""
             >
-              v1.1
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                aria-hidden="true"
-                data-slot="icon"
-                className="size-4 fill-gray-400"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
+              v{latestVersion}
             </button>
           </div>
           <div className="flex items-center gap-6 max-md:hidden">
