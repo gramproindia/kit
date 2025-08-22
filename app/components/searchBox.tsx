@@ -23,7 +23,7 @@ interface DocSearchProps {
 const DocSearch: React.FC<DocSearchProps> = ({
   onNavigate,
   className = "",
-  placeholder = "Search documentation...",
+  placeholder = "Ctrl + k to Search...",
 }) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -34,6 +34,21 @@ const DocSearch: React.FC<DocSearchProps> = ({
   const searchRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>(null);
+
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleGlobalKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleGlobalKeyDown);
+    };
+  }, []);
 
   // Debounced search function
   const performSearch = async (searchQuery: string) => {
