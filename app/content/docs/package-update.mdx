@@ -1,0 +1,42 @@
+---
+title: "Package Updates"
+description: "Learn how package updates can affect your components and best practices to manage customizations"
+category: "Introduction"
+order: 3
+---
+
+import Notice from "@/app/components/Notice";
+
+# Package Updates and Component Overwriting
+
+<Notice message="Good to know: The Headless UI Component Library is designed to provide seamless updates via npm. This ensures that you always have access to the latest features, bug fixes, and improvements. but this will cause a overwritten of the component in your project!" />
+
+#### **Important Note on Component Edits**
+
+While updates are convenient, it's crucial to understand that any direct modifications made to the components after they've been added to your project will be **overwritten** during an update. This can result in the loss of custom styles or functionality that you have implemented.
+
+#### **Best Practices to Manage Component Customization**
+
+To prevent losing your customizations during package updates, consider the following best practices:
+
+1.  **Use Wrapper Components:** Create wrapper components around the headless components. This allows you to maintain your custom logic and styles without directly modifying the library components.
+
+    ```jsx
+    import { YourComponent } from "your-library";
+
+    const CustomComponent = (props) => {
+      return (
+        <YourComponent className="custom-styles" {...props}>
+          {/* Additional custom content */}
+        </YourComponent>
+      );
+    };
+
+    export default CustomComponent;
+    ```
+
+2.  **Maintain a Separate Stylesheet:** Keep your custom styles in a separate CSS or Tailwind CSS file. This way, your styles won't be affected by library updates.
+3.  **Version Control:** Use version control systems (like Git) to track your changes. This way, you can easily revert back if necessary.
+4.  **Regularly Check for Updates:** Stay informed about the updates to the library and review the changelog. This will help you anticipate any changes that might affect your custom components.
+
+By following these practices, you can effectively manage your components and ensure that your customizations remain intact even after updates.
