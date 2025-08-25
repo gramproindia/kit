@@ -141,6 +141,148 @@ The changes can be consumed from the parent (where you consume Grid) as below:
 />
 ```
 
+##### createTemplate
+
+Use the createTemplate function to create inline templates(Recommended for simple templates):
+
+```tsx
+import { DataGrid } from "component-lib/datagrid";
+import logoDark from "./logo-dark.svg";
+import React from "react";
+import { createTemplate } from "component-lib/datagrid/createTemplate";
+
+const DialogCell = ({ rowData, config }: any) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <>
+      <button
+        className={config.buttonClassName || "border rounded-2xl p-1"}
+        onClick={() => setIsOpen(true)}
+      >
+        {config.buttonText || "Show Data"}
+      </button>
+      {isOpen && (
+        <dialog
+          open
+          className="w-96 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white dark:bg-zinc-800 rounded-lg shadow-lg"
+        >
+          <div className="p-4">
+            <h3 className="text-lg font-semibold">{config.title || "Data"}</h3>
+            <pre className="p-2 rounded text-xs bg-zinc-100 dark:bg-zinc-700 mt-2">
+              {JSON.stringify(rowData, null, 2)}
+            </pre>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+              onClick={() => setIsOpen(false)}
+            >
+              Close
+            </button>
+          </div>
+        </dialog>
+      )}
+    </>
+  );
+};
+
+// Sample data
+const randData = Array.from({ length: 100 }, (_, i) => ({
+  id: i + 1,
+  name: `User ${i + 1}`,
+  age: Math.floor(Math.random() * 50) + 20,
+  job: `Engineer Level ${Math.floor(Math.random() * 10) + 1}`,
+  employementLevel: `Level ${Math.floor(Math.random() * 10) + 1}`,
+}));
+
+export function Welcome() {
+  const handleDataChange = (id: string | number, field: string, value: any) => {
+    console.log(`Updated row ${id}, field ${field} to:`, value);
+  };
+
+  const columns = [
+    { field: "id", headerText: "ID", width: 50 },
+    {
+      field: "name",
+      headerText: "Name",
+      width: 150,
+      tooltip: true,
+      template: createTemplate("input", {
+        field: "name",
+        placeholder: "Enter name",
+        onDataChange: handleDataChange,
+      }),
+    },
+    {
+      field: "age",
+      headerText: "Age",
+      width: 150,
+      filter: true,
+      type: "number",
+      template: createTemplate("input", {
+        field: "age",
+        type: "number",
+        placeholder: "Enter age",
+        onDataChange: handleDataChange,
+      }),
+    },
+    {
+      field: "employementLevel",
+      headerText: "Employment Level",
+      width: 150,
+      template: createTemplate("select", {
+        field: "employementLevel",
+        options: Array.from({ length: 5 }, (_, i) => `Level ${i + 1}`),
+        onDataChange: handleDataChange,
+      }),
+    },
+    {
+      field: "job",
+      headerText: "Job",
+      width: 150,
+      template: createTemplate("input", {
+        field: "job",
+        placeholder: "Enter job",
+        onDataChange: handleDataChange,
+      }),
+    },
+    {
+      field: "showData",
+      headerText: "Show Data",
+      width: 100,
+      template: createTemplate(
+        "custom",
+        {
+          field: "showData",
+          buttonText: "Show Data",
+          title: "Row Data",
+        },
+        DialogCell
+      ),
+    },
+  ];
+
+  return (
+    <main className="flex flex-col items-start justify-center min-h-screen">
+      <img src={logoDark} alt="logo" className="ml-20 w-32" />
+      <div className="text-xs mt-1 pl-20">Project Code Low</div>
+      <div className="w-full px-20 mt-2">
+        <DataGrid
+          dataSource={randData}
+          columns={columns}
+          pageSettings={{ pageNumber: 10 }}
+          enableSearch={true}
+          enableExcelExport={true}
+          excelName="User_Data"
+          enablePdfExport={true}
+          pdfName="User_Data"
+          enableEditing
+        />
+      </div>
+    </main>
+  );
+}
+```
+
 Advanced Example can be found here: [https://github.com/anandhuremanan/headless-gbs-components/blob/main/examples/gridTemplate.tsx](https://github.com/anandhuremanan/headless-gbs-components/blob/main/examples/gridTemplate.tsx)
 
 ### Server Side Pagination Using Managed Flow
