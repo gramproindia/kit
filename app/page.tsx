@@ -5,6 +5,8 @@ import { Search, ArrowRight, Code2, Layers, Zap } from "lucide-react";
 import Link from "next/link";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { ContainerTextFlip } from "@/component-lib/container-text-flip";
+import { GlareCard } from "@/component-lib/glare-card";
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -36,7 +38,11 @@ export default function Home() {
                 </div>
 
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8 leading-[1.1]">
-                  Build modern interfaces
+                  Build{" "}
+                  <ContainerTextFlip
+                    words={["better", "modern", "stylish", "awesome"]}
+                  />{" "}
+                  interfaces
                   <br />
                   <span className="text-gray-400">without the complexity</span>
                 </h1>
@@ -131,7 +137,7 @@ export const ButtonWrapper = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
-                <div className="group p-8 rounded-2xl border border-gray-200 hover:shadow-lg transition-all duration-300">
+                <GlareCard className="group p-8 rounded-2xl hover:shadow-lg transition-all duration-300">
                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors duration-300">
                     <Layers className="w-6 h-6 text-blue-600" />
                   </div>
@@ -142,9 +148,9 @@ export const ButtonWrapper = () => {
                     Over 50 professionally designed components built with
                     accessibility and performance in mind.
                   </p>
-                </div>
+                </GlareCard>
 
-                <div className="group p-8 rounded-2xl border border-gray-200 hover:shadow-lg transition-all duration-300">
+                <GlareCard className="group p-8 rounded-2xl hover:shadow-lg transition-all duration-300">
                   <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-purple-100 transition-colors duration-300">
                     <Code2 className="w-6 h-6 text-purple-600" />
                   </div>
@@ -155,9 +161,9 @@ export const ButtonWrapper = () => {
                     Comprehensive utility system for spacing, typography,
                     colors, and responsive design patterns.
                   </p>
-                </div>
+                </GlareCard>
 
-                <div className="group p-8 rounded-2xl border border-gray-200 hover:shadow-lg transition-all duration-300">
+                <GlareCard className="group p-8 rounded-2xl hover:shadow-lg transition-all duration-300">
                   <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-100 transition-colors duration-300">
                     <Zap className="w-6 h-6 text-green-600" />
                   </div>
@@ -168,7 +174,7 @@ export const ButtonWrapper = () => {
                     TypeScript support, excellent documentation, and tools that
                     make development a pleasure.
                   </p>
-                </div>
+                </GlareCard>
               </div>
             </div>
           </div>
