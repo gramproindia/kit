@@ -141,6 +141,20 @@ The changes can be consumed from the parent (where you consume Grid) as below:
 />
 ```
 
+##### Column Options
+
+| Option        | Type                | Description                                                                 |
+|---------------|---------------------|-----------------------------------------------------------------------------|
+| `field`       | string              | The key in your dataset that maps to this column.                           |
+| `headerText`  | string              | The display name of the column in the header.                               |
+| `width`       | number              | Sets the column width in pixels.                                            |
+| `tooltip`     | boolean             | Enables tooltip for cells with long/overflowing content.                    |
+| `template`    | function / template | Custom template or renderer for the cell.                                   |
+| `filter`      | boolean             | Enables filter option for this column.                                      |
+| `showInPdf`   | boolean             | Shows the column value in PDF export. Default is `false` for templated cols.|
+| `showInExcel` | boolean             | Shows the column value in Excel export. Default is `false` for templated cols.|
+
+
 ##### createTemplate
 
 Use the createTemplate function to create inline templates(Recommended for simple templates):
