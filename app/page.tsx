@@ -7,6 +7,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { ContainerTextFlip } from "@/component-lib/container-text-flip";
 import { GlareCard } from "@/component-lib/glare-card";
+import { TextHoverEffect } from "@/component-lib/text-hover-effect";
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -32,7 +33,7 @@ export default function Home() {
               }`}
             >
               <div className="text-center mb-16">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full text-sm font-medium text-gray-700 mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 dark:bg-gray-50 bg-gray-300 rounded-full text-sm font-medium text-gray-700 mb-8">
                   <div className="w-2 h-2 bg-green-500 rounded-full" />
                   Announcing v1.2 – Now with advanced theming
                 </div>
@@ -138,7 +139,7 @@ export const ButtonWrapper = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
                 <GlareCard className="group p-8 rounded-2xl hover:shadow-lg transition-all duration-300">
-                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors duration-300">
+                  <div className="w-12 h-12 bg-blue-200 dark:bg-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors duration-300">
                     <Layers className="w-6 h-6 text-blue-600" />
                   </div>
                   <h3 className="text-xl font-semibold mb-3">
@@ -151,7 +152,7 @@ export const ButtonWrapper = () => {
                 </GlareCard>
 
                 <GlareCard className="group p-8 rounded-2xl hover:shadow-lg transition-all duration-300">
-                  <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-purple-100 transition-colors duration-300">
+                  <div className="w-12 h-12 bg-purple-200 dark:bg-purple-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-purple-100 transition-colors duration-300">
                     <Code2 className="w-6 h-6 text-purple-600" />
                   </div>
                   <h3 className="text-xl font-semibold mb-3">
@@ -164,7 +165,7 @@ export const ButtonWrapper = () => {
                 </GlareCard>
 
                 <GlareCard className="group p-8 rounded-2xl hover:shadow-lg transition-all duration-300">
-                  <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-100 transition-colors duration-300">
+                  <div className="w-12 h-12 bg-green-200 dark:bg-green-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-100 transition-colors duration-300">
                     <Zap className="w-6 h-6 text-green-600" />
                   </div>
                   <h3 className="text-xl font-semibual mb-3">
@@ -179,6 +180,8 @@ export const ButtonWrapper = () => {
             </div>
           </div>
         </main>
+
+        <TextHoverEffect text="Grampro KIT" />
 
         {/* Footer */}
         <footer className="px-6 sm:px-8 lg:px-12 py-12">
