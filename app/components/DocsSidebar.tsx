@@ -29,7 +29,7 @@ export function DocsSidebar({ docsStructure }: DocsSidebarProps) {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <aside className="hidden md:block w-64 border-r border-gray-200 dark:border-gray-700 h-screen sticky top-0 overflow-y-auto">
+    <aside className="hidden md:block w-64 dark:border-gray-700 h-screen sticky top-0 overflow-y-auto">
       <div className="p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">
           Documentation

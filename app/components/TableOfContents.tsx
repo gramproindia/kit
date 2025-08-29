@@ -59,7 +59,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
   }
 
   return (
-    <aside className="hidden md:block w-64 border-l border-gray-200">
+    <aside className="hidden md:block w-64">
       <div className="sticky top-0 max-h-screen overflow-y-auto p-6">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 uppercase tracking-wide">
           On This Page
