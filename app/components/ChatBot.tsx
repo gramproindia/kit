@@ -15,7 +15,7 @@ interface FloatingChatbotProps {
 const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
   chatbotUrl = "https://gbs-form-builder.vercel.app/bblock-chat",
   buttonPosition = "bottom-right",
-  primaryColor = "from-blue-500 to-purple-600",
+  primaryColor = "bg-blue-500",
   chatTitle = "AI Assistant",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -106,7 +106,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
         <div
           className={`fixed ${
             positions.widget
-          } z-40 transition-all duration-300 ease-in-out
+          } transition-all z-50 duration-300 ease-in-out
           ${isMinimized ? "w-80 h-12" : "w-96 h-[600px] max-h-[80vh]"}`}
         >
           {/* Chat Header */}
