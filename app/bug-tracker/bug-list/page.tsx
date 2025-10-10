@@ -231,6 +231,11 @@ export default function BugListPage() {
       <div className="max-w-7xl mx-auto p-6">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-red-800">{error}</p>
+          <div className="text-zinc-500 text-sm mt-2">
+            Sometimes this error may occur due to the inactivity of DB to save
+            computational cost,
+            <br /> please contact R&D for resolve this issue
+          </div>
           <button
             onClick={fetchBugs}
             className="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
@@ -405,9 +410,7 @@ export default function BugListPage() {
                 onClick={() => setSelectedBug(bug)}
               >
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold line-clamp-1">
-                    {bug.title}
-                  </h3>
+                  <h3 className="font-semibold line-clamp-1">{bug.title}</h3>
                   <span className="text-sm text-gray-500">#{bug.id}</span>
                 </div>
 
