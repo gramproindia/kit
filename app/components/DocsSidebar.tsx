@@ -47,7 +47,7 @@ export function DocsSidebar({ docsStructure }: DocsSidebarProps) {
                   : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
             >
-              <FileText size={16} />
+              {/* <FileText size={16} /> */}
               {doc.title}
             </Link>
           ))}
@@ -60,7 +60,7 @@ export function DocsSidebar({ docsStructure }: DocsSidebarProps) {
                 className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <Folder size={16} />
+                  {/* <Folder size={16} /> */}
                   {category.name}
                 </div>
                 {expandedCategories.has(category.name) ? (
@@ -82,7 +82,7 @@ export function DocsSidebar({ docsStructure }: DocsSidebarProps) {
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
                       }`}
                     >
-                      <FileText size={14} />
+                      {/* <FileText size={14} /> */}
                       {doc.title}
                     </Link>
                   ))}
