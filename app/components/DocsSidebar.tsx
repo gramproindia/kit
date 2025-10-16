@@ -89,10 +89,10 @@ export function DocsSidebar({ docsStructure }: DocsSidebarProps) {
                     <Link
                       key={doc.slug}
                       href={doc.href}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                      className={`flex items-center gap-2 py-2 rounded-md text-sm transition-colors ${
                         isActive(doc.href)
-                          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
+                          ? "text-blue-700 font-bold"
+                          : "text-gray-600 dark:text-gray-400 hover:font-bold hover:text-gray-900 dark:hover:text-gray-300"
                       }`}
                     >
                       {doc.title}

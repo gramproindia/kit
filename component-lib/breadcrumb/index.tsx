@@ -5,8 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+"use client";
+
 import React from "react";
-import { useLocation } from "@grampro/headless-helpers";
+import { useLocation } from "./useLocation";
 import Icon from "../icon/Icon";
 import { rightArrow } from "../icon/iconPaths";
 import { BreadcrumbsProps } from "./types";
