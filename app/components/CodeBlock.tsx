@@ -41,11 +41,11 @@ export const CodeBlock = ({ children, className, ...props }: any) => {
   return (
     <div className="relative my-6 group">
       {/* Language label and copy button */}
-      <div className="flex items-center justify-between bg-gray-800 dark:bg-gray-950 text-gray-300 px-4 py-2 text-xs font-medium rounded-t-lg border-b border-gray-700">
+      <div className="flex items-center justify-between dark:bg-black px-4 py-2 text-xs font-medium rounded-t-lg border border-gray-700">
         <span className="uppercase tracking-wide">{language}</span>
         <button
           onClick={copyToClipboard}
-          className="flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-700 dark:hover:bg-gray-800 transition-colors opacity-0 group-hover:opacity-100"
+          className="flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors opacity-0 group-hover:opacity-100"
           title="Copy code"
         >
           {copied ? (

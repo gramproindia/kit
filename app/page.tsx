@@ -68,7 +68,7 @@ export default function Home() {
                     Quick search
                     <div className="flex items-center gap-1 ml-2">
                       <kbd className="px-2 py-1 bg-gray-100 rounded text-xs font-mono text-gray-500">
-                        ⌘K
+                        ctrl + K
                       </kbd>
                     </div>
                   </button>

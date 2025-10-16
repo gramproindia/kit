@@ -142,20 +142,20 @@ export const mdxComponents = {
 
   // Tables
   table: ({ children, ...props }: any) => (
-    <div className="my-6 overflow-x-auto rounded-2xl border-collapse border border-gray-300 dark:border-gray-600">
-      <table className="min-w-full border-collapse" {...props}>
+    <div className="my-6 overflow-x-auto">
+      <table className="min-w-full" {...props}>
         {children}
       </table>
     </div>
   ),
   thead: ({ children, ...props }: any) => (
-    <thead className="bg-gray-100 dark:bg-gray-800" {...props}>
+    <thead className="border-b border-gray-200 dark:border-gray-800" {...props}>
       {children}
     </thead>
   ),
   th: ({ children, ...props }: any) => (
     <th
-      className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold text-gray-900 dark:text-gray-100"
+      className="px-4 py-2 text-left font-semibold text-gray-900 dark:text-gray-100"
       {...props}
     >
       {children}
@@ -163,7 +163,7 @@ export const mdxComponents = {
   ),
   td: ({ children, ...props }: any) => (
     <td
-      className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-gray-700 dark:text-gray-300"
+      className="border-b border-gray-200 dark:border-gray-800 px-4 py-2 text-gray-700 dark:text-gray-300"
       {...props}
     >
       {children}

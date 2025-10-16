@@ -15,7 +15,7 @@ export async function DocsLayout({ content, tocItems }: DocsLayoutProps) {
   const docsStructure = await getDocsStructure();
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen md:px-10">
       <ScrollToTop />
       <DocsSidebar docsStructure={docsStructure} />
       <main className="flex-1 overflow-x-auto">

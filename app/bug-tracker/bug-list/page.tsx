@@ -248,7 +248,7 @@ export default function BugListPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="p-6 md:px-16 md:py-6">
       {/* Header */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>

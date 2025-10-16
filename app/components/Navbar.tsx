@@ -27,7 +27,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="relative z-50">
+    <header className="relative z-50 md:px-10">
       <div className="relative before:absolute before:top-0 before:h-px before:w-[200vw] before:bg-gray-950/5 dark:before:bg-white/10 before:-left-[100vw] after:absolute after:bottom-0 after:h-px after:w-[200vw] after:bg-gray-950/5 dark:after:bg-white/10 after:-left-[100vw]">
         <div className="flex h-14 items-center justify-between gap-8 px-4 sm:px-6">
           <div className="flex items-center gap-4">
