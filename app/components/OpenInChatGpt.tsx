@@ -43,9 +43,11 @@ export default function OpenInChatGpt() {
     >
       <div className="flex gap-2 font-semibold text-sm items-center">
         <ChatGPTLogo />
-        <div>Open in ChatGPT</div>
+        <div className="hidden md:block">Open in ChatGPT</div>
       </div>
-      <div className="text-xs dark:text-zinc-300 text-zinc-500">Ask Questions about this page</div>
+      <div className="text-xs dark:text-zinc-300 text-zinc-500 hidden md:block">
+        Ask Questions about this page
+      </div>
     </Link>
   );
 }

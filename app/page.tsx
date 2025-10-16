@@ -33,7 +33,7 @@ export default function Home() {
               }`}
             >
               <div className="text-center mb-16">
-                <div className="inline-flex items-center gap-2 px-4 py-2 dark:bg-gray-50 bg-gray-300 rounded-full text-sm font-medium text-gray-700 mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 dark:bg-gray-50 bg-gray-300 rounded-full text-xs font-medium text-gray-700 mb-8">
                   <div className="w-2 h-2 bg-green-500 rounded-full" />
                   Announcing v1.2 – Now with advanced theming
                 </div>
@@ -84,7 +84,7 @@ export default function Home() {
                   : "opacity-0 translate-y-8"
               }`}
             >
-              <div className="bg-zinc-900 rounded-2xl p-8 mb-24 max-w-4xl mx-auto shadow-2xl">
+              <div className="bg-zinc-900 rounded-2xl px-4 py-6 mb-24 max-w-4xl mx-auto shadow-2xl">
                 <div className="flex items-center gap-2 mb-6">
                   <div className="w-3 h-3 bg-red-500 rounded-full" />
                   <div className="w-3 h-3 bg-yellow-500 rounded-full" />

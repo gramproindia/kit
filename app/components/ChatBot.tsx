@@ -106,8 +106,8 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
         <div
           className={`fixed ${
             positions.widget
-          } transition-all z-50 duration-300 ease-in-out
-          ${isMinimized ? "w-80 h-12" : "w-96 h-[600px] max-h-[80vh]"}`}
+          } transition-all z-100 duration-300 ease-in-out
+          ${isMinimized ? "w-80 h-12" : "w-86 h-[600px] max-h-[80vh]"}`}
         >
           {/* Chat Header */}
           <div
