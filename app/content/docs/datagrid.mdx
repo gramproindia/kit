@@ -12,6 +12,12 @@ Installation
 npx gbs-add-block@latest -a DataGrid
 ```
 
+Please make sure to install the peer dependencies as well.
+
+```bash
+npm install @grampro/headless-helpers@latest
+```
+
 The DataGrid component is a customizable and feature-rich data grid built with React. It supports functionalities such as pagination, filtering, searching, and exporting data to Excel and PDF formats. This documentation outlines the component's props, usage, and key functionalities.
 
 #### Default
@@ -143,17 +149,16 @@ The changes can be consumed from the parent (where you consume Grid) as below:
 
 ##### Column Options
 
-| Option        | Type                | Description                                                                 |
-|---------------|---------------------|-----------------------------------------------------------------------------|
-| `field`       | string              | The key in your dataset that maps to this column.                           |
-| `headerText`  | string              | The display name of the column in the header.                               |
-| `width`       | number              | Sets the column width in pixels.                                            |
-| `tooltip`     | boolean             | Enables tooltip for cells with long/overflowing content.                    |
-| `template`    | function / template | Custom template or renderer for the cell.                                   |
-| `filter`      | boolean             | Enables filter option for this column.                                      |
-| `showInPdf`   | boolean             | Shows the column value in PDF export. Default is `false` for templated cols.|
-| `showInExcel` | boolean             | Shows the column value in Excel export. Default is `false` for templated cols.|
-
+| Option        | Type                | Description                                                                    |
+| ------------- | ------------------- | ------------------------------------------------------------------------------ |
+| `field`       | string              | The key in your dataset that maps to this column.                              |
+| `headerText`  | string              | The display name of the column in the header.                                  |
+| `width`       | number              | Sets the column width in pixels.                                               |
+| `tooltip`     | boolean             | Enables tooltip for cells with long/overflowing content.                       |
+| `template`    | function / template | Custom template or renderer for the cell.                                      |
+| `filter`      | boolean             | Enables filter option for this column.                                         |
+| `showInPdf`   | boolean             | Shows the column value in PDF export. Default is `false` for templated cols.   |
+| `showInExcel` | boolean             | Shows the column value in Excel export. Default is `false` for templated cols. |
 
 ##### createTemplate
 
