@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import FloatingChatbot from "./components/ChatBot";
+import { siteConfig } from "@/site.config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +16,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GramproKit Docs",
-  description: "By Research and Development Team, Grampro",
+  title: siteConfig.metadata.title,
+  description: siteConfig.metadata.description,
+  keywords: siteConfig.metadata.keywords,
+  authors: siteConfig.metadata.authors,
+  creator: siteConfig.metadata.creator,
+  openGraph: siteConfig.metadata.openGraph,
+  twitter: siteConfig.metadata.twitter,
+  metadataBase: new URL(siteConfig.baseUrl),
 };
 
 export default function RootLayout({

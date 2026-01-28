@@ -4,6 +4,7 @@ import Link from "next/link";
 import React from "react";
 import DocSearch from "./searchBox";
 import dynamic from "next/dynamic";
+import { siteConfig } from "@/site.config";
 
 const MobileSearch = dynamic(() => import("./MobileSearch"), { ssr: false });
 
@@ -80,28 +81,19 @@ export default function Navbar() {
           </div>
           <div className="flex items-center gap-6 max-md:hidden">
             <DocSearch />
-            <Link
-              className="text-sm/6 text-gray-950 dark:text-white"
-              href="/docs/getting-started"
-            >
-              Docs
-            </Link>
-            <Link
-              className="text-sm/6 text-gray-950 dark:text-white"
-              href="/bug-tracker"
-            >
-              Bug Report
-            </Link>
-            <Link
-              className="text-sm/6 text-gray-950 dark:text-white"
-              href="/showcase"
-            >
-              Showcase
-            </Link>
+            {siteConfig.nav.map((item) => (
+              <Link
+                key={item.href}
+                className="text-sm/6 text-gray-950 dark:text-white"
+                href={item.href}
+              >
+                {item.label}
+              </Link>
+            ))}
 
             <Link
               aria-label="GitHub repository"
-              href="https://github.com/anandhuremanan/headless-gbs-components"
+              href={siteConfig.socials.github}
             >
               <svg
                 viewBox="0 0 20 20"

@@ -10,6 +10,7 @@ import { mdxComponents } from "@/lib/mdxcomponents";
 import { TableOfContents } from "@/app/components/TableOfContents";
 import OpenInChatGpt from "@/app/components/OpenInChatGpt";
 import { Breadcrumb } from "@/component-lib/breadcrumb";
+import { siteConfig } from "@/site.config";
 
 export async function generateStaticParams() {
   try {
@@ -46,10 +47,24 @@ export async function generateMetadata({
 
     const source = await fs.readFile(filePath, "utf8");
     const { data: frontMatter } = matter(source);
+    const title = frontMatter.title || slug;
+    const description = frontMatter.description || siteConfig.description;
 
     return {
-      title: frontMatter.title || slug,
-      description: frontMatter.description,
+      title,
+      description,
+      openGraph: {
+        title: `${title} | ${siteConfig.name}`,
+        description,
+        type: "article",
+        url: `${siteConfig.baseUrl}/docs/${slug}`,
+        siteName: siteConfig.name,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${title} | ${siteConfig.name}`,
+        description,
+      },
     };
   } catch (error) {
     return {
