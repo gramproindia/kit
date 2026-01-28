@@ -2,6 +2,14 @@ import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { extractTocFromMdx } from "@/lib/toc";
+import { compileMDX } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
+import { mdxComponents } from "@/lib/mdxcomponents";
+import { TableOfContents } from "@/app/components/TableOfContents";
+import OpenInChatGpt from "@/app/components/OpenInChatGpt";
+import { Breadcrumb } from "@/component-lib/breadcrumb";
 
 export async function generateStaticParams() {
   try {
@@ -50,6 +58,62 @@ export async function generateMetadata({
   }
 }
 
-export default function DocsPage() {
-  return null;
+export default async function DocsPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+
+  const filePath = path.join(
+    process.cwd(),
+    "app",
+    "content",
+    "docs",
+    `${slug}.mdx`
+  );
+
+  let source;
+  try {
+    await fs.access(filePath);
+    source = await fs.readFile(filePath, "utf8");
+  } catch (error) {
+    console.error(`Failed to read file: ${filePath}`, error);
+    notFound();
+  }
+
+  let tocItems;
+  let mdxResult;
+
+  try {
+    tocItems = extractTocFromMdx(source);
+    mdxResult = await compileMDX({
+      source,
+      components: mdxComponents,
+      options: {
+        parseFrontmatter: true,
+        mdxOptions: {
+          remarkPlugins: [remarkGfm],
+        },
+      },
+    });
+  } catch (error) {
+    console.error(`Failed to compile MDX for ${slug}:`, error);
+    notFound();
+  }
+
+  return (
+    <>
+      <main className="flex-1 overflow-x-auto">
+        <article className="flex-1 max-w-4xl mx-auto py-12 px-6">
+          <div className="flex justify-between items-center">
+            <Breadcrumb />
+            <OpenInChatGpt />
+          </div>
+          {mdxResult.content}
+        </article>
+      </main>
+      <TableOfContents items={tocItems} />
+    </>
+  );
 }

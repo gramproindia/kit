@@ -18,12 +18,14 @@ interface DocSearchProps {
   onNavigate?: (href: string) => void;
   className?: string;
   placeholder?: string;
+  autoFocus?: boolean;
 }
 
 const DocSearch: React.FC<DocSearchProps> = ({
   onNavigate,
   className = "",
   placeholder = "Ctrl + k to Search...",
+  autoFocus = false,
 }) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -219,6 +221,7 @@ const DocSearch: React.FC<DocSearchProps> = ({
           onFocus={() => {
             if (results.length > 0) setIsOpen(true);
           }}
+          autoFocus={autoFocus}
           placeholder={placeholder}
           className="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
                    bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100

@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
+import { cache } from "react";
 
 export interface DocItem {
   slug: string;
@@ -65,7 +66,7 @@ function createExcerpt(content: string, maxLength: number = 150): string {
 }
 
 // Enhanced function to get docs with search capability
-export async function getDocsStructure(
+export const getDocsStructure = cache(async function (
   includeContent: boolean = false
 ): Promise<DocsStructure> {
   const docsDir = path.join(process.cwd(), "app", "content", "docs");
@@ -162,7 +163,7 @@ export async function getDocsStructure(
       uncategorized: [],
     };
   }
-}
+});
 
 // Search function
 export async function searchDocs(
@@ -173,7 +174,7 @@ export async function searchDocs(
 
   const { categories, uncategorized } = await getDocsStructure(true);
   const allDocs: DocItem[] = [
-    ...categories.flatMap((cat) => cat.items),
+    ...categories.flatMap((cat: DocCategory) => cat.items),
     ...uncategorized,
   ];
 

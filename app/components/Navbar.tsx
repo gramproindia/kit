@@ -3,9 +3,13 @@
 import Link from "next/link";
 import React from "react";
 import DocSearch from "./searchBox";
+import dynamic from "next/dynamic";
+
+const MobileSearch = dynamic(() => import("./MobileSearch"), { ssr: false });
 
 export default function Navbar() {
   const [latestVersion, setLatestVersion] = React.useState("v1.1");
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = React.useState(false);
 
   const getLatestVersion = async () => {
     try {
@@ -111,6 +115,7 @@ export default function Navbar() {
             <button
               type="button"
               aria-label="Search"
+              onClick={() => setIsMobileSearchOpen(true)}
               className="inline-grid size-7 place-items-center rounded-md"
             >
               <svg viewBox="0 0 16 16" fill="currentColor" className="size-4">
@@ -134,6 +139,10 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      <MobileSearch
+        isOpen={isMobileSearchOpen}
+        onClose={() => setIsMobileSearchOpen(false)}
+      />
     </header>
   );
 }
