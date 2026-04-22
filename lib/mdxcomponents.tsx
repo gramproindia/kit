@@ -15,6 +15,7 @@ import { ContextMenuWrapper } from "@/app/components/examples/ContextMenuWrapper
 import Notice from "@/app/components/Notice";
 import { MaterialInputWrapper } from "@/app/components/examples/MaterialInputWrapper";
 import { FileUploaderWrapper } from "@/app/components/examples/UploaderWrapper";
+import BugWarning from "@/app/components/BugWarning";
 
 const createHeadingComponent = (level: number) => {
   return ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
@@ -22,8 +23,8 @@ const createHeadingComponent = (level: number) => {
       typeof children === "string"
         ? children
         : Array.isArray(children)
-        ? children.join("")
-        : "";
+          ? children.join("")
+          : "";
 
     const id = text
       .toLowerCase()
@@ -47,7 +48,7 @@ const createHeadingComponent = (level: number) => {
         className: baseClasses[level as keyof typeof baseClasses],
         ...props,
       },
-      children
+      children,
     );
   };
 };
@@ -214,4 +215,5 @@ export const mdxComponents = {
   MaterialInputWrapper,
   FileUploaderWrapper,
   Notice,
+  BugWarning,
 };
