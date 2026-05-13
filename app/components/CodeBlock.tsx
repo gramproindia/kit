@@ -41,7 +41,7 @@ export const CodeBlock = ({ children, className, ...props }: any) => {
   return (
     <div className="relative my-6 group">
       {/* Language label and copy button */}
-      <div className="flex items-center justify-between dark:bg-black px-4 py-2 text-xs font-medium rounded-t-lg border border-gray-700">
+      <div className="flex items-center justify-between dark:bg-zinc-900 border border-zinc-800/50 px-4 py-2 text-xs font-medium rounded-t-lg">
         <span className="uppercase tracking-wide">{language}</span>
         <button
           onClick={copyToClipboard}
