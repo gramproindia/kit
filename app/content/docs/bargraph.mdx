@@ -16,12 +16,13 @@ The `BarChart` component is a clean, minimal bar graph component built with Reac
 
 ### Props Table
 
-| Prop         | Type                                      | Default   | Description                                                                     |
-| ------------ | ----------------------------------------- | --------- | ------------------------------------------------------------------------------- |
-| `data`       | `Array<{ label: string; value: number }>` | required  | Data to be visualized as bars. Each item must have a label and a numeric value. |
-| `height`     | `number`                                  | `300`     | Total height of the chart container (affects bar scaling).                      |
-| `title`      | `string`                                  | `"Title"` | Title displayed above the chart.                                                |
-| `showXValue` | `boolean`                                 |           |                                                                                 |
+| Prop         | Type                                      | Default      | Description                                                                     |
+| ------------ | ----------------------------------------- | ------------ | ------------------------------------------------------------------------------- |
+| `data`       | `Array<{ label: string; value: number }>` | required     | Data to be visualized as bars. Each item must have a label and a numeric value. |
+| `height`     | `number`                                  | `300`        | Total height of the chart container (affects bar scaling).                      |
+| `title`      | `string`                                  | `"Title"`    | Title displayed above the chart.                                                |
+| `showXValue` | `boolean`                                 |              |                                                                                 |
+| `barColor`   | `string`                                  | `"bg-black"` | Tailwind CSS class for bar color. Can be customized via props.                  |
 
 ### Example
 
@@ -75,5 +76,3 @@ Replace this part of the code:
 ```
 
 With a custom color (e.g., Tailwind `bg-blue-600`, or a prop-controlled class).
-
-

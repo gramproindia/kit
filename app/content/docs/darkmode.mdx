@@ -37,66 +37,27 @@ const App = () => {
 export default App;
 ```
 
-#### Style Update
+#### Toggling dark mode manually
 
-In Case of Next JS please update the global.css as follows
+If you want your dark theme to be driven by a CSS selector instead of the prefers-color-scheme media query, override the dark variant to use your custom selector:
+
+app.css
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* :root {
-  --background: #ffffff;
-  --foreground: #171717;
-} */
-
-html {
-  background-color: #ffffff;
-  color: #171717;
-}
-
-html.dark {
-  background-color: #0a0a0a;
-  color: #ededed;
-}
-
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-} */
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark _));
 ```
 
-Also Add the `darkMode: "class"`
+Now instead of dark:\_ utilities being applied based on prefers-color-scheme, they will be applied whenever the dark class is present earlier in the HTML tree:
 
-```typescript
-import type { Config } from "tailwindcss";
-
-export default {
-  content: [
-    "./pages/ /*.{js,ts,jsx,tsx,mdx}",
-    "./components/ /*.{js,ts,jsx,tsx,mdx}",
-    "./app/ /*.{js,ts,jsx,tsx,mdx}",
-  ],
-  darkMode: "class", // Add this
-  theme: {
-    extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
-    },
-  },
-  plugins: [],
-} satisfies Config;
+```html
+<html class="dark">
+  <body>
+    <div class="bg-white dark:bg-black">
+      <!-- ... -->
+    </div>
+  </body>
+</html>
 ```
 
 #### Customization
