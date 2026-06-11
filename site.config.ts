@@ -5,7 +5,10 @@ export const siteConfig = {
   nav: [
     { label: "Docs", href: "/docs/getting-started" },
     { label: "Bug Report", href: "/bug-tracker" },
-    { label: "Showcase", href: "/showcase" },
+    {
+      label: "Download Source",
+      href: "https://github.com/anandhuremanan/headless-gbs-components/archive/refs/heads/main.zip",
+    },
   ],
   socials: {
     github: "https://github.com/anandhuremanan/headless-gbs-components",
@@ -17,7 +20,13 @@ export const siteConfig = {
       default: "GramproKit Docs",
     },
     description: "By Research and Development Team, Grampro",
-    keywords: ["Next.js", "React", "Tailwind CSS", "Component Library", "Documentation"],
+    keywords: [
+      "Next.js",
+      "React",
+      "Tailwind CSS",
+      "Component Library",
+      "Documentation",
+    ],
     authors: [{ name: "Grampro R&D Team" }],
     creator: "Grampro",
     openGraph: {
