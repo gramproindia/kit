@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { Button } from "@/component-lib/button";
 import DataGridWrapper from "@/app/components/examples/DataGridWrapper";
-import { CodeBlock } from "@/app/components/CodeBlock";
+import { CodeBlock, PreBlock } from "@/app/components/CodeBlock";
 import FeatureCarousel from "@/app/components/FeatureCarousal";
 import {
   BarGraphWrapper,
@@ -129,7 +129,7 @@ export const mdxComponents = {
 
   // Code
   code: CodeBlock,
-  pre: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  pre: PreBlock,
 
   // Blockquotes
   blockquote: ({ children, ...props }: any) => (

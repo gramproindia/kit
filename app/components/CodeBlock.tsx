@@ -1,36 +1,16 @@
 "use client";
 
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
-export const CodeBlock = ({ children, className, ...props }: any) => {
+export const PreBlock = ({ children, ...props }: any) => {
   const [copied, setCopied] = useState(false);
-  const isInline = !className;
+  const preRef = useRef<HTMLPreElement>(null);
 
-  // Handle inline code
-  if (isInline) {
-    return (
-      <code
-        className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-red-600 dark:text-red-400"
-        {...props}
-      >
-        {children}
-      </code>
-    );
-  }
-
-  // Extract language from className (format: "language-javascript")
-  const language = className?.replace(/language-/, "") || "text";
-
-  // Get the code content as string
-  const codeContent = String(children).replace(/\n$/, "");
-
-  // Copy to clipboard function
   const copyToClipboard = async () => {
+    const code = preRef.current?.querySelector("code")?.textContent || "";
     try {
-      await navigator.clipboard.writeText(codeContent);
+      await navigator.clipboard.writeText(code);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -38,46 +18,60 @@ export const CodeBlock = ({ children, className, ...props }: any) => {
     }
   };
 
+  // Extract the language from the data-language attribute on the child <code>
+  const codeChild = Array.isArray(children) ? children[0] : children;
+  const language = codeChild?.props?.["data-language"] || "";
+
   return (
-    <div className="relative my-6 group">
-      {/* Language label and copy button */}
-      <div className="flex items-center justify-between dark:bg-zinc-900 border border-zinc-800/50 px-4 py-2 text-xs font-medium rounded-t-lg">
-        <span className="uppercase tracking-wide">{language}</span>
+    <div className="code-block-wrapper group relative my-6">
+      {/* Header bar */}
+      <div className="code-block-header flex items-center justify-between px-4 py-2 text-xs font-medium rounded-t-xl">
+        <span className="uppercase tracking-wider opacity-60">{language}</span>
         <button
           onClick={copyToClipboard}
-          className="flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors opacity-0 group-hover:opacity-100"
+          className="flex items-center gap-1.5 px-2 py-1 rounded-md cursor-pointer transition-all duration-200 opacity-0 group-hover:opacity-100 hover:bg-white/10"
           title="Copy code"
         >
           {copied ? (
             <>
-              <Check size={14} />
+              <Check size={13} />
               <span>Copied!</span>
             </>
           ) : (
             <>
-              <Copy size={14} />
+              <Copy size={13} />
               <span>Copy</span>
             </>
           )}
         </button>
       </div>
+      {/* Code block */}
+      <pre ref={preRef} {...props} className="code-block-pre">
+        {children}
+      </pre>
+    </div>
+  );
+};
 
-      <SyntaxHighlighter
-        language={language}
-        style={oneDark}
-        customStyle={{
-          margin: 0,
-          borderRadius: "0 0 0.5rem 0.5rem",
-          fontSize: "0.875rem",
-          lineHeight: "1.5",
-        }}
-        showLineNumbers={false}
-        wrapLines={true}
-        wrapLongLines={true}
+export const CodeBlock = ({ children, className, ...props }: any) => {
+  // Inline code (no data-language or className from rehype-pretty-code)
+  const isInline = !props["data-language"] && !className?.includes("language-");
+
+  if (isInline) {
+    return (
+      <code
+        className="inline-code px-1.5 py-0.5 rounded-md text-[0.85em] font-mono font-medium"
         {...props}
       >
-        {codeContent}
-      </SyntaxHighlighter>
-    </div>
+        {children}
+      </code>
+    );
+  }
+
+  // Block code — already highlighted by rehype-pretty-code
+  return (
+    <code className={className} {...props}>
+      {children}
+    </code>
   );
 };

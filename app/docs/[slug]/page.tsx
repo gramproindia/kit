@@ -6,11 +6,21 @@ import { notFound } from "next/navigation";
 import { extractTocFromMdx } from "@/lib/toc";
 import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
+import rehypePrettyCode from "rehype-pretty-code";
 import { mdxComponents } from "@/lib/mdxcomponents";
 import { TableOfContents } from "@/app/components/TableOfContents";
 import OpenInChatGpt from "@/app/components/OpenInChatGpt";
 import { Breadcrumb } from "@/component-lib/breadcrumb";
 import { siteConfig } from "@/site.config";
+
+/** @type {import('rehype-pretty-code').Options} */
+const prettyCodeOptions = {
+  theme: {
+    dark: "github-dark-dimmed",
+    light: "github-light",
+  },
+  keepBackground: false,
+};
 
 export async function generateStaticParams() {
   try {
@@ -109,6 +119,7 @@ export default async function DocsPage({
         parseFrontmatter: true,
         mdxOptions: {
           remarkPlugins: [remarkGfm],
+          rehypePlugins: [[rehypePrettyCode, prettyCodeOptions]],
         },
       },
     });

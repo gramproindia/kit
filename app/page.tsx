@@ -26,11 +26,10 @@ export default function Home() {
         <main className="px-6 sm:px-8 lg:px-12 pt-16 pb-24">
           <div className="max-w-7xl mx-auto">
             <div
-              className={`transition-all duration-1000 ${
-                isLoaded
+              className={`transition-all duration-1000 ${isLoaded
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-8"
-              }`}
+                }`}
             >
               <div className="text-center mb-16">
                 <div className="inline-flex items-center gap-2 px-4 py-2 dark:bg-gray-50 bg-gray-300 rounded-full text-xs font-medium text-gray-700 mb-8">
@@ -78,11 +77,10 @@ export default function Home() {
 
             {/* Code Example */}
             <div
-              className={`transition-all duration-1000 delay-200 ${
-                isLoaded
+              className={`transition-all duration-1000 delay-200 ${isLoaded
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-8"
-              }`}
+                }`}
             >
               <div className="bg-zinc-900 rounded-2xl px-4 py-6 mb-24 max-w-4xl mx-auto shadow-2xl">
                 <div className="flex items-center gap-2 mb-6">
@@ -121,11 +119,10 @@ export const ButtonWrapper = () => {
 
             {/* Features Grid */}
             <div
-              className={`transition-all duration-1000 delay-400 ${
-                isLoaded
+              className={`transition-all duration-1000 delay-400 ${isLoaded
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-8"
-              }`}
+                }`}
             >
               <div className="text-center mb-16">
                 <h2 className="text-4xl font-bold mb-4">
@@ -187,7 +184,7 @@ export const ButtonWrapper = () => {
         <footer className="px-6 sm:px-8 lg:px-12 py-12">
           <div className="max-w-7xl mx-auto text-center text-gray-500 text-sm">
             <p>
-              © 2025 ComponentLib. Built with care for the developer community.
+              © 2026 ComponentLib. Built with care for the developer community.
             </p>
           </div>
         </footer>
