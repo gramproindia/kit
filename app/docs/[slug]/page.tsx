@@ -7,6 +7,7 @@ import { extractTocFromMdx } from "@/lib/toc";
 import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
+import { remarkMermaid } from "@/lib/remark-mermaid";
 import { mdxComponents } from "@/lib/mdxcomponents";
 import { TableOfContents } from "@/app/components/TableOfContents";
 import OpenInChatGpt from "@/app/components/OpenInChatGpt";
@@ -118,7 +119,7 @@ export default async function DocsPage({
       options: {
         parseFrontmatter: true,
         mdxOptions: {
-          remarkPlugins: [remarkGfm],
+          remarkPlugins: [remarkGfm, remarkMermaid],
           rehypePlugins: [[rehypePrettyCode, prettyCodeOptions]],
         },
       },

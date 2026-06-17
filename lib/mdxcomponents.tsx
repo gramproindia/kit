@@ -16,6 +16,7 @@ import Notice from "@/app/components/Notice";
 import { MaterialInputWrapper } from "@/app/components/examples/MaterialInputWrapper";
 import { FileUploaderWrapper } from "@/app/components/examples/UploaderWrapper";
 import BugWarning from "@/app/components/BugWarning";
+import { MermaidChart } from "@/app/components/MermaidChart";
 
 const createHeadingComponent = (level: number) => {
   return ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
@@ -216,4 +217,5 @@ export const mdxComponents = {
   FileUploaderWrapper,
   Notice,
   BugWarning,
+  MermaidChart,
 };
