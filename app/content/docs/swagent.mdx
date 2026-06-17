@@ -1,0 +1,279 @@
+---
+category: "Utilities"
+---
+
+# GBS SE Agent - Getting Started
+
+GBS SE Agent is a local-first AI coding assistant powered by Ollama.
+
+## Prerequisites
+
+### 1. Install Ollama
+
+Download and install Ollama:
+
+https://ollama.com/download
+
+Verify the installation:
+
+```bash
+ollama --version
+```
+
+---
+
+## 2. Create an Ollama Account
+
+To use cloud-hosted models such as `qwen3-coder:480b-cloud`, create an Ollama account:
+
+https://ollama.com
+
+After creating an account, sign in from your terminal:
+
+```bash
+ollama run qwen3-coder:480b-cloud
+```
+
+The first time you run a cloud model, Ollama will display a URL similar to:
+
+```text
+https://ollama.com/connect?...
+```
+
+Open the URL in your browser and complete the authentication process.
+
+Once connected, Ollama will be able to access cloud-hosted models from your machine.
+
+---
+
+## 3. Start a Model
+
+### Option A: Cloud Model (Recommended)
+
+```bash
+ollama run qwen3-coder:480b-cloud
+```
+
+This model runs on Ollama Cloud and provides significantly better coding performance than most local models.
+
+### Option B: Local Model
+
+Example:
+
+```bash
+ollama pull qwen2.5-coder:3b
+```
+
+Run the model:
+
+```bash
+ollama run qwen2.5-coder:3b
+```
+
+Other supported models include:
+
+```bash
+qwen2.5-coder:7b
+qwen3:8b
+deepseek-coder-v2
+gemma3
+llama3
+```
+
+---
+
+## 4. Verify Ollama Is Running
+
+Open a new terminal and execute:
+
+```bash
+curl http://localhost:11434
+```
+
+or simply:
+
+```bash
+ollama list
+```
+
+You should see the installed models.
+
+GBS SE Agent communicates with Ollama through:
+
+```text
+http://localhost:11434
+```
+
+---
+
+## 5. Install GBS SE Agent
+
+Open VS Code.
+
+Navigate to:
+
+```text
+Extensions
+```
+
+Search for:
+
+```text
+GBS SE Agent
+```
+
+Install the extension from the Visual Studio Code Marketplace.
+
+---
+
+## 6. Open Your Project
+
+Open any project folder in VS Code.
+
+Examples:
+
+```text
+React
+Next.js
+Node.js
+TypeScript
+Java
+Python
+Go
+Rust
+.NET
+HTML/CSS/JavaScript
+```
+
+GBS SE Agent automatically analyzes the repository and builds a workspace context.
+
+---
+
+## 7. Start Using the Agent
+
+Open the GBS SE Agent panel from the VS Code Activity Bar.
+
+Example prompts:
+
+```text
+Create a login page using the existing design system.
+
+Add role-based user management.
+
+Fix all TypeScript errors.
+
+Refactor this component to use hooks.
+
+Add CRUD APIs for employee management.
+```
+
+The agent will:
+
+- Read relevant files
+- Understand repository structure
+- Modify files
+- Create new files
+- Validate builds
+- Persist session memory
+
+---
+
+## Model Configuration (Developers)
+
+The model can be changed in:
+
+```text
+src/agent/agentLoop.ts
+```
+
+Clone the repository and edit the fetch request to point to your desired model.
+
+`https://github.com/anandhuremanan/gb-codex`
+
+Example:
+
+```typescript
+response = await fetch("http://localhost:11434/api/chat", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    model: "qwen3-coder:480b-cloud",
+    messages,
+    stream: true,
+    options: {
+      temperature: 0.1,
+      num_predict: 4096,
+      num_ctx: 32768,
+    },
+  }),
+  signal: abortController.signal,
+});
+```
+
+Replace:
+
+```typescript
+qwen3-coder:480b-cloud
+```
+
+with any model installed in Ollama.
+
+---
+
+## Troubleshooting
+
+### Ollama Not Running
+
+Start Ollama:
+
+```bash
+ollama serve
+```
+
+### No Models Found
+
+List installed models:
+
+```bash
+ollama list
+```
+
+Install one if necessary:
+
+```bash
+ollama pull qwen2.5-coder:3b
+```
+
+### Cloud Model Authentication Issues
+
+Reconnect your device:
+
+```bash
+ollama run qwen3-coder:480b-cloud
+```
+
+Open the generated authentication URL and complete sign-in.
+
+### Extension Cannot Connect
+
+Verify:
+
+```text
+Ollama is running
+Model is installed or accessible
+localhost:11434 is reachable
+```
+
+---
+
+## Recommended Setup
+
+For the best experience:
+
+```text
+Model: qwen3-coder:480b-cloud
+Context Window: 32768
+Temperature: 0.1
+```
+
+This provides the best balance between reasoning quality, coding accuracy, and repository understanding.
