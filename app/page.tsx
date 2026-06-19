@@ -9,6 +9,8 @@ import { ContainerTextFlip } from "@/component-lib/container-text-flip";
 import { GlareCard } from "@/component-lib/glare-card";
 import { TextHoverEffect } from "@/component-lib/text-hover-effect";
 
+// G3@QB
+
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -27,8 +29,8 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <div
               className={`transition-all duration-1000 ${isLoaded
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
                 }`}
             >
               <div className="text-center mb-16">
@@ -78,8 +80,8 @@ export default function Home() {
             {/* Code Example */}
             <div
               className={`transition-all duration-1000 delay-200 ${isLoaded
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
                 }`}
             >
               <div className="bg-zinc-900 rounded-2xl px-4 py-6 mb-24 max-w-4xl mx-auto shadow-2xl">
@@ -120,8 +122,8 @@ export const ButtonWrapper = () => {
             {/* Features Grid */}
             <div
               className={`transition-all duration-1000 delay-400 ${isLoaded
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
                 }`}
             >
               <div className="text-center mb-16">
