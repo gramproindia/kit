@@ -4,289 +4,127 @@ category: "Utilities"
 
 # GBS SE Agent - Getting Started
 
-GBS SE Agent is a local-first AI coding assistant powered by Ollama.
+GBS SE Agent is an autonomous, tool-driven coding agent that runs locally via Ollama or connects to Hugging Face Cloud for serverless model execution.
 
-## Prerequisites
+## 1. Prerequisites & Installation
 
-### 1. Install Ollama
+### Option A: Use Local Models (Ollama)
+1. Download and install Ollama from [ollama.com/download](https://ollama.com/download).
+2. Start Ollama and verify it is running:
+   ```bash
+   ollama --version
+   ```
+3. Pull your preferred coding model (Qwen 2.5 Coder is highly recommended):
+   ```bash
+   ollama pull qwen2.5-coder:7b
+   ```
+4. Verify reachable models:
+   ```bash
+   ollama list
+   ```
 
-Download and install Ollama:
-
-https://ollama.com/download
-
-Verify the installation:
-
-```bash
-ollama --version
-```
-
----
-
-## 2. Create an Ollama Account
-
-To use cloud-hosted models such as `qwen3-coder:480b-cloud`, create an Ollama account:
-
-https://ollama.com
-
-After creating an account, sign in from your terminal:
-
-```bash
-ollama run qwen3-coder:480b-cloud
-```
-
-The first time you run a cloud model, Ollama will display a URL similar to:
-
-```text
-https://ollama.com/connect?...
-```
-
-Open the URL in your browser and complete the authentication process.
-
-Once connected, Ollama will be able to access cloud-hosted models from your machine.
+### Option B: Use Cloud Models (Hugging Face Cloud Serverless)
+No local model installation is required! You only need a free Hugging Face account:
+1. Go to [Hugging Face Access Tokens Settings](https://huggingface.co/settings/tokens).
+2. Generate a new Access Token with **Read** role permissions.
+3. Keep the `hf_...` token ready to copy.
 
 ---
 
-## 3. Start a Model
+## 2. Install the Extension
 
-### Option A: Cloud Model (Recommended)
-
-```bash
-ollama run qwen3-coder:480b-cloud
-```
-
-This model runs on Ollama Cloud and provides significantly better coding performance than most local models.
-
-### Option B: Local Model
-
-Example:
-
-```bash
-ollama pull qwen2.5-coder:3b
-```
-
-Run the model:
-
-```bash
-ollama run qwen2.5-coder:3b
-```
-
-Other supported models include:
-
-```bash
-qwen2.5-coder:7b
-qwen3:8b
-deepseek-coder-v2
-gemma3
-llama3
-```
+1. Open VS Code.
+2. Go to the Extensions view (`Ctrl+Shift+X`).
+3. Search for **GBS SE Agent** and click **Install**.
 
 ---
 
-## 4. Verify Ollama Is Running
+## 3. Configure Your Model & Provider
 
-Open a new terminal and execute:
+Open the GBS SE Agent chat panel from the VS Code Activity Bar (represented by a robot icon).
 
+At the bottom of the sidebar, configure your settings:
+* **Dropdown Selection**: Choose between **Ollama** (local execution) or **Hugging Face** (cloud execution).
+* **Model Field**:
+  * For **Ollama**, type the model tag you have installed locally (e.g., `qwen2.5-coder:7b` or your cloud profile `gemma4:31b-cloud`).
+  * For **Hugging Face**, input the Hugging Face repository ID for any supported inference model. Highly recommended:
+    * `Qwen/Qwen2.5-Coder-32B-Instruct`
+    * `meta-llama/Llama-3.2-3B-Instruct`
+* **Entering Your API Key (Hugging Face Only)**:
+  * When you send your first message with the Hugging Face provider active, a secure password input prompt will slide down from the top of VS Code. 
+  * Paste your `hf_...` Access Token. The extension registers and saves it securely in VS Code configurations so you only do it once.
+
+---
+
+## 4. Run the Agent
+
+Open any project folder in VS Code. The agent will automatically discover the workspace tree and index configuration files.
+
+Submit your request in the prompt box:
+```text
+Add JWT authentication to this React project.
+```
+The agent loop will:
+1. Scan relevant folder pathways.
+2. Retrieve context and symbols.
+3. Make incremental, patch-based file writes using VS Code WorkspaceEdit.
+4. Execute build checks (`npm run build` or `tsc --noEmit`) to correct errors automatically.
+5. Notify you upon final success.
+
+---
+
+## Manual Build and Developer Setup
+
+If you want to clone the repository and build the VSIX file manually:
+
+### 1. Clone & Install Dependencies
 ```bash
-curl http://localhost:11434
+git clone https://github.com/anandhuremanan/gb-codex.git
+cd gbs-local-dev
+npm install
 ```
 
-or simply:
-
-```bash
-ollama list
-```
-
-You should see the installed models.
-
-GBS SE Agent communicates with Ollama through:
-
-```text
-http://localhost:11434
-```
-
----
-
-## 5. Install GBS SE Agent
-
-Open VS Code.
-
-Navigate to:
-
-```text
-Extensions
-```
-
-Search for:
-
-```text
-GBS SE Agent
-```
-
-Install the extension from the Visual Studio Code Marketplace.
-
----
-
-## 6. Open Your Project
-
-Open any project folder in VS Code.
-
-Examples:
-
-```text
-React
-Next.js
-Node.js
-TypeScript
-Java
-Python
-Go
-Rust
-.NET
-HTML/CSS/JavaScript
-```
-
-GBS SE Agent automatically analyzes the repository and builds a workspace context.
-
----
-
-## 7. Start Using the Agent
-
-Open the GBS SE Agent panel from the VS Code Activity Bar.
-
-Example prompts:
-
-```text
-Create a login page using the existing design system.
-
-Add role-based user management.
-
-Fix all TypeScript errors.
-
-Refactor this component to use hooks.
-
-Add CRUD APIs for employee management.
-```
-
-The agent will:
-
-- Read relevant files
-- Understand repository structure
-- Modify files
-- Create new files
-- Validate builds
-- Persist session memory
-
----
-
-## Model Configuration (Developers)
-
-The model can be changed in:
-
-```text
-src/agent/agentLoop.ts
-```
-
-Clone the repository and edit the fetch request to point to your desired model.
-
-`https://github.com/anandhuremanan/gb-codex`
-
-Example:
-
+### 2. Configure Settings in Code
+If you want to modify default settings or hardcode model fallback logic, edit the fetch routines in [src/agent/agentLoop.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/agentLoop.ts):
 ```typescript
+// Example: Modifying the local Ollama API body
 response = await fetch("http://localhost:11434/api/chat", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    model: "qwen3-coder:480b-cloud",
+    model: "your-custom-model",
     messages,
-    stream: true,
-    options: {
-      temperature: 0.1,
-      num_predict: 4096,
-      num_ctx: 32768,
-    },
-  }),
-  signal: abortController.signal,
+    stream: true
+  })
 });
 ```
 
-Replace:
-
-```typescript
-qwen3-coder:480b-cloud
+### 3. Build & Package VSIX
+To package the extension into an installable `.vsix` file:
+```bash
+npm run compile
+npx vsce package
 ```
-
-with any model installed in Ollama.
+In VS Code, go to the Extensions panel, click the `...` menu, select **Install from VSIX...**, and choose the generated `.vsix` file.
 
 ---
 
 ## Troubleshooting
 
-### Ollama Not Running
+### Connection to Hugging Face Failed (`fetch failed`)
+* Ensure you are not behind a corporate VPN or proxy blocking raw Node.js HTTPS requests.
+* Double-check that your model ID is spelled correctly (e.g. `Qwen/Qwen2.5-Coder-32B-Instruct`).
+* Ensure your Hugging Face Token starts with `hf_` and has valid Read permissions.
 
-Start Ollama:
-
-```bash
-ollama serve
-```
-
-### No Models Found
-
-List installed models:
-
-```bash
-ollama list
-```
-
-Install one if necessary:
-
-```bash
-ollama pull qwen2.5-coder:3b
-```
-
-### Cloud Model Authentication Issues
-
-Reconnect your device:
-
-```bash
-ollama run qwen3-coder:480b-cloud
-```
-
-Open the generated authentication URL and complete sign-in.
-
-### Extension Cannot Connect
-
-Verify:
-
-```text
-Ollama is running
-Model is installed or accessible
-localhost:11434 is reachable
-```
+### Extension cannot connect to Ollama
+* Verify Ollama is running in the background (`curl http://localhost:11434`).
+* Check if the model you entered in the input bar is listed under `ollama list`.
 
 ---
-
-## Recommended Setup
-
-For the best experience:
-
-```text
-Model: qwen3-coder:480b-cloud
-Context Window: 32768
-Temperature: 0.1
-```
-
-This provides the best balance between reasoning quality, coding accuracy, and repository understanding.
 
 ## Agent Architecture for Nerds
 
-This part of document explains the architecture of the **GBS SE Agent** extension, detailing how each component works, the role of each file, and the overall execution flow.
-
----
-
-## 1. High-Level Flow Diagram
-
-The following diagram illustrates the execution cycle of the agent loop when a user submits a request.
+This part of the document explains the architecture of the **GBS SE Agent** extension, detailing how each component works, the role of each file, and the overall execution flow.
 
 ```mermaid
 graph TD
@@ -295,7 +133,7 @@ graph TD
     B -->|3. Get current session| D[AgentSessionManager]
     B -->|4. Build prompt| E[ContextManager]
     E -->|5. Truncate & Budget| F[PromptBudgetManager]
-    B -->|6. Call LLM| G[Ollama Streaming API]
+    B -->|6. Call LLM| G[Ollama / Hugging Face Router]
     G -->|7. Tool calls returned| H{Tool Execution Loop}
     H -->|No tools / final_answer| I[Validate & Return Output]
     H -->|Tools executed| J[Update AgentState & TaskMemory]
@@ -305,94 +143,11 @@ graph TD
     E --> B
 ```
 
----
+### Core Components and File Map
 
-## 2. Core Components and File Map
-
-### Extension & Webview Setup
-
-- **[src/extension.ts](file:///d:/inittest_vsext/gbs-local-dev/src/extension.ts)**
-  - **Role:** Entry point for the VS Code extension commands and views.
-- **[src/chatView.ts](file:///d:/inittest_vsext/gbs-local-dev/src/chatView.ts)**
-  - **Role:** UI-only sidebar provider that handles chat layouts and streams messages.
-  - **Key Features:** Uses `vscode.getState()` and `vscode.setState()` to save and restore chat layouts, inputs, and thinking states across tab switches.
-
-### Agent Core & Memory
-
-- **[src/agent/sessionManager.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/sessionManager.ts)**
-  - **Role:** Persistent session manager managing `TaskMemory` and `SessionMemory`.
-  - **Key Features:**
-    - Keeps chat history in memory.
-    - Persists completed goal summaries to `.vscode/bunker-session.json` with workspace isolation path hashing.
-    - Registers listeners to reset state when the active workspace folder changes.
-- **[src/agent/contextRetrieval.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/contextRetrieval.ts)**
-  - **Role:** Context Retrieval Service that scores/ranks matching workspace files, lazily indexes symbols, queries related files, and filters prior sessions for relevance.
-- **[src/agent/agentLoop.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/agentLoop.ts)**
-  - **Role:** Orchestrates the step-by-step thinking loop of the agent (max 20 iterations).
-  - **Key Functions/Helpers:**
-    - `runAgent()`: Orchestrates execution, resets `TaskMemory` per request, tracks discovery counters, initializes generic task plans, and enforces budgets.
-    - `detectLoopPattern()`: Signature-based repeated/reversed edit detection.
-    - `extractToolCalls()`: Parses JSON blocks.
-    - `extractRejectedFiles()`: Parses optional irrelevant files marked by the model to exclude them from future review.
-    - `updatePlanProgress()`: Automatically marks task subtasks as completed.
-- **[src/agent/context.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/context.ts)**
-  - **Role:** Handles prompt composition and keeps conversation history.
-- **[src/agent/budget.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/budget.ts)**
-  - **Role:** Controls prompt context size. Refactors prompts to follow the structured context layout (Repository Profile, Workspace Snapshot, Working Context, Task Plan, Goal, Task Memory [Active, Related, Visited, and Rejected files], Relevance-Filtered Session Learning, and User Request).
-- **[src/agent/types.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/types.ts)**
-  - **Role:** Defines standard types (`TaskMemory`, `SessionMemory`, `AgentSession`, `RunningAgent`, `TaskPlan`, `TaskSubtask`).
-
-### Repository & Cache
-
-- **[src/agent/cache.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/cache.ts)**
-  - **Role:** Singleton workspace cache storing workspace files list and contents, and generating `WorkspaceSnapshot` records.
-- **[src/agent/analyzer.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/analyzer.ts)**
-  - **Role:** Analyzes root configuration files to identify project language and framework.
-
-### Validation & Verification
-
-- **[src/agent/validator.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/validator.ts)**
-  - **Role:** Verifies project correctness after modifications.
-- **[src/agent/errorExtractor.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/errorExtractor.ts)**
-  - **Role:** Compresses build failure logs.
-
----
-
-## 3. Tool Ecosystem
-
-All tools extend the `Tool` interface and are registered inside **[src/agent/registry.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/registry.ts)**:
-
-1. **`list_workspace_files` ([listFiles.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/tools/listFiles.ts))**: Exposes relative paths of all workspace files.
-2. **`read_file` ([readFile.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/tools/readFile.ts))**: Reads content from files.
-3. **`write_file` ([writeFile.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/tools/writeFile.ts))**: Overwrites or creates complete file contents.
-4. **`create_file` ([createFile.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/tools/createFile.ts))**: Initializes new files.
-5. **`replace_in_file` ([replaceInFile.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/tools/replaceInFile.ts))**: Search-and-replace tool. Normalizes line endings and immediately returns `"NO_CHANGES_REQUIRED"` if search and replace blocks match.
-6. **`search_symbols` ([searchSymbols.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/tools/searchSymbols.ts))**: Performs efficient symbol searches via index, falling back to text.
-7. **`run_terminal_command` ([runCommand.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/tools/runCommand.ts))**: Runs shell operations in the workspace root.
-8. **`finish` ([finish.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/tools/finish.ts))**: Terminating tool to signal task completion. Generates task summaries and updates SessionMemory.
-9. **`get_directory_context` ([getDirectoryContext.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/tools/getDirectoryContext.ts))**: Fetches directory structure, including sibling files, child routes, and nearby components/pages to avoid full workspace scans.
-
----
-
-## 4. Loop Prevention & Termination Heuristics
-
-The agent loop utilizes deterministic heuristics to prevent runaway reasoning loops and reduce token consumption:
-
-- **Task Planning Layer**: Initializes a generic 5-step task plan template at startup, and automatically tracks progress/marks checkboxes during execution.
-- **Proactive Context Retrieval Service**: Scores/ranks matching workspace files, lazily indexes symbols on-demand, filters historical sessions for keyword/file relevance, and injects `Working Context` directly into prompt builders before execution.
-- **Proactive Sibling & Related File Injection**: Appends Same Directory, Child Routes, and Nearby Components (capped at 10) to successful `read_file` responses, providing local workspace awareness without requiring additional tool calls.
-- **Adaptive Discovery Blocking**: Discovery tools (`list_workspace_files`, `search_symbols`) are deprioritized, allowing up to 3 discovery attempts and blocking if no new files/symbols are found.
-- **Discovery Budget**:
-  - Excludes `read_file`, applying only to `list_workspace_files` and `search_symbols`.
-  - **Warning (at 15 calls)**: Nudges the model that sufficient context has been reviewed.
-  - **Hard Block (at 30 calls)**: Blocks discovery tool execution and returns a choice selection warning, forcing the model to proceed to edit or finish.
-- **Repeated Reads Warning**: If the same file is read more than 3 times without modification, returns a warning instructing the model not to read it again.
-- **Alternating Pattern Warning**: If the model alternates between `list_workspace_files` and `read_file` 3 times, returns a warning that the model appears to be stuck.
-- **Repeated Discovery Warning**: Injects warnings if the same file or query is requested again in the same task run.
-- **Duplicate Read Protection**: If a file is re-read by the agent and its content matches the cache from the previous read, the loop returns cached content and appends a warning reminder.
-- **Modification Budgets**:
-  - **Per-File Budget**: Caps edits to a single file at 5 per execution.
-  - **Global Budget**: Caps total edits across all files at 15 per execution.
-- **Completion Heuristic & Hints**:
-  - Completion reminder matches compile status, modification count, and completed objectives count.
-  - Hint counter compiles subtle warnings (reads, budgets, loops, passes). When `finishHints >= 3`, a strong finish warning is appended.
+* **[src/extension.ts](file:///d:/inittest_vsext/gbs-local-dev/src/extension.ts)**: Entry point registering the custom activity sidebar provider.
+* **[src/chatView.ts](file:///d:/inittest_vsext/gbs-local-dev/src/chatView.ts)**: Houses the webview, managing layout restores and dropdown selector settings.
+* **[src/agent/agentLoop.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/agentLoop.ts)**: Orchestrates the LLM step loop, handles Ollama vs Hugging Face Router API routing, and validates tool parameters.
+* **[src/agent/sessionManager.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/sessionManager.ts)**: Saves task histories and goal contexts dynamically to `.vscode/bunker-session.json`.
+* **[src/agent/registry.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/registry.ts)**: Declares and registers the available tools (`list_workspace_files`, `read_file`, `write_file`, `create_file`, `replace_in_file`, `search_symbols`, `run_terminal_command`, `finish`, `get_directory_context`).
+* **[src/agent/validator.ts](file:///d:/inittest_vsext/gbs-local-dev/src/agent/validator.ts)**: Executes compiler checkers dynamically to report warnings.
