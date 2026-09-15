@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Button } from "@/component-lib/button";
 import DataGridWrapper from "@/app/components/examples/DataGridWrapper";
+import DemoGrid from "@/app/components/examples/demogrid";
 import { CodeBlock, PreBlock } from "@/app/components/CodeBlock";
 import FeatureCarousel from "@/app/components/FeatureCarousal";
 import {
@@ -206,6 +207,7 @@ export const mdxComponents = {
   FeatureCarousel,
   Button,
   DataGridWrapper,
+  DemoGrid,
   BarGraphWrapper,
   BreadcrumbWrapper,
   ButtonWrapper,

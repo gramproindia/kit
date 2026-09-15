@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../component-lib//datagridbeta/styles.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -29,7 +30,9 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 /* Target the scrollbar */
@@ -87,7 +90,10 @@ code[data-theme] span {
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.04),
     0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .code-block-wrapper:hover {
@@ -117,7 +123,9 @@ code[data-theme] span {
   color: #57606a;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   font-family: var(--font-geist-mono), ui-monospace, monospace;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .dark .code-block-header {
@@ -195,7 +203,9 @@ code[data-line-numbers] > [data-line]::before {
   background: #f0f0f3;
   color: #d63384;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .dark .inline-code {

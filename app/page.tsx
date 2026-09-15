@@ -28,15 +28,16 @@ export default function Home() {
         <main className="px-6 sm:px-8 lg:px-12 pt-16 pb-24">
           <div className="max-w-7xl mx-auto">
             <div
-              className={`transition-all duration-1000 ${isLoaded
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-                }`}
+              className={`transition-all duration-1000 ${
+                isLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
             >
               <div className="text-center mb-16">
                 <div className="inline-flex items-center gap-2 px-4 py-2 dark:bg-gray-50 bg-gray-300 rounded-full text-xs font-medium text-gray-700 mb-8">
                   <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  Announcing v1.2 – Now with advanced theming
+                  Version 2.0.0 - Update Candidate Now Available!
                 </div>
 
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8 leading-[1.1]">
@@ -79,10 +80,11 @@ export default function Home() {
 
             {/* Code Example */}
             <div
-              className={`transition-all duration-1000 delay-200 ${isLoaded
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-                }`}
+              className={`transition-all duration-1000 delay-200 ${
+                isLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
             >
               <div className="bg-zinc-900 rounded-2xl px-4 py-6 mb-24 max-w-4xl mx-auto shadow-2xl">
                 <div className="flex items-center gap-2 mb-6">
@@ -121,10 +123,11 @@ export const ButtonWrapper = () => {
 
             {/* Features Grid */}
             <div
-              className={`transition-all duration-1000 delay-400 ${isLoaded
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-                }`}
+              className={`transition-all duration-1000 delay-400 ${
+                isLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
             >
               <div className="text-center mb-16">
                 <h2 className="text-4xl font-bold mb-4">
