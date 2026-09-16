@@ -23,6 +23,7 @@ import { MaterialInputWrapper } from "@/app/components/examples/MaterialInputWra
 import { FileUploaderWrapper } from "@/app/components/examples/UploaderWrapper";
 import BugWarning from "@/app/components/BugWarning";
 import { MermaidChart } from "@/app/components/MermaidChart";
+import ToasterWrapper from "@/app/components/examples/2.0.0/toaster/ToasterWrapper";
 
 const createHeadingComponent = (level: number) => {
   return ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
@@ -230,4 +231,5 @@ export const mdxComponents = {
   WarningBanner,
   DatePickerWrapperBeta,
   DateRangePickerWrapper,
+  ToasterWrapper,
 };

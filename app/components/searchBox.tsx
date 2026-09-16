@@ -63,7 +63,7 @@ const DocSearch: React.FC<DocSearchProps> = ({
     setIsLoading(true);
     try {
       const response = await fetch(
-        `/api/search-docs?q=${encodeURIComponent(searchQuery)}`
+        `/api/search-docs?q=${encodeURIComponent(searchQuery)}`,
       );
       if (response.ok) {
         const searchResults = await response.json();
@@ -105,7 +105,7 @@ const DocSearch: React.FC<DocSearchProps> = ({
         case "ArrowDown":
           e.preventDefault();
           setSelectedIndex((prev) =>
-            prev < results.length - 1 ? prev + 1 : prev
+            prev < results.length - 1 ? prev + 1 : prev,
           );
           break;
         case "ArrowUp":
@@ -191,7 +191,7 @@ const DocSearch: React.FC<DocSearchProps> = ({
         </mark>
       ) : (
         part
-      )
+      ),
     );
   };
 
@@ -225,9 +225,9 @@ const DocSearch: React.FC<DocSearchProps> = ({
           placeholder={placeholder}
           className="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
                    bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                   focus:ring-1 focus:ring-blue-500 focus:border-blue-500 
                    placeholder-gray-500 dark:placeholder-gray-400
-                   transition-colors duration-200"
+                   transition-colors duration-200 outline-0"
         />
         {query && (
           <button

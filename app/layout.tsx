@@ -5,6 +5,7 @@ import FloatingChatbot from "./components/ChatBot";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { siteConfig } from "@/site.config";
 import Link from "next/link";
+import { Toaster } from "@/component-lib/toasterbeta";
 
 export const metadata: Metadata = {
   title: siteConfig.metadata.title,
@@ -62,6 +63,7 @@ export default function RootLayout({
           <FloatingChatbot />
           {children}
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   );
