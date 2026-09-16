@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../component-lib//datagridbeta/styles.css";
+@import "../component-lib//combobox/styles.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -7,6 +8,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-geist-sans: Arial, Helvetica, sans-serif;
+  --font-geist-mono: "Courier New", Courier, monospace;
 }
 
 @theme inline {

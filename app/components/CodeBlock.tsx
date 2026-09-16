@@ -3,6 +3,12 @@
 import { Copy, Check } from "lucide-react";
 import { useState, useRef } from "react";
 
+const getLanguage = (value: unknown) => {
+  if (typeof value !== "string") return "";
+  const match = value.match(/language-([\w-]+)/);
+  return match?.[1] ?? "";
+};
+
 export const PreBlock = ({ children, ...props }: any) => {
   const [copied, setCopied] = useState(false);
   const preRef = useRef<HTMLPreElement>(null);
@@ -18,9 +24,12 @@ export const PreBlock = ({ children, ...props }: any) => {
     }
   };
 
-  // Extract the language from the data-language attribute on the child <code>
   const codeChild = Array.isArray(children) ? children[0] : children;
-  const language = codeChild?.props?.["data-language"] || "";
+  const language =
+    props["data-language"] ||
+    codeChild?.props?.["data-language"] ||
+    getLanguage(props.className) ||
+    getLanguage(codeChild?.props?.className);
 
   return (
     <div className="code-block-wrapper group relative my-6">
