@@ -1,12 +1,14 @@
 import React, { ReactNode } from "react";
 import { Button } from "@/component-lib/button";
 import DataGridWrapper from "@/app/components/examples/DataGridWrapper";
-import DemoGrid from "@/app/components/examples/demogrid";
-import SelectWrapper from "@/app/components/examples/combobox/SelectWrapper";
-import MultiSelectWrapper from "@/app/components/examples/combobox/MultiSelectWrapper";
+import DemoGrid from "@/app/components/examples/2.0.0/demogrid";
+import SelectWrapper from "@/app/components/examples/2.0.0/combobox/SelectWrapper";
+import MultiSelectWrapper from "@/app/components/examples/2.0.0/combobox/MultiSelectWrapper";
 import { CodeBlock, PreBlock } from "@/app/components/CodeBlock";
 import WarningBanner from "@/app/components/WarningBanner";
 import FeatureCarousel from "@/app/components/FeatureCarousal";
+import DatePickerWrapperBeta from "@/app/components/examples/2.0.0/datepicker/DatePickerWrapper";
+import DateRangePickerWrapper from "@/app/components/examples/2.0.0/datepicker/DateRangePickerWrapper";
 import {
   BarGraphWrapper,
   BreadcrumbWrapper,
@@ -226,4 +228,6 @@ export const mdxComponents = {
   BugWarning,
   MermaidChart,
   WarningBanner,
+  DatePickerWrapperBeta,
+  DateRangePickerWrapper,
 };

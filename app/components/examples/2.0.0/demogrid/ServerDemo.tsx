@@ -12,7 +12,7 @@ import {
   resolveColumns,
   sortRows,
   type GridQuery,
-} from "../../../../component-lib/datagridbeta";
+} from "../../../../../component-lib/datagridbeta";
 import { createOrders, type Order, type OrderStatus } from "./data";
 
 const col = createColumnHelper<Order>();

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../component-lib//datagridbeta/styles.css";
 @import "../component-lib//combobox/styles.css";
+@import "../component-lib//datepickerbeta/styles.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
