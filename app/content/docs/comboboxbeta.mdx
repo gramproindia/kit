@@ -5,8 +5,14 @@ category: "2.0.0-Beta"
 import { SelectWrapper } from "@components/SelectWrapper";
 import { MultiSelectWrapper } from "@components/MultiSelectWrapper";
 import Notice from "@/app/components/Notice";
+import WarningBanner from "@/app/components/WarningBanner";
 
-<BugWarning message="Beta Components are subjected to change and may break your code. Use at your own risk." />
+<WarningBanner title="Important Notice" stability="Experimental">
+  <div className="text-white">
+    Beta Components are subjected to change and may break your code. Use at your
+    own risk.
+  </div>
+</WarningBanner>
 
 # Combobox Select & MultiSelect(Beta)
 

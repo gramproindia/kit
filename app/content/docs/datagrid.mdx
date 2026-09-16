@@ -4,12 +4,14 @@ category: "Components"
 
 import { DataGridWrapper } from "@components/DataGridWrapper";
 import Notice from "@/app/components/Notice";
-import BugWarning from "@/app/components/BugWarning";
+import WarningBanner from "@/app/components/WarningBanner";
 
-<BugWarning
-  message="Will Get Deprecate In Upcoming Versions, Try out the all new Data Grid For High Performance"
-  url="https://gramprokit.vercel.app/docs/datagridbeta"
-/>
+<WarningBanner title="Important Notice" stability="Deprecated">
+  <div className="text-white">
+    Will Get Deprecate In Upcoming Versions, Try out the all new Data Grid For
+    High Performance
+  </div>
+</WarningBanner>
 
 # Data Grid
 

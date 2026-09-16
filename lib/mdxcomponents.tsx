@@ -5,6 +5,7 @@ import DemoGrid from "@/app/components/examples/demogrid";
 import SelectWrapper from "@/app/components/examples/combobox/SelectWrapper";
 import MultiSelectWrapper from "@/app/components/examples/combobox/MultiSelectWrapper";
 import { CodeBlock, PreBlock } from "@/app/components/CodeBlock";
+import WarningBanner from "@/app/components/WarningBanner";
 import FeatureCarousel from "@/app/components/FeatureCarousal";
 import {
   BarGraphWrapper,
@@ -224,4 +225,5 @@ export const mdxComponents = {
   Notice,
   BugWarning,
   MermaidChart,
+  WarningBanner,
 };
