@@ -6,6 +6,8 @@ import { getDocs } from "../../_lib/docs";
 import { renderDoc } from "../../_lib/render";
 import { V2_BASE, v2Config } from "../../_lib/config";
 import { TableOfContents } from "../../_components/TableOfContents";
+import { PageActions } from "../../_components/PageActions";
+import { markdownHref } from "../../_lib/markdown";
 
 export const dynamicParams = false;
 
@@ -22,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: doc.title,
     description: doc.description,
-    alternates: { canonical: doc.href },
+    alternates: { canonical: doc.href, types: { "text/markdown": markdownHref(doc) } },
     openGraph: {
       title: `${doc.title} | ${v2Config.name} ${v2Config.version}`,
       description: doc.description,
@@ -47,7 +49,8 @@ export default async function DocPage({ params }: Props) {
   return (
     <>
       <main id="v2-main" className="min-w-0 pt-8 pb-20 md:pt-10">
-        <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-1.5 text-[13px] text-(--v2-faint)">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-[13px] text-(--v2-faint)">
           <Link href={V2_BASE} className="hover:text-(--v2-fg)">
             2.0.0 Beta
           </Link>
@@ -58,6 +61,8 @@ export default async function DocPage({ params }: Props) {
             {doc.title}
           </span>
         </nav>
+        <PageActions title={doc.title} markdownPath={markdownHref(doc)} />
+        </div>
 
         <header className="mb-10 border-b border-(--v2-border) pb-8">
           <div className="mb-4 flex flex-wrap items-center gap-2">

@@ -1,13 +1,18 @@
 @import "tailwindcss";
-@import "../component-lib//datagridbeta/styles.css";
-@import "../component-lib//combobox/styles.css";
-@import "../component-lib//datepickerbeta/styles.css";
-@import "../component-lib//toasterbeta/styles.css";
-@import "../component-lib//fileuploaderbeta/styles.css";
-@import "../component-lib/dialogbeta/styles.css";
-@import "../component-lib/inputbeta/styles.css";
-@import "../component-lib/modalbeta/styles.css";
-@import "../component-lib/textareabeta/styles.css";
+@import "../component-lib/2.0.0/datagrid/styles.css";
+@import "../component-lib/2.0.0/combobox/styles.css";
+@import "../component-lib/2.0.0/datepicker/styles.css";
+@import "../component-lib/2.0.0/toaster/styles.css";
+@import "../component-lib/2.0.0/fileuploader/styles.css";
+@import "../component-lib/2.0.0/dialog/styles.css";
+@import "../component-lib/2.0.0/input/styles.css";
+@import "../component-lib/2.0.0/modal/styles.css";
+@import "../component-lib/2.0.0/textarea/styles.css";
+@import "../component-lib/2.0.0/breadcrumb/styles.css";
+@import "../component-lib/2.0.0/button/styles.css";
+@import "../component-lib/2.0.0/checkbox/styles.css";
+@import "../component-lib/2.0.0/spinner/styles.css";
+@import "../component-lib/2.0.0/tabs/styles.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));

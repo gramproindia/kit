@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Textarea } from "@/component-lib/textareabeta";
+import { Textarea } from "@/component-lib/2.0.0/textarea";
 
 /** Live example used in the Textarea documentation. */
 export function TextareaWrapperBeta() {

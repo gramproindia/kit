@@ -3,6 +3,10 @@ import Link from "next/link";
 import { AlertTriangle, Info, Lightbulb, OctagonAlert } from "lucide-react";
 import { CopyButton } from "./CopyButton";
 import {
+  BreadcrumbWrapperBeta,
+  ButtonWrapperBeta,
+  CheckboxGroupWrapperBeta,
+  CheckboxWrapperBeta,
   DatePickerWrapperBeta,
   DateRangePickerWrapper,
   DemoGrid,
@@ -14,6 +18,8 @@ import {
   MultiSelectWrapper,
   OtpInputWrapperBeta,
   SelectWrapper,
+  SpinnerWrapperBeta,
+  TabsWrapperBeta,
   TextareaWrapperBeta,
   ToasterWrapper,
 } from "./demos";
@@ -165,5 +171,11 @@ export const mdxComponents = {
   TextareaWrapperBeta,
   DialogWrapperBeta,
   ModalWrapperBeta,
+  ButtonWrapperBeta,
+  CheckboxWrapperBeta,
+  CheckboxGroupWrapperBeta,
+  BreadcrumbWrapperBeta,
+  TabsWrapperBeta,
+  SpinnerWrapperBeta,
   MermaidChart,
 };

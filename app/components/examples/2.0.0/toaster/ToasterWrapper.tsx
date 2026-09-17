@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { createToastApi, createToastStore, Toaster } from "@/component-lib/toasterbeta";
+import { createToastApi, createToastStore, Toaster } from "@/component-lib/2.0.0/toaster";
 
 // Its own store, so this example never shows toasts in a Toaster the page may
 // already mount. In an app you would use the ready-made `toast` instead.

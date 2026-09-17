@@ -6,7 +6,7 @@ import {
   DataGrid,
   type CellEditEvent,
   type GridApi,
-} from "../../../../../component-lib/datagridbeta";
+} from "@/component-lib/2.0.0/datagrid";
 import { createEmployees, DEPARTMENTS, type Employee } from "./data";
 
 const col = createColumnHelper<Employee>();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { OtpInput } from "@/component-lib/inputbeta";
+import { OtpInput } from "@/component-lib/2.0.0/input";
 
 /** Live example used in the Input documentation, for one-time codes. */
 export function OtpInputWrapperBeta() {

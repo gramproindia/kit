@@ -136,6 +136,42 @@ export const ModalWrapperBeta = preview(
   "Modal demo",
 );
 
+export const ButtonWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/button/ButtonWrapper"), { ssr: false, loading: Placeholder }),
+  60,
+  "Button demo",
+);
+
+export const CheckboxWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/checkbox/CheckboxWrapper"), { ssr: false, loading: Placeholder }),
+  80,
+  "Checkbox demo",
+);
+
+export const CheckboxGroupWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/checkbox/CheckboxGroupWrapper"), { ssr: false, loading: Placeholder }),
+  140,
+  "CheckboxGroup demo",
+);
+
+export const BreadcrumbWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/breadcrumb/BreadcrumbWrapper"), { ssr: false, loading: Placeholder }),
+  40,
+  "Breadcrumb demo",
+);
+
+export const TabsWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/tabs/TabsWrapper"), { ssr: false, loading: Placeholder }),
+  160,
+  "Tabs demo",
+);
+
+export const SpinnerWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/spinner/SpinnerWrapper"), { ssr: false, loading: Placeholder }),
+  120,
+  "Spinner demo",
+);
+
 export const MermaidChart = dynamic(
   () => import("@/app/components/MermaidChart").then((m) => m.MermaidChart),
   { ssr: false, loading: Placeholder },

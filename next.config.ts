@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [],
   },
+  // /2.0.0-beta/<slug>.md serves the page as plain Markdown (for LLMs).
+  async rewrites() {
+    return [{ source: "/2.0.0-beta/:slug.md", destination: "/2.0.0-beta/md/:slug" }];
+  },
   // The beta docs moved to the 2.0.0 beta site; keep old links working.
   async redirects() {
     return ["combobox", "datagrid", "datepicker", "fileuploader", "toaster"].map(

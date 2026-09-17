@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { siteConfig } from "@/site.config";
-import { Toaster } from "@/component-lib/toasterbeta";
+import { Toaster } from "@/component-lib/2.0.0/toaster";
 
 export const metadata: Metadata = {
   title: siteConfig.metadata.title,

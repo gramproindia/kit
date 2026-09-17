@@ -30,6 +30,12 @@ import InputWrapperBeta from "@/app/components/examples/2.0.0/input/InputWrapper
 import ModalWrapperBeta from "@/app/components/examples/2.0.0/modal/ModalWrapper";
 import TextareaWrapperBeta from "@/app/components/examples/2.0.0/textarea/TextareaWrapper";
 import OtpInputWrapperBeta from "@/app/components/examples/2.0.0/input/OtpInputWrapper";
+import ButtonWrapperBeta from "@/app/components/examples/2.0.0/button/ButtonWrapper";
+import CheckboxWrapperBeta from "@/app/components/examples/2.0.0/checkbox/CheckboxWrapper";
+import CheckboxGroupWrapperBeta from "@/app/components/examples/2.0.0/checkbox/CheckboxGroupWrapper";
+import BreadcrumbWrapperBeta from "@/app/components/examples/2.0.0/breadcrumb/BreadcrumbWrapper";
+import TabsWrapperBeta from "@/app/components/examples/2.0.0/tabs/TabsWrapper";
+import SpinnerWrapperBeta from "@/app/components/examples/2.0.0/spinner/SpinnerWrapper";
 
 const createHeadingComponent = (level: number) => {
   return ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
@@ -244,4 +250,10 @@ export const mdxComponents = {
   ModalWrapperBeta,
   TextareaWrapperBeta,
   OtpInputWrapperBeta,
+  ButtonWrapperBeta,
+  CheckboxWrapperBeta,
+  CheckboxGroupWrapperBeta,
+  BreadcrumbWrapperBeta,
+  TabsWrapperBeta,
+  SpinnerWrapperBeta,
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FileUploader, readFileId, type Transport } from "@/component-lib/fileuploaderbeta";
+import { FileUploader, readFileId, type Transport } from "@/component-lib/2.0.0/fileuploader";
 
 /**
  * The docs site has no upload server, so this example simulates one: each chunk

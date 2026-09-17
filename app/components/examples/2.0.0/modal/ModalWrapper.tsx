@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { Modal, type ModalPlacement } from "@/component-lib/modalbeta";
+import { Modal, type ModalPlacement } from "@/component-lib/2.0.0/modal";
 
 const button: CSSProperties = {
   padding: "6px 12px",

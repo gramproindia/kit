@@ -8,10 +8,15 @@ import {
   CalendarDays,
   ChevronsUpDown,
   Keyboard,
+  LoaderCircle,
   MessageSquare,
+  Milestone,
+  MousePointerClick,
   Palette,
   Package,
+  PanelsTopLeft,
   Sparkles,
+  SquareCheck,
   Table2,
   TextCursorInput,
   Upload,
@@ -36,6 +41,11 @@ const icons: Record<string, LucideIcon> = {
   textarea: AlignLeft,
   dialog: MessageSquare,
   modal: AppWindow,
+  button: MousePointerClick,
+  checkbox: SquareCheck,
+  breadcrumb: Milestone,
+  tabs: PanelsTopLeft,
+  spinner: LoaderCircle,
 };
 
 const highlights = [

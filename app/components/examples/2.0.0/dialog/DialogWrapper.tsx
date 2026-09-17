@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { createDialogApi, createDialogStore, DialogHost } from "@/component-lib/dialogbeta";
+import { createDialogApi, createDialogStore, DialogHost } from "@/component-lib/2.0.0/dialog";
 
 // Its own store, so this example never shows dialogs in a DialogHost the page may
 // already mount. In an app you would use the ready-made `dialog` instead.

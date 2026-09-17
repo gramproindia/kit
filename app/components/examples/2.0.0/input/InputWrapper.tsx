@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/component-lib/inputbeta";
+import { Input } from "@/component-lib/2.0.0/input";
 
 /** Live example used in the Input documentation. */
 export function InputWrapperBeta() {
