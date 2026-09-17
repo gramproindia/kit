@@ -3,6 +3,7 @@
 @import "../component-lib//combobox/styles.css";
 @import "../component-lib//datepickerbeta/styles.css";
 @import "../component-lib//toasterbeta/styles.css";
+@import "../component-lib//fileuploaderbeta/styles.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
