@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [],
   },
+  // The beta docs moved to the 2.0.0 beta site; keep old links working.
+  async redirects() {
+    return ["combobox", "datagrid", "datepicker", "fileuploader", "toaster"].map(
+      (name) => ({
+        source: `/docs/${name}beta`,
+        destination: `/2.0.0-beta/${name}`,
+        permanent: false,
+      })
+    );
+  },
 };
 
 const withMDX = createMDX({

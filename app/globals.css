@@ -8,7 +8,13 @@
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * color-scheme must be declared at the root: the build polyfills the component
+ * styles' light-dark() with variables that only exist where color-scheme is set,
+ * so without this, portaled UI such as toasts renders with no colors.
+ */
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
   --font-geist-sans: Arial, Helvetica, sans-serif;
@@ -23,6 +29,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: #0a0a0a;
   --foreground: #ededed;
 }
