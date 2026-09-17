@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "GramproKit Docs",
   description: "Documentation for GramproKit component library.",
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://gramprokit.com",
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://gramprokit.vercel.app",
   nav: [
     { label: "Docs", href: "/docs/getting-started" },
     { label: "Bug Report", href: "/bug-tracker" },
@@ -32,7 +32,7 @@ export const siteConfig = {
     openGraph: {
       type: "website",
       locale: "en_US",
-      url: "https://gramprokit.com",
+      url: "https://gramprokit.vercel.app",
       siteName: "GramproKit Docs",
     },
     twitter: {

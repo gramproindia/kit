@@ -51,7 +51,7 @@ function toMarkdown(source: string, doc: DocMeta) {
     }
 
     if (/^<(\w*Wrapper(Beta)?|DemoGrid)\s*\/>\s*$/.test(line)) {
-      out.push(`_Interactive demo: see the live example at ${pageUrl}_`);
+      out.push(`_Interactive demo:_ [open the live example](${pageUrl})`);
       continue;
     }
 
