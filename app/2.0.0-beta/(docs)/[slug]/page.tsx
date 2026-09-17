@@ -114,8 +114,10 @@ export default async function DocPage({ params }: Props) {
         </nav>
       </main>
 
-      <aside className="v2-toc-rail hidden xl:block">
-        {toc.length > 0 && <TableOfContents items={toc} />}
+      <aside className="hidden xl:block">
+        <div className="v2-toc-rail">
+          {toc.length > 0 && <TableOfContents items={toc} />}
+        </div>
       </aside>
     </>
   );

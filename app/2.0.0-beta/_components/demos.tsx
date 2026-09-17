@@ -106,6 +106,36 @@ export const ToasterWrapper = preview(
   "Toaster demo",
 );
 
+export const InputWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/input/InputWrapper"), { ssr: false, loading: Placeholder }),
+  140,
+  "Input demo",
+);
+
+export const OtpInputWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/input/OtpInputWrapper"), { ssr: false, loading: Placeholder }),
+  100,
+  "OtpInput demo",
+);
+
+export const TextareaWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/textarea/TextareaWrapper"), { ssr: false, loading: Placeholder }),
+  160,
+  "Textarea demo",
+);
+
+export const DialogWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/dialog/DialogWrapper"), { ssr: false, loading: Placeholder }),
+  48,
+  "Dialog demo",
+);
+
+export const ModalWrapperBeta = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/modal/ModalWrapper"), { ssr: false, loading: Placeholder }),
+  48,
+  "Modal demo",
+);
+
 export const MermaidChart = dynamic(
   () => import("@/app/components/MermaidChart").then((m) => m.MermaidChart),
   { ssr: false, loading: Placeholder },

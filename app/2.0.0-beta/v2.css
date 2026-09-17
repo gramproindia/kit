@@ -6,6 +6,7 @@
  * (e.g. `md:hidden`) still override these styles.
  */
 
+/* Element-level rules skip `.v2-demo`, so live demos render with only their own styles. */
 @layer components {
   .v2 {
     --v2-bg: #ffffff;
@@ -21,7 +22,7 @@
     --v2-accent-fg: #ffffff;
     --v2-code-bg: #fafafa;
     --v2-inline-code: #f4f4f5;
-    --v2-header: rgb(255 255 255 / 0.8);
+    --v2-header: rgb(255 255 255 / 0.92);
     --v2-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.12);
     --v2-info: #0284c7;
     --v2-info-bg: #f0f9ff;
@@ -34,6 +35,8 @@
 
     color-scheme: light;
     min-height: 100dvh;
+    /* Room for the fixed 3.5rem header. */
+    padding-top: 3.5rem;
     background: var(--v2-bg);
     color: var(--v2-fg);
     font-family: var(--v2-font-sans), ui-sans-serif, system-ui, sans-serif;
@@ -56,7 +59,7 @@
     --v2-accent-fg: #06121a;
     --v2-code-bg: #0e0e11;
     --v2-inline-code: #1c1c20;
-    --v2-header: rgb(9 9 11 / 0.75);
+    --v2-header: rgb(9 9 11 / 0.9);
     --v2-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -16px rgb(0 0 0 / 0.7);
     --v2-info: #38bdf8;
     --v2-info-bg: rgb(56 189 248 / 0.07);
@@ -84,13 +87,13 @@
     background: color-mix(in srgb, var(--v2-accent) 25%, transparent);
   }
 
-  .v2 :focus-visible {
+  .v2 :focus-visible:not(.v2-demo *) {
     outline: 2px solid var(--v2-accent);
     outline-offset: 2px;
     border-radius: 6px;
   }
 
-  .v2 kbd {
+  .v2 kbd:not(.v2-demo *) {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
@@ -142,9 +145,10 @@
     top: 0.75rem;
   }
 
+  /* Fixed (not sticky) for the same reason as the side panels below. */
   .v2-header {
-    position: sticky;
-    top: 0;
+    position: fixed;
+    inset: 0 0 auto 0;
     z-index: 40;
     border-bottom: 1px solid var(--v2-border);
     background: var(--v2-header);
@@ -152,24 +156,31 @@
     -webkit-backdrop-filter: saturate(180%) blur(12px);
   }
 
+  /*
+   * The side panels are fixed, not sticky: sticky breaks whenever any ancestor
+   * sets overflow (e.g. a global overflow-x rule). With no left/right set, a
+   * fixed box keeps its static horizontal position, so it still lines up with
+   * the grid column that reserves its width.
+   */
   .v2-sidebar {
-    position: sticky;
+    position: fixed;
     top: 3.5rem;
-    height: calc(100dvh - 3.5rem);
+    bottom: 0;
+    width: 13.5rem;
     overflow-y: auto;
     overscroll-behavior: contain;
     padding-block: 2.5rem;
     padding-right: 0.5rem;
-    scrollbar-width: thin;
   }
 
   .v2-toc-rail {
-    position: sticky;
+    position: fixed;
     top: 3.5rem;
-    height: calc(100dvh - 3.5rem);
+    bottom: 0;
+    width: 13rem;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding-block: 2.5rem;
-    scrollbar-width: thin;
   }
 
   /* ---------- Header controls ---------- */
@@ -255,12 +266,12 @@
 
   /* ---------- Dialogs (search + mobile drawer) ---------- */
 
-  .v2 dialog {
+  .v2 :is(.v2-command, .v2-drawer) {
     color: var(--v2-fg);
     background: var(--v2-bg);
   }
 
-  .v2 dialog::backdrop {
+  .v2 :is(.v2-command, .v2-drawer)::backdrop {
     background: rgb(0 0 0 / 0.4);
     backdrop-filter: blur(2px);
   }
@@ -621,14 +632,14 @@
     margin-top: 0;
   }
 
-  .v2-prose :where(h2, h3, h4, h5, h6) {
+  .v2-prose :where(h2, h3, h4, h5, h6):not(.v2-demo *) {
     color: var(--v2-fg);
     font-weight: 600;
     letter-spacing: -0.015em;
     scroll-margin-top: 5rem;
   }
 
-  .v2-prose h2 {
+  .v2-prose h2:not(.v2-demo *) {
     margin: 3.5rem 0 1rem;
     padding-top: 2rem;
     border-top: 1px solid var(--v2-border);
@@ -641,13 +652,13 @@
     border-top: 0;
   }
 
-  .v2-prose h3 {
+  .v2-prose h3:not(.v2-demo *) {
     margin: 2.5rem 0 0.75rem;
     font-size: 1.1875rem;
     line-height: 1.4;
   }
 
-  .v2-prose :where(h4, h5, h6) {
+  .v2-prose :where(h4, h5, h6):not(.v2-demo *) {
     margin: 2rem 0 0.75rem;
     font-size: 1rem;
   }
@@ -673,16 +684,16 @@
     opacity: 1;
   }
 
-  .v2-prose p {
+  .v2-prose p:not(.v2-demo *) {
     margin: 1rem 0;
   }
 
-  .v2-prose strong {
+  .v2-prose strong:not(.v2-demo *) {
     color: var(--v2-fg);
     font-weight: 600;
   }
 
-  .v2-prose :where(a:not(.v2-anchor)) {
+  .v2-prose :where(a:not(.v2-anchor)):not(.v2-demo *) {
     color: var(--v2-fg);
     font-weight: 500;
     text-decoration: underline;
@@ -692,47 +703,47 @@
     transition: text-decoration-color 0.15s, color 0.15s;
   }
 
-  .v2-prose :where(a:not(.v2-anchor)):hover {
+  .v2-prose :where(a:not(.v2-anchor)):not(.v2-demo *):hover {
     color: var(--v2-accent);
     text-decoration-color: var(--v2-accent);
   }
 
-  .v2-prose :where(ul, ol) {
+  .v2-prose :where(ul, ol):not(.v2-demo *) {
     margin: 1rem 0;
     padding-left: 1.375rem;
   }
 
-  .v2-prose ul {
+  .v2-prose ul:not(.v2-demo *) {
     list-style: disc;
   }
 
-  .v2-prose ol {
+  .v2-prose ol:not(.v2-demo *) {
     list-style: decimal;
   }
 
-  .v2-prose li {
+  .v2-prose li:not(.v2-demo *) {
     margin: 0.375rem 0;
     padding-left: 0.25rem;
   }
 
-  .v2-prose li::marker {
+  .v2-prose li:not(.v2-demo *)::marker {
     color: var(--v2-faint);
   }
 
-  .v2-prose blockquote {
+  .v2-prose blockquote:not(.v2-demo *) {
     margin: 1.5rem 0;
     padding-left: 1rem;
     border-left: 2px solid var(--v2-border-strong);
     font-style: italic;
   }
 
-  .v2-prose hr {
+  .v2-prose hr:not(.v2-demo *) {
     margin: 3rem 0;
     border: 0;
     border-top: 1px solid var(--v2-border);
   }
 
-  .v2-prose img {
+  .v2-prose img:not(.v2-demo *) {
     max-width: 100%;
     height: auto;
     margin: 1.5rem 0;
@@ -740,7 +751,7 @@
     border-radius: 0.75rem;
   }
 
-  .v2-prose :not(pre) > code {
+  .v2-prose :not(pre) > code:not(.v2-demo *) {
     padding: 0.125rem 0.375rem;
     border: 1px solid var(--v2-border);
     border-radius: 0.375rem;
@@ -812,7 +823,6 @@
     font-size: 0.8125rem;
     line-height: 1.7;
     tab-size: 2;
-    scrollbar-width: thin;
   }
 
   .v2-code pre > code {
@@ -848,7 +858,6 @@
     overflow-x: auto;
     border: 1px solid var(--v2-border);
     border-radius: 0.75rem;
-    scrollbar-width: thin;
   }
 
   .v2-table table {
@@ -1012,5 +1021,39 @@
     to {
       background-position: -200% 0;
     }
+  }
+}
+
+/*
+ * Scrollbars. Deliberately outside the layer: globals.css hides WebKit
+ * scrollbars with an unlayered rule, which would beat anything in a layer.
+ * A slim rounded thumb in the border color that darkens under the pointer.
+ * Chromium and Safari use the ::-webkit-scrollbar rules; Firefox
+ * (no ::-webkit-scrollbar support) gets the standard properties instead —
+ * setting those in Chromium would switch it back to the native scrollbar.
+ */
+.v2 :is(.v2-sidebar, .v2-toc-rail, .v2-toc-mobile nav, .v2-code pre, .v2-table, #v2-command-results)::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.v2 :is(.v2-sidebar, .v2-toc-rail, .v2-toc-mobile nav, .v2-code pre, .v2-table, #v2-command-results)::-webkit-scrollbar-track,
+.v2 :is(.v2-sidebar, .v2-toc-rail, .v2-toc-mobile nav, .v2-code pre, .v2-table, #v2-command-results)::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.v2 :is(.v2-sidebar, .v2-toc-rail, .v2-toc-mobile nav, .v2-code pre, .v2-table, #v2-command-results)::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--v2-border-strong);
+}
+
+.v2 :is(.v2-sidebar, .v2-toc-rail, .v2-toc-mobile nav, .v2-code pre, .v2-table, #v2-command-results)::-webkit-scrollbar-thumb:hover {
+  background: var(--v2-faint);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .v2 :is(.v2-sidebar, .v2-toc-rail, .v2-toc-mobile nav, .v2-code pre, .v2-table, #v2-command-results) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--v2-border-strong) transparent;
   }
 }

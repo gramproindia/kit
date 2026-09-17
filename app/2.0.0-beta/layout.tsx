@@ -27,7 +27,7 @@ export default async function V2Layout({ children }: { children: React.ReactNode
       </a>
       <SiteHeader nav={nav} />
       {children}
-      <footer className="border-t border-(--v2-border)">
+      <footer className="relative z-10 border-t border-(--v2-border) bg-(--v2-bg)">
         <div className="v2-container flex flex-col gap-3 py-8 text-sm text-(--v2-muted) sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Grampro R&amp;D. {v2Config.name} {v2Config.version}.</p>
           <div className="flex gap-5">

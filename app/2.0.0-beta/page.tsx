@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
+  AlignLeft,
+  AppWindow,
   ArrowRight,
   Bell,
   CalendarDays,
   ChevronsUpDown,
   Keyboard,
+  MessageSquare,
   Palette,
   Package,
   Sparkles,
   Table2,
+  TextCursorInput,
   Upload,
   type LucideIcon,
 } from "lucide-react";
@@ -28,6 +32,10 @@ const icons: Record<string, LucideIcon> = {
   datepicker: CalendarDays,
   fileuploader: Upload,
   toaster: Bell,
+  input: TextCursorInput,
+  textarea: AlignLeft,
+  dialog: MessageSquare,
+  modal: AppWindow,
 };
 
 const highlights = [

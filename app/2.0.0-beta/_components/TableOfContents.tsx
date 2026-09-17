@@ -3,8 +3,12 @@
 import { useEffect, useState } from "react";
 import type { Heading } from "../_lib/docs";
 
-/** Headings above this line (px from the viewport top, below the sticky header) count as read. */
-const READ_LINE = 112;
+/**
+ * Headings above this line (px from the viewport top) count as reached. It sits
+ * below where anchor jumps land a heading (header + scroll padding + heading
+ * spacing), so the item you click is the one highlighted.
+ */
+const READ_LINE = 200;
 
 export function TableOfContents({ items }: { items: Heading[] }) {
   const [activeId, setActiveId] = useState(items[0]?.id ?? "");

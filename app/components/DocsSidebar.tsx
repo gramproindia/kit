@@ -74,7 +74,7 @@ export function DocsSidebar({ docsStructure }: DocsSidebarProps) {
       <aside
         ref={asideRef}
         onScroll={handleScroll}
-        className={`fixed md:sticky top-0 left-0 h-screen w-64 dark:border-gray-700 overflow-y-auto transition-transform duration-300 ease-in-out z-40 ${
+        className={`fixed md:sticky top-0 md:top-8 left-0 h-screen md:h-[calc(100vh-2rem)] w-64 dark:border-gray-700 overflow-y-auto transition-transform duration-300 ease-in-out z-40 ${
           sidebarOpen
             ? "translate-x-0 dark:bg-zinc-800 bg-zinc-200 z-50"
             : "-translate-x-full md:translate-x-0"

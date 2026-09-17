@@ -6,10 +6,15 @@ import {
   DatePickerWrapperBeta,
   DateRangePickerWrapper,
   DemoGrid,
+  DialogWrapperBeta,
   FileUploaderWrapperBeta,
+  InputWrapperBeta,
   MermaidChart,
+  ModalWrapperBeta,
   MultiSelectWrapper,
+  OtpInputWrapperBeta,
   SelectWrapper,
+  TextareaWrapperBeta,
   ToasterWrapper,
 } from "./demos";
 
@@ -155,5 +160,10 @@ export const mdxComponents = {
   DateRangePickerWrapper,
   FileUploaderWrapperBeta,
   ToasterWrapper,
+  InputWrapperBeta,
+  OtpInputWrapperBeta,
+  TextareaWrapperBeta,
+  DialogWrapperBeta,
+  ModalWrapperBeta,
   MermaidChart,
 };

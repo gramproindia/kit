@@ -25,6 +25,11 @@ import BugWarning from "@/app/components/BugWarning";
 import { MermaidChart } from "@/app/components/MermaidChart";
 import ToasterWrapper from "@/app/components/examples/2.0.0/toaster/ToasterWrapper";
 import FileUploaderWrapperBeta from "@/app/components/examples/2.0.0/fileuploader/FileUploaderWrapper";
+import DialogWrapperBeta from "@/app/components/examples/2.0.0/dialog/DialogWrapper";
+import InputWrapperBeta from "@/app/components/examples/2.0.0/input/InputWrapper";
+import ModalWrapperBeta from "@/app/components/examples/2.0.0/modal/ModalWrapper";
+import TextareaWrapperBeta from "@/app/components/examples/2.0.0/textarea/TextareaWrapper";
+import OtpInputWrapperBeta from "@/app/components/examples/2.0.0/input/OtpInputWrapper";
 
 const createHeadingComponent = (level: number) => {
   return ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
@@ -234,4 +239,9 @@ export const mdxComponents = {
   DateRangePickerWrapper,
   ToasterWrapper,
   FileUploaderWrapperBeta,
+  DialogWrapperBeta,
+  InputWrapperBeta,
+  ModalWrapperBeta,
+  TextareaWrapperBeta,
+  OtpInputWrapperBeta,
 };
