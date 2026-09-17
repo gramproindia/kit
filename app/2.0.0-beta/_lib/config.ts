@@ -8,7 +8,8 @@ export const v2Config = {
     "Documentation for the GramproKit 2.0.0 beta components — rebuilt for React 19 with no peer dependencies.",
   legacyDocsHref: "/docs/getting-started",
   github: "https://github.com/anandhuremanan/headless-gbs-components",
-  bugReportHref: "/bug-tracker",
+  bugReportHref:
+    "https://github.com/anandhuremanan/headless-gbs-components/issues",
   /** Sidebar group order; groups not listed here are sorted after these. */
   groups: ["Data", "Inputs", "Feedback"],
 };
