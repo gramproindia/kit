@@ -11,7 +11,7 @@ order: 6
 npx gbs-add-block -a Combobox -beta
 ```
 
-The block copies the `combobox` folder into your project. You own the code and can change it freely.
+The block copies the `combobox` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
 There are **no peer dependencies** other than React.
 
 **Requirements**
@@ -34,7 +34,7 @@ import "@/components/combobox/styles.css";
 
 `Select` picks one value and `MultiSelect` picks several, shown as tags. Both are comboboxes: a control that opens a searchable list of options. They share one engine, one stylesheet and one set of keyboard rules, and they support options held in the browser or fetched from an API. The list renders in the browser's top layer, so it is never clipped by a scrolling parent — including inside a DataGrid cell.
 
-<Notice message="These styles reuse the DataGrid's --dg-* variables when that stylesheet is loaded, so a page using both components shares one theme. On their own they fall back to the same palette." />
+<Notice message="Set the --gbs-* variables on :root to theme every component at once, the grid included. Each component's own variables fall back to them, and then to the built-in palette, so components look identical out of the box." />
 
 #### Select
 
@@ -385,7 +385,7 @@ All rules are in the CSS `components` layer, so utility classes passed through `
 
 #### CSS variables
 
-Override them on `.cb-root`, on any ancestor, or through `style`. They fall back to the DataGrid's `--dg-*` when present.
+Override them on `.cb-root`, on any ancestor, or through `style`. Each variable falls back to the shared `--gbs-*` of the same name, then to the DataGrid's `--dg-*` when that stylesheet is loaded, and finally to the built-in palette.
 
 | Variable                                 | Used for                                  |
 | ---------------------------------------- | ----------------------------------------- |

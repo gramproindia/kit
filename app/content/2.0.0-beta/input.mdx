@@ -11,7 +11,7 @@ order: 3
 npx gbs-add-block@latest -a Input -beta
 ```
 
-The block copies the `input` folder into your project. You own the code and can change it freely.
+The block copies the `input` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
 There are **no peer dependencies** other than React.
 
 **Requirements**
@@ -36,7 +36,7 @@ import "@/components/input/styles.css";
 
 `OtpInput` collects one-time codes, such as the six digits from an SMS or an authenticator app. It looks like a row of boxes but is a single real input. Phones can fill it from the SMS automatically, pasting "Your code is 123-456" works, and screen readers announce one field instead of six.
 
-<Notice message="These styles read the DataGrid's --dg-* variables when they are set on an ancestor, so defining --dg-* on :root themes the grid and every other component together. On their own they fall back to the same palette." />
+<Notice message="Set the --gbs-* variables on :root to theme every component at once, the grid included. Each component's own variables fall back to them, and then to the built-in palette, so components look identical out of the box." />
 
 #### Input
 
@@ -218,7 +218,7 @@ All rules are in the CSS `components` layer, so utility classes passed through `
 
 #### CSS variables
 
-Override them on `.in-root`, on `:root`, or through `style`. They fall back to the DataGrid's `--dg-*` when those are set on an ancestor.
+Override them on `.in-root`, on `:root`, or through `style`. Each variable falls back to the shared `--gbs-*` of the same name, then to the DataGrid's `--dg-*` when that stylesheet is loaded, and finally to the built-in palette.
 
 | Variable | Used for |
 | --- | --- |

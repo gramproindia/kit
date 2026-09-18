@@ -37,6 +37,9 @@ export default async function V2Layout({ children }: { children: React.ReactNode
             <Link href={v2Config.bugReportHref} className="hover:text-(--v2-fg)">
               Report a bug
             </Link>
+            <a href={v2Config.figma} target="_blank" rel="noopener noreferrer" className="hover:text-(--v2-fg)">
+              Figma
+            </a>
             <a href="/llms.txt" className="hover:text-(--v2-fg)">
               llms.txt
             </a>

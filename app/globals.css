@@ -1,9 +1,9 @@
 @import "tailwindcss";
-@import "../component-lib/2.0.0/datagrid/styles.css";
+@import "../component-lib/2.0.0/data-grid/styles.css";
 @import "../component-lib/2.0.0/combobox/styles.css";
-@import "../component-lib/2.0.0/datepicker/styles.css";
+@import "../component-lib/2.0.0/date-picker/styles.css";
 @import "../component-lib/2.0.0/toaster/styles.css";
-@import "../component-lib/2.0.0/fileuploader/styles.css";
+@import "../component-lib/2.0.0/file-uploader/styles.css";
 @import "../component-lib/2.0.0/dialog/styles.css";
 @import "../component-lib/2.0.0/input/styles.css";
 @import "../component-lib/2.0.0/modal/styles.css";

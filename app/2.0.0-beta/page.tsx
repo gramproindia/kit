@@ -25,6 +25,7 @@ import {
 import { getDocs, getHeadings } from "./_lib/docs";
 import { V2_BASE, v2Config } from "./_lib/config";
 import { CopyButton } from "./_components/CopyButton";
+import { FigmaIcon } from "./_components/FigmaIcon";
 
 export const metadata: Metadata = {
   title: { absolute: `${v2Config.name} ${v2Config.version} Docs` },
@@ -57,7 +58,7 @@ const highlights = [
   {
     icon: Palette,
     title: "One shared theme",
-    body: "Set the --dg-* CSS variables on :root and every component follows. Without them, each falls back to the same palette.",
+    body: "Set the --gbs-* CSS variables on :root and every component follows, with per-component overrides when you need them.",
   },
   {
     icon: Keyboard,
@@ -103,6 +104,15 @@ export default async function Overview() {
                 <ArrowRight className="size-4" aria-hidden />
               </Link>
             )}
+            <a
+              href={v2Config.figma}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="v2-btn"
+            >
+              <FigmaIcon className="h-4 w-auto" />
+              Figma design
+            </a>
             <Link href={v2Config.legacyDocsHref} className="v2-btn">
               View 1.x docs
             </Link>

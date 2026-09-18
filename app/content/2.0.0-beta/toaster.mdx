@@ -11,7 +11,7 @@ order: 14
 npx gbs-add-block@latest -a Toaster -beta
 ```
 
-The block copies the `toaster` folder into your project. You own the code and can change it freely.
+The block copies the `toaster` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
 There are **no peer dependencies** other than React.
 
 **Requirements**
@@ -34,7 +34,7 @@ import "@/components/toaster/styles.css";
 
 The Toaster shows short notifications — saved, failed, undo, in progress — in a corner of the screen. It works in any React app: Vite, Next.js, Remix or plain React. You mount `<Toaster />` once and call `toast()` from anywhere: a component, an event handler, a data layer, or code outside React. There is no hook, context or provider to set up.
 
-<Notice message="Toasts render in a portal on <body>. To share a theme with the DataGrid, Combobox and DatePicker, set the --dg-* variables on :root; toasts read them from there, and fall back to the same palette when they are not set." />
+<Notice message="Toasts render in a portal on <body>, so set the --gbs-* variables on :root to theme them along with every other component. They fall back to the built-in palette when nothing is set." />
 
 #### Default
 
@@ -281,7 +281,7 @@ All rules are in the CSS `components` layer, so utility classes passed through `
 
 #### CSS variables
 
-Override them on `.ts-region`, on `:root`, or through `style`. Colors fall back to the DataGrid's `--dg-*` when those are set on `:root`.
+Override them on `.ts-region`, on `:root`, or through `style`. Each variable falls back to the shared `--gbs-*` of the same name, then to the DataGrid's `--dg-*` when that stylesheet is loaded, and finally to the built-in palette.
 
 | Variable                                                  | Used for                                          |
 | --------------------------------------------------------- | ------------------------------------------------- |

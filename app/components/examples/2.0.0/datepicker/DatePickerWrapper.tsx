@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DatePicker, toISODate } from "@/component-lib/2.0.0/datepicker";
+import { DatePicker, toISODate } from "@/component-lib/2.0.0/date-picker";
 
 /** Live example used in the DatePicker documentation. */
 export function DatePickerWrapperBeta() {

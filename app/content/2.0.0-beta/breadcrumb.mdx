@@ -11,7 +11,7 @@ order: 9
 npx gbs-add-block@latest -a Breadcrumb -beta
 ```
 
-The block copies the `breadcrumb` folder into your project. You own the code and can change it freely.
+The block copies the `breadcrumb` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
 There are **no peer dependencies** other than React.
 
 **Requirements**
@@ -34,7 +34,7 @@ import "@/components/breadcrumb/styles.css";
 
 The Breadcrumb shows where the current page sits in your app, and lets people go back up the hierarchy in one click. Long trails collapse to their ends behind an ellipsis. Links can be drawn with your router's link component, such as `next/link`. The trail can also be published as structured data, so search engines can show it in results.
 
-<Notice message="These styles read the DataGrid's --dg-* variables when they are set on an ancestor, so defining --dg-* on :root themes the grid and every other component together. On their own they fall back to the same palette." />
+<Notice message="Set the --gbs-* variables on :root to theme every component at once, the grid included. Each component's own variables fall back to them, and then to the built-in palette, so components look identical out of the box." />
 
 #### Default
 
@@ -145,7 +145,7 @@ All rules are in the CSS `components` layer, so utility classes passed through `
 
 #### CSS variables
 
-Override them on `.bc-root`, on `:root`, or through `style`. They fall back to the DataGrid's `--dg-*` when those are set on an ancestor.
+Override them on `.bc-root`, on `:root`, or through `style`. Each variable falls back to the shared `--gbs-*` of the same name, then to the DataGrid's `--dg-*` when that stylesheet is loaded, and finally to the built-in palette.
 
 | Variable | Used for |
 | --- | --- |

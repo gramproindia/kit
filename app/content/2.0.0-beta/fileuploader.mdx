@@ -11,7 +11,7 @@ order: 8
 npx gbs-add-block@latest -a FileUploader -beta
 ```
 
-The block copies the `file-uploader` folder into your project. You own the code and can change it freely.
+The block copies the `file-uploader` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
 There are **no peer dependencies** other than React.
 
 **Requirements**
@@ -34,7 +34,7 @@ import "@/components/file-uploader/styles.css";
 
 The FileUploader lets people drop, browse or paste files, checks them against your rules, and uploads them to your server in chunks. Each file shows its own progress and can be paused, resumed, retried or canceled. Several files upload at once, and failed chunks are retried with backoff. Image previews can be turned on or off, and files already on the server can be listed with download links. Without an endpoint it works as a better `<input type="file">` inside a normal form.
 
-<Notice message="These styles read the DataGrid's --dg-* variables when they are set on an ancestor, so defining --dg-* on :root themes the grid and every other component together. On their own they fall back to the same palette." />
+<Notice message="Set the --gbs-* variables on :root to theme every component at once, the grid included. Each component's own variables fall back to them, and then to the built-in palette, so components look identical out of the box." />
 
 #### Default
 
@@ -966,7 +966,7 @@ All rules are in the CSS `components` layer, so utility classes passed through `
 
 #### CSS variables
 
-Override them on `.fu-root`, on `:root`, or through `style`. They fall back to the DataGrid's `--dg-*` when those are set on an ancestor.
+Override them on `.fu-root`, on `:root`, or through `style`. Each variable falls back to the shared `--gbs-*` of the same name, then to the DataGrid's `--dg-*` when that stylesheet is loaded, and finally to the built-in palette.
 
 | Variable                        | Used for                                           |
 | ------------------------------- | -------------------------------------------------- |

@@ -11,7 +11,7 @@ order: 2
 npx gbs-add-block -a DataGrid -beta
 ```
 
-The block copies the `data-grid` folder into your project. You own the code and can change it freely.
+The block copies the `data-grid` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
 There are **no peer dependencies** other than React.
 
 **Requirements**
@@ -1003,6 +1003,19 @@ The grid ships with default styles in `styles.css`. All rules are in the CSS `co
 #### CSS variables
 
 Override them on `.dg-root`, any ancestor, or through `style`.
+
+Every `--dg-*` below first looks for the shared `--gbs-*` variable of the same name, so one
+palette on `:root` themes the grid and every other component together:
+
+```css
+:root {
+  --gbs-accent: #7c3aed;
+  --gbs-radius: 12px;
+  --gbs-font-size: 14px;
+}
+```
+
+Set `--dg-*` when you want to change the grid alone, or to override a shared value for it:
 
 ```css
 .dg-root {
