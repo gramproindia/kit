@@ -1,8 +1,10 @@
 import { cache } from "react";
 import matter from "gray-matter";
 import { siteConfig } from "@/site.config";
-import { getDocs, readSource, type DocMeta } from "./docs";
+import { getDocs, readSourceWithFallback, type DocMeta } from "./docs";
 import { V2_BASE, v2Config } from "./config";
+import { DEFAULT_LOCALE, homeHref, LOCALE_CODES, localeInfo, type Locale } from "./i18n";
+import { t } from "./strings";
 
 /*
  * Plain-Markdown versions of the docs for LLMs and "copy page". The MDX is
@@ -22,6 +24,7 @@ const unescapeAttr = (value: string) =>
   value.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 
 function toMarkdown(source: string, doc: DocMeta) {
+  const s = t(doc.locale);
   const { content } = matter(source);
   const pageUrl = absoluteUrl(doc.href);
   const out: string[] = [];
@@ -45,13 +48,13 @@ function toMarkdown(source: string, doc: DocMeta) {
 
     const notice = /^<Notice\s+message="([^"]*)"(?:\s+link="([^"]*)")?\s*\/>\s*$/.exec(line);
     if (notice) {
-      const link = notice[2] ? ` [Learn more](${notice[2]})` : "";
-      out.push(`> **Note:** ${unescapeAttr(notice[1])}${link}`);
+      const link = notice[2] ? ` [${notice[2]}](${notice[2]})` : "";
+      out.push(`> **${s.mdNote}:** ${unescapeAttr(notice[1])}${link}`);
       continue;
     }
 
     if (/^<(\w*Wrapper(Beta)?|DemoGrid)\s*\/>\s*$/.test(line)) {
-      out.push(`_Interactive demo:_ [open the live example](${pageUrl})`);
+      out.push(`_${s.mdInteractiveDemo}_ [${s.mdOpenLiveExample}](${pageUrl})`);
       continue;
     }
 
@@ -77,20 +80,20 @@ function toMarkdown(source: string, doc: DocMeta) {
     "",
     `> ${doc.description}`,
     "",
-    `GramproKit ${v2Config.version} · ${doc.group} · Beta (experimental; APIs may change) · Source: ${pageUrl}`,
+    `GramproKit ${v2Config.version} · ${doc.group} · ${s.mdBetaLine} · ${s.mdSource}: ${pageUrl}`,
     "",
   ];
   return [...header, ...out].join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
 }
 
-export const getDocMarkdown = cache(async (slug: string) => {
-  const doc = (await getDocs()).find((d) => d.slug === slug);
-  const source = doc && (await readSource(slug));
-  return doc && source ? toMarkdown(source, doc) : null;
+export const getDocMarkdown = cache(async (slug: string, locale: Locale = DEFAULT_LOCALE) => {
+  const doc = (await getDocs(locale)).find((d) => d.slug === slug);
+  const found = doc && (await readSourceWithFallback(slug, locale));
+  return doc && found ? toMarkdown(found.source, doc) : null;
 });
 
 export const getLlmsTxt = cache(async () => {
-  const docs = await getDocs();
+  const docs = await getDocs(DEFAULT_LOCALE);
   const groups = new Map<string, DocMeta[]>();
   for (const doc of docs) groups.set(doc.group, [...(groups.get(doc.group) ?? []), doc]);
   const order = (name: string) => {
@@ -113,11 +116,24 @@ export const getLlmsTxt = cache(async () => {
     for (const doc of items) lines.push(`- [${doc.title}](${absoluteUrl(markdownHref(doc))}): ${doc.description}`);
     lines.push("");
   }
+
+  // Translations, listed only where a translated page exists.
+  for (const locale of LOCALE_CODES.filter((code) => code !== DEFAULT_LOCALE)) {
+    const translated = (await getDocs(locale)).filter((doc) => doc.translated);
+    if (translated.length === 0) continue;
+    const info = localeInfo(locale);
+    lines.push(`## ${info.label} (${info.nativeLabel})`, "");
+    for (const doc of translated) {
+      lines.push(`- [${doc.title}](${absoluteUrl(markdownHref(doc))}): ${doc.description}`);
+    }
+    lines.push("");
+  }
+
   lines.push(
     "## Optional",
     "",
-    `- [All ${v2Config.version} docs in one file](${absoluteUrl("/llms-full.txt")}): Every component page above, concatenated.`,
-    `- [${v2Config.version} overview](${absoluteUrl(V2_BASE)}): Landing page with the component list and migration notes.`,
+    `- [All ${v2Config.version} docs in one file](${absoluteUrl("/llms-full.txt")}): Every English component page above, concatenated.`,
+    `- [${v2Config.version} overview](${absoluteUrl(homeHref(DEFAULT_LOCALE))}): Landing page with the component list and migration notes.`,
     `- [1.x documentation](${absoluteUrl(v2Config.legacyDocsHref)}): Docs for the previous major version.`,
     "",
   );
@@ -125,7 +141,17 @@ export const getLlmsTxt = cache(async () => {
 });
 
 export const getLlmsFullTxt = cache(async () => {
-  const docs = await getDocs();
-  const pages = await Promise.all(docs.map((doc) => getDocMarkdown(doc.slug)));
-  return [`# ${v2Config.name} ${v2Config.version} documentation`, "", `> ${v2Config.description}`, "", ...pages.map((p) => `---\n\n${p}`)].join("\n");
+  const docs = await getDocs(DEFAULT_LOCALE);
+  const pages = await Promise.all(docs.map((doc) => getDocMarkdown(doc.slug, DEFAULT_LOCALE)));
+  return [
+    `# ${v2Config.name} ${v2Config.version} documentation`,
+    "",
+    `> ${v2Config.description}`,
+    "",
+    `Translations: ${LOCALE_CODES.filter((c) => c !== DEFAULT_LOCALE)
+      .map((c) => `${localeInfo(c).label} at ${absoluteUrl(`${V2_BASE}/${c}`)}`)
+      .join(", ")}`,
+    "",
+    ...pages.map((p) => `---\n\n${p}`),
+  ].join("\n");
 });

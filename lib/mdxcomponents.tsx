@@ -1,14 +1,32 @@
 import React, { ReactNode } from "react";
+import DemoGrid from "@/app/components/examples/2.0.0/DataGridWrapper";
+import SelectWrapper from "@/app/components/examples/2.0.0/SelectWrapper";
+import MultiSelectWrapper from "@/app/components/examples/2.0.0/MultiSelectWrapper";
+import DatePickerWrapperBeta from "@/app/components/examples/2.0.0/DatePickerWrapper";
+import DateRangePickerWrapper from "@/app/components/examples/2.0.0/DateRangePickerWrapper";
+import ToasterWrapper from "@/app/components/examples/2.0.0/ToasterWrapper";
+import FileUploaderWrapperBeta from "@/app/components/examples/2.0.0/FileUploaderWrapper";
+import DialogWrapperBeta from "@/app/components/examples/2.0.0/DialogWrapper";
+import InputWrapperBeta from "@/app/components/examples/2.0.0/InputWrapper";
+import ModalWrapperBeta from "@/app/components/examples/2.0.0/ModalWrapper";
+import TextareaWrapperBeta from "@/app/components/examples/2.0.0/TextareaWrapper";
+import OtpInputWrapperBeta from "@/app/components/examples/2.0.0/OtpInputWrapper";
+import ButtonWrapperBeta from "@/app/components/examples/2.0.0/ButtonWrapper";
+import CheckboxWrapperBeta from "@/app/components/examples/2.0.0/CheckboxWrapper";
+import CheckboxGroupWrapperBeta from "@/app/components/examples/2.0.0/CheckboxGroupWrapper";
+import BreadcrumbWrapperBeta from "@/app/components/examples/2.0.0/BreadcrumbWrapper";
+import TabsWrapperBeta from "@/app/components/examples/2.0.0/TabsWrapper";
+import SpinnerWrapperBeta from "@/app/components/examples/2.0.0/SpinnerWrapper";
+import CardWrapperBeta from "@/app/components/examples/2.0.0/CardWrapper";
+import MenuWrapperBeta from "@/app/components/examples/2.0.0/MenuWrapper";
+import PopoverWrapperBeta from "@/app/components/examples/2.0.0/PopoverWrapper";
+import SkeletonWrapperBeta from "@/app/components/examples/2.0.0/SkeletonWrapper";
+import TooltipWrapperBeta from "@/app/components/examples/2.0.0/TooltipWrapper";
 import { Button } from "@/component-lib/button";
 import DataGridWrapper from "@/app/components/examples/DataGridWrapper";
-import DemoGrid from "@/app/components/examples/2.0.0/demogrid";
-import SelectWrapper from "@/app/components/examples/2.0.0/combobox/SelectWrapper";
-import MultiSelectWrapper from "@/app/components/examples/2.0.0/combobox/MultiSelectWrapper";
 import { CodeBlock, PreBlock } from "@/app/components/CodeBlock";
 import WarningBanner from "@/app/components/WarningBanner";
 import FeatureCarousel from "@/app/components/FeatureCarousal";
-import DatePickerWrapperBeta from "@/app/components/examples/2.0.0/datepicker/DatePickerWrapper";
-import DateRangePickerWrapper from "@/app/components/examples/2.0.0/datepicker/DateRangePickerWrapper";
 import {
   BarGraphWrapper,
   BreadcrumbWrapper,
@@ -23,19 +41,6 @@ import { MaterialInputWrapper } from "@/app/components/examples/MaterialInputWra
 import { FileUploaderWrapper } from "@/app/components/examples/UploaderWrapper";
 import BugWarning from "@/app/components/BugWarning";
 import { MermaidChart } from "@/app/components/MermaidChart";
-import ToasterWrapper from "@/app/components/examples/2.0.0/toaster/ToasterWrapper";
-import FileUploaderWrapperBeta from "@/app/components/examples/2.0.0/fileuploader/FileUploaderWrapper";
-import DialogWrapperBeta from "@/app/components/examples/2.0.0/dialog/DialogWrapper";
-import InputWrapperBeta from "@/app/components/examples/2.0.0/input/InputWrapper";
-import ModalWrapperBeta from "@/app/components/examples/2.0.0/modal/ModalWrapper";
-import TextareaWrapperBeta from "@/app/components/examples/2.0.0/textarea/TextareaWrapper";
-import OtpInputWrapperBeta from "@/app/components/examples/2.0.0/input/OtpInputWrapper";
-import ButtonWrapperBeta from "@/app/components/examples/2.0.0/button/ButtonWrapper";
-import CheckboxWrapperBeta from "@/app/components/examples/2.0.0/checkbox/CheckboxWrapper";
-import CheckboxGroupWrapperBeta from "@/app/components/examples/2.0.0/checkbox/CheckboxGroupWrapper";
-import BreadcrumbWrapperBeta from "@/app/components/examples/2.0.0/breadcrumb/BreadcrumbWrapper";
-import TabsWrapperBeta from "@/app/components/examples/2.0.0/tabs/TabsWrapper";
-import SpinnerWrapperBeta from "@/app/components/examples/2.0.0/spinner/SpinnerWrapper";
 
 const createHeadingComponent = (level: number) => {
   return ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
@@ -256,4 +261,9 @@ export const mdxComponents = {
   BreadcrumbWrapperBeta,
   TabsWrapperBeta,
   SpinnerWrapperBeta,
+  CardWrapperBeta,
+  MenuWrapperBeta,
+  PopoverWrapperBeta,
+  SkeletonWrapperBeta,
+  TooltipWrapperBeta,
 };

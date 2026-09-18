@@ -1,48 +1,63 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { NavGroup } from "../_lib/docs";
 import { v2Config } from "../_lib/config";
+import { localeInfo, parsePath, type Locale } from "../_lib/i18n";
+import { t } from "../_lib/strings";
 import { Logo } from "./Logo";
 import { MobileNav } from "./MobileNav";
 import { CommandMenu } from "./CommandMenu";
 import { ThemeToggle } from "./ThemeToggle";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { GitHubIcon } from "./GitHubIcon";
 
-export function SiteHeader({ nav }: { nav: NavGroup[] }) {
+/**
+ * Client-side because the header sits above the locale segment in the route
+ * tree: it reads the locale from the path and picks that locale's navigation.
+ */
+export function SiteHeader({ navs }: { navs: Record<Locale, NavGroup[]> }) {
+  const pathname = usePathname();
+  const { locale } = parsePath(pathname);
+  const s = t(locale);
+  const nav = navs[locale] ?? [];
   const firstDoc = nav[0]?.items[0];
 
   return (
-    <header className="v2-header">
+    <header className="v2-header" lang={localeInfo(locale).htmlLang}>
       <div className="v2-container flex h-14 items-center gap-2 sm:gap-4">
-        <MobileNav nav={nav} />
-        <Logo />
+        <MobileNav nav={nav} locale={locale} />
+        <Logo locale={locale} />
         <span className="v2-pill">{v2Config.version}</span>
 
         <nav aria-label="Main" className="ml-4 hidden items-center gap-1 text-sm lg:flex">
           {firstDoc && (
             <Link href={firstDoc.href} className="v2-top-link">
-              Components
+              {s.components}
             </Link>
           )}
           <Link href={v2Config.legacyDocsHref} className="v2-top-link">
-            1.x Docs
+            {s.legacyDocs}
           </Link>
           <Link href={v2Config.bugReportHref} className="v2-top-link">
-            Report a bug
+            {s.reportBug}
           </Link>
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
-          <CommandMenu />
+          <CommandMenu locale={locale} />
+          <LanguageSwitcher locale={locale} />
           <a
             href={v2Config.github}
             target="_blank"
             rel="noopener noreferrer"
             className="v2-icon-btn"
-            aria-label="GitHub repository"
+            aria-label={s.githubRepository}
           >
             <GitHubIcon className="size-4" />
           </a>
-          <ThemeToggle />
+          <ThemeToggle locale={locale} />
         </div>
       </div>
     </header>

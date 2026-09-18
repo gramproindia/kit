@@ -2,6 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Check, ChevronDown, Copy, FileText } from "lucide-react";
+import { DEFAULT_LOCALE, type Locale } from "../_lib/i18n";
+import { t } from "../_lib/strings";
 
 function ChatGptIcon() {
   return (
@@ -22,13 +24,22 @@ function ClaudeIcon() {
   );
 }
 
-export function PageActions({ title, markdownPath }: { title: string; markdownPath: string }) {
+export function PageActions({
+  title,
+  markdownPath,
+  locale = DEFAULT_LOCALE,
+}: {
+  title: string;
+  markdownPath: string;
+  locale?: Locale;
+}) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   // The menu opens toward whichever side has room (the button wraps to the left edge on phones).
   const [alignStart, setAlignStart] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const menuId = useId();
+  const s = t(locale);
 
   useEffect(() => {
     if (!open) return;
@@ -90,7 +101,7 @@ export function PageActions({ title, markdownPath }: { title: string; markdownPa
       <div className="v2-split">
         <button type="button" onClick={copyMarkdown} className="v2-split-main" aria-live="polite">
           {copied ? <Check className="size-3.5" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
-          <span>{copied ? "Copied" : "Copy page"}</span>
+          <span>{copied ? s.copied : s.copyPage}</span>
         </button>
         <button
           type="button"
@@ -98,7 +109,7 @@ export function PageActions({ title, markdownPath }: { title: string; markdownPa
           aria-haspopup="menu"
           aria-expanded={open}
           aria-controls={open ? menuId : undefined}
-          aria-label="More page actions"
+          aria-label={s.morePageActions}
           onClick={() => {
             const rect = root.current?.getBoundingClientRect();
             setAlignStart(!!rect && rect.right < 16.5 * 16 + 16);
@@ -110,19 +121,19 @@ export function PageActions({ title, markdownPath }: { title: string; markdownPa
       </div>
 
       {open && (
-        <div id={menuId} role="menu" aria-label="Page actions" className="v2-menu" data-align={alignStart ? "start" : "end"} onKeyDown={onMenuKey}>
+        <div id={menuId} role="menu" aria-label={s.pageActions} className="v2-menu" data-align={alignStart ? "start" : "end"} onKeyDown={onMenuKey}>
           <button type="button" role="menuitem" className="v2-menu-item" onClick={copyMarkdown}>
             <Copy className="size-4" aria-hidden />
             <span>
-              <span className="v2-menu-title">Copy page</span>
-              <span className="v2-menu-desc">Copy as Markdown for LLMs</span>
+              <span className="v2-menu-title">{s.copyPage}</span>
+              <span className="v2-menu-desc">{s.copyPageDescription}</span>
             </span>
           </button>
           <a role="menuitem" className="v2-menu-item" href={markdownPath} target="_blank" rel="noopener" onClick={() => setOpen(false)}>
             <FileText className="size-4" aria-hidden />
             <span>
-              <span className="v2-menu-title">View as Markdown</span>
-              <span className="v2-menu-desc">Plain text version of this page</span>
+              <span className="v2-menu-title">{s.viewMarkdown}</span>
+              <span className="v2-menu-desc">{s.viewMarkdownDescription}</span>
             </span>
           </a>
           <a
@@ -135,8 +146,8 @@ export function PageActions({ title, markdownPath }: { title: string; markdownPa
           >
             <ChatGptIcon />
             <span>
-              <span className="v2-menu-title">Open in ChatGPT</span>
-              <span className="v2-menu-desc">Ask questions about this page</span>
+              <span className="v2-menu-title">{s.openInChatGpt}</span>
+              <span className="v2-menu-desc">{s.askAboutPage}</span>
             </span>
           </a>
           <a
@@ -149,8 +160,8 @@ export function PageActions({ title, markdownPath }: { title: string; markdownPa
           >
             <ClaudeIcon />
             <span>
-              <span className="v2-menu-title">Open in Claude</span>
-              <span className="v2-menu-desc">Ask questions about this page</span>
+              <span className="v2-menu-title">{s.openInClaude}</span>
+              <span className="v2-menu-desc">{s.askAboutPage}</span>
             </span>
           </a>
         </div>

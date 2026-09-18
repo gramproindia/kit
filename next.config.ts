@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
   },
   // /2.0.0-beta/<slug>.md serves the page as plain Markdown (for LLMs).
   async rewrites() {
-    return [{ source: "/2.0.0-beta/:slug.md", destination: "/2.0.0-beta/md/:slug" }];
+    return [{ source: "/2.0.0-beta/:path*.md", destination: "/2.0.0-beta/md/:path*" }];
   },
   // The beta docs moved to the 2.0.0 beta site; keep old links working.
   async redirects() {

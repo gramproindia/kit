@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CornerDownLeft, FileText, Hash, Search } from "lucide-react";
 import { V2_BASE } from "../_lib/config";
+import { DEFAULT_LOCALE, type Locale } from "../_lib/i18n";
+import { format, t } from "../_lib/strings";
 import type { SearchEntry } from "../search.json/route";
 
 let indexPromise: Promise<SearchEntry[]> | null = null;
@@ -32,17 +34,18 @@ function score(entry: SearchEntry, terms: string[]) {
   return total + (entry.type === "page" ? 3 : 0);
 }
 
-export function CommandMenu() {
+export function CommandMenu({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
   const router = useRouter();
+  const s = t(locale);
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLUListElement>(null);
-  const [entries, setEntries] = useState<SearchEntry[]>([]);
+  const [all, setAll] = useState<SearchEntry[]>([]);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
 
   const open = useCallback(() => {
-    loadIndex().then(setEntries);
+    loadIndex().then(setAll);
     setQuery("");
     setActive(0);
     dialog.current?.showModal();
@@ -65,6 +68,8 @@ export function CommandMenu() {
   }, [open]);
 
   const results = useMemo(() => {
+    // Only the language the reader is currently browsing.
+    const entries = all.filter((entry) => (entry.locale ?? DEFAULT_LOCALE) === locale);
     const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
     if (terms.length === 0) return entries.filter((e) => e.type === "page");
     return entries
@@ -73,7 +78,7 @@ export function CommandMenu() {
       .sort((a, b) => b.score - a.score)
       .slice(0, 40)
       .map((r) => r.entry);
-  }, [entries, query]);
+  }, [all, locale, query]);
 
   const go = (entry: SearchEntry | undefined) => {
     if (!entry) return;
@@ -101,18 +106,18 @@ export function CommandMenu() {
         onPointerEnter={loadIndex}
         onFocus={loadIndex}
         className="v2-search-trigger"
-        aria-label="Search documentation"
+        aria-label={s.searchAria}
         aria-keyshortcuts="Control+K Meta+K"
       >
         <Search className="size-4 shrink-0" aria-hidden />
-        <span className="hidden sm:inline">Search docs…</span>
+        <span className="hidden sm:inline">{s.searchDocs}</span>
         <kbd className="ml-auto hidden sm:inline-flex">Ctrl K</kbd>
       </button>
 
       <dialog
         ref={dialog}
         className="v2-command"
-        aria-label="Search documentation"
+        aria-label={s.searchAria}
         onClick={(event) => event.target === event.currentTarget && close()}
       >
         <div className="flex items-center gap-3 border-b border-(--v2-border) px-4">
@@ -126,7 +131,7 @@ export function CommandMenu() {
               setActive(0);
             }}
             onKeyDown={onInputKey}
-            placeholder="Search components and sections…"
+            placeholder={s.searchPlaceholder}
             className="h-14 w-full bg-transparent text-[15px] outline-none placeholder:text-(--v2-faint)"
             role="combobox"
             aria-expanded="true"
@@ -140,7 +145,7 @@ export function CommandMenu() {
         <ul ref={list} id="v2-command-results" role="listbox" className="max-h-[min(60vh,26rem)] overflow-y-auto p-2">
           {results.length === 0 && (
             <li className="px-3 py-10 text-center text-sm text-(--v2-muted)">
-              {entries.length === 0 ? "Loading…" : `No results for “${query}”`}
+              {all.length === 0 ? s.loading : format(s.noResultsFor, { query })}
             </li>
           )}
           {results.map((entry, i) => (

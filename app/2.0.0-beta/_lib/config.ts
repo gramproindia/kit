@@ -15,7 +15,3 @@ export const v2Config = {
   /** Sidebar group order; groups not listed here are sorted after these. */
   groups: ["General", "Data", "Inputs", "Navigation", "Overlays", "Feedback"],
 };
-
-export function docHref(slug: string) {
-  return `${V2_BASE}/${slug}`;
-}

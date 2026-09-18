@@ -13,6 +13,11 @@
 @import "../component-lib/2.0.0/checkbox/styles.css";
 @import "../component-lib/2.0.0/spinner/styles.css";
 @import "../component-lib/2.0.0/tabs/styles.css";
+@import "../component-lib/2.0.0/menu/styles.css";
+@import "../component-lib/2.0.0/tooltip/styles.css";
+@import "../component-lib/2.0.0/popover/styles.css";
+@import "../component-lib/2.0.0/skeleton/styles.css";
+@import "../component-lib/2.0.0/card/styles.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));

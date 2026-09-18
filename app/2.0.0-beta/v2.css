@@ -93,6 +93,16 @@
     border-radius: 6px;
   }
 
+  /* Malayalam needs its own face and a little more line height to breathe. */
+  .v2 :lang(ml) {
+    font-family: var(--v2-font-malayalam), var(--v2-font-sans), ui-sans-serif, system-ui, sans-serif;
+    line-height: 1.8;
+  }
+
+  .v2 :lang(ml) :where(h1, h2, h3, h4, h5, h6) {
+    line-height: 1.45;
+  }
+
   .v2 kbd:not(.v2-demo *) {
     display: inline-flex;
     align-items: center;
@@ -247,6 +257,13 @@
   .v2-search-trigger:hover {
     color: var(--v2-fg);
     background: var(--v2-subtle);
+  }
+
+  /* Labels differ in length per language; never let one wrap the header. */
+  .v2-search-trigger > span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   @media (min-width: 640px) {
@@ -492,6 +509,10 @@
     border-radius: 0.75rem;
     background: var(--v2-bg);
     box-shadow: var(--v2-shadow), 0 12px 32px -12px rgb(0 0 0 / 0.25);
+  }
+
+  .v2-menu[data-size="sm"] {
+    width: 11rem;
   }
 
   .v2-menu[data-align="start"] {

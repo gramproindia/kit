@@ -10,7 +10,7 @@ import type { Heading } from "../_lib/docs";
  */
 const READ_LINE = 200;
 
-export function TableOfContents({ items }: { items: Heading[] }) {
+export function TableOfContents({ items, title = "On this page" }: { items: Heading[]; title?: string }) {
   const [activeId, setActiveId] = useState(items[0]?.id ?? "");
 
   useEffect(() => {
@@ -50,8 +50,8 @@ export function TableOfContents({ items }: { items: Heading[] }) {
   }, [items]);
 
   return (
-    <nav aria-label="On this page">
-      <p className="v2-nav-heading">On this page</p>
+    <nav aria-label={title}>
+      <p className="v2-nav-heading">{title}</p>
       <ul className="v2-toc">
         {items.map((item) => (
           <li key={item.id}>

@@ -4,8 +4,9 @@ import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import { remarkMermaid } from "@/lib/remark-mermaid";
 import { mdxComponents } from "../_components/mdx";
-import { readSource, type Heading } from "./docs";
+import { readSourceWithFallback, type Heading } from "./docs";
 import { createSlugger } from "./slug";
+import { DEFAULT_LOCALE, type Locale } from "./i18n";
 
 type HastNode = {
   type: string;
@@ -46,13 +47,13 @@ const prettyCodeOptions = {
   keepBackground: false,
 };
 
-export const renderDoc = cache(async (slug: string) => {
-  const source = await readSource(slug);
-  if (!source) return null;
+export const renderDoc = cache(async (slug: string, locale: Locale = DEFAULT_LOCALE) => {
+  const found = await readSourceWithFallback(slug, locale);
+  if (!found) return null;
 
   const toc: Heading[] = [];
   const { content, frontmatter } = await compileMDX<Record<string, unknown>>({
-    source,
+    source: found.source,
     components: mdxComponents,
     options: {
       parseFrontmatter: true,
@@ -63,5 +64,5 @@ export const renderDoc = cache(async (slug: string) => {
     },
   });
 
-  return { content, frontmatter, toc };
+  return { content, frontmatter, toc, translated: found.translated };
 });
