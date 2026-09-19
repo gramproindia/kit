@@ -8,7 +8,7 @@ order: 2
 ## Installation
 
 ```bash
-npx gbs-add-block -a DataGrid -beta
+npx gbs-add-block@latest -a DataGrid -beta
 ```
 
 The block copies the `data-grid` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -114,20 +114,20 @@ export default function Employees({ data }: { data: Employee[] }) {
 
 ### Features
 
-| Prop                     | Type                               | Default              | Description                                                                      |
-| ------------------------ | ---------------------------------- | -------------------- | -------------------------------------------------------------------------------- |
-| `enablePagination`       | `boolean`                          | `true`               | Shows the pagination bar. When `false`, all rows scroll in one virtualized list. |
-| `pageSizeOptions`        | `number[]`                         | `[25, 50, 100, 250]` | Choices in the "Rows per page" select. The default page size is 50.              |
-| `enableSorting`          | `boolean`                          | `true`               | Header click, Enter key and the column menu sort columns.                        |
-| `enableMultiSort`        | `boolean`                          | `true`               | Shift + click (or Shift + Enter) adds a column to the sort.                      |
-| `enableFiltering`        | `boolean`                          | `true`               | Shows the filter form in the column menu.                                        |
-| `enableColumnResizing`   | `boolean`                          | `true`               | Drag the header edge to resize. Double-click the edge to reset.                  |
-| `enableColumnReordering` | `boolean`                          | `true`               | Drag headers to reorder, or use "Move earlier / later" in the column menu.       |
-| `enableColumnPinning`    | `boolean`                          | `true`               | "Pin to start / end" in the column menu.                                         |
-| `enableColumnHiding`     | `boolean`                          | `true`               | "Hide column" in the column menu and the Columns toolbar menu.                   |
-| `enableRowSelection`     | `boolean` \| `(row: T) => boolean` | `false`              | Adds a checkbox column. Pass a function to allow selection only for some rows.   |
-| `selectionMode`          | `"single"` \| `"multiple"`         | `"multiple"`         | `single` keeps at most one row selected and hides the select-all checkbox.       |
-| `toolbar`                | `boolean` \| `ToolbarOptions`      | `true`               | Shows the toolbar. See [Toolbar Options](#toolbar-options).                      |
+| Prop                     | Type                               | Default              | Description                                                                                                |
+| ------------------------ | ---------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `enablePagination`       | `boolean`                          | `true`               | Shows the pagination bar. When `false`, all rows scroll in one virtualized list.                           |
+| `pageSizeOptions`        | `number[]`                         | `[25, 50, 100, 250]` | Choices in the "Rows per page" select. The default page size is 50.                                        |
+| `enableSorting`          | `boolean`                          | `true`               | Header click, Enter key and the column menu sort columns.                                                  |
+| `enableMultiSort`        | `boolean`                          | `true`               | Shift + click (or Shift + Enter) adds a column to the sort.                                                |
+| `enableFiltering`        | `boolean`                          | `true`               | Shows the filter form in the column menu.                                                                  |
+| `enableColumnResizing`   | `boolean`                          | `true`               | Drag the header edge to resize. Escape while dragging abandons it; double-click the edge resets the width. |
+| `enableColumnReordering` | `boolean`                          | `true`               | Drag headers to reorder, or use "Move earlier / later" in the column menu.                                 |
+| `enableColumnPinning`    | `boolean`                          | `true`               | "Pin to start / end" in the column menu.                                                                   |
+| `enableColumnHiding`     | `boolean`                          | `true`               | "Hide column" in the column menu and the Columns toolbar menu.                                             |
+| `enableRowSelection`     | `boolean` \| `(row: T) => boolean` | `false`              | Adds a checkbox column. Pass a function to allow selection only for some rows.                             |
+| `selectionMode`          | `"single"` \| `"multiple"`         | `"multiple"`         | `single` keeps at most one row selected and hides the select-all checkbox.                                 |
+| `toolbar`                | `boolean` \| `ToolbarOptions`      | `true`               | Shows the toolbar. See [Toolbar Options](#toolbar-options).                                                |
 
 ### Events
 
@@ -969,19 +969,19 @@ gridRef.current?.exportCsv({ rows: allRowsFromServer });
 
 The grid follows the WAI-ARIA grid pattern. One cell is focusable at a time; **Tab** moves focus into and out of the grid.
 
-| Keys                                 | Action                                                                                         |
-| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| **Arrow keys**                       | Move between cells, including the header row.                                                  |
-| **Home** / **End**                   | First / last cell in the row.                                                                  |
-| **Ctrl + Home** / **Ctrl + End**     | First header cell / last cell of the last row.                                                 |
-| **Page Up** / **Page Down**          | Move up / down by a screenful of rows.                                                         |
-| **Enter** (header)                   | Sort the column. **Shift + Enter** adds it to the sort.                                        |
-| **Alt + ↓** or **Menu key** (header) | Open the column menu.                                                                          |
-| **Enter** / **F2** (cell)            | Start editing, or move focus into a control inside the cell.                                   |
-| **Space**                            | Toggle row selection (**Shift + Space** selects a range). On the checkbox header, toggles all. |
-| **Ctrl / Cmd + A**                   | Select all rows.                                                                               |
-| **Ctrl / Cmd + C**                   | Copy selected rows, or the focused cell.                                                       |
-| **Escape**                           | Cancel editing, or return focus from a control to its cell.                                    |
+| Keys                                 | Action                                                                                           |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| **Arrow keys**                       | Move between cells, including the header row.                                                    |
+| **Home** / **End**                   | First / last cell in the row.                                                                    |
+| **Ctrl + Home** / **Ctrl + End**     | First header cell / last cell of the last row.                                                   |
+| **Page Up** / **Page Down**          | Move up / down by a screenful of rows.                                                           |
+| **Enter** (header)                   | Sort the column. **Shift + Enter** adds it to the sort.                                          |
+| **Alt + ↓** or **Menu key** (header) | Open the column menu.                                                                            |
+| **Enter** / **F2** (cell)            | Start editing, or move focus into a control inside the cell.                                     |
+| **Space**                            | Toggle row selection (**Shift + Space** selects a range). On the checkbox header, toggles all.   |
+| **Ctrl / Cmd + A**                   | Select all rows.                                                                                 |
+| **Ctrl / Cmd + C**                   | Copy selected rows, or the focused cell.                                                         |
+| **Escape**                           | Cancel editing, return focus from a control to its cell, or abandon a column resize in progress. |
 
 ## Styling and Theming
 

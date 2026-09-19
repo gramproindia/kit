@@ -42,7 +42,7 @@ import "@/components/date-picker/styles.css";
 
 #### DateRangePicker
 
-<DateRangePickerWrapper />
+<DateRangePickerWrapperBeta />
 
 ## Quick Start
 
@@ -380,25 +380,30 @@ It returns `open`, `view`, `months`, `weekdays`, `years`, `title`, `focusedDate`
 
 The framework-free helpers are exported from `@/components/date-picker/core` and can also run on a server:
 
-| Export                                                                              | Description                                                                          |
-| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `buildMonth(year, month, options)`                                                  | One month as weeks of days, with `today`, `outside`, `weekend` and `disabled` flags. |
-| `buildMonths(start, count, options)`                                                | Consecutive months for a multi-month view.                                           |
-| `parseDate(text, locale?, reference?)`                                              | Reads typed text in the locale's order. Returns `null` when it isn't a date.         |
-| `formatDate(date, locale?, options?)`                                               | Cached `Intl` formatting.                                                            |
-| `inputPlaceholder(locale?)` / `fieldOrder(locale?)`                                 | The locale's pattern and field order.                                                |
-| `monthNames` / `weekdayNames`                                                       | Localized names, weekdays ordered from the first day of the week.                    |
-| `moveByKey(date, key, options)`                                                     | Where an arrow, Home/End or Page key moves the focus.                                |
-| `normalizeRange` / `isInRange`                                                      | Range helpers.                                                                       |
-| `toISODate` / `parseISODate` / `toDate`                                             | Local-day conversion, never shifted to UTC.                                          |
-| `addDays` / `addMonths` / `startOfMonth` / `clampDate` / `compareDay` / `isSameDay` | Day arithmetic and comparison.                                                       |
-| `getISOWeek` / `resolveWeekStart` / `yearPage`                                      | Week numbers, the locale's first weekday, year paging.                               |
+| Export                                                                              | Description                                                                                                                     |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `buildMonth(year, month, options)`                                                  | One month as weeks of days, with `today`, `outside`, `weekend` and `disabled` flags.                                            |
+| `buildMonths(start, count, options)`                                                | Consecutive months for a multi-month view.                                                                                      |
+| `parseDate(text, locale?, reference?)`                                              | Reads typed text in the locale's order. Returns `null` when it isn't a date.                                                    |
+| `formatDate(date, locale?, options?)`                                               | Cached `Intl` formatting.                                                                                                       |
+| `inputPlaceholder(locale?)` / `fieldOrder(locale?)`                                 | The locale's pattern and field order.                                                                                           |
+| `monthNames` / `weekdayNames`                                                       | Localized names, weekdays ordered from the first day of the week.                                                               |
+| `moveByKey(date, key, options)`                                                     | Where an arrow, Home/End or Page key moves the focus.                                                                           |
+| `normalizeRange` / `isInRange`                                                      | Range helpers.                                                                                                                  |
+| `toISODate` / `parseISODate` / `toDate`                                             | Local-day conversion, never shifted to UTC.                                                                                     |
+| `addDays` / `addMonths` / `startOfMonth` / `clampDate` / `compareDay` / `isSameDay` | Day arithmetic and comparison.                                                                                                  |
+| `getISOWeek` / `resolveWeekStart` / `yearPage`                                      | Week numbers, the locale's first weekday, year paging.                                                                          |
+| `subscribeToToday` / `getToday` / `getServerToday`                                  | The shared current day, for a `useSyncExternalStore` of your own. It rolls over at midnight, and the server snapshot is `null`. |
 
 ## Next.js
 
 The components are client components: `"use client"` is already at the top of the files that need it. The `core` folder imports nothing from React, so a Server Component or a route handler can build months, parse and format dates with the same code.
 
 Pass `locale` when the page is rendered on the server, so the server and the browser produce the same text on the first paint.
+
+Today's date is never part of the server's HTML. The server and the browser can sit on opposite sides of midnight, or in different time zones, so a day marked on the server is a day the browser might disagree with. The calendar therefore renders with no `data-today` until hydration has finished, and marks the day in the render straight after — which costs nothing visible, because the calendar lives in a popover the user has to open first. A page with no server rendering marks it on the very first pass.
+
+The same value updates itself at the next local midnight, so a dashboard left open overnight does not go on pointing at yesterday. One timer serves every picker on the page. To pin the date in a test, pass `today` to the `core` helpers (`buildMonth`, `buildMonths`); `null` marks no day at all.
 
 ## Migrating from the Previous DatePicker
 
