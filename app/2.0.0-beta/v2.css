@@ -1093,6 +1093,323 @@
     margin-bottom: 0;
   }
 
+  /* ---------- Theming playground ---------- */
+
+  .v2-pg {
+    display: grid;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  @media (min-width: 768px) {
+    .v2-pg {
+      grid-template-columns: 20.5rem minmax(0, 1fr);
+      gap: 2rem;
+    }
+
+    .v2-pg-panel {
+      position: sticky;
+      top: 4.5rem;
+      max-height: calc(100dvh - 6rem);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-right: 0.5rem;
+    }
+  }
+
+  .v2-pg-panel {
+    display: grid;
+    /* minmax(0, 1fr): an `auto` track would be sized by its widest content
+       (the CSS block) and overflow the column. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    align-content: start;
+  }
+
+  .v2-pg-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .v2-pg-actions .v2-btn {
+    height: 2.25rem;
+    padding-inline: 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .v2-pg-copy {
+    flex: 1;
+  }
+
+  .v2-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .v2-pg-controls {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .v2-pg-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .v2-pg-preset {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.625rem;
+    border: 1px solid var(--v2-border);
+    border-radius: 999px;
+    color: var(--v2-muted);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+  }
+
+  .v2-pg-preset:hover {
+    color: var(--v2-fg);
+    background: var(--v2-subtle);
+  }
+
+  .v2-pg-preset[aria-pressed="true"] {
+    border-color: var(--v2-accent);
+    color: var(--v2-fg);
+    background: var(--v2-accent-soft);
+  }
+
+  .v2-pg-swatch {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 1px solid rgb(0 0 0 / 0.15);
+    border-radius: 999px;
+  }
+
+  .v2-pg-hint {
+    margin-top: 0.5rem;
+    color: var(--v2-faint);
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .v2-pg-fields {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .v2-pg-field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /*
+   * Form controls carry an intrinsic minimum width (roughly 20 characters), so
+   * without this they ignore the widths below and overflow the panel.
+   */
+  .v2-pg-panel :is(input, output, button, span, div) {
+    min-width: 0;
+  }
+
+  .v2-pg-label {
+    min-width: 0;
+  }
+
+  .v2-pg-label code {
+    display: block;
+    overflow: hidden;
+    color: var(--v2-muted);
+    font-family: var(--v2-font-mono), ui-monospace, monospace;
+    font-size: 0.6875rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .v2-pg-field[data-set] .v2-pg-label code {
+    color: var(--v2-accent);
+  }
+
+  .v2-pg-color {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .v2-pg-color input[type="color"] {
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 1px solid var(--v2-border);
+    border-radius: 0.375rem;
+    background: none;
+    cursor: pointer;
+  }
+
+  .v2-pg-color input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 2px;
+  }
+
+  .v2-pg-color input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 0.25rem;
+  }
+
+  .v2-pg-text {
+    width: 5.75rem;
+    height: 1.75rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--v2-border);
+    border-radius: 0.375rem;
+    background: var(--v2-bg);
+    color: var(--v2-fg);
+    font-family: var(--v2-font-mono), ui-monospace, monospace;
+    font-size: 0.6875rem;
+  }
+
+  .v2-pg-field .v2-pg-text:only-child {
+    width: 9rem;
+  }
+
+  .v2-pg-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .v2-pg-range input[type="range"] {
+    width: 5.5rem;
+    accent-color: var(--v2-accent);
+  }
+
+  .v2-pg-range output {
+    width: 2.75rem;
+    color: var(--v2-muted);
+    font-family: var(--v2-font-mono), ui-monospace, monospace;
+    font-size: 0.6875rem;
+  }
+
+  .v2-pg-clear {
+    grid-column: 2;
+    justify-self: end;
+    color: var(--v2-faint);
+    font-size: 0.6875rem;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .v2-pg-clear:hover {
+    color: var(--v2-fg);
+  }
+
+  .v2-pg-drawer {
+    border: 1px solid var(--v2-border);
+    border-radius: 0.75rem;
+    background: var(--v2-surface);
+  }
+
+  .v2-pg-drawer summary {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .v2-pg-drawer[open] summary {
+    border-bottom: 1px solid var(--v2-border);
+  }
+
+  .v2-pg-drawer .v2-pg-controls {
+    padding: 1rem;
+  }
+
+  .v2-pg-css pre {
+    max-height: 14rem;
+    margin: 0;
+    padding: 0.75rem;
+    overflow: auto;
+    border: 1px solid var(--v2-border);
+    border-radius: 0.5rem;
+    background: var(--v2-code-bg);
+    font-family: var(--v2-font-mono), ui-monospace, monospace;
+    font-size: 0.6875rem;
+    line-height: 1.6;
+  }
+
+  .v2-pg-jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--v2-border);
+  }
+
+  .v2-pg-jump a {
+    color: var(--v2-faint);
+    font-size: 0.75rem;
+  }
+
+  .v2-pg-jump a:hover {
+    color: var(--v2-accent);
+  }
+
+  .v2-pg-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 1280px) {
+    .v2-pg-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .v2-pg-card[data-wide] {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .v2-pg-card {
+    overflow: hidden;
+    border: 1px solid var(--v2-border);
+    border-radius: 0.875rem;
+    background: var(--v2-bg);
+    scroll-margin-top: 5rem;
+  }
+
+  .v2-pg-card > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    border-bottom: 1px solid var(--v2-border);
+    background: var(--v2-surface);
+  }
+
+  .v2-pg-card h2 {
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .v2-pg-doclink {
+    color: var(--v2-faint);
+    font-size: 0.75rem;
+  }
+
+  .v2-pg-doclink:hover {
+    color: var(--v2-accent);
+  }
+
+  .v2-pg-stage {
+    padding: 1.25rem;
+    background-image: radial-gradient(var(--v2-border) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
   /* ---------- Live demos ---------- */
 
   .v2-demo {

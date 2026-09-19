@@ -20,6 +20,10 @@ import { TableOfContents } from "../_components/TableOfContents";
 import { PageActions } from "../_components/PageActions";
 import { SidebarNav } from "../_components/SidebarNav";
 import { Overview } from "../_components/Overview";
+import { Playground } from "../_components/playground/Playground";
+
+/** Pages that are not docs: no sidebar entry, reachable from the header. */
+const PLAYGROUND = "playground";
 
 export const dynamicParams = false;
 
@@ -38,6 +42,7 @@ export async function generateStaticParams() {
   for (const locale of LOCALE_CODES) {
     // Each non-default locale also gets its own landing page, e.g. /2.0.0-beta/ml.
     if (locale !== DEFAULT_LOCALE) params.push({ slug: [locale] });
+    params.push({ slug: locale === DEFAULT_LOCALE ? [PLAYGROUND] : [locale, PLAYGROUND] });
     for (const doc of docs) {
       params.push({ slug: locale === DEFAULT_LOCALE ? [doc.slug] : [locale, doc.slug] });
     }
@@ -49,12 +54,23 @@ type Props = { params: Promise<{ slug: string[] }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = resolve((await params).slug);
-  const languages = Object.fromEntries(LOCALE_CODES.map((code) => [code, slug ? docHref(slug, code) : homeHref(code)]));
+  const languages = Object.fromEntries(
+    LOCALE_CODES.map((code) => [code, slug ? `${homeHref(code)}/${slug}` : homeHref(code)]),
+  );
 
   if (!slug) {
     return {
       title: { absolute: `${v2Config.name} ${v2Config.version} Docs` },
       alternates: { canonical: homeHref(locale), languages },
+    };
+  }
+
+  if (slug === PLAYGROUND) {
+    const s = t(locale);
+    return {
+      title: s.pgTitle,
+      description: s.pgIntro,
+      alternates: { canonical: `${homeHref(locale)}/${PLAYGROUND}`, languages },
     };
   }
 
@@ -81,6 +97,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function DocPage({ params }: Props) {
   const { locale, slug } = resolve((await params).slug);
   if (!slug) return <Overview locale={locale} />;
+  if (slug === PLAYGROUND) return <Playground locale={locale} />;
 
   const s = t(locale);
   const docs = await getDocs(locale);

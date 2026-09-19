@@ -108,6 +108,39 @@ const en = {
   mdOpenLiveExample: "open the live example",
   mdBetaLine: "Beta (experimental; APIs may change)",
   mdSource: "Source",
+
+  // Theming playground
+  playground: "Playground",
+  pgTitle: "Theming playground",
+  pgIntro:
+    "Change the shared --gbs-* variables and watch every component follow. Nothing is saved: copy the CSS when you like what you see, and paste it into your own :root.",
+  pgReadGuide: "Read the theming guide",
+  pgPresets: "Presets",
+  pgPresetNames: {
+    default: "Default",
+    violet: "Violet",
+    teal: "Teal",
+    rose: "Rose",
+    square: "Mono",
+    custom: "Custom",
+  } as Record<string, string>,
+  pgScheme: "Color scheme",
+  pgSchemeDark: "Preview in dark",
+  pgSchemeLight: "Preview in light",
+  pgSchemeHint: "Colors you set are stored as a light-dark() pair, so each scheme keeps its own value.",
+  pgGroups: {
+    surfaces: "Surfaces and text",
+    shape: "Borders and shape",
+    accent: "Accent and status",
+    rows: "Grid rows",
+  } as Record<string, string>,
+  pgOptions: "Theme options",
+  pgReset: "Reset",
+  pgResetAll: "Reset everything",
+  pgCopyCss: "Copy CSS",
+  pgYourCss: "Your CSS",
+  pgJumpTo: "Jump to a component",
+  pgDocs: "Docs",
 };
 
 export type Strings = typeof en;
@@ -210,6 +243,39 @@ const ml: Strings = {
   mdOpenLiveExample: "തത്സമയ ഉദാഹരണം കാണുക",
   mdBetaLine: "ബീറ്റ (പരീക്ഷണാത്മകം; API-കൾ മാറാം)",
   mdSource: "ഉറവിടം",
+
+  // Theming playground
+  playground: "പ്ലേഗ്രൗണ്ട്",
+  pgTitle: "തീമിങ് പ്ലേഗ്രൗണ്ട്",
+  pgIntro:
+    "പൊതുവായ --gbs-* വേരിയബിളുകൾ മാറ്റി എല്ലാ കമ്പോണന്റുകളിലും അത് പ്രതിഫലിക്കുന്നത് കാണുക. ഇവിടെ ഒന്നും സേവ് ചെയ്യുന്നില്ല; ഇഷ്ടപ്പെട്ടാൽ CSS പകർത്തി നിങ്ങളുടെ :root-ൽ ചേർക്കുക.",
+  pgReadGuide: "തീമിങ് ഗൈഡ് വായിക്കുക",
+  pgPresets: "പ്രീസെറ്റുകൾ",
+  pgPresetNames: {
+    default: "ഡിഫോൾട്ട്",
+    violet: "വയലറ്റ്",
+    teal: "ടീൽ",
+    rose: "റോസ്",
+    square: "മോണോ",
+    custom: "ഇഷ്ടാനുസൃതം",
+  },
+  pgScheme: "കളർ സ്കീം",
+  pgSchemeDark: "ഡാർക്കിൽ കാണുക",
+  pgSchemeLight: "ലൈറ്റിൽ കാണുക",
+  pgSchemeHint: "നിങ്ങൾ നൽകുന്ന നിറങ്ങൾ light-dark() ജോഡിയായി സൂക്ഷിക്കുന്നു, അതിനാൽ ഓരോ സ്കീമിനും അതിന്റേതായ നിറം ഉണ്ടാകും.",
+  pgGroups: {
+    surfaces: "പ്രതലങ്ങളും ടെക്സ്റ്റും",
+    shape: "ബോർഡറും ആകൃതിയും",
+    accent: "ആക്സന്റും സ്റ്റാറ്റസും",
+    rows: "ഗ്രിഡ് വരികൾ",
+  },
+  pgOptions: "തീം ഓപ്ഷനുകൾ",
+  pgReset: "പുനഃക്രമീകരിക്കുക",
+  pgResetAll: "എല്ലാം പുനഃക്രമീകരിക്കുക",
+  pgCopyCss: "CSS പകർത്തുക",
+  pgYourCss: "നിങ്ങളുടെ CSS",
+  pgJumpTo: "ഒരു കമ്പോണന്റിലേക്ക് പോകുക",
+  pgDocs: "ഡോക്യുമെന്റേഷൻ",
 };
 
 const dictionaries: Record<Locale, Strings> = { en, ml };
