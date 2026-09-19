@@ -2,6 +2,7 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import Link from "next/link";
 import { AlertTriangle, Info, Lightbulb, OctagonAlert } from "lucide-react";
 import { CopyButton } from "./CopyButton";
+import { CommandTabs } from "./CommandTabs";
 import { MermaidChart } from "./demo-runtime";
 import { demoComponents } from "./generated/map";
 
@@ -140,6 +141,7 @@ export const mdxComponents = {
   Callout,
   Notice,
   WarningBanner,
+  CommandTabs,
   MermaidChart,
   // Every live demo, generated from the wrapper files on disk.
   ...demoComponents,

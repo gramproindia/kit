@@ -987,6 +987,51 @@
     box-shadow: 0 0 0 2px var(--v2-accent-soft);
   }
 
+  /* ---------- Command blocks (npm / pnpm) ---------- */
+
+  .v2-prose .v2-cmd {
+    margin: 1.5rem 0;
+  }
+
+  .v2-cmd-tabs {
+    display: flex;
+    gap: 0.125rem;
+    margin-left: -0.5rem;
+  }
+
+  .v2-cmd-tab {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    color: var(--v2-faint);
+    font-family: var(--v2-font-sans), ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.15s, background-color 0.15s;
+  }
+
+  .v2-cmd-tab:hover {
+    color: var(--v2-fg);
+  }
+
+  .v2-cmd-tab[aria-selected="true"] {
+    color: var(--v2-fg);
+    background: var(--v2-subtle);
+  }
+
+  .v2-cmd pre {
+    padding: 0.875rem 1.25rem;
+  }
+
+  .v2-cmd-line {
+    display: block;
+  }
+
+  .v2-cmd-prompt {
+    color: var(--v2-faint);
+    user-select: none;
+  }
+
   /* ---------- Tables ---------- */
 
   .v2-table {

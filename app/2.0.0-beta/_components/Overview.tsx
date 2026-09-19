@@ -25,7 +25,7 @@ import { getDocs, getHeadings } from "../_lib/docs";
 import { v2Config } from "../_lib/config";
 import { homeHref, type Locale } from "../_lib/i18n";
 import { format, t } from "../_lib/strings";
-import { CopyButton } from "./CopyButton";
+import { CommandTabs } from "./CommandTabs";
 import { FigmaIcon } from "./FigmaIcon";
 
 const icons: Record<string, LucideIcon> = {
@@ -89,16 +89,11 @@ export async function Overview({ locale }: { locale: Locale }) {
             </Link>
           </div>
 
-          <div className="v2-code v2-install mx-auto mt-10 max-w-md text-left">
-            <div className="v2-code-bar">
-              <span>terminal</span>
-              <CopyButton />
-            </div>
-            <pre>
-              <code>
-                <span className="text-(--v2-faint)">$ </span>npx gbs-add-block@latest -a DataGrid -beta
-              </code>
-            </pre>
+          <div className="mx-auto mt-10 max-w-md text-left">
+            <CommandTabs
+              npm="npx gbs-add-block@latest -a DataGrid -beta"
+              pnpm="pnpm dlx gbs-add-block@latest -a DataGrid -beta"
+            />
           </div>
         </div>
       </section>

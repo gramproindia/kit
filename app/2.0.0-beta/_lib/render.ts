@@ -3,6 +3,7 @@ import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import { remarkMermaid } from "@/lib/remark-mermaid";
+import { remarkCommandTabs } from "./remark-command-tabs";
 import { mdxComponents } from "../_components/mdx";
 import { readSourceWithFallback, type Heading } from "./docs";
 import { createSlugger } from "./slug";
@@ -58,7 +59,7 @@ export const renderDoc = cache(async (slug: string, locale: Locale = DEFAULT_LOC
     options: {
       parseFrontmatter: true,
       mdxOptions: {
-        remarkPlugins: [remarkGfm, remarkMermaid],
+        remarkPlugins: [remarkGfm, remarkMermaid, remarkCommandTabs],
         rehypePlugins: [rehypeHeadings(toc), [rehypePrettyCode, prettyCodeOptions]],
       },
     },

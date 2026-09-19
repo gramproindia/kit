@@ -106,7 +106,7 @@ export const getLlmsTxt = cache(async () => {
     "",
     `> ${v2Config.description}`,
     "",
-    "Components are copy-in blocks: `npx gbs-add-block@latest -a <Component>` copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once. The 2.0.0 components are in beta and their APIs may change.",
+    "Components are copy-in blocks: `npx gbs-add-block@latest -a <Component>` (or `pnpm dlx gbs-add-block@latest -a <Component>`) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once. The 2.0.0 components are in beta and their APIs may change.",
     "",
     "Every page below is also available as plain Markdown by adding `.md` to its URL.",
     "",
