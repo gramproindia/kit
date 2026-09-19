@@ -25,6 +25,11 @@ import MenuWrapperBeta from "@/app/components/examples/2.0.0/MenuWrapper";
 import PopoverWrapperBeta from "@/app/components/examples/2.0.0/PopoverWrapper";
 import SkeletonWrapperBeta from "@/app/components/examples/2.0.0/SkeletonWrapper";
 import TooltipWrapperBeta from "@/app/components/examples/2.0.0/TooltipWrapper";
+import AlertWrapper from "@/app/components/examples/2.0.0/AlertWrapper";
+import BadgeWrapper from "@/app/components/examples/2.0.0/BadgeWrapper";
+import AccordionWrapper from "@/app/components/examples/2.0.0/AccordionWrapper";
+import AvatarWrapper from "@/app/components/examples/2.0.0/AvatarWrapper";
+import ProgressWrapper from "@/app/components/examples/2.0.0/ProgressWrapper";
 import { Button } from "@/component-lib/button";
 import DataGridWrapper from "@/app/components/examples/DataGridWrapper";
 import { CodeBlock, PreBlock } from "@/app/components/CodeBlock";
@@ -272,4 +277,9 @@ export const mdxComponents = {
   PopoverWrapperBeta,
   SkeletonWrapperBeta,
   TooltipWrapperBeta,
+  AlertWrapper,
+  AccordionWrapper,
+  AvatarWrapper,
+  BadgeWrapper,
+  ProgressWrapper,
 };

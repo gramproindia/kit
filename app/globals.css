@@ -1,29 +1,5 @@
 @import "tailwindcss";
-@import "../component-lib/2.0.0/data-grid/styles.css";
-@import "../component-lib/2.0.0/combobox/styles.css";
-@import "../component-lib/2.0.0/date-picker/styles.css";
-@import "../component-lib/2.0.0/toaster/styles.css";
-@import "../component-lib/2.0.0/file-uploader/styles.css";
-@import "../component-lib/2.0.0/dialog/styles.css";
-@import "../component-lib/2.0.0/input/styles.css";
-@import "../component-lib/2.0.0/modal/styles.css";
-@import "../component-lib/2.0.0/textarea/styles.css";
-@import "../component-lib/2.0.0/breadcrumb/styles.css";
-@import "../component-lib/2.0.0/button/styles.css";
-@import "../component-lib/2.0.0/checkbox/styles.css";
-@import "../component-lib/2.0.0/spinner/styles.css";
-@import "../component-lib/2.0.0/tabs/styles.css";
-@import "../component-lib/2.0.0/menu/styles.css";
-@import "../component-lib/2.0.0/tooltip/styles.css";
-@import "../component-lib/2.0.0/switch/styles.css";
-@import "../component-lib/2.0.0/radio-group/styles.css";
-@import "../component-lib/2.0.0/number-input/styles.css";
-@import "../component-lib/2.0.0/popover/styles.css";
-@import "../component-lib/2.0.0/skeleton/styles.css";
-@import "../component-lib/2.0.0/card/styles.css";
-@import "../component-lib/2.0.0/number-input/styles.css";
-@import "../component-lib/2.0.0/radio-group/styles.css";
-@import "../component-lib/2.0.0/switch/styles.css";
+@import "./2.0.0-beta/generated-components.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));

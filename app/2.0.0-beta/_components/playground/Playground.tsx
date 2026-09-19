@@ -237,9 +237,11 @@ export function Playground({ locale }: { locale: Locale }) {
               <section key={id} id={`pg-${id}`} className="v2-pg-card" data-wide={wide || undefined}>
                 <header>
                   <h2>{title}</h2>
-                  <Link href={docHref(slug, locale)} className="v2-pg-doclink">
-                    {s.pgDocs}
-                  </Link>
+                  {slug && (
+                    <Link href={docHref(slug, locale)} className="v2-pg-doclink">
+                      {s.pgDocs}
+                    </Link>
+                  )}
                 </header>
                 <div className="v2-pg-stage">
                   <WhenVisible minHeight={minHeight}>
