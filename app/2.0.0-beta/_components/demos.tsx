@@ -208,6 +208,17 @@ export const TooltipWrapperBeta = preview(
   "Tooltip demo",
 );
 
+/*
+ * Aliases. Some pages write the plain name (<SelectWrapper />) and others the
+ * Beta one (<DateRangePickerWrapperBeta />); both resolve to the same demo so a
+ * renamed tag in the docs can't break the build.
+ */
+export const SelectWrapperBeta = SelectWrapper;
+export const MultiSelectWrapperBeta = MultiSelectWrapper;
+export const DateRangePickerWrapperBeta = DateRangePickerWrapper;
+export const ToasterWrapperBeta = ToasterWrapper;
+export const DataGridWrapper = DataGridDemo;
+
 export const MermaidChart = dynamic(
   () => import("@/app/components/MermaidChart").then((m) => m.MermaidChart),
   { ssr: false, loading: Placeholder },
