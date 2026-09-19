@@ -15,9 +15,15 @@
 @import "../component-lib/2.0.0/tabs/styles.css";
 @import "../component-lib/2.0.0/menu/styles.css";
 @import "../component-lib/2.0.0/tooltip/styles.css";
+@import "../component-lib/2.0.0/switch/styles.css";
+@import "../component-lib/2.0.0/radio-group/styles.css";
+@import "../component-lib/2.0.0/number-input/styles.css";
 @import "../component-lib/2.0.0/popover/styles.css";
 @import "../component-lib/2.0.0/skeleton/styles.css";
 @import "../component-lib/2.0.0/card/styles.css";
+@import "../component-lib/2.0.0/number-input/styles.css";
+@import "../component-lib/2.0.0/radio-group/styles.css";
+@import "../component-lib/2.0.0/switch/styles.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));

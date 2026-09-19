@@ -17,6 +17,9 @@ import CheckboxGroupWrapperBeta from "@/app/components/examples/2.0.0/CheckboxGr
 import BreadcrumbWrapperBeta from "@/app/components/examples/2.0.0/BreadcrumbWrapper";
 import TabsWrapperBeta from "@/app/components/examples/2.0.0/TabsWrapper";
 import SpinnerWrapperBeta from "@/app/components/examples/2.0.0/SpinnerWrapper";
+import SwitchWrapper from "@/app/components/examples/2.0.0/SwitchWrapper";
+import RadioGroupWrapper from "@/app/components/examples/2.0.0/RadioGroupWrapper";
+import NumberInputWrapper from "@/app/components/examples/2.0.0/NumberInputWrapper";
 import CardWrapperBeta from "@/app/components/examples/2.0.0/CardWrapper";
 import MenuWrapperBeta from "@/app/components/examples/2.0.0/MenuWrapper";
 import PopoverWrapperBeta from "@/app/components/examples/2.0.0/PopoverWrapper";
@@ -261,6 +264,9 @@ export const mdxComponents = {
   BreadcrumbWrapperBeta,
   TabsWrapperBeta,
   SpinnerWrapperBeta,
+  SwitchWrapper,
+  RadioGroupWrapper,
+  NumberInputWrapper,
   CardWrapperBeta,
   MenuWrapperBeta,
   PopoverWrapperBeta,

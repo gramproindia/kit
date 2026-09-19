@@ -208,6 +208,24 @@ export const TooltipWrapperBeta = preview(
   "Tooltip demo",
 );
 
+export const SwitchWrapper = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/SwitchWrapper"), { ssr: false, loading: Placeholder }),
+  120,
+  "Switch demo",
+);
+
+export const RadioGroupWrapper = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/RadioGroupWrapper"), { ssr: false, loading: Placeholder }),
+  160,
+  "RadioGroup demo",
+);
+
+export const NumberInputWrapper = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/NumberInputWrapper"), { ssr: false, loading: Placeholder }),
+  140,
+  "NumberInput demo",
+);
+
 /*
  * Aliases. Some pages write the plain name (<SelectWrapper />) and others the
  * Beta one (<DateRangePickerWrapperBeta />); both resolve to the same demo so a
@@ -218,6 +236,9 @@ export const MultiSelectWrapperBeta = MultiSelectWrapper;
 export const DateRangePickerWrapperBeta = DateRangePickerWrapper;
 export const ToasterWrapperBeta = ToasterWrapper;
 export const DataGridWrapper = DataGridDemo;
+export const SwitchWrapperBeta = SwitchWrapper;
+export const RadioGroupWrapperBeta = RadioGroupWrapper;
+export const NumberInputWrapperBeta = NumberInputWrapper;
 
 export const MermaidChart = dynamic(
   () => import("@/app/components/MermaidChart").then((m) => m.MermaidChart),
