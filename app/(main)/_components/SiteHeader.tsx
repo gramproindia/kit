@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { NavGroup } from "../_lib/docs";
 import { v2Config } from "../_lib/config";
-import { Palette } from "lucide-react";
+import { Palette, Sparkles } from "lucide-react";
 import { localeInfo, parsePath, sectionHref, type Locale } from "../_lib/i18n";
 import { t } from "../_lib/strings";
 import { Logo } from "./Logo";
@@ -49,10 +49,19 @@ export function SiteHeader({ navs }: { navs: Record<Locale, NavGroup[]> }) {
           >
             {s.devDemo}
           </a>
-          <Link href={v2Config.legacyDocsHref} className="v2-top-link">
+          <a
+            href={v2Config.seAgent}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="v2-top-link inline-flex items-center gap-1.5"
+          >
+            <Sparkles className="size-3.5 text-(--v2-accent)" aria-hidden />
+            {s.seAgent}
+          </a>
+          <Link href={v2Config.legacyDocsHref} className="v2-top-link hidden xl:inline-block">
             {s.legacyDocs}
           </Link>
-          <Link href={v2Config.bugReportHref} className="v2-top-link">
+          <Link href={v2Config.bugReportHref} className="v2-top-link hidden xl:inline-block">
             {s.reportBug}
           </Link>
         </nav>
