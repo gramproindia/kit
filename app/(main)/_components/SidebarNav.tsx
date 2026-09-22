@@ -19,6 +19,14 @@ export function SidebarNav({
   const pathname = usePathname();
   const s = t(locale);
 
+  const external = (href: string, label: string) => (
+    <li key={href}>
+      <a href={href} target="_blank" rel="noopener noreferrer" className="v2-nav-link" onClick={onNavigate}>
+        {label}
+      </a>
+    </li>
+  );
+
   const item = (href: string, label: string) => {
     const active = pathname === href;
     return (
@@ -45,6 +53,7 @@ export function SidebarNav({
       <div>
         <p className="v2-nav-heading">{s.resources}</p>
         <ul className="v2-nav-list">
+          {external(v2Config.devDemo, s.devDemo)}
           {item(v2Config.legacyDocsHref, s.legacyDocsLong)}
           {item(v2Config.bugReportHref, s.reportBug)}
         </ul>

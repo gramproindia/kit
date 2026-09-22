@@ -41,6 +41,14 @@ export function SiteHeader({ navs }: { navs: Record<Locale, NavGroup[]> }) {
           <Link href={sectionHref("playground", locale)} className="v2-top-link">
             {s.playground}
           </Link>
+          <a
+            href={v2Config.devDemo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="v2-top-link"
+          >
+            {s.devDemo}
+          </a>
           <Link href={v2Config.legacyDocsHref} className="v2-top-link">
             {s.legacyDocs}
           </Link>
