@@ -32,10 +32,18 @@ export function ModalWrapper() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        <button type="button" style={button} onClick={() => setPlacement("center")}>
+        <button
+          type="button"
+          style={button}
+          onClick={() => setPlacement("center")}
+        >
           Open modal
         </button>
-        <button type="button" style={button} onClick={() => setPlacement("right")}>
+        <button
+          type="button"
+          style={button}
+          onClick={() => setPlacement("right")}
+        >
           Open drawer
         </button>
       </div>

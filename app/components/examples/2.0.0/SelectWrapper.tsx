@@ -18,21 +18,52 @@ const COUNTRIES: ComboboxOption[] = [
   { value: "mx", label: "Mexico", group: "Americas", disabled: true },
 ];
 
+const INITIAL_TEAMS: ComboboxOption[] = [
+  { value: "design", label: "Design" },
+  { value: "platform", label: "Platform" },
+  { value: "support", label: "Support" },
+];
+
 /** Live example used in the Select documentation. */
 export function SelectWrapper() {
   const [country, setCountry] = useState<string | null>("de");
+  const [teams, setTeams] = useState(INITIAL_TEAMS);
+  const [team, setTeam] = useState<string | null>(null);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 380 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 380 }}>
       <Select
         label="Country"
         options={COUNTRIES}
         value={country}
         onChange={setCountry}
         placeholder="Choose a country"
+        clearable
+        required
+        error={country === null ? "Pick the billing country." : undefined}
         description="Grouped options with search. Try “bharat” to find India."
       />
-      <code style={{ fontSize: 12, opacity: 0.7 }}>value: {JSON.stringify(country)}</code>
+
+      {/* allowCreate: type a name that is not in the list, then choose "Create …". */}
+      <Select
+        label="Team"
+        options={teams}
+        value={team}
+        onChange={setTeam}
+        placeholder="Choose or create a team"
+        clearable
+        allowCreate
+        onCreate={(label) => {
+          const option = { value: label.toLowerCase().replace(/\s+/g, "-"), label };
+          setTeams((current) => [...current, option]);
+          setTeam(option.value);
+        }}
+        description="Type a name that is not listed to create it."
+      />
+
+      <code style={{ fontSize: 12, opacity: 0.7 }}>
+        country: {JSON.stringify(country)} · team: {JSON.stringify(team)}
+      </code>
     </div>
   );
 }

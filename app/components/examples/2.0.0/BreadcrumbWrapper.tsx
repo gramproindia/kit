@@ -16,7 +16,16 @@ export function BreadcrumbWrapper() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <Breadcrumb items={TRAIL} />
-      <Breadcrumb items={TRAIL} maxItems={3} aria-label="Breadcrumb (collapsed)" />
+      {/* A custom separator. */}
+      <Breadcrumb items={TRAIL} separator="/" aria-label="Breadcrumb (slashes)" />
+      {/* Collapsed: the ellipsis opens the hidden crumbs. */}
+      <Breadcrumb
+        items={TRAIL}
+        maxItems={4}
+        itemsBeforeCollapse={1}
+        itemsAfterCollapse={2}
+        aria-label="Breadcrumb (collapsed)"
+      />
     </div>
   );
 }
