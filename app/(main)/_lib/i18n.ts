@@ -1,11 +1,10 @@
-import { V2_BASE } from "./config";
 
 /*
  * Locales for the 2.0.0 docs.
  *
- * English is the default and lives at the root: /2.0.0-beta/<slug>, with its
- * MDX in app/content/2.0.0-beta/<slug>.mdx. Every other locale gets a path
- * prefix and a folder of the same name: /2.0.0-beta/ml/<slug> from
+ * English is the default and lives at the root: /<slug>, with its MDX in
+ * app/content/2.0.0-beta/<slug>.mdx. Every other locale gets a path prefix and
+ * a folder of the same name: /ml/<slug> from
  * app/content/2.0.0-beta/ml/<slug>.mdx.
  *
  * To add a locale: add it here, create the content folder, and add its strings
@@ -36,17 +35,26 @@ export function localePrefix(locale: Locale) {
 }
 
 export function homeHref(locale: Locale) {
-  return `${V2_BASE}${localePrefix(locale)}`;
+  return localePrefix(locale) || "/";
 }
 
 export function docHref(slug: string, locale: Locale = DEFAULT_LOCALE) {
-  return `${homeHref(locale)}/${slug}`;
+  return `${localePrefix(locale)}/${slug}`;
 }
 
-/** The locale a /2.0.0-beta path belongs to, and the rest of the path. */
+/**
+ * Any page under a locale, e.g. sectionHref("playground") -> "/playground" and
+ * "/ml/playground". Note homeHref() is "/" for English, so appending to it
+ * would produce "//playground" — a protocol-relative URL the browser reads as
+ * a different host.
+ */
+export function sectionHref(path: string, locale: Locale = DEFAULT_LOCALE) {
+  return `${localePrefix(locale)}/${path}`;
+}
+
+/** The locale a docs path belongs to, and the rest of the path. */
 export function parsePath(pathname: string) {
-  const rest = pathname.startsWith(V2_BASE) ? pathname.slice(V2_BASE.length) : pathname;
-  const [, first = "", ...others] = rest.split("/");
+  const [, first = "", ...others] = pathname.split("/");
   return isLocale(first) && first !== DEFAULT_LOCALE
     ? { locale: first as Locale, slug: others.join("/") }
     : { locale: DEFAULT_LOCALE, slug: [first, ...others].filter(Boolean).join("/") };

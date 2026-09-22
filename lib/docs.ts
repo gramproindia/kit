@@ -105,7 +105,7 @@ export const getDocsStructure = cache(async function (
           description: frontMatter.description,
           order: frontMatter.order || 999,
           category: frontMatter.category,
-          href: `/docs/${slug}`,
+          href: `/1.x.x-legacy/docs/${slug}`,
         };
 
         // Add content and excerpt if requested

@@ -68,7 +68,7 @@ export async function generateMetadata({
         title: `${title} | ${siteConfig.name}`,
         description,
         type: "article",
-        url: `${siteConfig.baseUrl}/docs/${slug}`,
+        url: `${siteConfig.baseUrl}/1.x.x-legacy/docs/${slug}`,
         siteName: siteConfig.name,
       },
       twitter: {

@@ -11,6 +11,7 @@ import {
   docHref,
   homeHref,
   isLocale,
+  sectionHref,
   LOCALE_CODES,
   localeInfo,
   type Locale,
@@ -55,7 +56,7 @@ type Props = { params: Promise<{ slug: string[] }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = resolve((await params).slug);
   const languages = Object.fromEntries(
-    LOCALE_CODES.map((code) => [code, slug ? `${homeHref(code)}/${slug}` : homeHref(code)]),
+    LOCALE_CODES.map((code) => [code, slug ? sectionHref(slug, code) : homeHref(code)]),
   );
 
   if (!slug) {
@@ -70,7 +71,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: s.pgTitle,
       description: s.pgIntro,
-      alternates: { canonical: `${homeHref(locale)}/${PLAYGROUND}`, languages },
+      alternates: { canonical: sectionHref(PLAYGROUND, locale), languages },
     };
   }
 

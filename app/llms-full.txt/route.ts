@@ -1,4 +1,4 @@
-import { getLlmsFullTxt } from "@/app/2.0.0-beta/_lib/markdown";
+import { getLlmsFullTxt } from "@/app/(main)/_lib/markdown";
 
 // All 2.0.0 beta docs as one Markdown file, for pasting into an LLM.
 export const dynamic = "force-static";

@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "./2.0.0-beta/generated-components.css";
+@import "./(main)/generated-components.css";
 
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));

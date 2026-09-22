@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import type { NavGroup } from "../_lib/docs";
 import { v2Config } from "../_lib/config";
 import { Palette } from "lucide-react";
-import { homeHref, localeInfo, parsePath, type Locale } from "../_lib/i18n";
+import { localeInfo, parsePath, sectionHref, type Locale } from "../_lib/i18n";
 import { t } from "../_lib/strings";
 import { Logo } from "./Logo";
 import { MobileNav } from "./MobileNav";
@@ -38,7 +38,7 @@ export function SiteHeader({ navs }: { navs: Record<Locale, NavGroup[]> }) {
               {s.components}
             </Link>
           )}
-          <Link href={`${homeHref(locale)}/playground`} className="v2-top-link">
+          <Link href={sectionHref("playground", locale)} className="v2-top-link">
             {s.playground}
           </Link>
           <Link href={v2Config.legacyDocsHref} className="v2-top-link">
@@ -52,7 +52,7 @@ export function SiteHeader({ navs }: { navs: Record<Locale, NavGroup[]> }) {
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <CommandMenu locale={locale} />
           <Link
-            href={`${homeHref(locale)}/playground`}
+            href={sectionHref("playground", locale)}
             className="v2-icon-btn lg:hidden"
             aria-label={s.pgTitle}
             title={s.pgTitle}

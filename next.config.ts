@@ -16,19 +16,29 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [],
   },
-  // /2.0.0-beta/<slug>.md serves the page as plain Markdown (for LLMs).
+  // /<slug>.md and /ml/<slug>.md serve pages as plain Markdown (for LLMs).
   async rewrites() {
-    return [{ source: "/2.0.0-beta/:path*.md", destination: "/2.0.0-beta/md/:path*" }];
+    return [{ source: "/:path*.md", destination: "/md/:path*" }];
   },
-  // The beta docs moved to the 2.0.0 beta site; keep old links working.
   async redirects() {
-    return ["combobox", "datagrid", "datepicker", "fileuploader", "toaster"].map(
-      (name) => ({
-        source: `/docs/${name}beta`,
-        destination: `/2.0.0-beta/${name}`,
-        permanent: false,
-      })
-    );
+    const betaDocs = ["combobox", "datagrid", "datepicker", "fileuploader", "toaster"].map((name) => ({
+      // The 1.x pages that previewed the beta components.
+      source: `/docs/${name}beta`,
+      destination: `/${name}`,
+      permanent: false,
+    }));
+
+    return [
+      ...betaDocs,
+      // 2.0 moved from its beta prefix to the site root.
+      { source: "/2.0.0-beta", destination: "/", permanent: false },
+      { source: "/2.0.0-beta/:path*", destination: "/:path*", permanent: false },
+      // 1.x moved behind its own prefix. /docs/<slug> is not redirected: it
+      // renders a signpost page so old links explain themselves.
+      { source: "/docs", destination: "/1.x.x-legacy/docs/getting-started", permanent: false },
+      { source: "/bug-tracker/:path*", destination: "/1.x.x-legacy/bug-tracker/:path*", permanent: false },
+      { source: "/bug-tracker", destination: "/1.x.x-legacy/bug-tracker", permanent: false },
+    ];
   },
 };
 

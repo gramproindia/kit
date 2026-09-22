@@ -3,8 +3,8 @@ export const siteConfig = {
   description: "Documentation for GramproKit component library.",
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://gramprokit.vercel.app",
   nav: [
-    { label: "Docs", href: "/docs/getting-started" },
-    { label: "Bug Report", href: "/bug-tracker" },
+    { label: "Docs", href: "/1.x.x-legacy/docs/getting-started" },
+    { label: "Bug Report", href: "/1.x.x-legacy/bug-tracker" },
     {
       label: "Download Source",
       href: "https://github.com/anandhuremanan/headless-gbs-components/archive/refs/heads/main.zip",

@@ -1,12 +1,15 @@
-/** Route prefix of the 2.0.0 beta docs. Change this when 2.0 becomes the main site. */
-export const V2_BASE = "/2.0.0-beta";
+/** The 2.0 docs are the site root. */
+export const V2_BASE = "";
+
+/** Where the previous major version now lives. */
+export const LEGACY_BASE = "/1.x.x-legacy";
 
 export const v2Config = {
   name: "GramproKit",
   version: "2.0.0-beta",
   description:
     "Documentation for the GramproKit 2.0.0 beta components — rebuilt for React 19 with no peer dependencies.",
-  legacyDocsHref: "/docs/getting-started",
+  legacyDocsHref: "/1.x.x-legacy/docs/getting-started",
   github: "https://github.com/anandhuremanan/headless-gbs-components",
   /** The 2.0.0 design file. Link without Figma's ?t= session token. */
   figma: "https://www.figma.com/design/GTLm5L1yxSb7xWC8Ung3I6/Kit.gramproindia",

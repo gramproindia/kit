@@ -1,4 +1,4 @@
-import { getLlmsTxt } from "@/app/2.0.0-beta/_lib/markdown";
+import { getLlmsTxt } from "@/app/(main)/_lib/markdown";
 
 // https://llmstxt.org — an index of the docs for language models.
 export const dynamic = "force-static";

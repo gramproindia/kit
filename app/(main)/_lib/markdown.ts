@@ -2,7 +2,7 @@ import { cache } from "react";
 import matter from "gray-matter";
 import { siteConfig } from "@/site.config";
 import { getDocs, readSourceWithFallback, type DocMeta } from "./docs";
-import { V2_BASE, v2Config } from "./config";
+import { v2Config } from "./config";
 import { DEFAULT_LOCALE, homeHref, LOCALE_CODES, localeInfo, type Locale } from "./i18n";
 import { t } from "./strings";
 
@@ -149,7 +149,7 @@ export const getLlmsFullTxt = cache(async () => {
     `> ${v2Config.description}`,
     "",
     `Translations: ${LOCALE_CODES.filter((c) => c !== DEFAULT_LOCALE)
-      .map((c) => `${localeInfo(c).label} at ${absoluteUrl(`${V2_BASE}/${c}`)}`)
+      .map((c) => `${localeInfo(c).label} at ${absoluteUrl(homeHref(c))}`)
       .join(", ")}`,
     "",
     ...pages.map((p) => `---\n\n${p}`),
