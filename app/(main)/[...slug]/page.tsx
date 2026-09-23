@@ -101,7 +101,11 @@ export default async function DocPage({ params }: Props) {
   if (slug === PLAYGROUND) return <Playground locale={locale} />;
 
   const s = t(locale);
-  const docs = await getDocs(locale);
+  const nav = await getNav(locale);
+  // Previous/next follow the sidebar: grouped, then by `order` inside a group.
+  // Walking the flat `order` list instead would jump between groups, because
+  // new pages are numbered in the order they are written, not by group.
+  const docs = nav.flatMap((group) => group.items);
   const index = docs.findIndex((d) => d.slug === slug);
   const rendered = index === -1 ? null : await renderDoc(slug, locale);
   if (!rendered) notFound();
@@ -111,7 +115,6 @@ export default async function DocPage({ params }: Props) {
   const next = docs[index + 1];
   const { content, toc, translated } = rendered;
   const [warningBefore, warningAfter] = splitAround(s.betaWarning, "bugTracker");
-  const nav = await getNav(locale);
   const lang = localeInfo(locale).htmlLang;
 
   return (

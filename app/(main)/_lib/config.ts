@@ -20,5 +20,5 @@ export const v2Config = {
   bugReportHref:
     "https://github.com/anandhuremanan/headless-gbs-components/issues",
   /** Sidebar group order; groups not listed here are sorted after these. */
-  groups: ["General", "Data", "Inputs", "Navigation", "Overlays", "Feedback"],
+  groups: ["General", "Data", "Inputs", "Navigation", "Overlays", "Feedback", "Display"],
 };

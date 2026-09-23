@@ -1,7 +1,7 @@
 ---
 title: "Button"
 description: "Primary, secondary, outline, ghost, danger and link buttons in three sizes, with a loading state that manages itself."
-group: "General"
+group: "Inputs"
 order: 1
 ---
 
@@ -65,24 +65,24 @@ export function SaveBar({ onSave }: { onSave(): Promise<void> }) {
 
 Accepts every `<button>` attribute, plus:
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `variant` | `"primary"` \| `"secondary"` \| `"outline"` \| `"ghost"` \| `"danger"` \| `"link"` | `"primary"` | Visual weight. |
-| `size` | `"sm"` \| `"md"` \| `"lg"` | `"md"` | Height 30 / 36 / 44 px. |
-| `type` | `"button"` \| `"submit"` \| `"reset"` | `"button"` | Native button type. |
-| `loading` | `boolean` | `false` | Busy state: spinner, `aria-busy`, clicks ignored. |
-| `loadingText` | `ReactNode` | — | Text next to the spinner while busy, in place of the label. |
-| `leading` | `ReactNode` | — | Icon before the label. |
-| `trailing` | `ReactNode` | — | Icon after the label. |
-| `icon` | `ReactNode` | — | Makes a square icon-only button. Always add `aria-label`. |
-| `fullWidth` | `boolean` | `false` | Fill the container's width. |
-| `disabled` | `boolean` | `false` | Natively disabled. |
-| `onClick` | `(event) => unknown` | — | Return a promise to show loading until it settles. |
-| `render` | `(props: ButtonRenderProps) => ReactElement` | — | Render another element with the button's look. See [Links](#links-and-other-elements). |
-| `className` | `string` | — | Class for the button. |
-| `classNames` | `Partial<Record<ButtonSlot, string>>` | — | Slots: `root`, `content`, `spinner`, `icon`. |
-| `localeText` | `Partial<ButtonLocaleText>` | English | See [Locale Text](#locale-text). |
-| `ref` | `Ref<HTMLButtonElement>` | — | The `<button>` element. |
+| Prop          | Type                                                                               | Default     | Description                                                                            |
+| ------------- | ---------------------------------------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------- |
+| `variant`     | `"primary"` \| `"secondary"` \| `"outline"` \| `"ghost"` \| `"danger"` \| `"link"` | `"primary"` | Visual weight.                                                                         |
+| `size`        | `"sm"` \| `"md"` \| `"lg"`                                                         | `"md"`      | Height 30 / 36 / 44 px.                                                                |
+| `type`        | `"button"` \| `"submit"` \| `"reset"`                                              | `"button"`  | Native button type.                                                                    |
+| `loading`     | `boolean`                                                                          | `false`     | Busy state: spinner, `aria-busy`, clicks ignored.                                      |
+| `loadingText` | `ReactNode`                                                                        | —           | Text next to the spinner while busy, in place of the label.                            |
+| `leading`     | `ReactNode`                                                                        | —           | Icon before the label.                                                                 |
+| `trailing`    | `ReactNode`                                                                        | —           | Icon after the label.                                                                  |
+| `icon`        | `ReactNode`                                                                        | —           | Makes a square icon-only button. Always add `aria-label`.                              |
+| `fullWidth`   | `boolean`                                                                          | `false`     | Fill the container's width.                                                            |
+| `disabled`    | `boolean`                                                                          | `false`     | Natively disabled.                                                                     |
+| `onClick`     | `(event) => unknown`                                                               | —           | Return a promise to show loading until it settles.                                     |
+| `render`      | `(props: ButtonRenderProps) => ReactElement`                                       | —           | Render another element with the button's look. See [Links](#links-and-other-elements). |
+| `className`   | `string`                                                                           | —           | Class for the button.                                                                  |
+| `classNames`  | `Partial<Record<ButtonSlot, string>>`                                              | —           | Slots: `root`, `content`, `spinner`, `icon`.                                           |
+| `localeText`  | `Partial<ButtonLocaleText>`                                                        | English     | See [Locale Text](#locale-text).                                                       |
+| `ref`         | `Ref<HTMLButtonElement>`                                                           | —           | The `<button>` element.                                                                |
 
 ## Variants
 
@@ -109,11 +109,11 @@ Icons are sized to the text (1.15 em). `leading` and `trailing` icons are hidden
 
 The loading state has three sources:
 
-| Source | How |
-| --- | --- |
-| **Async `onClick`** | Return a promise: `onClick={async () => { await save(); }}` |
+| Source              | How                                                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Async `onClick`** | Return a promise: `onClick={async () => { await save(); }}`                                                              |
 | **Form submission** | A `type="submit"` button inside `<form action={serverAction}>` is busy while the action runs (React 19 `useFormStatus`). |
-| **Manual** | `loading={isPending}` |
+| **Manual**          | `loading={isPending}`                                                                                                    |
 
 ```tsx
 <form action={createInvoice}>
@@ -134,13 +134,21 @@ To make a link look like a button, use `render`. It receives the button's class 
 ```tsx
 import Link from "next/link";
 
-<Button variant="outline" render={(props) => <Link href="/billing" {...props} />}>
+<Button
+  variant="outline"
+  render={(props) => <Link href="/billing" {...props} />}
+>
   Go to billing
 </Button>;
 ```
 
 ```tsx
-<Button variant="link" render={(props) => <a href="/docs" target="_blank" rel="noreferrer" {...props} />}>
+<Button
+  variant="link"
+  render={(props) => (
+    <a href="/docs" target="_blank" rel="noreferrer" {...props} />
+  )}
+>
   Documentation
 </Button>
 ```
@@ -149,10 +157,10 @@ Button-only attributes (`type`, `form`, `name`, `value`) are left off the render
 
 ## Keyboard
 
-| Keys | Action |
-| --- | --- |
-| **Enter** / **Space** | Activate the button. |
-| **Tab** | Move to the next control; busy buttons stay in the tab order. |
+| Keys                  | Action                                                        |
+| --------------------- | ------------------------------------------------------------- |
+| **Enter** / **Space** | Activate the button.                                          |
+| **Tab**               | Move to the next control; busy buttons stay in the tab order. |
 
 Accessibility: a real `<button>` by default. While busy, it has `aria-busy="true"` and announces "Loading" through visually hidden text. `leading` and `trailing` icons are `aria-hidden`. Focus shows as a 2 px ring on keyboard focus only (`:focus-visible`).
 
@@ -168,16 +176,16 @@ All rules are in the CSS `components` layer, so utility classes passed through `
 
 Override them on `.bt-root`, on `:root`, or through `style`. Each variable falls back to the shared `--gbs-*` of the same name, then to the DataGrid's `--dg-*` when that stylesheet is loaded, and finally to the built-in palette.
 
-| Variable | Used for |
-| --- | --- |
-| `--bt-height`, `--bt-px`, `--bt-gap`, `--bt-font-size` | Size (set by `size`). |
+| Variable                                                | Used for                                                          |
+| ------------------------------------------------------- | ----------------------------------------------------------------- |
+| `--bt-height`, `--bt-px`, `--bt-gap`, `--bt-font-size`  | Size (set by `size`).                                             |
 | `--bt-fill`, `--bt-fill-hover`, `--bt-ink`, `--bt-line` | Background, hover background, text and border (set by `variant`). |
-| `--bt-accent`, `--bt-accent-fg` | The `primary` variant and `link` text. |
-| `--bt-danger`, `--bt-danger-fg` | The `danger` variant. |
-| `--bt-subtle` | The `secondary` background. |
-| `--bt-border`, `--bt-hover` | `outline` border and hover background. |
-| `--bt-focus` | Focus ring. |
-| `--bt-radius` | Corner radius. |
+| `--bt-accent`, `--bt-accent-fg`                         | The `primary` variant and `link` text.                            |
+| `--bt-danger`, `--bt-danger-fg`                         | The `danger` variant.                                             |
+| `--bt-subtle`                                           | The `secondary` background.                                       |
+| `--bt-border`, `--bt-hover`                             | `outline` border and hover background.                            |
+| `--bt-focus`                                            | Focus ring.                                                       |
+| `--bt-radius`                                           | Corner radius.                                                    |
 
 ```css
 /* A brand variant, without touching the component */
@@ -191,8 +199,8 @@ Override them on `.bt-root`, on `:root`, or through `style`. Each variable falls
 
 #### Data attributes
 
-| Element | Attributes |
-| --- | --- |
+| Element           | Attributes                                                                                                  |
+| ----------------- | ----------------------------------------------------------------------------------------------------------- |
 | Root (`.bt-root`) | `data-variant`, `data-size`, `data-busy`, `data-icon-only`, `data-full-width`, `aria-busy`, `aria-disabled` |
 
 ## Locale Text
@@ -201,16 +209,16 @@ Override them on `.bt-root`, on `:root`, or through `style`. Each variable falls
 <Button localeText={{ loading: "Wird geladen" }} />
 ```
 
-| Key | Default |
-| --- | --- |
+| Key       | Default                                                           |
+| --------- | ----------------------------------------------------------------- |
 | `loading` | `"Loading"` — announced while busy, unless `loadingText` is given |
 
 ## Headless Use
 
-| Export | Description |
-| --- | --- |
+| Export                                        | Description                                                                 |
+| --------------------------------------------- | --------------------------------------------------------------------------- |
 | `buttonState({ disabled, loading, pending })` | Whether the button is busy, ignores activation, and uses native `disabled`. |
-| `isPromiseLike(value)` | Detects an async click handler's result. |
+| `isPromiseLike(value)`                        | Detects an async click handler's result.                                    |
 
 ## Next.js
 
@@ -221,14 +229,14 @@ The Button is a client component with `"use client"` at the top of its file.
 
 ## Migrating from the Previous Custom Button
 
-| Previous | New |
-| --- | --- |
-| `CustomBtn` | `Button` |
-| `value="Submit"` (the label) | `children`: `<Button>Submit</Button>` |
-| `id`, `name`, `className`, `disabled`, `onClick` | Same names |
-| `type` (default `submit` in the browser) | `type`, now defaulting to `button`; pass `type="submit"` where needed |
-| `buttonStyles` from `globalStyle.ts` (`primary`, `secondary`, `outline`, `ghost`, `danger`; `sm`, `md`, `lg`) | `variant` and `size` with the same names, plus `link` |
-| — | New: `loading`, async `onClick`, form-action pending state, icons, `fullWidth`, `render` |
+| Previous                                                                                                      | New                                                                                      |
+| ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `CustomBtn`                                                                                                   | `Button`                                                                                 |
+| `value="Submit"` (the label)                                                                                  | `children`: `<Button>Submit</Button>`                                                    |
+| `id`, `name`, `className`, `disabled`, `onClick`                                                              | Same names                                                                               |
+| `type` (default `submit` in the browser)                                                                      | `type`, now defaulting to `button`; pass `type="submit"` where needed                    |
+| `buttonStyles` from `globalStyle.ts` (`primary`, `secondary`, `outline`, `ghost`, `danger`; `sm`, `md`, `lg`) | `variant` and `size` with the same names, plus `link`                                    |
+| —                                                                                                             | New: `loading`, async `onClick`, form-action pending state, icons, `fullWidth`, `render` |
 
 #### Notes
 
