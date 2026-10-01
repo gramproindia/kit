@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/card/styles.css";
+@import "../component-lib/card/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/card/styles.css";
+import "@/component-lib/card/styles.css";
 ```
 
 A card groups things that belong together and gives them an edge. `Stat` is the other half of a dashboard: one figure, its label, and how it has changed.
@@ -43,8 +43,8 @@ A card groups things that belong together and gives them an edge. `Stat` is the 
 ## Quick Start
 
 ```tsx
-import { Card, CardHeader, CardBody, CardFooter, Stat, trendDirection } from "@/components/card";
-import "@/components/card/styles.css";
+import { Card, CardHeader, CardBody, CardFooter, Stat, trendDirection } from "@/component-lib/card";
+import "@/component-lib/card/styles.css";
 
 <Card>
   <CardHeader
@@ -158,7 +158,7 @@ Override them on `.cd-root`, on `:root`, or through `style`. Each variable falls
 `core/trend.ts` is framework-free:
 
 ```ts
-import { trendDirection, isPositive, percentChange } from "@/components/card";
+import { trendDirection, isPositive, percentChange } from "@/component-lib/card";
 
 trendDirection(12.4);          // "up"
 trendDirection(0.4, 0.5);      // "flat" — under the threshold

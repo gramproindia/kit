@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/popover/styles.css";
+@import "../component-lib/popover/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/popover/styles.css";
+import "@/component-lib/popover/styles.css";
 ```
 
 A popover is a small panel attached to the control that opened it: a filter form, a colour picker, a paragraph of help too long for a tooltip. It renders in the browser's top layer, so it is never clipped by a scrolling parent, and the browser handles clicking away and Escape.
@@ -43,8 +43,8 @@ A popover is a small panel attached to the control that opened it: a filter form
 ## Quick Start
 
 ```tsx
-import { Popover } from "@/components/popover";
-import "@/components/popover/styles.css";
+import { Popover } from "@/component-lib/popover";
+import "@/component-lib/popover/styles.css";
 
 <Popover trigger={<Button variant="outline">Filters</Button>} title="Filters">
   {({ close }) => (

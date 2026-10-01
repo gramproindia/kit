@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/tooltip/styles.css";
+@import "../component-lib/tooltip/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/tooltip/styles.css";
+import "@/component-lib/tooltip/styles.css";
 ```
 
 A tooltip is a few words explaining the control under the pointer: what an icon button does, what a truncated value says in full. It waits a moment on hover so that sweeping across a toolbar does not set off a chain of them, appears at once on keyboard focus, and goes away on Escape.
@@ -43,8 +43,8 @@ A tooltip is a few words explaining the control under the pointer: what an icon 
 ## Quick Start
 
 ```tsx
-import { Tooltip } from "@/components/tooltip";
-import "@/components/tooltip/styles.css";
+import { Tooltip } from "@/component-lib/tooltip";
+import "@/component-lib/tooltip/styles.css";
 
 <Tooltip content="Export as CSV">
   <Button variant="ghost" aria-label="Export">
@@ -131,7 +131,7 @@ The colours read `--gbs-tooltip-bg` and `--gbs-tooltip-fg` when those are set on
 `core/visibility.ts` is framework-free, so the timing rules can drive your own markup:
 
 ```ts
-import { nextVisibility, isHoverPointer } from "@/components/tooltip";
+import { nextVisibility, isHoverPointer } from "@/component-lib/tooltip";
 
 nextVisibility({ hovered: true, focused: false }, { open: 400, close: 120 });
 // { open: true, delay: 400 }

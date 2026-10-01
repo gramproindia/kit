@@ -23,13 +23,13 @@ React അല്ലാതെ **peer dependencies** ഒന്നും ഇല്�
 സ്റ്റൈൽഷീറ്റ് ഒരു തവണ ഇംപോർട്ട് ചെയ്യുക, ഉദാഹരണത്തിന് നിങ്ങളുടെ ഗ്ലോബൽ CSS-ൽ:
 
 ```css
-@import "../components/button/styles.css";
+@import "../component-lib/button/styles.css";
 ```
 
 അല്ലെങ്കിൽ നിങ്ങളുടെ റൂട്ട് ലേഔട്ട് / എൻട്രി ഫയലിൽ:
 
 ```ts
-import "@/components/button/styles.css";
+import "@/component-lib/button/styles.css";
 ```
 
 ദൈനംദിന ഓരോ പ്രവർത്തനവും ബട്ടൺ ഉൾക്കൊള്ളുന്നു: പ്രൈമറിയും സെക്കൻഡറിയും പ്രവർത്തനങ്ങൾ, ഔട്ട്‌ലൈനുകൾ, ശാന്തമായ ഗോസ്റ്റ് ബട്ടണുകൾ, വിനാശകരമായ (destructive) പ്രവർത്തനങ്ങൾ, ലിങ്ക്-സ്റ്റൈൽ ബട്ടണുകൾ, മൂന്ന് സൈസുകളിൽ, ഐക്കണുകളോടുകൂടി. അതിന്റെ ലോഡിംഗ് സ്റ്റേറ്റ് സ്വയം കൈകാര്യം ചെയ്യുന്നു: `onClick`-ൽ നിന്ന് ഒരു പ്രോമിസ് (promise) റിട്ടേൺ ചെയ്യുക, അല്ലെങ്കിൽ ഒരു Server Action ഉപയോഗിച്ച് ഫോം സമർപ്പിക്കുക, ജോലി പൂർത്തിയാകുന്നതുവരെ ബട്ടൺ ഒരു സ്പിന്നർ കാണിക്കും. ഇതിനിടയിൽ അതിന്റെ വീതിയും കീബോർഡ് ഫോക്കസും നിലനിർത്തുന്നു. ഒരു റൗട്ടർ ലിങ്ക് പോലുള്ള മറ്റൊരു എലമെന്റ് ആയും, അതേ രൂപത്തോടെ, ഇത് റെൻഡർ ചെയ്യാൻ കഴിയും.
@@ -45,7 +45,7 @@ import "@/components/button/styles.css";
 ```tsx
 "use client";
 
-import { Button } from "@/components/button";
+import { Button } from "@/component-lib/button";
 
 export function SaveBar({ onSave }: { onSave(): Promise<void> }) {
   return (

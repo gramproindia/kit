@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/file-uploader/styles.css";
+@import "../component-lib/file-uploader/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/file-uploader/styles.css";
+import "@/component-lib/file-uploader/styles.css";
 ```
 
 The FileUploader lets people drop, browse or paste files, checks them against your rules, and uploads them to your server in chunks. Each file shows its own progress and can be paused, resumed, retried or canceled. Several files upload at once, and failed chunks are retried with backoff. Image previews can be turned on or off, and files already on the server can be listed with download links. Without an endpoint it works as a better `<input type="file">` inside a normal form.
@@ -45,7 +45,7 @@ The FileUploader lets people drop, browse or paste files, checks them against yo
 ```tsx
 "use client";
 
-import { FileUploader } from "@/components/file-uploader";
+import { FileUploader } from "@/component-lib/file-uploader";
 
 export default function Attachments() {
   return (
@@ -812,7 +812,7 @@ interface ChunkRequest {
 Use it for APIs that aren't multipart form posts, such as raw `PUT` requests with a `Content-Range` header:
 
 ```tsx
-import { UploadHttpError, type Transport } from "@/components/file-uploader";
+import { UploadHttpError, type Transport } from "@/component-lib/file-uploader";
 
 const rangeTransport: Transport = async ({
   file,
@@ -1050,7 +1050,7 @@ const { store, items } = useFileUploader({
 <button onClick={() => store.upload()}>Upload</button>;
 ```
 
-The framework-free core is exported from `@/components/file-uploader/core`:
+The framework-free core is exported from `@/component-lib/file-uploader/core`:
 
 | Export                                                                    | Description                                                                                        |
 | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |

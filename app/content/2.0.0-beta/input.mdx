@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/input/styles.css";
+@import "../component-lib/input/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/input/styles.css";
+import "@/component-lib/input/styles.css";
 ```
 
 `Input` is a text field with a label, hint and error message, and optional icons or text before and after the value. It can also have a clear button, a show-password button and a character counter. Every other prop — `name`, `type`, `required`, `pattern`, `autoComplete`, `onBlur` — goes straight to the `<input>`, so it works with native forms and form libraries unchanged.
@@ -52,7 +52,7 @@ import "@/components/input/styles.css";
 "use client";
 
 import { useState } from "react";
-import { Input, OtpInput } from "@/components/input";
+import { Input, OtpInput } from "@/component-lib/input";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -273,7 +273,7 @@ Colors follow the page's `color-scheme`. To force a scheme, put `class="dark"` o
 
 ## Headless Use
 
-The rules the components use are exported from the framework-free `@/components/input/core`:
+The rules the components use are exported from the framework-free `@/component-lib/input/core`:
 
 | Export | Description |
 | --- | --- |

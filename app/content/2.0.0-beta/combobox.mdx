@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/combobox/styles.css";
+@import "../component-lib/combobox/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/combobox/styles.css";
+import "@/component-lib/combobox/styles.css";
 ```
 
 `Select` picks one value and `MultiSelect` picks several, shown as tags. Both are comboboxes: a control that opens a searchable list of options. They share one engine, one stylesheet and one set of keyboard rules, and they support options held in the browser or fetched from an API. The list renders in the browser's top layer, so it is never clipped by a scrolling parent — including inside a DataGrid cell.
@@ -54,7 +54,7 @@ import {
   MultiSelect,
   Select,
   type ComboboxOption,
-} from "@/components/combobox";
+} from "@/component-lib/combobox";
 
 const countries: ComboboxOption[] = [
   { value: "in", label: "India", group: "Asia", keywords: ["bharat"] },
@@ -218,7 +218,7 @@ In server mode the component does no filtering. It reports the search text and s
 "use client";
 
 import { useEffect, useState } from "react";
-import { MultiSelect, type ComboboxOption } from "@/components/combobox";
+import { MultiSelect, type ComboboxOption } from "@/component-lib/combobox";
 
 const NO_OPTIONS: ComboboxOption<number>[] = [];
 
@@ -474,7 +474,7 @@ const combobox = useCombobox({
 
 It returns `open`, `search`, `entries`, `items`, `activeIndex`, `selectedOptions`, `isSelected`, `selectOption`, `removeValue`, `clear`, `selectAllVisible`, `createLabel`, `commitCreate`, `onKeyDown`, `onControlClick`, `onControlPointerDown`, `onPopoverClose` and `handle`.
 
-The framework-free helpers are exported from `@/components/combobox/core` and can also run on a server:
+The framework-free helpers are exported from `@/component-lib/combobox/core` and can also run on a server:
 
 | Export                                                        | Description                                  |
 | ------------------------------------------------------------- | -------------------------------------------- |

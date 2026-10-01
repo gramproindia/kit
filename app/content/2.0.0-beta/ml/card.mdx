@@ -23,13 +23,13 @@ React അല്ലാതെ **peer dependencies** ഒന്നും ഇല്�
 സ്റ്റൈൽഷീറ്റ് ഒരു തവണ ഇംപോർട്ട് ചെയ്യുക, ഉദാഹരണത്തിന് നിങ്ങളുടെ ഗ്ലോബൽ CSS-ൽ:
 
 ```css
-@import "../components/card/styles.css";
+@import "../component-lib/card/styles.css";
 ```
 
 അല്ലെങ്കിൽ നിങ്ങളുടെ റൂട്ട് ലേഔട്ട് / എൻട്രി ഫയലിൽ:
 
 ```ts
-import "@/components/card/styles.css";
+import "@/component-lib/card/styles.css";
 ```
 
 പരസ്പരം ബന്ധപ്പെട്ടവയെ ഒരു കാർഡ് ഗ്രൂപ്പ് ചെയ്യുകയും അവയ്ക്ക് ഒരു എഡ്ജ് നൽകുകയും ചെയ്യുന്നു. ഡാഷ്ബോർഡിന്റെ മറുപകുതിയാണ് `Stat`: ഒരു കണക്ക്, അതിന്റെ ലേബൽ, അത് എങ്ങനെ മാറിയിരിക്കുന്നു എന്നത്.
@@ -50,8 +50,8 @@ import {
   CardFooter,
   Stat,
   trendDirection,
-} from "@/components/card";
-import "@/components/card/styles.css";
+} from "@/component-lib/card";
+import "@/component-lib/card/styles.css";
 
 <Card>
   <CardHeader
@@ -181,7 +181,7 @@ import "@/components/card/styles.css";
 `core/trend.ts` ഫ്രെയിംവർക്ക്-രഹിതമാണ്:
 
 ```ts
-import { trendDirection, isPositive, percentChange } from "@/components/card";
+import { trendDirection, isPositive, percentChange } from "@/component-lib/card";
 
 trendDirection(12.4); // "up"
 trendDirection(0.4, 0.5); // "flat" — under the threshold

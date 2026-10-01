@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/tabs/styles.css";
+@import "../component-lib/tabs/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/tabs/styles.css";
+import "@/component-lib/tabs/styles.css";
 ```
 
 Tabs switch between related views in the same place: a settings page, a record's sections, a dashboard's periods. They follow the WAI-ARIA tabs pattern. There's one stop in the tab order, the arrow keys move between tabs, and disabled tabs are skipped. They come in three looks (an underline, pills or an enclosed segmented control), horizontal or vertical, with a sliding indicator. Hidden panels can keep their state — typed input, scroll position — using React's `<Activity>`.
@@ -45,7 +45,7 @@ Tabs switch between related views in the same place: a settings page, a record's
 ```tsx
 "use client";
 
-import { Tab, TabList, TabPanel, Tabs } from "@/components/tabs";
+import { Tab, TabList, TabPanel, Tabs } from "@/component-lib/tabs";
 
 export default function Project() {
   return (

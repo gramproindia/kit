@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/date-picker/styles.css";
+@import "../component-lib/date-picker/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/date-picker/styles.css";
+import "@/component-lib/date-picker/styles.css";
 ```
 
 `DatePicker` selects one date and `DateRangePicker` selects a start and an end. Both are a text field plus a calendar: people can type a date in their own date order or pick one, and the whole calendar works from the keyboard. They share one engine, one stylesheet and one set of keyboard rules. The calendar renders in the browser's top layer, so it is never clipped by a scrolling parent — including inside a DataGrid cell.
@@ -54,7 +54,7 @@ import {
   DatePicker,
   DateRangePicker,
   type DateRange,
-} from "@/components/date-picker";
+} from "@/component-lib/date-picker";
 
 export default function Example() {
   const [date, setDate] = useState<Date | null>(null);
@@ -191,7 +191,7 @@ import {
   addDays,
   startOfMonth,
   type DatePreset,
-} from "@/components/date-picker";
+} from "@/component-lib/date-picker";
 
 const presets: DatePreset[] = [
   {
@@ -378,7 +378,7 @@ const picker = useDatePicker({
 
 It returns `open`, `view`, `months`, `weekdays`, `years`, `title`, `focusedDate`, `selection`, `selectDate`, `applyRange`, `clear`, `goToToday`, `goToMonth`, `goToYear`, `selectMonth`, `selectYear`, `onGridKeyDown`, `getDayState`, `inputValue`, `onInputChange`, `onInputBlur`, `inputError`, `onTriggerClick` and `onPopoverClose`.
 
-The framework-free helpers are exported from `@/components/date-picker/core` and can also run on a server:
+The framework-free helpers are exported from `@/component-lib/date-picker/core` and can also run on a server:
 
 | Export                                                                              | Description                                                                                                                     |
 | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |

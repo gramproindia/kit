@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/data-grid/styles.css";
+@import "../component-lib/data-grid/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/data-grid/styles.css";
+import "@/component-lib/data-grid/styles.css";
 ```
 
 The DataGrid is a virtualized data grid for React 19 and Next.js. It renders only the rows and columns on screen, so it stays fast with 100,000+ rows. It supports sorting, typed column filters, global search, pagination, row selection, column resizing, reordering, pinning and hiding, inline editing with validation, CSV / Excel / PDF export, keyboard navigation, dark mode and right-to-left layouts. It works with data held in the browser (client mode) or fetched page by page from an API (server mode).
@@ -43,7 +43,7 @@ The DataGrid is a virtualized data grid for React 19 and Next.js. It renders onl
 ```tsx
 "use client";
 
-import { createColumnHelper, DataGrid } from "@/components/data-grid";
+import { createColumnHelper, DataGrid } from "@/component-lib/data-grid";
 
 interface Employee {
   id: number;
@@ -248,7 +248,7 @@ Passed to `cell` and `cellClassName`.
 "use client";
 
 import { useMemo } from "react";
-import { createColumnHelper, DataGrid } from "@/components/data-grid";
+import { createColumnHelper, DataGrid } from "@/component-lib/data-grid";
 
 const col = createColumnHelper<Employee>();
 
@@ -577,7 +577,7 @@ In server mode the grid does not sort, filter or paginate. It reports what the u
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DataGrid, type GridApi, type GridQuery } from "@/components/data-grid";
+import { DataGrid, type GridApi, type GridQuery } from "@/component-lib/data-grid";
 import { columns, type Order } from "./columns";
 
 const initialQuery: GridQuery = {
@@ -800,7 +800,7 @@ import {
   paginate,
   resolveColumns,
   sortRows,
-} from "@/components/data-grid/core";
+} from "@/component-lib/data-grid/core";
 import { orderColumns, type Order } from "@/lib/order-columns"; // column defs without "use client"
 import { getOrders } from "@/lib/db";
 
@@ -1170,7 +1170,7 @@ Override any text with `localeText`. Dates and numbers use the `locale` prop.
 
 ## Utilities
 
-Everything below is exported from `@/components/data-grid`. The same functions (without React) are exported from `@/components/data-grid/core`, which is safe to import in server code.
+Everything below is exported from `@/component-lib/data-grid`. The same functions (without React) are exported from `@/component-lib/data-grid/core`, which is safe to import in server code.
 
 | Export               | Signature                                                             | Description                                                                                                        |
 | -------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |

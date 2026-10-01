@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/modal/styles.css";
+@import "../component-lib/modal/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/modal/styles.css";
+import "@/component-lib/modal/styles.css";
 ```
 
 The Modal shows content above the page: forms, details, terms, or anything that needs the user's full attention. It is built on the browser's own `<dialog>` element. The browser keeps it above every other element, makes the page behind it unreachable, keeps keyboard focus inside and returns focus to where it was on close. The component adds controlled state, dismiss rules, a guard for unsaved changes, sizes, side and bottom drawers, and animation.
@@ -48,7 +48,7 @@ For short questions — "Delete this?", "Rename to…" — use the [Dialog](/2.0
 "use client";
 
 import { useState } from "react";
-import { Modal } from "@/components/modal";
+import { Modal } from "@/component-lib/modal";
 
 export default function EditProfile() {
   const [open, setOpen] = useState(false);
@@ -235,7 +235,7 @@ Enter and exit use `@starting-style` and `transition-behavior: allow-discrete`. 
 
 ## Headless Use
 
-The rules the Modal follows are exported from the framework-free `@/components/modal/core`:
+The rules the Modal follows are exported from the framework-free `@/component-lib/modal/core`:
 
 | Export | Description |
 | --- | --- |

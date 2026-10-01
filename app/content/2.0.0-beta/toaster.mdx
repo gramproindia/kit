@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/toaster/styles.css";
+@import "../component-lib/toaster/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/toaster/styles.css";
+import "@/component-lib/toaster/styles.css";
 ```
 
 The Toaster shows short notifications — saved, failed, undo, in progress — in a corner of the screen. It works in any React app: Vite, Next.js, Remix or plain React. You mount `<Toaster />` once and call `toast()` from anywhere: a component, an event handler, a data layer, or code outside React. There is no hook, context or provider to set up.
@@ -46,7 +46,7 @@ The Toaster shows short notifications — saved, failed, undo, in progress — i
 
 ```tsx
 // Vite / plain React: App.tsx
-import { Toaster } from "@/components/toaster";
+import { Toaster } from "@/component-lib/toaster";
 
 export default function App() {
   return (
@@ -63,7 +63,7 @@ export default function App() {
 ```tsx
 "use client";
 
-import { toast } from "@/components/toaster";
+import { toast } from "@/component-lib/toaster";
 
 export function SaveButton() {
   return <button onClick={() => toast.success("Settings saved")}>Save</button>;
@@ -205,7 +205,7 @@ A custom toast keeps the frame, timing, swipe, Escape and close button; you prov
 
 ```ts
 // api/client.ts
-import { toast } from "@/components/toaster";
+import { toast } from "@/component-lib/toaster";
 
 export async function request(url: string) {
   const response = await fetch(url);
@@ -226,7 +226,7 @@ import {
   createToastApi,
   createToastStore,
   Toaster,
-} from "@/components/toaster";
+} from "@/component-lib/toaster";
 
 const widgetStore = createToastStore({ limit: 1 });
 export const widgetToast = createToastApi(widgetStore);
@@ -348,7 +348,7 @@ const { toasts, paused, limit } = useToasts();
 const shown = visibleToasts({ toasts, paused, limit });
 ```
 
-The framework-free core is exported from `@/components/toaster/core`:
+The framework-free core is exported from `@/component-lib/toaster/core`:
 
 | Export                                                 | Description                                                                                                                                        |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -366,8 +366,8 @@ Mount the Toaster in the root layout. It is a client component, and a Server Com
 
 ```tsx
 // app/layout.tsx
-import { Toaster } from "@/components/toaster";
-import "@/components/toaster/styles.css";
+import { Toaster } from "@/component-lib/toaster";
+import "@/component-lib/toaster/styles.css";
 
 export default function RootLayout({
   children,
@@ -390,7 +390,7 @@ export default function RootLayout({
 ```tsx
 "use client";
 
-import { toast } from "@/components/toaster";
+import { toast } from "@/component-lib/toaster";
 import { saveProfile } from "./actions";
 
 export function ProfileForm() {
@@ -436,4 +436,4 @@ The Toaster renders nothing during the server render and hydration, then mounts 
 
 - Toasts stack as a list; they do not collapse into an expandable pile.
 - `toast()` only shows toasts in the browser. Call it after a server response arrives, not in server code.
-- One shared store means one import path: don't mix `@/components/toaster` with a relative path to the same files.
+- One shared store means one import path: don't mix `@/component-lib/toaster` with a relative path to the same files.

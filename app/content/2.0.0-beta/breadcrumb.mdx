@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/breadcrumb/styles.css";
+@import "../component-lib/breadcrumb/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/breadcrumb/styles.css";
+import "@/component-lib/breadcrumb/styles.css";
 ```
 
 The Breadcrumb shows where the current page sits in your app, and lets people go back up the hierarchy in one click. Long trails collapse to their ends behind an ellipsis. Links can be drawn with your router's link component, such as `next/link`. The trail can also be published as structured data, so search engines can show it in results.
@@ -46,7 +46,7 @@ The Breadcrumb shows where the current page sits in your app, and lets people go
 "use client";
 
 import Link from "next/link";
-import { Breadcrumb } from "@/components/breadcrumb";
+import { Breadcrumb } from "@/component-lib/breadcrumb";
 
 export function InvoiceHeader({ invoice }) {
   return (
@@ -193,7 +193,7 @@ A Server Component can render it directly with plain `items` (labels, `href`s an
 "use client";
 
 import Link from "next/link";
-import { Breadcrumb, type BreadcrumbItem } from "@/components/breadcrumb";
+import { Breadcrumb, type BreadcrumbItem } from "@/component-lib/breadcrumb";
 
 export function AppBreadcrumb({ items }: { items: BreadcrumbItem[] }) {
   return <Breadcrumb items={items} renderLink={(props) => <Link {...props} />} />;

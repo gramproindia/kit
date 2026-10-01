@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/accordion/styles.css";
+@import "../component-lib/accordion/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/accordion/styles.css";
+import "@/component-lib/accordion/styles.css";
 ```
 
 An Accordion is a set of sections where opening one usually closes the others: a FAQ, a settings page, the filters beside a list.
@@ -45,7 +45,7 @@ An Accordion is a set of sections where opening one usually closes the others: a
 ```tsx
 "use client";
 
-import { Accordion } from "@/components/accordion";
+import { Accordion } from "@/component-lib/accordion";
 
 <Accordion
   defaultValue={["shipping"]}

@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/switch/styles.css";
+@import "../component-lib/switch/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/switch/styles.css";
+import "@/component-lib/switch/styles.css";
 ```
 
 A Switch is a setting that takes effect the moment it is flipped: notifications on, dark mode off, this integration connected. The control is the browser's own `<input type="checkbox">` carrying `role="switch"`, restyled as a track and a thumb. Forms post it, form libraries register it, and screen readers announce it as "on" or "off" rather than "checked".
@@ -45,7 +45,7 @@ A Switch is a setting that takes effect the moment it is flipped: notifications 
 ```tsx
 "use client";
 
-import { Switch } from "@/components/switch";
+import { Switch } from "@/component-lib/switch";
 
 export default function Settings() {
   const [notify, setNotify] = useState(true);

@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/menu/styles.css";
+@import "../component-lib/menu/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/menu/styles.css";
+import "@/component-lib/menu/styles.css";
 ```
 
 The Menu holds commands: the actions on a row, the options behind a “…” button, a list of things to export. It opens in the browser's top layer, so it is never clipped by a toolbar or a scrolling panel, and the keyboard works the way the WAI-ARIA menu button pattern says it should.
@@ -46,8 +46,8 @@ The Menu holds commands: the actions on a row, the options behind a “…” bu
 import {
   Menu, MenuItem, MenuSeparator, MenuSub,
   MenuCheckboxItem, MenuRadioGroup, MenuRadioItem, MenuGroup,
-} from "@/components/menu";
-import "@/components/menu/styles.css";
+} from "@/component-lib/menu";
+import "@/component-lib/menu/styles.css";
 
 <Menu trigger={<Button variant="outline">Actions</Button>} label="Row actions">
   <MenuItem icon={<EditIcon />} shortcut="⌘E" onSelect={edit}>Edit</MenuItem>
@@ -189,7 +189,7 @@ Override them on `.mn-root`, on `:root`, or through `style`. Each variable falls
 `core/navigation.ts` has no React in it, so the same rules can drive your own markup:
 
 ```ts
-import { nextIndex, edgeIndex, typeaheadIndex, typeaheadBuffer } from "@/components/menu";
+import { nextIndex, edgeIndex, typeaheadIndex, typeaheadBuffer } from "@/component-lib/menu";
 
 const items = [{ text: "Save" }, { text: "Save as", disabled: true }, { text: "Print" }];
 nextIndex(items, 0, 1);            // 2 — skips the disabled item

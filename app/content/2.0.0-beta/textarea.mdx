@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/textarea/styles.css";
+@import "../component-lib/textarea/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/textarea/styles.css";
+import "@/component-lib/textarea/styles.css";
 ```
 
 The Textarea is a multi-line text field with a label, hint and error message. It can also have a character counter, and it can grow with its text between a minimum and a maximum number of lines. Every other prop — `name`, `required`, `rows`, `cols`, `onKeyDown` — goes straight to the `<textarea>`, so it works with native forms and form libraries unchanged.
@@ -46,7 +46,7 @@ The Textarea is a multi-line text field with a label, hint and error message. It
 "use client";
 
 import { useState } from "react";
-import { Textarea } from "@/components/textarea";
+import { Textarea } from "@/component-lib/textarea";
 
 export default function Feedback() {
   const [message, setMessage] = useState("");
@@ -216,7 +216,7 @@ Colors follow the page's `color-scheme`. To force a scheme, put `class="dark"` o
 
 ## Headless Use
 
-The logic is exported from the framework-free `@/components/textarea/core`:
+The logic is exported from the framework-free `@/component-lib/textarea/core`:
 
 | Export                                                | Description                                                 |
 | ----------------------------------------------------- | ----------------------------------------------------------- |

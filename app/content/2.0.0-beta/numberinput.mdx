@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/number-input/styles.css";
+@import "../component-lib/number-input/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/number-input/styles.css";
+import "@/component-lib/number-input/styles.css";
 ```
 
 A field for quantities, amounts, percentages and limits. It holds a `number | null` rather than a string, reads what the person in front of the screen actually typed, and shows the number grouped and formatted when they are done.
@@ -45,7 +45,7 @@ A field for quantities, amounts, percentages and limits. It holds a `number | nu
 ```tsx
 "use client";
 
-import { NumberInput } from "@/components/number-input";
+import { NumberInput } from "@/component-lib/number-input";
 
 export default function OrderLine() {
   const [quantity, setQuantity] = useState<number | null>(1);
@@ -193,7 +193,7 @@ The component is a client component: `"use client"` is at the top of the file. I
 With a `name` the field posts with a plain form. The text it posts is the *formatted* value, so read it on the server with the same `parseNumber` and the same locale:
 
 ```ts
-import { parseNumber } from "@/components/number-input/core";
+import { parseNumber } from "@/component-lib/number-input/core";
 
 const amount = parseNumber(String(formData.get("amount")), "de-DE");
 ```

@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../components/radio-group/styles.css";
+@import "../component-lib/radio-group/styles.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/components/radio-group/styles.css";
+import "@/component-lib/radio-group/styles.css";
 ```
 
 A RadioGroup asks one question with a few mutually exclusive answers, all visible at once. The buttons are the browser's own `<input type="radio">` elements sharing a `name`, restyled — which is what gives the group one tab stop, arrow keys that move between the choices and skip the disabled ones, and validation of the whole group as a single required field, with no JavaScript involved.
@@ -45,7 +45,7 @@ A RadioGroup asks one question with a few mutually exclusive answers, all visibl
 ```tsx
 "use client";
 
-import { RadioGroup } from "@/components/radio-group";
+import { RadioGroup } from "@/component-lib/radio-group";
 
 export default function ReportSettings() {
   const [frequency, setFrequency] = useState<string | null>("weekly");

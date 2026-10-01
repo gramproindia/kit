@@ -23,13 +23,13 @@ React അല്ലാതെ **peer dependencies** ഒന്നും ഇല്�
 സ്റ്റൈൽഷീറ്റ് ഒരു തവണ ഇംപോർട്ട് ചെയ്യുക, ഉദാഹരണത്തിന് നിങ്ങളുടെ ഗ്ലോബൽ CSS-ൽ:
 
 ```css
-@import "../components/breadcrumb/styles.css";
+@import "../component-lib/breadcrumb/styles.css";
 ```
 
 അല്ലെങ്കിൽ നിങ്ങളുടെ റൂട്ട് ലേഔട്ട് / എൻട്രി ഫയലിൽ:
 
 ```ts
-import "@/components/breadcrumb/styles.css";
+import "@/component-lib/breadcrumb/styles.css";
 ```
 
 നിലവിലെ പേജ് നിങ്ങളുടെ ആപ്പിന്റെ ശ്രേണിയിൽ (hierarchy) എവിടെയാണ് നിൽക്കുന്നത് എന്ന് ബ്രെഡ്‌ക്രമ്പ് കാണിക്കുന്നു, കൂടാതെ ഒറ്റ ക്ലിക്കിൽ മുകളിലേക്ക് പോകാൻ ആളുകളെ അനുവദിക്കുന്നു. നീണ്ട ട്രെയിലുകൾ അവയുടെ അറ്റങ്ങളിൽ ഒരു എലിപ്സിസിന് (ellipsis) പിന്നിൽ ചുരുങ്ങുന്നു. `next/link` പോലുള്ള നിങ്ങളുടെ റൗട്ടറിന്റെ ലിങ്ക് കമ്പോണന്റ് ഉപയോഗിച്ച് ലിങ്കുകൾ വരയ്ക്കാം. തിരയൽ എഞ്ചിനുകൾക്ക് ഫലങ്ങളിൽ ട്രെയിൽ കാണിക്കാൻ കഴിയുന്ന വിധം, ട്രെയിൽ ഘടനാപരമായ ഡാറ്റയായും (structured data) പ്രസിദ്ധീകരിക്കാം.
@@ -46,7 +46,7 @@ import "@/components/breadcrumb/styles.css";
 "use client";
 
 import Link from "next/link";
-import { Breadcrumb } from "@/components/breadcrumb";
+import { Breadcrumb } from "@/component-lib/breadcrumb";
 
 export function InvoiceHeader({ invoice }) {
   return (
@@ -214,7 +214,7 @@ import { Link } from "react-router";
 "use client";
 
 import Link from "next/link";
-import { Breadcrumb, type BreadcrumbItem } from "@/components/breadcrumb";
+import { Breadcrumb, type BreadcrumbItem } from "@/component-lib/breadcrumb";
 
 export function AppBreadcrumb({ items }: { items: BreadcrumbItem[] }) {
   return (
