@@ -175,6 +175,41 @@ already Tailwind theme variables, point the two at each other once:
 }
 ```
 
+## With Bootstrap, or any unlayered reset
+
+Component rules live in the CSS `components` layer. A stylesheet that ships
+**unlayered** — Bootstrap, Normalize, sanitize.css, a reset of your own —
+outranks every layered rule however weak its selectors are, because the cascade
+settles layers before it looks at specificity at all.
+
+So Bootstrap's Reboot wins against our classes using nothing but bare element
+selectors:
+
+```css
+button { border-radius: 0 }
+button, input, optgroup, select, textarea { font-size: inherit; line-height: inherit }
+```
+
+On a stock Bootstrap 5 setup that leaves the Button square, at 16px instead of
+13px, with a 24px line height. Import order changes nothing. Components whose
+root is a `div` or `span` — Card, Badge, Alert — come through untouched; it is
+the ones whose root is a native form element that shift.
+
+Give the reset a layer of its own, declared before `components`:
+
+```css
+@layer bootstrap, theme, base, components, utilities;
+@import url("bootstrap/dist/css/bootstrap.min.css") layer(bootstrap);
+
+@import "../component-lib/button/styles.css";
+```
+
+That restores every component exactly. Bootstrap's own classes keep working —
+`.btn`, `.card` and the rest never collided with ours, which are all two-letter
+prefixed (`.bt-root`, `.in-input`, `.dg-cell`).
+
+<Notice message="One consequence worth knowing: once Bootstrap sits in a layer, any unlayered CSS your own app writes now outranks it. That is usually welcome, since your overrides stop needing !important — but check anywhere you relied on a Bootstrap rule beating your own." />
+
 ## Before you ship a palette
 
 Check contrast on the pairs that carry meaning: `--gbs-fg` on `--gbs-bg`, `--gbs-muted` on
