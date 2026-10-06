@@ -156,17 +156,49 @@ Or inline, for a single instance:
 
 Each component's page lists its own variables.
 
-## With Tailwind
+## Cascade layers
 
-All component rules live in the CSS `components` layer, so a utility class passed through
-`className` or `classNames` beats them without `!important`:
+Component rules ship in one layer, `gbs`, and declare nothing else:
+
+```css
+@layer gbs {
+  .bt-root { … }
+}
+```
+
+Where that layer sits is the application's call, because the application is the only
+thing that knows what else is on the page — a reset, a utility framework, your own
+design system. Declare the order once, in your global CSS:
+
+```css
+@layer reset, gbs, app, utilities;
+```
+
+Anything in a later layer beats the components; anything earlier loses to them. A
+project with no other CSS framework needs no line at all: the components style
+themselves, and your own unlayered CSS overrides them normally.
+
+### With Tailwind
+
+Tailwind v4 emits its utilities into a `utilities` layer. Name `gbs` before it and a
+utility passed through `className` or `classNames` wins without `!important`:
+
+```css
+@layer gbs, utilities;
+
+@import "tailwindcss";
+@import "../component-lib/button/styles.css";
+```
 
 ```tsx
 <Button className="rounded-full px-6" />
 ```
 
-Use utilities for one-off adjustments and `--gbs-*` for the palette. If your design tokens are
-already Tailwind theme variables, point the two at each other once:
+Tailwind v3 needs no line — it emits utilities unlayered, which already outrank a
+layer. Both majors work.
+
+Use utilities for one-off adjustments and `--gbs-*` for the palette. If your design
+tokens are already Tailwind theme variables, point the two at each other once:
 
 ```css
 :root {
@@ -175,40 +207,34 @@ already Tailwind theme variables, point the two at each other once:
 }
 ```
 
-## With Bootstrap, or any unlayered reset
+### With Bootstrap, or any unlayered reset
 
-Component rules live in the CSS `components` layer. A stylesheet that ships
-**unlayered** — Bootstrap, Normalize, sanitize.css, a reset of your own —
-outranks every layered rule however weak its selectors are, because the cascade
-settles layers before it looks at specificity at all.
-
-So Bootstrap's Reboot wins against our classes using nothing but bare element
-selectors:
+A stylesheet that ships **unlayered** — Bootstrap, Normalize, sanitize.css, a reset of
+your own — outranks every layer however weak its selectors are, because the cascade
+settles layers before it looks at specificity at all. Bootstrap's Reboot therefore
+beats the components using nothing but bare element selectors:
 
 ```css
 button { border-radius: 0 }
 button, input, optgroup, select, textarea { font-size: inherit; line-height: inherit }
 ```
 
-On a stock Bootstrap 5 setup that leaves the Button square, at 16px instead of
-13px, with a 24px line height. Import order changes nothing. Components whose
-root is a `div` or `span` — Card, Badge, Alert — come through untouched; it is
-the ones whose root is a native form element that shift.
+On a stock Bootstrap 5 setup that leaves the Button square, at 16px instead of 13px,
+with a 24px line height. Import order changes nothing.
 
-Give the reset a layer of its own, declared before `components`:
+Give the reset a layer of its own and name it before `gbs`:
 
 ```css
-@layer bootstrap, theme, base, components, utilities;
+@layer bootstrap, gbs, app, utilities;
 @import url("bootstrap/dist/css/bootstrap.min.css") layer(bootstrap);
-
-@import "../component-lib/button/styles.css";
 ```
 
-That restores every component exactly. Bootstrap's own classes keep working —
-`.btn`, `.card` and the rest never collided with ours, which are all two-letter
-prefixed (`.bt-root`, `.in-input`, `.dg-cell`).
+Components whose root is a `div` or `span` — Card, Badge, Alert — were never affected;
+it is the ones whose root is a native form element that shift. Bootstrap's own classes
+keep working either way: `.btn`, `.card` and the rest never collided with ours, which
+are all two-letter prefixed (`.bt-root`, `.in-input`, `.dg-cell`).
 
-<Notice message="One consequence worth knowing: once Bootstrap sits in a layer, any unlayered CSS your own app writes now outranks it. That is usually welcome, since your overrides stop needing !important — but check anywhere you relied on a Bootstrap rule beating your own." />
+<Notice message="Once Bootstrap sits in a layer, any unlayered CSS your own app writes outranks it. That is usually welcome, since your overrides stop needing !important — but check anywhere you relied on a Bootstrap rule beating your own." />
 
 ## Before you ship a palette
 

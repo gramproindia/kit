@@ -107,7 +107,7 @@ A popover does not trap focus, and it should not: `Tab` moves through the panel 
 
 ## Styling and Theming
 
-All rules are in the CSS `components` layer, so utility classes passed through `className` / `classNames` override them.
+All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
 
 ```tsx
 <Popover trigger={<Button>Filters</Button>} className="w-72" classNames={{ body: "gap-3" }}>

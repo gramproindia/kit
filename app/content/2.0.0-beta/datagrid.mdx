@@ -1021,7 +1021,7 @@ The grid follows the WAI-ARIA grid pattern. One cell is focusable at a time; **T
 
 ## Styling and Theming
 
-The grid ships with default styles in `styles.css`. All rules are in the CSS `components` layer, so Tailwind utilities passed through `className` or `classNames` override them.
+The grid ships with default styles in `styles.css`. All rules are in the CSS `gbs` layer. Declare where that sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utilities passed through `className` or `classNames` override them. See [Theming](/theming#cascade-layers).
 
 ```tsx
 <DataGrid

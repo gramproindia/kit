@@ -91,7 +91,7 @@ The visible `label` names the bar through `aria-labelledby`, so the name and wha
 
 ## Styling and Theming
 
-All rules are in the CSS `components` layer, so utility classes passed through `className` override them.
+All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` override them.
 
 The bar is drawn with `scale: var(--pr-fraction) 1` rather than a width in percent, so it animates on the compositor: a bar ticking up every few milliseconds costs nothing in layout. The fraction is unrounded, so a 99.6% bar does not snap to full while the last bytes are still moving, even though the label says 100%.
 

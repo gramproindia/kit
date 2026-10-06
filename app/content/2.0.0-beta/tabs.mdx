@@ -152,7 +152,7 @@ Use `activation="manual"` when showing a panel is slow (it fetches data, for exa
 
 ## Styling and Theming
 
-All rules are in the CSS `components` layer, so utility classes passed through `className` override them.
+All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` override them.
 
 ```tsx
 <TabList className="gap-6" />
