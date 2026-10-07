@@ -62,25 +62,45 @@ export async function Overview({ locale }: { locale: Locale }) {
     <main id="v2-main">
       <section className="v2-hero">
         <div className="v2-container relative py-20 text-center sm:py-28">
-          <Link href={firstDoc?.href ?? homeHref(locale)} className="v2-announce">
+          <Link
+            href={firstDoc?.href ?? homeHref(locale)}
+            className="v2-announce"
+          >
             <Sparkles className="size-3.5 text-(--v2-accent)" aria-hidden />
-            <span>{format(s.announce, { count: docs.length, version: v2Config.version })}</span>
+            <span>
+              {format(s.announce, {
+                count: docs.length,
+                version: v2Config.version,
+              })}
+            </span>
             <ArrowRight className="size-3.5" aria-hidden />
           </Link>
 
           <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-6xl">
-            {s.heroTitle} <span className="v2-gradient-text">{s.heroTitleAccent}</span>
+            {s.heroTitle}{" "}
+            <span className="v2-gradient-text">{s.heroTitleAccent}</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-pretty text-(--v2-muted) sm:text-lg">{s.heroBody}</p>
+          <p className="mx-auto mt-6 max-w-2xl text-base text-pretty text-(--v2-muted) sm:text-lg">
+            {s.heroBody}
+          </p>
 
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             {firstDoc && (
-              <Link href={firstDoc.href} className="v2-btn" data-variant="primary">
+              <Link
+                href={firstDoc.href}
+                className="v2-btn"
+                data-variant="primary"
+              >
                 {s.browseComponents}
                 <ArrowRight className="size-4" aria-hidden />
               </Link>
             )}
-            <a href={v2Config.figma} target="_blank" rel="noopener noreferrer" className="v2-btn">
+            <a
+              href={v2Config.figma}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="v2-btn"
+            >
               <FigmaIcon className="h-4 w-auto" />
               {s.figmaDesign}
             </a>
@@ -91,18 +111,24 @@ export async function Overview({ locale }: { locale: Locale }) {
 
           <div className="mx-auto mt-10 max-w-md text-left">
             <CommandTabs
-              npm="npx gbs-add-block@latest -a DataGrid -beta"
-              pnpm="pnpm dlx gbs-add-block@latest -a DataGrid -beta"
+              npm="npx gbs-add-block@latest -i -beta"
+              pnpm="pnpm dlx gbs-add-block@latest -i -beta"
             />
           </div>
         </div>
       </section>
 
-      <section className="v2-container py-16 sm:py-20" aria-labelledby="components-heading">
+      <section
+        className="v2-container py-16 sm:py-20"
+        aria-labelledby="components-heading"
+      >
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="v2-eyebrow">{s.components}</p>
-            <h2 id="components-heading" className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h2
+              id="components-heading"
+              className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl"
+            >
               {s.availableInBeta}
             </h2>
           </div>
@@ -119,13 +145,20 @@ export async function Overview({ locale }: { locale: Locale }) {
                     <span className="v2-card-icon">
                       <Icon className="size-5" aria-hidden />
                     </span>
-                    <span className="v2-badge">{s.groups[doc.group] ?? doc.group}</span>
+                    <span className="v2-badge">
+                      {s.groups[doc.group] ?? doc.group}
+                    </span>
                   </div>
                   <h3 className="mt-5 font-semibold">{doc.title}</h3>
-                  <p className="mt-1.5 text-sm text-(--v2-muted)">{doc.description}</p>
+                  <p className="mt-1.5 text-sm text-(--v2-muted)">
+                    {doc.description}
+                  </p>
                   <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-(--v2-accent)">
                     {s.readDocs}
-                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                    <ArrowRight
+                      className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
                   </span>
                 </Link>
               </li>
@@ -134,7 +167,10 @@ export async function Overview({ locale }: { locale: Locale }) {
         </ul>
       </section>
 
-      <section className="border-y border-(--v2-border) bg-(--v2-surface)" aria-label={s.highlightsLabel}>
+      <section
+        className="border-y border-(--v2-border) bg-(--v2-surface)"
+        aria-label={s.highlightsLabel}
+      >
         <div className="v2-container grid gap-10 py-16 sm:grid-cols-3">
           {s.highlights.map(({ title, body }, index) => {
             const Icon = highlightIcons[index] ?? Package;
@@ -149,11 +185,17 @@ export async function Overview({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      <section className="v2-container py-16 sm:py-20" aria-labelledby="migrate-heading">
+      <section
+        className="v2-container py-16 sm:py-20"
+        aria-labelledby="migrate-heading"
+      >
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
           <div>
             <p className="v2-eyebrow">{s.migration}</p>
-            <h2 id="migrate-heading" className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h2
+              id="migrate-heading"
+              className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl"
+            >
               {s.comingFrom1x}
             </h2>
             <p className="mt-4 text-(--v2-muted)">{s.migrationBody}</p>
@@ -172,7 +214,9 @@ export async function Overview({ locale }: { locale: Locale }) {
                     <Link href={m.href} className="v2-row group">
                       <span className="min-w-0">
                         <span className="block font-medium">{m.doc.title}</span>
-                        <span className="block truncate text-sm text-(--v2-muted)">{m.title}</span>
+                        <span className="block truncate text-sm text-(--v2-muted)">
+                          {m.title}
+                        </span>
                       </span>
                       <ArrowRight
                         className="size-4 shrink-0 text-(--v2-faint) transition-transform group-hover:translate-x-0.5"
