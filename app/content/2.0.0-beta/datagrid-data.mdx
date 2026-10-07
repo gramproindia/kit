@@ -1,0 +1,465 @@
+---
+title: "Sorting, Filtering & Server Data"
+description: "Sorting, filtering, search, row selection, controlled state and server-side pagination."
+group: "Data"
+order: 2.2
+parent: "datagrid"
+---
+
+How rows get into the grid and how they are narrowed down — in client mode, or with a server holding the data. Start at [Data Grid](/datagrid) for installation and the props table.
+
+## Sorting, Filtering and Search
+
+- **Sorting:** click a header to cycle ascending → descending → off. **Shift + click** adds the column to a multi-column sort. Empty values always sort last. Text sorts naturally ("Item 2" before "Item 10") and ignores case.
+- **Column filters:** open the column menu (the ⋮ button on the header, or **Alt + ↓** on a focused header). A filter with an empty value is ignored. All column filters must match.
+- **Search:** the toolbar search matches the displayed text of every searchable column. Every word must match somewhere in the row, so `paris active` finds rows containing both.
+- Changing filters, search or sorting returns to the first page.
+
+#### Filter operators
+
+| Column type               | Operators                                                                                           | Value format                                                                  |
+| ------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `string`                  | `contains`, `notContains`, `equals`, `notEquals`, `startsWith`, `endsWith`, `isEmpty`, `isNotEmpty` | text, case-insensitive                                                        |
+| `number`                  | `equals`, `notEquals`, `gt`, `gte`, `lt`, `lte`, `between`, `isEmpty`, `isNotEmpty`                 | number; `between` uses `value` and `value2` (both inclusive, either optional) |
+| `date`                    | `equals` (same day), `before`, `after`, `between`, `isEmpty`, `isNotEmpty`                          | `"YYYY-MM-DD"`, compared as local calendar days                               |
+| `boolean`                 | `equals`                                                                                            | `true` or `false`                                                             |
+| any column with `options` | `in` ("is any of"), `isEmpty`, `isNotEmpty`                                                         | array of option values                                                        |
+
+Set filters from code:
+
+```tsx
+gridRef.current?.setFilter("department", {
+  operator: "in",
+  value: ["Engineering", "Sales"],
+});
+gridRef.current?.setFilter("salary", {
+  operator: "between",
+  value: 50000,
+  value2: 90000,
+});
+gridRef.current?.setFilter("salary", null); // remove
+```
+
+or start with them:
+
+```tsx
+<DataGrid
+  initialState={{
+    sorting: [{ columnId: "salary", desc: true }],
+    filters: [{ columnId: "active", operator: "equals", value: true }],
+    globalFilter: "",
+    pagination: { pageIndex: 0, pageSize: 25 },
+  }}
+/>
+```
+
+
+## Row Selection
+
+```tsx
+const gridRef = useRef<GridApi<Employee>>(null);
+
+<DataGrid
+  ref={gridRef}
+  data={employees}
+  columns={columns}
+  getRowId="id"
+  enableRowSelection={(row) => row.active} // or just enableRowSelection
+  onStateChange={(next, prev) => {
+    if (next.rowSelection !== prev.rowSelection) {
+      console.log("Selected ids:", Object.keys(next.rowSelection));
+    }
+  }}
+/>;
+
+const selected = gridRef.current?.getSelectedRows();
+```
+
+- Click a checkbox to toggle a row. **Shift + click** selects the range from the last clicked row.
+- The header checkbox selects every row matching the current filters (in server mode, the rows of the current page). It shows a partial state when only some are selected.
+- Selection is stored by row id, so it survives sorting, filtering and data refreshes.
+- `rowSelection` in state looks like `{ "12": true, "57": true }`.
+
+
+## Controlled State
+
+Every key of `GridState` can be controlled. Pass the keys you want to own in `state` and update them in `onStateChange`. Keys you don't pass stay internal.
+
+```tsx
+const [sorting, setSorting] = useState<SortItem[]>([]);
+
+<DataGrid
+  data={data}
+  columns={columns}
+  state={{ sorting }}
+  onStateChange={(next) => setSorting(next.sorting)}
+/>;
+```
+
+#### Saving the column layout
+
+```tsx
+const saved = JSON.parse(localStorage.getItem("employees-layout") ?? "{}");
+
+<DataGrid
+  data={data}
+  columns={columns}
+  initialState={saved}
+  onStateChange={({
+    columnOrder,
+    columnSizing,
+    columnPinning,
+    columnVisibility,
+    density,
+  }) => {
+    localStorage.setItem(
+      "employees-layout",
+      JSON.stringify({
+        columnOrder,
+        columnSizing,
+        columnPinning,
+        columnVisibility,
+        density,
+      }),
+    );
+  }}
+/>;
+```
+
+#### GridState
+
+| Key                | Type                                           | Default                          | Description                          |
+| ------------------ | ---------------------------------------------- | -------------------------------- | ------------------------------------ |
+| `sorting`          | `SortItem[]`                                   | `[]`                             | Active sorts in priority order.      |
+| `filters`          | `ColumnFilter[]`                               | `[]`                             | Active column filters.               |
+| `globalFilter`     | `string`                                       | `""`                             | Search text.                         |
+| `pagination`       | `{ pageIndex: number; pageSize: number }`      | `{ pageIndex: 0, pageSize: 50 }` | Zero-based page index and page size. |
+| `rowSelection`     | `Record<string, boolean>`                      | `{}`                             | Selected row ids.                    |
+| `columnOrder`      | `string[]`                                     | `[]` (definition order)          | Order of unpinned columns.           |
+| `columnVisibility` | `Record<string, boolean>`                      | from `hidden`                    | `false` hides a column.              |
+| `columnSizing`     | `Record<string, number>`                       | `{}`                             | Widths set by resizing.              |
+| `columnPinning`    | `{ left: string[]; right: string[] }`          | from `pin`                       | Pinned column ids, in display order. |
+| `density`          | `"compact"` \| `"standard"` \| `"comfortable"` | `"standard"`                     | Row height: 32, 40 or 52 px.         |
+
+#### Related types
+
+```ts
+interface SortItem {
+  columnId: string;
+  desc: boolean;
+}
+
+interface ColumnFilter {
+  columnId: string;
+  operator: FilterOperator;
+  value?: string | number | boolean | (string | number)[] | null;
+  value2?: string | number | boolean | (string | number)[] | null; // upper bound for "between"
+}
+
+interface GridQuery {
+  sorting: SortItem[];
+  filters: ColumnFilter[];
+  globalFilter: string;
+  pagination: { pageIndex: number; pageSize: number };
+}
+```
+
+
+## Server Side Pagination
+
+In server mode the grid does not sort, filter or paginate. It reports what the user asked for through `onQueryChange`, and you fetch the matching page. This replaces `lazy`, `pageSettings`, `pageStatus`, `activeFilterArrayValue`, `onSearch` and the `usePaginatedData` hook.
+
+#### Client
+
+```tsx
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { DataGrid, type GridApi, type GridQuery } from "@/component-lib/data-grid";
+import { columns, type Order } from "./columns";
+
+const initialQuery: GridQuery = {
+  sorting: [{ columnId: "orderedAt", desc: true }],
+  filters: [],
+  globalFilter: "",
+  pagination: { pageIndex: 0, pageSize: 25 },
+};
+
+function toSearchParams(query: GridQuery) {
+  const params = new URLSearchParams({
+    page: String(query.pagination.pageIndex + 1),
+    pageSize: String(query.pagination.pageSize),
+  });
+  if (query.globalFilter) params.set("search", query.globalFilter);
+  if (query.sorting.length) params.set("sort", JSON.stringify(query.sorting));
+  if (query.filters.length)
+    params.set("filters", JSON.stringify(query.filters));
+  return params;
+}
+
+const NO_ROWS: Order[] = [];
+
+export default function OrdersGrid() {
+  const gridRef = useRef<GridApi<Order>>(null);
+  const [query, setQuery] = useState(initialQuery);
+  const [result, setResult] = useState<{
+    query: GridQuery;
+    data: Order[];
+    total: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`/api/orders?${toSearchParams(query)}`, { signal: controller.signal })
+      .then((res) => res.json())
+      .then((body) => setResult({ query, data: body.data, total: body.total }))
+      .catch(() => {}); // aborted or failed
+    return () => controller.abort(); // cancels the previous request when the query changes
+  }, [query]);
+
+  return (
+    <DataGrid
+      ref={gridRef}
+      mode="server"
+      data={result?.data ?? NO_ROWS}
+      rowCount={result?.total ?? 0}
+      loading={result?.query !== query}
+      columns={columns}
+      getRowId="id"
+      initialState={initialQuery}
+      onQueryChange={setQuery}
+    />
+  );
+}
+```
+
+With TanStack Query the fetching part becomes:
+
+```tsx
+const { data, isFetching } = useQuery({
+  queryKey: ["orders", query],
+  queryFn: ({ signal }) => fetch(`/api/orders?${toSearchParams(query)}`, { signal }).then((r) => r.json()),
+  placeholderData: keepPreviousData,
+});
+
+<DataGrid mode="server" data={data?.data ?? NO_ROWS} rowCount={data?.total ?? 0} loading={isFetching} ... />
+```
+
+#### API contract
+
+The grid doesn't require a specific API format; the example above uses this one.
+
+**Query parameters**
+
+| Parameter  | Type                  | Required | Description                                                     |
+| ---------- | --------------------- | -------- | --------------------------------------------------------------- |
+| `page`     | number                | No       | Page number, starting at 1 (default: 1).                        |
+| `pageSize` | number                | No       | Rows per page (default: 25).                                    |
+| `search`   | string                | No       | Global search text.                                             |
+| `sort`     | JSON `SortItem[]`     | No       | e.g. `[{"columnId":"total","desc":true}]`                       |
+| `filters`  | JSON `ColumnFilter[]` | No       | e.g. `[{"columnId":"status","operator":"in","value":["paid"]}]` |
+| `export`   | `"true"`              | No       | Return all matching rows, ignoring pagination.                  |
+
+Example URL:
+
+```bash
+/api/orders?page=2&pageSize=25&search=keyboard&sort=%5B%7B%22columnId%22%3A%22total%22%2C%22desc%22%3Atrue%7D%5D
+```
+
+**Response**
+
+```json
+{
+  "data": [{ "id": "ORD-100001", "customer": "Ava Smith", "total": 120.5 }],
+  "total": 25000
+}
+```
+
+**Error responses**
+
+- `400 Bad Request`: invalid `sort` or `filters` JSON.
+- `500 Internal Server Error`: any other error.
+
+#### Node.js (Express)
+
+```js
+import express from "express";
+import cors from "cors";
+
+const app = express();
+app.use(cors());
+
+// Fake database. Dates are stored as "YYYY-MM-DD" strings.
+const ORDERS = Array.from({ length: 500 }, (_, i) => ({
+  id: `ORD-${100001 + i}`,
+  customer: `Customer ${i + 1}`,
+  status: ["pending", "paid", "shipped"][i % 3],
+  total: Math.round(Math.random() * 50000) / 100,
+  orderedAt: `2026-0${(i % 9) + 1}-1${i % 10}`,
+}));
+
+const isEmpty = (v) => v === null || v === undefined || v === "";
+const text = (v) => String(v ?? "").toLowerCase();
+
+const OPERATORS = {
+  contains: (v, f) => text(v).includes(text(f.value)),
+  notContains: (v, f) => !text(v).includes(text(f.value)),
+  equals: (v, f) =>
+    typeof f.value === "string" ? text(v) === text(f.value) : v === f.value,
+  notEquals: (v, f) =>
+    typeof f.value === "string" ? text(v) !== text(f.value) : v !== f.value,
+  startsWith: (v, f) => text(v).startsWith(text(f.value)),
+  endsWith: (v, f) => text(v).endsWith(text(f.value)),
+  gt: (v, f) => v > f.value,
+  gte: (v, f) => v >= f.value,
+  lt: (v, f) => v < f.value,
+  lte: (v, f) => v <= f.value,
+  between: (v, f) =>
+    (isEmpty(f.value) || v >= f.value) && (isEmpty(f.value2) || v <= f.value2),
+  before: (v, f) => String(v) < f.value,
+  after: (v, f) => String(v) > f.value,
+  in: (v, f) => Array.isArray(f.value) && f.value.includes(v),
+  isEmpty: (v) => isEmpty(v),
+  isNotEmpty: (v) => !isEmpty(v),
+};
+
+function compare(a, b, sorting) {
+  for (const { columnId, desc } of sorting) {
+    const x = a[columnId];
+    const y = b[columnId];
+    if (x === y) continue;
+    if (isEmpty(x)) return 1; // empty values last
+    if (isEmpty(y)) return -1;
+    const result =
+      typeof x === "string"
+        ? x.localeCompare(y, undefined, { numeric: true, sensitivity: "base" })
+        : x < y
+          ? -1
+          : 1;
+    if (result !== 0) return desc ? -result : result;
+  }
+  return 0;
+}
+
+app.get("/api/orders", (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page ?? "1", 10));
+  const pageSize = Math.min(
+    500,
+    Math.max(1, parseInt(req.query.pageSize ?? "25", 10)),
+  );
+  const terms = text(req.query.search).split(/\s+/).filter(Boolean);
+
+  let sorting;
+  let filters;
+  try {
+    sorting = JSON.parse(req.query.sort ?? "[]");
+    filters = JSON.parse(req.query.filters ?? "[]");
+  } catch {
+    return res.status(400).json({ error: "Invalid sort or filters" });
+  }
+
+  let rows = ORDERS.filter((row) =>
+    filters.every((f) => {
+      const operator = OPERATORS[f.operator];
+      return operator ? operator(row[f.columnId], f) : true;
+    }),
+  );
+
+  if (terms.length) {
+    rows = rows.filter((row) => {
+      const haystack = Object.values(row).map(text).join(" ");
+      return terms.every((term) => haystack.includes(term));
+    });
+  }
+
+  rows.sort((a, b) => compare(a, b, sorting));
+
+  const data =
+    req.query.export === "true"
+      ? rows
+      : rows.slice((page - 1) * pageSize, page * pageSize);
+  res.json({ data, total: rows.length });
+});
+
+app.listen(5000, () => console.log("Server running on http://localhost:5000"));
+```
+
+#### Next.js Route Handler (same logic as the grid)
+
+If the API lives in the same Next.js app, it can import the grid's framework-free functions, so the server sorts, filters and searches exactly like client mode.
+
+```ts
+// app/api/orders/route.ts
+import {
+  buildRows,
+  createFormatters,
+  createRowIdGetter,
+  filterRows,
+  paginate,
+  resolveColumns,
+  sortRows,
+} from "@/component-lib/data-grid/core";
+import { orderColumns, type Order } from "@/lib/order-columns"; // column defs without "use client"
+import { getOrders } from "@/lib/db";
+
+const columns = resolveColumns(orderColumns);
+const formatters = createFormatters("en-US");
+
+export async function GET(request: Request) {
+  const params = new URL(request.url).searchParams;
+  const rows = buildRows(await getOrders(), createRowIdGetter<Order>("id"));
+
+  const filtered = filterRows(
+    rows,
+    columns,
+    JSON.parse(params.get("filters") ?? "[]"),
+    params.get("search") ?? "",
+    formatters,
+  );
+  const sorted = sortRows(
+    filtered,
+    columns,
+    JSON.parse(params.get("sort") ?? "[]"),
+  );
+  const page = paginate(
+    sorted,
+    {
+      pageIndex: Number(params.get("page") ?? 1) - 1,
+      pageSize: Number(params.get("pageSize") ?? 25),
+    },
+    { enabled: params.get("export") !== "true", server: false },
+  );
+
+  return Response.json({
+    data: page.rows.map((row) => row.original),
+    total: sorted.length,
+  });
+}
+```
+
+For large tables, apply the same query in your database instead of loading every row.
+
+#### Exports in server mode
+
+The grid only holds the current page, so the Export menu exports that page. To export every matching row, fetch them and pass them to the API:
+
+```tsx
+const exportAll = async (format: "excel" | "csv") => {
+  const params = toSearchParams(query);
+  params.set("export", "true");
+  const { data } = await fetch(`/api/orders?${params}`).then((r) => r.json());
+
+  if (format === "excel")
+    await gridRef.current?.exportExcel({ rows: data, fileName: "orders" });
+  else await gridRef.current?.exportCsv({ rows: data, fileName: "orders" });
+};
+
+<DataGrid
+  mode="server"
+  toolbar={{
+    export: false,
+    end: <button onClick={() => exportAll("excel")}>Export all</button>,
+  }}
+  {...otherProps}
+/>;
+```

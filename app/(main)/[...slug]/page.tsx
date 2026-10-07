@@ -105,7 +105,12 @@ export default async function DocPage({ params }: Props) {
   // Previous/next follow the sidebar: grouped, then by `order` inside a group.
   // Walking the flat `order` list instead would jump between groups, because
   // new pages are numbered in the order they are written, not by group.
-  const docs = nav.flatMap((group) => group.items);
+  // Sub-pages live under their parent in the sidebar, so flatten through them:
+  // a chapter is a real page, and previous/next should walk into it rather than
+  // skipping the chapters to the next component.
+  const docs = nav.flatMap((group) =>
+    group.items.flatMap((item) => [item, ...item.children]),
+  );
   const index = docs.findIndex((d) => d.slug === slug);
   const rendered = index === -1 ? null : await renderDoc(slug, locale);
   if (!rendered) notFound();

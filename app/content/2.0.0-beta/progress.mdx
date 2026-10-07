@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/progress/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/progress/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 `Progress` is a bar for something with a known end: an upload, an import, a quota, a wizard. `CircularProgress` is the same thing as a ring, for a tile or a table cell where a bar would be too wide.
@@ -91,7 +91,7 @@ The visible `label` names the bar through `aria-labelledby`, so the name and wha
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 The bar is drawn with `scale: var(--pr-fraction) 1` rather than a width in percent, so it animates on the compositor: a bar ticking up every few milliseconds costs nothing in layout. The fraction is unrounded, so a 99.6% bar does not snap to full while the last bytes are still moving, even though the label says 100%.
 
@@ -111,7 +111,7 @@ Under `prefers-reduced-motion` the transitions go and the indeterminate sweep sl
 | Root (`.pr-root`)   | `data-variant`, `data-size`, `data-indeterminate` |
 | Ring (`.pr-circle`) | `data-variant`, `data-indeterminate`              |
 
-## Headless Use
+## Core Exports
 
 | Export                          | Description                                                      |
 | ------------------------------- | ---------------------------------------------------------------- |

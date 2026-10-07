@@ -13,6 +13,7 @@ import {
   MousePointerClick,
   Palette,
   Package,
+  ScanLine,
   PanelsTopLeft,
   Sparkles,
   SquareCheck,
@@ -45,11 +46,13 @@ const icons: Record<string, LucideIcon> = {
   spinner: LoaderCircle,
 };
 
-const highlightIcons = [Package, Palette, Keyboard];
+const highlightIcons = [Package, Palette, Keyboard, ScanLine];
 
 export async function Overview({ locale }: { locale: Locale }) {
   const s = t(locale);
-  const docs = await getDocs(locale);
+  // The landing lists components; a sub-page is a chapter of one, and
+            // showing both would double-count the inventory.
+  const docs = (await getDocs(locale)).filter((doc) => !doc.parent);
   const migrations = await Promise.all(
     docs.map(async (doc) => {
       const heading = (await getHeadings(doc.slug, locale)).find((h) => /^(Migrating|മൈഗ്രേറ്റ്)/.test(h.title));

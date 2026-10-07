@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/input/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/input/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 `Input` is a text field with a label, hint and error message, and optional icons or text before and after the value. It can also have a clear button, a show-password button and a character counter. Every other prop — `name`, `type`, `required`, `pattern`, `autoComplete`, `onBlur` — goes straight to the `<input>`, so it works with native forms and form libraries unchanged.
@@ -209,7 +209,7 @@ Accessibility: labels are real `<label>` elements. The description and error are
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 ```tsx
 <Input classNames={{ control: "rounded-full", input: "tracking-wide" }} />
@@ -271,7 +271,7 @@ Colors follow the page's `color-scheme`. To force a scheme, put `class="dark"` o
 | `characterCount` | `(count, max) => "{count} / {max}"`, or just the count |
 | `otpLabel` | `"Verification code"` |
 
-## Headless Use
+## Core Exports
 
 The rules the components use are exported from the framework-free `@/component-lib/input/core`:
 

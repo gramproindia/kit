@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/avatar/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/avatar/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 An Avatar is a person in a small square or circle: their picture, or the letters of their name on a colour derived from it. `AvatarGroup` overlaps several and counts the rest.
@@ -116,7 +116,7 @@ The presence dot is named rather than hidden (`Online`, `Away`, `Busy`, `Offline
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 | Variable                      | Used for                                                                    |
 | ----------------------------- | --------------------------------------------------------------------------- |
@@ -139,7 +139,7 @@ All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS �
 | Root (`.av-root`)   | `data-size`, `data-shape`, `data-status` |
 | Group (`.av-group`) | `data-size`, `data-shape`                |
 
-## Headless Use
+## Core Exports
 
 | Export                    | Description                                      |
 | ------------------------- | ------------------------------------------------ |

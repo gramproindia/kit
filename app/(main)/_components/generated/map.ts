@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import {
   AccordionWrapper,
   AlertWrapper,
+  AskGridWrapper,
   AvatarWrapper,
   BadgeWrapper,
   BreadcrumbWrapper,
@@ -41,6 +42,8 @@ export const demoComponents: Record<string, ComponentType> = {
   AccordionWrapperBeta: AccordionWrapper,
   AlertWrapper: AlertWrapper,
   AlertWrapperBeta: AlertWrapper,
+  AskGridWrapper: AskGridWrapper,
+  AskGridWrapperBeta: AskGridWrapper,
   AvatarWrapper: AvatarWrapper,
   AvatarWrapperBeta: AvatarWrapper,
   BadgeWrapper: BadgeWrapper,
@@ -115,6 +118,7 @@ export interface DemoEntry {
 export const DEMO_LIST: DemoEntry[] = [
   { name: "AccordionWrapper", title: "Accordion", slug: "accordion", order: 27, Component: AccordionWrapper },
   { name: "AlertWrapper", title: "Alert", slug: "alert", order: 23, Component: AlertWrapper },
+  { name: "AskGridWrapper", title: "AskGrid", slug: "datagrid-ai", order: 2.3, Component: AskGridWrapper },
   { name: "AvatarWrapper", title: "Avatar", slug: "avatar", order: 25, Component: AvatarWrapper },
   { name: "BadgeWrapper", title: "Badge", slug: "badge", order: 24, Component: BadgeWrapper },
   { name: "BreadcrumbWrapper", title: "Breadcrumb", slug: "breadcrumb", order: 9, Component: BreadcrumbWrapper },

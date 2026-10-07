@@ -26,6 +26,12 @@ export interface DocMeta {
   locale: Locale;
   /** False when this locale has no file yet and English is shown instead. */
   translated: boolean;
+  /**
+   * The slug of the page this one is a chapter of. Set on a sub-page to nest
+   * it in the sidebar and keep it out of the landing grid; the page is
+   * otherwise ordinary — its own route, in search, in the sitemap.
+   */
+  parent?: string;
 }
 
 export interface Heading {
@@ -34,9 +40,14 @@ export interface Heading {
   level: number;
 }
 
+/** A top-level sidebar entry, with any sub-pages hanging off it. */
+export interface NavItem extends DocMeta {
+  children: DocMeta[];
+}
+
 export interface NavGroup {
   name: string;
-  items: DocMeta[];
+  items: NavItem[];
 }
 
 /** The MDX for one locale, or null when that locale has no file for the slug. */
@@ -74,6 +85,7 @@ export const getDocs = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<Do
         // Group and order always come from English, so both languages match.
         group: data.group ?? "Components",
         order: data.order ?? 999,
+        parent: typeof data.parent === "string" ? data.parent : undefined,
         title: translated?.title ?? data.title ?? slug,
         description: translated?.description ?? data.description ?? "",
         href: docHref(slug, locale),
@@ -87,9 +99,25 @@ export const getDocs = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<Do
 });
 
 export const getNav = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<NavGroup[]> => {
-  const groups = new Map<string, DocMeta[]>();
-  for (const doc of await getDocs(locale)) {
-    groups.set(doc.group, [...(groups.get(doc.group) ?? []), doc]);
+  const docs = await getDocs(locale);
+
+  /*
+   * Sub-pages are grouped under their parent rather than listed beside it. A
+   * `parent` pointing at a page that does not exist is treated as no parent,
+   * so a typo loses the nesting instead of losing the page.
+   */
+  const bySlug = new Map(docs.map((doc) => [doc.slug, doc]));
+  const children = new Map<string, DocMeta[]>();
+  for (const doc of docs) {
+    if (!doc.parent || !bySlug.has(doc.parent)) continue;
+    children.set(doc.parent, [...(children.get(doc.parent) ?? []), doc]);
+  }
+
+  const groups = new Map<string, NavItem[]>();
+  for (const doc of docs) {
+    if (doc.parent && bySlug.has(doc.parent)) continue;
+    const item: NavItem = { ...doc, children: children.get(doc.slug) ?? [] };
+    groups.set(doc.group, [...(groups.get(doc.group) ?? []), item]);
   }
   const rank = (name: string) => {
     const i = v2Config.groups.indexOf(name);

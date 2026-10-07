@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/card/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/card/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 A card groups things that belong together and gives them an edge. `Stat` is the other half of a dashboard: one figure, its label, and how it has changed.
@@ -44,7 +44,7 @@ A card groups things that belong together and gives them an edge. `Stat` is the 
 
 ```tsx
 import { Card, CardHeader, CardBody, CardFooter, Stat, trendDirection } from "@/component-lib/card";
-import "@/component-lib/card/styles.css";
+import "@/component-lib/gbs.css";
 
 <Card>
   <CardHeader
@@ -128,7 +128,7 @@ With `href` the card renders as an `<a>`. Keep other links and buttons out of it
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 #### CSS variables
 
@@ -153,7 +153,7 @@ Override them on `.cd-root`, on `:root`, or through `style`. Each variable falls
 | Stat (`.st-root`) | `data-loading` |
 | Trend (`.st-trend`) | `data-direction`, `data-positive` |
 
-## Headless Use
+## Core Exports
 
 `core/trend.ts` is framework-free:
 

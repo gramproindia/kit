@@ -156,49 +156,40 @@ Or inline, for a single instance:
 
 Each component's page lists its own variables.
 
-## Cascade layers
+## Styles and cascade layers
 
-Component rules ship in one layer, `gbs`, and declare nothing else:
+Install a component and the CLI writes `component-lib/gbs.css`, importing every
+stylesheet you installed and rewriting itself on each install. Add one line to your
+global CSS:
 
 ```css
-@layer gbs {
-  .bt-root { … }
-}
+@import "../component-lib/gbs.css";
 ```
 
-Where that layer sits is the application's call, because the application is the only
-thing that knows what else is on the page — a reset, a utility framework, your own
-design system. Declare the order once, in your global CSS:
+That is the whole setup for Tailwind v3, Bootstrap, and projects with no CSS framework.
+
+### With Tailwind v4
+
+Tailwind v4 is the one exception, because it puts its own utilities in a cascade layer.
+Import ours **after** the framework and **into** Tailwind's `components` layer, so a
+utility passed through `className` still wins:
 
 ```css
-@layer reset, gbs, app, utilities;
-```
-
-Anything in a later layer beats the components; anything earlier loses to them. A
-project with no other CSS framework needs no line at all: the components style
-themselves, and your own unlayered CSS overrides them normally.
-
-### With Tailwind
-
-Tailwind v4 emits its utilities into a `utilities` layer. Name `gbs` before it and a
-utility passed through `className` or `classNames` wins without `!important`:
-
-```css
-@layer gbs, utilities;
-
 @import "tailwindcss";
-@import "../component-lib/button/styles.css";
+@import "../component-lib/gbs.css" layer(components);
 ```
 
 ```tsx
 <Button className="rounded-full px-6" />
 ```
 
-Tailwind v3 needs no line — it emits utilities unlayered, which already outrank a
-layer. Both majors work.
+Both parts matter. Imported before the framework, the layer registers first and
+Tailwind's preflight lands after it — which strips the component rules. Imported with no
+`layer()`, the unlayered rules outrank the utilities and `className` stops overriding
+them. The installer detects your setup and prints the line you need.
 
-Use utilities for one-off adjustments and `--gbs-*` for the palette. If your design
-tokens are already Tailwind theme variables, point the two at each other once:
+If your design tokens are already Tailwind theme variables, point the two at each other
+once, and keep utilities for one-off adjustments:
 
 ```css
 :root {
@@ -207,34 +198,87 @@ tokens are already Tailwind theme variables, point the two at each other once:
 }
 ```
 
+### Why the rules are unlayered
+
+Component CSS ships in **no cascade layer at all**. That is deliberate, and it is the
+one thing worth understanding if you are styling around the kit.
+
+An unlayered rule beats every layered rule regardless of specificity — the cascade
+settles layers before it looks at selectors. So a library that puts its rules in a layer
+loses to any unlayered stylesheet on the page, and two of the most common ones are
+unlayered: **Tailwind v3's preflight** and **Bootstrap's Reboot**.
+
+Earlier releases did exactly that, and the result was measurable. With component rules
+in a `gbs` layer:
+
+| Host setup | What rendered |
+| --- | --- |
+| Tailwind v3 | components with `border: 0` and `padding-left: 0` — preflight stripped them |
+| Bootstrap 5 | every Button square, because Reboot's `button { border-radius: 0 }` won |
+| Tailwind v4 | borders and padding missing page-wide, if the documented `@layer` line was used |
+
+No line a project could write would fix the first two, because nothing layered can
+outrank unlayered CSS.
+
+Unlayered, the same rules compete on ordinary specificity — `.bt-root` is one class,
+Reboot's `button` is one element — so the components win against a reset and lose to
+your own CSS, which is what you want in both directions.
+
+<Notice message="Upgrading from 2.1.0 or 2.2.0: delete any `@layer gbs, utilities;` line you added. It is wrong in both possible positions, and the layer it referred to no longer exists." />
+
+### Your own CSS
+
+With no layer involved, ordinary rules apply: a selector of equal strength wins by
+coming later. Import `gbs.css` **before** your own stylesheets and your overrides win
+without `!important`:
+
+```css
+@import "../component-lib/gbs.css";
+@import "./app.css";               /* your rules win ties */
+```
+
+Under Tailwind v4 this is already handled — utilities and your unlayered CSS both
+outrank the `components` layer.
+
 ### With Bootstrap, or any unlayered reset
 
-A stylesheet that ships **unlayered** — Bootstrap, Normalize, sanitize.css, a reset of
-your own — outranks every layer however weak its selectors are, because the cascade
-settles layers before it looks at specificity at all. Bootstrap's Reboot therefore
-beats the components using nothing but bare element selectors:
+Nothing to do. Both stylesheets are unlayered, so specificity decides, and the
+components' class selectors beat Reboot's element selectors. The square-Button problem
+that earlier releases had is gone.
+
+Bootstrap's own classes never collided with ours either: `.btn`, `.card` and the rest
+sit alongside two-letter-prefixed names (`.bt-root`, `.in-input`, `.dg-cell`).
+
+If you would rather Bootstrap lose to *everything*, give it a layer of its own — layered
+CSS ranks below unlayered CSS, so this demotes it:
 
 ```css
-button { border-radius: 0 }
-button, input, optgroup, select, textarea { font-size: inherit; line-height: inherit }
+@import url("bootstrap/dist/css/bootstrap.min.css") layer(vendor);
 ```
 
-On a stock Bootstrap 5 setup that leaves the Button square, at 16px instead of 13px,
-with a 24px line height. Import order changes nothing.
+### Scrollbars
 
-Give the reset a layer of its own and name it before `gbs`:
+Every scrolling surface in the kit — the data grid viewport, menus, popovers, dialogs,
+the combobox list — uses a thin scrollbar by default, through the standard
+`scrollbar-width` and `scrollbar-color` properties. Four variables control all of them:
+
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `--gbs-scrollbar-width` | `thin` | `auto`, `thin` or `none` only — the property takes no length |
+| `--gbs-scrollbar-thumb` | a muted `--gbs-accent` | follows your accent automatically |
+| `--gbs-scrollbar-thumb-hover` | a stronger mix | applied only where the device has hover |
+| `--gbs-scrollbar-track` | `transparent` | a visible track reads heavier than the bar |
 
 ```css
-@layer bootstrap, gbs, app, utilities;
-@import url("bootstrap/dist/css/bootstrap.min.css") layer(bootstrap);
+:root {
+  --gbs-scrollbar-width: auto;              /* bring the chunky ones back */
+  --gbs-scrollbar-thumb: var(--gbs-accent); /* tint them with the brand */
+}
 ```
 
-Components whose root is a `div` or `span` — Card, Badge, Alert — were never affected;
-it is the ones whose root is a native form element that shift. Bootstrap's own classes
-keep working either way: `.btn`, `.card` and the rest never collided with ours, which
-are all two-letter prefixed (`.bt-root`, `.in-input`, `.dg-cell`).
-
-<Notice message="Once Bootstrap sits in a layer, any unlayered CSS your own app writes outranks it. That is usually welcome, since your overrides stop needing !important — but check anywhere you relied on a Bootstrap rule beating your own." />
+For your own scrolling areas, add `class="gbs-scroll"` to match. Scroll containers the
+kit does not own keep the browser default — it never restyles scrollbars it was not
+asked to.
 
 ## Before you ship a palette
 

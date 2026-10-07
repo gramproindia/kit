@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/spinner/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/spinner/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 The Spinner shows that something is loading. Use it on its own, next to a label, or around content: wrapped content gets a translucent cover and becomes inert, so it can't be clicked or focused while busy. It can wait before appearing and stay a minimum time once it has, so quick operations don't make it flicker on and off.
@@ -126,7 +126,7 @@ Accessibility: the spinner is a `role="status"` region, so its label ("Loading")
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 ```tsx
 <Spinner className="text-emerald-600" />
@@ -165,7 +165,7 @@ Override them on `.sp-root`, on `:root`, or through `style`. The colors fall bac
 
 The `label` prop overrides it for a single spinner.
 
-## Headless Use
+## Core Exports
 
 | Export | Description |
 | --- | --- |

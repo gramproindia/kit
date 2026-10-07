@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/date-picker/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/date-picker/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 `DatePicker` selects one date and `DateRangePicker` selects a start and an end. Both are a text field plus a calendar: people can type a date in their own date order or pick one, and the whole calendar works from the keyboard. They share one engine, one stylesheet and one set of keyboard rules. The calendar renders in the browser's top layer, so it is never clipped by a scrolling parent — including inside a DataGrid cell.
@@ -267,7 +267,7 @@ Accessibility: each month is a `table role="grid"` where only the focused day is
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 ```tsx
 <DatePicker
@@ -351,7 +351,7 @@ Colors follow the page's `color-scheme`. To force a scheme, put `class="dark"` o
 
 Month names, weekday names, the typing order and the first day of the week come from `locale`, not from `localeText`.
 
-## Headless Use
+## Core Exports
 
 `useDatePicker()` holds the whole engine — selection, the visible months, typed input, keyboard movement and the popover state — and is exported for building a different UI on the same behavior:
 
@@ -418,7 +418,7 @@ The same value updates itself at the next local midnight, so a dashboard left op
 | Value always shown as `en-GB`                                                                         | `format` and `locale`                                                              |
 | "Today" and "Close" buttons                                                                           | `showToday`; Escape, Tab or a click outside closes                                 |
 | The × clear button                                                                                    | `clearable` (on by default), plus "Clear" in the footer                            |
-| `@grampro/headless-helpers` (`useDatePickerState`, `applyScrollbarStyles`, `months`, `isAtYearLimit`) | No dependency besides React. The calendar maths lives in `core` and is unit tested |
+| `@grampro/framework-free-helpers` (`useDatePickerState`, `applyScrollbarStyles`, `months`, `isAtYearLimit`) | No dependency besides React. The calendar maths lives in `core` and is unit tested |
 | Popup positioned with `mt-48`, clipped by scrolling parents                                           | Native Popover API: top layer, flips up when space is tight, light dismiss         |
 | Mouse only                                                                                            | Full WAI-ARIA grid keyboard control                                                |
 | No typed entry                                                                                        | Type in the locale's order, ISO or month names                                     |

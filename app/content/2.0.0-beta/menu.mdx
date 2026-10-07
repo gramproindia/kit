@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/menu/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/menu/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 The Menu holds commands: the actions on a row, the options behind a “…” button, a list of things to export. It opens in the browser's top layer, so it is never clipped by a toolbar or a scrolling panel, and the keyboard works the way the WAI-ARIA menu button pattern says it should.
@@ -47,7 +47,7 @@ import {
   Menu, MenuItem, MenuSeparator, MenuSub,
   MenuCheckboxItem, MenuRadioGroup, MenuRadioItem, MenuGroup,
 } from "@/component-lib/menu";
-import "@/component-lib/menu/styles.css";
+import "@/component-lib/gbs.css";
 
 <Menu trigger={<Button variant="outline">Actions</Button>} label="Row actions">
   <MenuItem icon={<EditIcon />} shortcut="⌘E" onSelect={edit}>Edit</MenuItem>
@@ -144,7 +144,7 @@ A submenu opens on hover after a short pause, on `Enter`, or on `ArrowRight`, an
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 ```tsx
 <Menu
@@ -184,7 +184,7 @@ Override them on `.mn-root`, on `:root`, or through `style`. Each variable falls
 <Menu localeText={{ label: "Acties", submenu: (name) => `${name} submenu` }} … />
 ```
 
-## Headless Use
+## Core Exports
 
 `core/navigation.ts` has no React in it, so the same rules can drive your own markup:
 

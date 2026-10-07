@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/textarea/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/textarea/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 The Textarea is a multi-line text field with a label, hint and error message. It can also have a character counter, and it can grow with its text between a minimum and a maximum number of lines. Every other prop — `name`, `required`, `rows`, `cols`, `onKeyDown` — goes straight to the `<textarea>`, so it works with native forms and form libraries unchanged.
@@ -165,7 +165,7 @@ Accessibility: the label is a real `<label>`. The description and error are link
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 ```tsx
 <Textarea classNames={{ textarea: "font-mono", count: "font-semibold" }} />
@@ -214,7 +214,7 @@ Colors follow the page's `color-scheme`. To force a scheme, put `class="dark"` o
 | ---------------- | ------------------------------------------------------ |
 | `characterCount` | `(count, max) => "{count} / {max}"`, or just the count |
 
-## Headless Use
+## Core Exports
 
 The logic is exported from the framework-free `@/component-lib/textarea/core`:
 

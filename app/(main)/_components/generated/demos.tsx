@@ -15,6 +15,11 @@ export const AlertWrapper = preview(
   "AlertWrapper",
 );
 
+export const AskGridWrapper = preview(
+  dynamic(() => import("@/app/components/examples/2.0.0/AskGridWrapper"), { ssr: false, loading: Placeholder }),
+  "AskGridWrapper",
+);
+
 export const AvatarWrapper = preview(
   dynamic(() => import("@/app/components/examples/2.0.0/AvatarWrapper"), { ssr: false, loading: Placeholder }),
   "AvatarWrapper",

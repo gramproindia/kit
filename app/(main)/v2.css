@@ -1555,3 +1555,15 @@
     scrollbar-color: var(--v2-border-strong) transparent;
   }
 }
+
+/* Sub-pages of a long component doc, indented under their parent. */
+.v2-nav-sub {
+  margin-top: 0.125rem;
+  margin-left: 0.625rem;
+  padding-left: 0.625rem;
+  border-left: 1px solid var(--v2-border);
+}
+
+.v2-nav-sub .v2-nav-link {
+  font-size: 0.8125rem;
+}

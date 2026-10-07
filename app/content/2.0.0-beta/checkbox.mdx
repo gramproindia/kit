@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/checkbox/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/checkbox/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 `Checkbox` is a single on/off choice with a label, hint and error, including a partly checked state. `CheckboxGroup` is a labelled set of checkboxes sharing one array of values, with an optional "select all" box. The box is the browser's own `<input type="checkbox">`, restyled. Forms post it, form libraries register it, and screen readers announce it exactly as a native checkbox, including "mixed".
@@ -179,7 +179,7 @@ Accessibility: every box is a native checkbox with a real `<label>`. A group is 
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 ```tsx
 <Checkbox classNames={{ input: "rounded-full", label: "font-medium" }} />
@@ -219,7 +219,7 @@ Override them on `.ck-root`, `.ck-group`, `:root`, or through `style`. Each vari
 | --- | --- |
 | `selectAll` | `"Select all"` |
 
-## Headless Use
+## Core Exports
 
 | Export | Description |
 | --- | --- |

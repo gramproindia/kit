@@ -27,13 +27,33 @@ export function SidebarNav({
     </li>
   );
 
-  const item = (href: string, label: string) => {
+  const item = (href: string, label: string, children?: { href: string; title: string }[]) => {
     const active = pathname === href;
     return (
       <li key={href}>
         <Link href={href} onClick={onNavigate} aria-current={active ? "page" : undefined} className="v2-nav-link">
           {label}
         </Link>
+        {children && children.length > 0 && (
+          /*
+           * A nested list, not a flat one: the sub-pages are chapters of the
+           * page above them, and the indent is the only thing that says so.
+           */
+          <ul className="v2-nav-list v2-nav-sub">
+            {children.map((child) => (
+              <li key={child.href}>
+                <Link
+                  href={child.href}
+                  onClick={onNavigate}
+                  aria-current={pathname === child.href ? "page" : undefined}
+                  className="v2-nav-link"
+                >
+                  {child.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </li>
     );
   };
@@ -47,7 +67,9 @@ export function SidebarNav({
       {nav.map((group) => (
         <div key={group.name}>
           <p className="v2-nav-heading">{s.groups[group.name] ?? group.name}</p>
-          <ul className="v2-nav-list">{group.items.map((doc) => item(doc.href, doc.title))}</ul>
+          <ul className="v2-nav-list">
+            {group.items.map((doc) => item(doc.href, doc.title, doc.children))}
+          </ul>
         </div>
       ))}
       <div>

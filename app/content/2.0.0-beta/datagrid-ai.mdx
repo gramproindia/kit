@@ -1,0 +1,338 @@
+---
+title: "Asking in Words"
+description: "An optional natural-language box above the grid, and a WebMCP tool for browser agents — both going through the same validator."
+group: "Data"
+order: 2.3
+parent: "datagrid"
+---
+
+A person types *"show people in Engineering earning over 150k"* and the grid filters.
+That is the whole feature, and it is entirely opt-in: without a provider, the `ai` prop
+renders nothing, downloads nothing and contacts nothing.
+
+What makes it worth having is not the typing. It is that the grid already knows what it
+can do — its columns, their types, the operators each type allows, what the host has
+forbidden — and nothing reaches the grid without being checked against that first.
+
+**No model is bundled, downloaded or named.** The library ships the boundary; the
+application brings the intelligence.
+
+## Try it
+
+<AskGridWrapper />
+
+Type a sentence, or press one of the suggestions. Watch what happens when you ask for
+something it should refuse — *"find everyone whose email is at example.com"* — the email
+column is marked off-limits in this demo, and the box tells you which layer said no.
+
+The grid below the box is an ordinary `<DataGrid>`. Nothing about it changes when the
+box is absent.
+
+## Quick start
+
+```tsx
+import { GramproAIProvider } from "@/component-lib/shared";
+import { DataGrid } from "@/component-lib/data-grid";
+
+<GramproAIProvider adapter={myAdapter}>
+  <DataGrid data={rows} columns={columns} getRowId="id" ai />
+</GramproAIProvider>
+```
+
+Two things: a provider carrying an adapter, and the `ai` prop. With no provider above
+it, `ai` is a no-op and the grid is exactly the grid you already had.
+
+## The adapter
+
+An adapter is one function. It receives what the person typed plus everything this grid
+can currently do, and returns an answer.
+
+```ts
+type AgentAdapter = (request: {
+  utterance: string;        // what the person typed, unmodified
+  contract: unknown;        // what this grid can do, right now
+  responseSchema: JsonSchema;
+  signal?: AbortSignal;     // aborted when they type again
+}) => Promise<unknown>;      // the response envelope, unvalidated
+```
+
+The answer is one of three shapes:
+
+```jsonc
+{ "result": "command",  "intents": [ … ] }           // do these things
+{ "result": "clarify",  "question": "Revenue or signups?" }  // ask back
+{ "result": "declined", "reason": "This grid cannot group." } // refuse
+```
+
+Nothing about a vendor, a key or a network appears in that type. An adapter may call an
+API, run a model in a worker, apply hand-written rules, or return a fixed answer in a
+test. Swapping one for another changes one file.
+
+<Notice message="Model API keys belong on your own server, never in client JavaScript — anything in the bundle is readable by every visitor. The usual shape is an adapter that posts to your app's own endpoint, which holds the key." />
+
+## Setting it up
+
+Four steps, and only the third involves a model at all.
+
+### 1. Install
+
+The agent runtime travels with the Data Grid — there is nothing extra to install:
+
+```bash
+npx gbs-add-block@latest -a DataGrid -beta
+```
+
+### 2. An endpoint that holds your key
+
+A model key in client JavaScript is readable by every visitor, so the call goes through
+your own server. In Next.js that is one route handler:
+
+```ts
+// app/api/ask/route.ts
+import { NextResponse } from "next/server";
+
+export async function POST(request: Request) {
+  const { utterance, contract } = await request.json();
+
+  const upstream = await fetch("https://your-provider/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${process.env.MODEL_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "your-model",
+      temperature: 0,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: buildSystemPrompt(contract) },
+        { role: "user", content: utterance },
+      ],
+    }),
+  });
+
+  const data = await upstream.json();
+  return NextResponse.json({ content: data.choices?.[0]?.message?.content ?? "" });
+}
+```
+
+The system prompt describes the grid from the `contract` the browser sent: its columns
+and their types, which operators each allows, the current state, and the three answer
+shapes. The contract is a plain object — walk it and write the description, or start
+from the one this site uses, linked at the end of this page.
+
+<Notice message="Keep the request small and bounded. The utterance is a sentence; anything much longer is not grid traffic and is worth rejecting before it reaches a paid API." />
+
+### 3. The adapter
+
+A thin client-side function that posts there and parses the answer:
+
+```ts
+import type { AgentAdapter } from "@/component-lib/shared";
+
+export const askViaBackend: AgentAdapter = async ({ utterance, contract, responseSchema, signal }) => {
+  const response = await fetch("/api/ask", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ utterance, contract, responseSchema }),
+    signal,
+  });
+
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.error ?? "Request failed");
+
+  // Parsed, not repaired. Output that is not JSON is a finding, not something
+  // to patch over with brace-extraction.
+  return JSON.parse(payload.content ?? "");
+};
+```
+
+Throwing is a legitimate outcome — a network failure, a refused key — and the box reports
+it as a failure to reach the model rather than a problem with the person's wording.
+
+### 4. Wire it up
+
+```tsx
+<GramproAIProvider adapter={askViaBackend} suggestions={["Who earns over 150k?"]}>
+  <DataGrid data={rows} columns={columns} getRowId="id" ai semantics={SEMANTICS} />
+</GramproAIProvider>
+```
+
+Ship the provider with `adapter={null}` wherever no key is configured — a staging
+environment, a self-hosted install — and the box simply is not there.
+
+### Which model
+
+Any model that returns JSON will work. The one this site uses is **Gemini 3.5 Flash
+Lite**, through its OpenAI-compatible endpoint, because it is what the grid's 231-case
+evaluation corpus was measured against: it answered correctly on 201 of 230 cases, with
+10 confident wrong answers. That second number is the one worth watching when you
+compare models — a wrong filter applied confidently is worse than a question asked.
+
+Smaller and larger models both work; what changes is how often you see a `clarify`
+instead of a command. Measure before switching, rather than assuming bigger is better.
+
+## The validator decides
+
+Whatever the adapter returns is untrusted. It goes through the same five checks a form
+would face, and only then does anything happen.
+
+```
+  what they typed
+      → adapter          proposes
+      → validator        schema · reference · coercion · policy · plausibility
+      → executors        only if every layer passed
+      → the grid
+```
+
+The box shows the validator's own words, never a message of its own invention:
+
+| The validator says | What the person sees |
+| --- | --- |
+| `done` | what was applied — *"Filter Department is one of Engineering"* — plus any conversion note |
+| `clarify` | the question, with the grid untouched |
+| `needs-confirmation` | the confirmation and a **Yes, do it** button; irreversible work never runs on a sentence alone |
+| `rejected` | the reason, the layer that refused it, and a suggested column where there is one |
+| `declined` | why this grid cannot do that |
+
+A failure to *reach* the adapter is reported separately from the adapter refusing, so a
+network error never reads as "your wording was wrong".
+
+### What it refuses
+
+These are not special cases written for the AI path — they are the same rules a form
+hits, which is the point.
+
+| Someone asks for | Result |
+| --- | --- |
+| a column that does not exist | refused, with the nearest real column suggested |
+| an operator the column's type lacks | refused — an enum column has `in`, not `equals` |
+| a column you marked off-limits | refused, naming your policy |
+| an export, with no confirmation | stops and asks |
+
+A request that is refused leaves the grid exactly as it was.
+
+## Helping it understand
+
+Most apparent model failures are missing context, not missing intelligence. `semantics`
+is where you fix that, and it costs nothing at runtime:
+
+```tsx
+const SEMANTICS = {
+  salary: {
+    description: "Gross annual salary.",
+    unit: "USD",
+    synonyms: ["pay", "compensation", "earnings"],
+    higherIsBetter: true,
+  },
+  startDate: { synonyms: ["joined", "hire date"] },
+  email: { pii: true },
+};
+
+<DataGrid data={rows} columns={columns} ai semantics={SEMANTICS} />
+```
+
+With `higherIsBetter`, *"worst performing"* resolves to a direction. With `synonyms`,
+*"what does she earn"* finds the `salary` column. Reach for this before reaching for a
+bigger model.
+
+Values written the way people write them are handled by the grid, not the model:
+`"150k"`, `"1 lakh"`, `"1 crore"`, `"20%"`, `"last month"`, `"this quarter"` all resolve,
+and the conversion is reported back — *"Read 150k as 150000"*.
+
+## Restricting what can be asked
+
+`agentPolicy` narrows what any producer may do, whoever it is:
+
+```tsx
+const POLICY = {
+  denyFilter: ["email"],      // visible on screen, not filterable by a machine
+  deny: ["ssn"],              // off limits entirely
+  confirmExportRows: 1000,    // ask before exporting more than this
+  denyOperations: ["export"], // or withhold an operation outright
+};
+```
+
+A denied column has **no branch in the generated schema at all** — the restriction is
+structural, not a runtime check, so there is nothing for a producer to target.
+
+<Notice message="The runtime contract carries real values from low-cardinality columns, so a model can map the word Kerala onto the region column. With a remote adapter, that sample leaves the page. Mark personal columns with pii: true — a PII column is denied and never summarised — or pass stats: false to summarise nothing. Note that denyFilter governs what may be done with a column, not whether it may be described." />
+
+## Browser agents: WebMCP
+
+The other half of the surface needs no model from anyone. [WebMCP](https://webmachinelearning.github.io/webmcp/)
+lets a page hand its own tools to whatever agent is driving the browser:
+
+```tsx
+import { createGridAgent, registerGridTool } from "@/component-lib/data-grid";
+
+const agent = createGridAgent({ api: apiRef.current, options, semantics, policy });
+const result = registerGridTool(agent);
+
+if (!result.registered) console.info(result.reason);
+```
+
+That registers **one** tool, `operate_grid`, whose input schema *is* the grid's generated
+schema — so a grid with different columns advertises different arguments with no extra
+work. One tool rather than one per operation, because the intent schema is where the
+contract and the validation layers already meet.
+
+It runs the same pipeline. An agent that sends something the grid cannot do gets the
+same refusal, with the same code and layer, that a form would have got.
+
+<Notice message="WebMCP is a Draft Community Group Report, not a W3C standard, and is implemented in Chromium only — behind --enable-features=WebMCPTesting, the chrome://flags/#enable-webmcp-testing flag, or an origin-trial token. registerGridTool returns rather than throws when the surface is absent, so the grid renders normally either way." />
+
+## Why it is built this way
+
+The rule the whole design turns on:
+
+> The producer proposes. The validator authorizes. The executor mutates state.
+
+A model gets no more trust than a form does, which is none. That is what makes it
+reasonable to let a sentence drive a grid at all — and it is why swapping the model, or
+removing it, changes nothing downstream.
+
+It also means the two paths converge. A person typing and an external agent are
+different producers reaching the same boundary; neither gets a second route in.
+
+## Where this is going
+
+The adapter interface is deliberately small because the interesting question is still
+open: how much intelligence this actually needs. The grid already resolves values,
+matches columns by synonym, detects ambiguity and refuses what it cannot do — so the
+producer's job is narrower than it first appears.
+
+We are measuring that rather than guessing, against a frozen 231-case corpus. Treat the
+`ai` prop as a stable boundary with an unstable thing behind it: the adapter you plug in
+today can be replaced without touching your grid.
+
+## Reference
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| `ai` | `boolean` | Renders the input. Needs a `<GramproAIProvider>` above it; otherwise renders nothing. |
+| `semantics` | `Record<string, GridColumnSemantics>` | `description`, `unit`, `synonyms`, `higherIsBetter`, `percentBasis`, `pii` |
+| `agentPolicy` | `GridAgentPolicy` | `deny`, `denyFilter`, `denyPii`, `denyOperations`, `maxExportRows`, `confirmExportRows`, `allowExportFormats`, `maxSelectRows` |
+
+| Export | From | Purpose |
+| --- | --- | --- |
+| `GramproAIProvider` | `shared` | Supplies the adapter, placeholder and suggestions |
+| `AgentAdapter` | `shared` | The adapter type |
+| `useAskAgent` | `shared` | The hook behind the box, if you want your own UI |
+| `createGridAgent` | `data-grid` | Builds an agent from a grid's `ref` and options |
+| `registerGridTool` | `data-grid` | Registers the WebMCP tool |
+| `AskGrid` | `data-grid` | The input component, if you place it yourself |
+
+### The demo's own source
+
+This page's demo is built exactly as described above, and both halves are in the docs
+repository if you would rather read working code than a walkthrough:
+
+| File | What it is |
+| --- | --- |
+| `app/components/examples/2.0.0/AskGridWrapper.tsx` | the grid, the semantics, the policy, and the adapter |
+| `app/api/ask/route.ts` | the endpoint that holds the key |
+| `app/api/ask/prompt.ts` | the system prompt, vendored from the evaluation harness so the demo and the published numbers mean the same thing |
+
+Set `GOOGLE_API_KEY` in `.env.local` and the box appears; leave it unset and the page
+renders the grid alone.

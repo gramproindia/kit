@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "GramproKit Docs",
-  description: "Documentation for GramproKit component library.",
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://gramprokit.vercel.app",
+  description: "GramproKit: an agent-native UI runtime for React.",
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://kit.gramproindia.com",
   nav: [
     { label: "Docs", href: "/1.x.x-legacy/docs/getting-started" },
     { label: "Bug Report", href: "/1.x.x-legacy/bug-tracker" },
@@ -21,10 +21,15 @@ export const siteConfig = {
     },
     description: "By Research and Development Team, Grampro",
     keywords: [
-      "Next.js",
       "React",
-      "Tailwind CSS",
-      "Component Library",
+      "React 19",
+      "component library",
+      "agent-native",
+      "UI runtime",
+      "AI agents",
+      "WebMCP",
+      "data grid",
+      "copy-in components",
       "Documentation",
     ],
     authors: [{ name: "Grampro R&D Team" }],
@@ -32,7 +37,7 @@ export const siteConfig = {
     openGraph: {
       type: "website",
       locale: "en_US",
-      url: "https://gramprokit.vercel.app",
+      url: "https://kit.gramproindia.com",
       siteName: "GramproKit Docs",
     },
     twitter: {

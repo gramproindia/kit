@@ -32,6 +32,7 @@ const SLUG_OVERRIDES = {
   CheckboxGroupWrapper: "checkbox",
   DateRangePickerWrapper: "datepicker",
   DataGridWrapper: "datagrid",
+  AskGridWrapper: "datagrid-ai",
 };
 
 /** Extra names the MDX may use for the same demo. */

@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/toaster/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/toaster/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 The Toaster shows short notifications — saved, failed, undo, in progress — in a corner of the screen. It works in any React app: Vite, Next.js, Remix or plain React. You mount `<Toaster />` once and call `toast()` from anywhere: a component, an event handler, a data layer, or code outside React. There is no hook, context or provider to set up.
@@ -267,7 +267,7 @@ Accessibility: the notifications are a labelled landmark ("Notifications (Alt+T)
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 ```tsx
 <Toaster
@@ -339,7 +339,7 @@ Toasts fade and slide in with `@starting-style`, and fade out while `data-state=
 
 Titles, descriptions and button labels are whatever you pass to `toast()`.
 
-## Headless Use
+## Core Exports
 
 `useToasts(store?)` returns the live snapshot for building a different notification UI on the same store:
 
@@ -367,7 +367,7 @@ Mount the Toaster in the root layout. It is a client component, and a Server Com
 ```tsx
 // app/layout.tsx
 import { Toaster } from "@/component-lib/toaster";
-import "@/component-lib/toaster/styles.css";
+import "@/component-lib/gbs.css";
 
 export default function RootLayout({
   children,

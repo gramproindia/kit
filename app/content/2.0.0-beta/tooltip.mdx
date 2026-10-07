@@ -23,13 +23,13 @@ There are **no peer dependencies** other than React.
 Import the stylesheet once, for example in your global CSS:
 
 ```css
-@import "../component-lib/tooltip/styles.css";
+@import "../component-lib/gbs.css";
 ```
 
 or in your root layout / entry file:
 
 ```ts
-import "@/component-lib/tooltip/styles.css";
+import "@/component-lib/gbs.css";
 ```
 
 A tooltip is a few words explaining the control under the pointer: what an icon button does, what a truncated value says in full. It waits a moment on hover so that sweeping across a toolbar does not set off a chain of them, appears at once on keyboard focus, and goes away on Escape.
@@ -44,7 +44,7 @@ A tooltip is a few words explaining the control under the pointer: what an icon 
 
 ```tsx
 import { Tooltip } from "@/component-lib/tooltip";
-import "@/component-lib/tooltip/styles.css";
+import "@/component-lib/gbs.css";
 
 <Tooltip content="Export as CSV">
   <Button variant="ghost" aria-label="Export">
@@ -106,7 +106,7 @@ Focus only counts when it is `:focus-visible` — clicking a button does not lea
 
 ## Styling and Theming
 
-All rules are in the CSS `gbs` layer. Declare where it sits in your global CSS — `@layer gbs, utilities;` for a Tailwind project — and utility classes passed through `className` / `classNames` override them.
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
 
 #### CSS variables
 
@@ -126,7 +126,7 @@ The colours read `--gbs-tooltip-bg` and `--gbs-tooltip-fg` when those are set on
 | --- | --- |
 | Root (`.tt-root`) | `data-side` — the side it settled on after flipping. |
 
-## Headless Use
+## Core Exports
 
 `core/visibility.ts` is framework-free, so the timing rules can drive your own markup:
 

@@ -6,9 +6,9 @@ export const LEGACY_BASE = "/1.x.x-legacy";
 
 export const v2Config = {
   name: "GramproKit",
-  version: "2.0.0-beta",
+  version: "2.3.0",
   description:
-    "Documentation for the GramproKit 2.0.0 beta components — rebuilt for React 19 with no peer dependencies.",
+    "GramproKit: an agent-native UI runtime for React. Copy-in components you own, each publishing a contract that software can read.",
   legacyDocsHref: "/1.x.x-legacy/docs/getting-started",
   github: "https://github.com/anandhuremanan/headless-gbs-components",
   /** GBS SE Agent: a coding agent with skills for building with these components. */

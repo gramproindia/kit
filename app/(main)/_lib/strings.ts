@@ -71,11 +71,11 @@ const en = {
   pageActions: "Page actions",
 
   // Landing page
-  announce: "{count} components rebuilt for {version}",
-  heroTitle: "Headless components,",
-  heroTitleAccent: "rebuilt from the ground up.",
+  announce: "{count} components · {version}",
+  heroTitle: "An agent-native",
+  heroTitleAccent: "UI runtime for React.",
   heroBody:
-    "GramproKit 2.0 is a new generation of copy-in React 19 components — no peer dependencies, full keyboard support, and theming with plain CSS variables.",
+    "Copy-in components you own: React 19, no peer dependencies, keyboard support throughout, theming with plain CSS variables. Each component also publishes a contract describing what it can do — so a person, a script or an agent all reach it through the same validated boundary.",
   browseComponents: "Browse components",
   figmaDesign: "Figma design",
   view1xDocs: "View 1.x docs",
@@ -94,6 +94,10 @@ const en = {
     {
       title: "Keyboard first",
       body: "Every component documents its keyboard rules, and pickers render in the browser's top layer so they are never clipped.",
+    },
+    {
+      title: "Readable by software",
+      body: "Each component publishes a contract: its operations, its fields, its limits. A request is checked against that contract before anything runs — the same path whether it came from a form or a sentence.",
     },
   ],
   migration: "Migration",
@@ -207,11 +211,11 @@ const ml: Strings = {
   pageActions: "പേജ് പ്രവർത്തനങ്ങൾ",
 
   // Landing page
-  announce: "{version}-നായി പുനർനിർമിച്ച {count} കമ്പോണന്റുകൾ",
-  heroTitle: "ഹെഡ്‌ലെസ് കമ്പോണന്റുകൾ,",
-  heroTitleAccent: "അടിമുടി പുനർനിർമിച്ചത്.",
+  announce: "{count} കമ്പോണന്റുകൾ · {version}",
+  heroTitle: "React-നുള്ള ഒരു",
+  heroTitleAccent: "ഏജന്റ്-നേറ്റീവ് UI റൺടൈം.",
   heroBody:
-    "React 19-നായി പുതുതായി എഴുതിയ കോപ്പി-ഇൻ കമ്പോണന്റുകളാണ് GramproKit 2.0 — പിയർ ഡിപൻഡൻസികളില്ല, പൂർണമായ കീബോർഡ് പിന്തുണ, സാധാരണ CSS വേരിയബിളുകൾ വഴിയുള്ള തീമിങ്.",
+    "നിങ്ങൾ സ്വന്തമാക്കുന്ന കോപ്പി-ഇൻ കമ്പോണന്റുകൾ: React 19, പിയർ ഡിപൻഡൻസികളില്ല, പൂർണമായ കീബോർഡ് പിന്തുണ, സാധാരണ CSS വേരിയബിളുകൾ വഴിയുള്ള തീമിങ്. ഓരോ കമ്പോണന്റും അതിന് എന്തു ചെയ്യാനാകും എന്ന് വിവരിക്കുന്ന ഒരു കരാറും പ്രസിദ്ധീകരിക്കുന്നു — അതിനാൽ ഒരു വ്യക്തിയോ സ്ക്രിപ്റ്റോ ഏജന്റോ ആകട്ടെ, എല്ലാവരും ഒരേ പരിശോധിത അതിർത്തിയിലൂടെയാണ് കടന്നുപോകുന്നത്.",
   browseComponents: "കമ്പോണന്റുകൾ കാണുക",
   figmaDesign: "Figma ഡിസൈൻ",
   view1xDocs: "1.x ഡോക്യുമെന്റേഷൻ കാണുക",
@@ -231,6 +235,10 @@ const ml: Strings = {
     {
       title: "കീബോർഡിന് മുൻഗണന",
       body: "ഓരോ കമ്പോണന്റിന്റെയും കീബോർഡ് നിയമങ്ങൾ ഡോക്യുമെന്റ് ചെയ്തിട്ടുണ്ട്. പിക്കറുകൾ ബ്രൗസറിന്റെ ടോപ് ലെയറിൽ വരുന്നതിനാൽ അവ ഒരിക്കലും മുറിഞ്ഞുപോകില്ല.",
+    },
+    {
+      title: "സോഫ്റ്റ്‌വെയറിന് വായിക്കാവുന്നത്",
+      body: "ഓരോ കമ്പോണന്റും അതിന്റെ പ്രവർത്തനങ്ങളും ഫീൽഡുകളും പരിധികളും വിവരിക്കുന്ന ഒരു കരാർ പ്രസിദ്ധീകരിക്കുന്നു. എന്തെങ്കിലും നടപ്പാക്കുന്നതിന് മുൻപ് ഓരോ അഭ്യർത്ഥനയും ആ കരാറിനെതിരെ പരിശോധിക്കപ്പെടുന്നു — ഫോമിൽ നിന്നായാലും വാചകത്തിൽ നിന്നായാലും ഒരേ വഴി.",
     },
   ],
   migration: "മൈഗ്രേഷൻ",
