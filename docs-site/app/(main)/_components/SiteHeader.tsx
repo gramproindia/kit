@@ -18,7 +18,14 @@ import { GitHubIcon } from "./GitHubIcon";
  * Client-side because the header sits above the locale segment in the route
  * tree: it reads the locale from the path and picks that locale's navigation.
  */
-export function SiteHeader({ navs }: { navs: Record<Locale, NavGroup[]> }) {
+export function SiteHeader({
+  navs,
+  version,
+}: {
+  navs: Record<Locale, NavGroup[]>;
+  /** What the registry is serving, resolved on the server. */
+  version: string;
+}) {
   const pathname = usePathname();
   const { locale } = parsePath(pathname);
   const s = t(locale);
@@ -30,7 +37,7 @@ export function SiteHeader({ navs }: { navs: Record<Locale, NavGroup[]> }) {
       <div className="v2-container flex h-14 items-center gap-2 sm:gap-4">
         <MobileNav nav={nav} locale={locale} />
         <Logo locale={locale} />
-        <span className="v2-pill">{v2Config.version}</span>
+        <span className="v2-pill">{version}</span>
 
         <nav aria-label="Main" className="ml-4 hidden items-center gap-1 text-sm lg:flex">
           {firstDoc && (

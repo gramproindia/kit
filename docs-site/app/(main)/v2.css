@@ -1556,6 +1556,45 @@
   }
 }
 
+/*
+ * A section's own row: the page's link, and the control that reveals its
+ * sub-pages. They are separate targets because the parent is a page too --
+ * the name navigates, the chevron discloses.
+ */
+.v2-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.v2-nav-row .v2-nav-link {
+  flex: 1;
+  min-width: 0;
+}
+
+.v2-nav-toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+  color: var(--v2-faint);
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s, transform 0.15s;
+}
+
+.v2-nav-toggle:hover {
+  color: var(--v2-fg);
+  background: var(--v2-subtle);
+}
+
+/* The chevron points at what it will do: right to open, down to close. */
+.v2-nav-toggle[aria-expanded="true"] {
+  transform: rotate(90deg);
+}
+
 /* Sub-pages of a long component doc, indented under their parent. */
 .v2-nav-sub {
   margin-top: 0.125rem;

@@ -1,3 +1,5 @@
+import { LIBRARY_VERSION } from "../_components/generated/version";
+
 /** The 2.0 docs are the site root. */
 export const V2_BASE = "";
 
@@ -6,7 +8,8 @@ export const LEGACY_BASE = "/1.x.x-legacy";
 
 export const v2Config = {
   name: "GramproKit",
-  version: "2.4.0",
+  /* Stamped from the library's package.json by scripts/generate-demos.mjs. */
+  version: LIBRARY_VERSION,
   description:
     "GramproKit: an agent-native UI runtime for React. Copy-in components you own, each publishing a contract that software can read.",
   legacyDocsHref: "/1.x.x-legacy/docs/getting-started",

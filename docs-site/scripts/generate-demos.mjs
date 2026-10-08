@@ -192,11 +192,33 @@ fs.writeFileSync(
   "utf8",
 );
 
+// --------------------------------------------------------------- version
+/*
+ * The library's version, read from the package that ships it.
+ *
+ * The docs used to carry their own copy and it drifted: the site said 2.3.0
+ * while npm served 2.4.0. There is one number now, and it comes from the
+ * thing being released.
+ */
+const libraryVersion = JSON.parse(
+  read(path.join(root, "..", "package.json")),
+).version;
+
+fs.writeFileSync(
+  path.join(OUT_DIR, "version.ts"),
+  `${BANNER}/** The version in the library's package.json at build time. */
+` +
+    `export const LIBRARY_VERSION = ${JSON.stringify(libraryVersion)};
+`,
+  "utf8",
+);
+
 // ---------------------------------------------------------------- report
 const missingDemo = [...docs.keys()].filter(
   (slug) => !wrappers.some((w) => (SLUG_OVERRIDES[w] ?? w.replace(/Wrapper$/, "").toLowerCase()) === slug),
 );
 console.log(
-  `generate-demos: ${wrappers.length} demos, ${stylesheets.length} stylesheets, ${docs.size} docs` +
+  `generate-demos: ${wrappers.length} demos, ${stylesheets.length} stylesheets, ` +
+    `${docs.size} docs, v${libraryVersion}` +
     (missingDemo.length ? `\n  docs without a demo (fine for guides): ${missingDemo.join(", ")}` : ""),
 );
