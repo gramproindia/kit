@@ -13,7 +13,7 @@ this sits in the wider design.
 ## Why it exists
 
 Documentation written beside code drifts away from it. This repository has
-several proofs: a forked `demo-showroom/docs`, a Malayalam page describing a CSS
+several proofs: a forked `playground/docs`, a Malayalam page describing a CSS
 layer the code had moved off, and 26 component pages repeating a sentence that
 had stopped being true. Anything hand-maintained rots.
 

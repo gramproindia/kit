@@ -8,7 +8,7 @@ order: 3
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Input -beta
+npx @grampro/kit add Input
 ```
 
 The block copies the `input` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -128,6 +128,10 @@ Accepts `<input>` attributes such as `name`, `required`, `disabled`, `autoFocus`
 
 Clicking an adornment or the field's padding focuses the text, as with a native field. Adornments are rendered as given, so pass `aria-hidden` on decorative icons.
 
+Adornments on both sides, the clear button, the password reveal, character counters, every size, and the disabled, read-only and error states.
+
+<InputVariantsWrapper />
+
 ## Passwords
 
 `type="password"` adds a show/hide button (`revealPassword={false}` removes it). The button is a toggle (`aria-pressed`) and names its action for screen readers. Set `autoComplete` so password managers know what to fill: `current-password` for sign-in, `new-password` for sign-up.
@@ -162,6 +166,10 @@ The counter counts characters the way people see them, so an emoji or an accente
 - **Forms:** the field has a `pattern` matching a full code, so `required` makes the browser block submitting a partial code. `name` posts the code.
 - **Letters:** use `mode="alphanumeric"` with `uppercase` for backup and recovery codes.
 
+One real input drawn as cells. Paste “Your code is 123-456” and the digits land in place; on a phone, SMS autofill fills it in one tap.
+
+<OtpInputVariantsWrapper />
+
 ## Forms and Form Libraries
 
 Both components pass their props to a real input and forward `ref` to it, so they register like native inputs:
@@ -180,6 +188,10 @@ Both components pass their props to a real input and forward `ref` to it, so the
 ```
 
 The clear button empties the field by firing a real `input` event, so `onChange` and form libraries see the change.
+
+A plain form with no library: `name`, `required` and `pattern` go straight to the native input, so `FormData` and the browser's own validation work as they always have.
+
+<InputFormWrapper />
 
 ## Imperative API (ref)
 

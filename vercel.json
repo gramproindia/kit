@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "build": { "env": { "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0" } },
-  "installCommand": "cd demo-showroom && npm install",
-  "buildCommand": "cd demo-showroom && npm run build",
-  "outputDirectory": "demo-showroom/dist",
+  "installCommand": "cd playground && npm install",
+  "buildCommand": "cd playground && npm run build",
+  "outputDirectory": "playground/dist",
   "headers": [
     {
       "source": "/assets/(.*)",

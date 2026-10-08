@@ -8,7 +8,7 @@ order: 4
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Textarea -beta
+npx @grampro/kit add Textarea
 ```
 
 The block copies the `textarea` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -104,6 +104,10 @@ Accepts every `<textarea>` attribute, plus:
 - **Growing and shrinking:** the field grows as lines are added and shrinks as they are removed, but never below `minRows` or above `maxRows`. Past `maxRows` the text scrolls.
 - **Where it runs:** in browsers that support CSS `field-sizing: content` (Chromium-based browsers such as Chrome and Edge at the time of writing), resizing happens entirely in CSS, with no measuring and no extra renders.
 - **Fallback:** other browsers measure the text after each change and when the field's width changes. The result is the same, with a small amount of script.
+
+Auto-resize with and without a row cap, a fixed-height field, and counters that treat an emoji as one character.
+
+<TextareaVariantsWrapper />
 
 ## Character Count
 

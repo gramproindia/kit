@@ -8,7 +8,7 @@ order: 9
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Breadcrumb -beta
+npx @grampro/kit add Breadcrumb
 ```
 
 The block copies the `breadcrumb` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -100,6 +100,10 @@ Accepts every `<nav>` attribute, plus:
 ```
 
 A 7-crumb trail becomes `Home › … › Invoices › INV-042`. Pressing the ellipsis reveals the full trail and moves keyboard focus to the first crumb that was hidden. Trails with `maxItems` crumbs or fewer are never collapsed.
+
+A seven-crumb trail at full length and collapsed, and a short one with a custom separator. The last crumb is long enough to be truncated, with the full text in a tooltip.
+
+<BreadcrumbCollapseWrapper />
 
 ## Router Links
 

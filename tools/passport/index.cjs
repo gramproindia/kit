@@ -59,7 +59,7 @@ function findReactTypes(startDir) {
   for (let i = 0; i < 6; i++) {
     const candidate = path.join(dir, "node_modules", "@types", "react");
     if (fs.existsSync(candidate)) return posix(candidate);
-    const nested = path.join(dir, "demo-showroom", "node_modules", "@types", "react");
+    const nested = path.join(dir, "playground", "node_modules", "@types", "react");
     if (fs.existsSync(nested)) return posix(nested);
     const parent = path.dirname(dir);
     if (parent === dir) break;
@@ -80,7 +80,7 @@ function findReactTypes(startDir) {
  */
 function buildAll(opts) {
   const { libRoot, repoRoot, libraryVersion, includeLocal = false, coverageThreshold } = opts;
-  const ts = loadTypeScript([repoRoot, path.join(repoRoot, "demo-showroom")]);
+  const ts = loadTypeScript([repoRoot, path.join(repoRoot, "playground")]);
   const components = listComponents(libRoot);
   const reactTypes = findReactTypes(repoRoot) || findReactTypes(__dirname);
   const program = createProgram(ts, libRoot, components, reactTypes);

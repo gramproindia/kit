@@ -646,6 +646,10 @@ Choosing a chunk size:
 - The default of 5 MiB suits most servers; use 1 MiB behind a default Nginx.
 
 
+The protocol above, running against a simulated server: 256 KB chunks, two files at a time, with pause, resume and cancel per row. Turn on the flaky server to watch failed chunks retry with backoff before a file gives up.
+
+<FileUploaderChunkedWrapper />
+
 ## Custom Transport
 
 A transport sends one chunk and resolves with the response. It receives an `AbortSignal` and a progress callback:

@@ -1,5 +1,18 @@
 import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+/*
+ * The site lives beside the library in one repo and imports it directly from
+ * `../source/beta-components`, so the compilation root has to be the repo
+ * rather than this folder — otherwise Turbopack refuses every import that
+ * resolves above it.
+ *
+ * The alternative was keeping a copy of the library in here, which is what we
+ * had: 386 files that drifted two minor versions behind before anyone noticed.
+ */
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** @type {import('rehype-pretty-code').Options} */
 const options = {
@@ -11,8 +24,10 @@ const options = {
 };
 
 const nextConfig: NextConfig = {
-  /* config options here */
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
+  turbopack: { root: repoRoot },
+  // Keep tracing inside the repo too, so a standalone build finds the library.
+  outputFileTracingRoot: repoRoot,
   images: {
     remotePatterns: [],
   },

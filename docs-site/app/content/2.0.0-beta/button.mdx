@@ -8,7 +8,7 @@ order: 1
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Button -beta
+npx @grampro/kit add Button
 ```
 
 The block copies the `button` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -94,6 +94,10 @@ Accepts every `<button>` attribute, plus:
 <Button variant="danger">Delete</Button>     {/* destructive actions */}
 <Button variant="link">Learn more</Button>   {/* looks like a link, behaves like a button */}
 ```
+
+Every variant and size together, with an icon-only button, a disabled one, an async `onClick`, a controlled `loading` and a button rendered as a link. The async button keeps its width and its focus while it works.
+
+<ButtonVariantsWrapper />
 
 ## Icons
 

@@ -7,11 +7,11 @@ export const siteConfig = {
     { label: "Bug Report", href: "/1.x.x-legacy/bug-tracker" },
     {
       label: "Download Source",
-      href: "https://github.com/anandhuremanan/headless-gbs-components/archive/refs/heads/main.zip",
+      href: "https://github.com/gramproindia/kit/archive/refs/heads/main.zip",
     },
   ],
   socials: {
-    github: "https://github.com/anandhuremanan/headless-gbs-components",
+    github: "https://github.com/gramproindia/kit",
     twitter: "https://twitter.com",
   },
   metadata: {

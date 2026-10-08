@@ -463,3 +463,7 @@ const exportAll = async (format: "excel" | "csv") => {
   {...otherProps}
 />;
 ```
+The same thing against a simulated API with 350 ms of latency. The grid emits the query and nothing else; stale requests are aborted and the page you were looking at stays on screen while the next one loads.
+
+<DataGridServerWrapper />
+

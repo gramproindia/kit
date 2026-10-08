@@ -8,7 +8,7 @@ order: 26
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Progress -beta
+npx @grampro/kit add Progress
 ```
 
 The block copies the `progress` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -58,6 +58,10 @@ import { CircularProgress, Progress } from "@/component-lib/progress";
 `value={null}` says the length is not known yet. The bar sweeps instead of filling, and — the part that matters — `aria-valuenow` is left off the element entirely. That absence is what makes a screen reader say "busy" rather than announcing a task that is 0% done and apparently stuck.
 
 Use a **Spinner** when there is nothing to measure at all and never will be. A progress bar that spends its whole life indeterminate is a spinner drawn as a promise it cannot keep.
+
+Determinate and indeterminate bars, the sizes and variants, and a value that climbs on its own.
+
+<ProgressVariantsWrapper />
 
 ## Props Table
 

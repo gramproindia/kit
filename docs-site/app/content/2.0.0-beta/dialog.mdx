@@ -8,7 +8,7 @@ order: 11
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Dialog -beta
+npx @grampro/kit add Dialog
 ```
 
 The block copies the `dialog` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -175,6 +175,10 @@ const deleted = await dialog.confirm({
 - **If it resolves:** the dialog closes and `confirm` resolves `true`.
 - **If it throws:** the error's message is shown in the dialog and it stays open, so the user can retry or cancel.
 
+The dialog stays open with a spinner while the work runs. Every second attempt here fails, which shows the error arriving in place and the retry that follows.
+
+<DialogAsyncWrapper />
+
 ## Prompts and Validation
 
 ```tsx
@@ -203,6 +207,10 @@ const [first, second] = await Promise.all([
 ```
 
 `dialog.dismissAll()` cancels the open dialog and every waiting one, for example when a session expires.
+
+`alert`, `confirm` and `prompt` awaited from ordinary handlers. Fire several at once and they queue, one at a time, in the order they were asked for.
+
+<DialogTypesWrapper />
 
 ## Multiple Hosts
 

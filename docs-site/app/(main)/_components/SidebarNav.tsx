@@ -75,7 +75,6 @@ export function SidebarNav({
       <div>
         <p className="v2-nav-heading">{s.resources}</p>
         <ul className="v2-nav-list">
-          {external(v2Config.devDemo, s.devDemo)}
           {external(v2Config.seAgent, s.seAgent)}
           {item(v2Config.legacyDocsHref, s.legacyDocsLong)}
           {item(v2Config.bugReportHref, s.reportBug)}

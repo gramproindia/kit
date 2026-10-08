@@ -1,0 +1,11 @@
+/*
+ * The grid in server mode, asking a simulated API for every page.
+ *
+ * This is the documented example itself, not a copy: the file lives in
+ * docs-site/app/components/examples and is rendered on the DataGrid data page
+ * too. Keeping one copy is the point -- the playground used to hold a richer
+ * version than the docs, and nobody noticed the docs had fallen behind.
+ *
+ * No card around it: a grid wants the full width.
+ */
+export { default as ServerDemo } from "@/examples/DataGridServerWrapper";

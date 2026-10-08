@@ -8,7 +8,7 @@ order: 14
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Toaster -beta
+npx @grampro/kit add Toaster
 ```
 
 The block copies the `toaster` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -123,6 +123,10 @@ toast.loading("Syncing…");
 
 Each type sets the icon and the colored bar on the toast's leading edge. Loading toasts stay until you update or dismiss them.
 
+Each type, including the loading toast that stays until something replaces it. Hover a toast to hold its timer; Alt+T moves focus to the notifications and Escape dismisses one.
+
+<ToasterTypesWrapper />
+
 ## Actions
 
 ```tsx
@@ -180,6 +184,10 @@ toast.update(id, {
 - Updating restarts the countdown.
 - Calling `toast(…, { id })` with an id already on screen does the same as `update`. This is handy for events that repeat, such as "Offline", which should not stack.
 
+An undo action, a retry that keeps its toast open and turns it into progress, a promise that alternates between success and failure, and an upload that updates one toast in place.
+
+<ToasterUpdatesWrapper />
+
 ## Custom Toasts
 
 ```tsx
@@ -198,6 +206,10 @@ toast.custom(
 ```
 
 A custom toast keeps the frame, timing, swipe, Escape and close button; you provide the content.
+
+An invitation card and a toast with its own icon. Custom content still gets the timing, the swipe and Escape.
+
+<ToasterCustomWrapper />
 
 ## Calling from Outside React
 
@@ -240,6 +252,10 @@ export const widgetToast = createToastApi(widgetStore);
 - **Queueing:** only `limit` toasts are on screen. Newer toasts appear first, and older ones wait with their full time until a slot frees up.
 - **Order:** the newest toast sits nearest the screen edge, at the top for `top-*` positions and at the bottom for `bottom-*`.
 - **Layering:** toasts render in a portal on `<body>` with a very high `z-index`, so no parent's `overflow`, `transform` or stacking context can hide them.
+
+Change the position, the limit and the close button, then ask for six at once. The ones beyond the limit wait with their timers held and arrive as others close.
+
+<ToasterQueueWrapper />
 
 ## The toast() API
 

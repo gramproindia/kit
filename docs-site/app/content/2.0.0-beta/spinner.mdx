@@ -8,7 +8,7 @@ order: 13
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Spinner -beta
+npx @grampro/kit add Spinner
 ```
 
 The block copies the `spinner` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -117,6 +117,10 @@ return showSkeleton ? <Skeleton /> : <Content />;
 - While loading, the content is `inert`: it can't be clicked, focused or selected, and screen readers skip it.
 - The wrapper has `aria-busy="true"` while loading.
 - The cover takes the wrapper's `border-radius`, so give the wrapper the same radius as the content.
+
+The sizes and variants, a labelled spinner, and a cover over busy content. Toggling it shows the delay and the minimum duration at work: nothing appears for 250 ms, and once it does it stays for 600 ms.
+
+<SpinnerStatesWrapper />
 
 ## Keyboard
 

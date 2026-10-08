@@ -8,7 +8,7 @@ order: 21
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a RadioGroup -beta
+npx @grampro/kit add RadioGroup
 ```
 
 The block copies the `radio-group` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -106,6 +106,10 @@ For choices that need their own markup, pass `<Radio>` children instead:
 
 The whole tile is the target: the radio covers it, so a press anywhere on the card lands on the control itself rather than on a label that forwards the press. Horizontal card groups wrap, each tile taking at least 180 px.
 
+The whole tile is the target, which suits choices that need a sentence of explanation each.
+
+<RadioGroupCardsWrapper />
+
 ## Clearing
 
 A radio cannot be unselected by clicking it or by keyboard. That is what the control *is*, not an oversight — so an optional question needs one of these:
@@ -114,6 +118,10 @@ A radio cannot be unselected by clicking it or by keyboard. That is what the con
 - an explicit choice of its own: `{ value: "none", label: "No reminders" }`.
 
 The second is usually better, because "no reminders" is an answer and an empty group is an unanswered question. Use `clearable` when the difference matters — a filter that is either set or not.
+
+Sizes, both orientations, a disabled option, descriptions and an error, plus the clear button — a radio cannot be unselected on its own.
+
+<RadioGroupVariantsWrapper />
 
 ## Props Table
 

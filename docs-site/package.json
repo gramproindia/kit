@@ -1,5 +1,5 @@
 {
-  "name": "next_docs_headless",
+  "name": "@grampro/kit-docs",
   "version": "0.1.0",
   "private": true,
   "scripts": {

@@ -8,7 +8,7 @@ order: 22
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a NumberInput -beta
+npx @grampro/kit add NumberInput
 ```
 
 The block copies the `number-input` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -87,6 +87,10 @@ The field shows a **formatted** number at rest and the **plain** number while it
 
 `format="percent"` follows `Intl` and multiplies by 100 for display, so a field showing 45% holds `0.45`. That is the convention charts and CSS already use; having one component disagree would be worse than the surprise.
 
+The same amount in three notations, with currency and unit fields alongside. Type `1.234,56` into the German field to see it parsed the way that locale writes it.
+
+<NumberInputCurrencyWrapper />
+
 ## Limits and steps
 
 | Prop | Effect |
@@ -101,6 +105,10 @@ The field shows a **formatted** number at rest and the **plain** number while it
 `strict` sounds tidier than it is: typing `50` into a field with `max: 30` becomes `3` under the caret as soon as the `5` lands. `blur` is the default for that reason.
 
 Steps are computed on scaled integers, so pressing ↑ three times from `0` with `step={0.1}` gives `0.3`, not `0.30000000000000004`. `snapToStep` only applies to committed values — correcting `7` to `5` while someone is still typing `75` would make the field unusable.
+
+Steppers, clamping and a clearable field that can hold no value at all. Hold a stepper to repeat; the mouse wheel is deliberately inert.
+
+<NumberInputVariantsWrapper />
 
 ## Props Table
 

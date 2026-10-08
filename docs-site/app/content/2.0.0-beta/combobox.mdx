@@ -8,7 +8,7 @@ order: 6
 ## Installation
 
 ```bash
-npx gbs-add-block -a Combobox -beta
+npx @grampro/kit add Combobox
 ```
 
 The block copies the `combobox` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -98,6 +98,8 @@ Both components are controlled with `value` + `onChange`, or uncontrolled with `
 <Notice message="Define options outside the component or wrap them in useMemo. A new options array on every render makes the list re-filter each time. With React Compiler enabled this is handled for you." />
 
 ## Options
+
+<SelectOptionsWrapper />
 
 ```ts
 interface ComboboxOption<V = string> {
@@ -212,6 +214,8 @@ Custom matching:
 
 ## Server Options
 
+<SelectServerWrapper />
+
 In server mode the component does no filtering. It reports the search text and shows whatever `options` you pass.
 
 ```tsx
@@ -283,6 +287,8 @@ const { data, isFetching } = useQuery({
 
 ## Creating Options
 
+<SelectCreatableWrapper />
+
 ```tsx
 const [options, setOptions] = useState(initialTags);
 const [values, setValues] = useState<string[]>([]);
@@ -304,6 +310,8 @@ const [values, setValues] = useState<string[]>([]);
 "Create …" appears when the typed text matches no option's label. Pressing **Enter** with no option highlighted creates it. The component does not add the option itself: do that in `onCreate`.
 
 ## Forms
+
+<SelectFormWrapper />
 
 With a `name`, values post as hidden inputs — one per value — so `FormData` and server actions pick them up.
 

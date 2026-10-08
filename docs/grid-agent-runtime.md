@@ -379,7 +379,7 @@ not have. The real fix is `searchable: false` on the column definition.
 
 ```bash
 npm run eval:grid      # coverage report
-pnpm -C demo-showroom exec vitest run ../tools/eval
+pnpm -C playground exec vitest run ../tools/eval
 ```
 
 Without a model there is no accuracy to measure, and that is fine — this does

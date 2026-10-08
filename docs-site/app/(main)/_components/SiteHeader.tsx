@@ -42,14 +42,6 @@ export function SiteHeader({ navs }: { navs: Record<Locale, NavGroup[]> }) {
             {s.playground}
           </Link>
           <a
-            href={v2Config.devDemo}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="v2-top-link"
-          >
-            {s.devDemo}
-          </a>
-          <a
             href={v2Config.seAgent}
             target="_blank"
             rel="noopener noreferrer"

@@ -8,7 +8,7 @@ order: 7
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a DatePicker -beta
+npx @grampro/kit add DatePicker
 ```
 
 The block copies the `date-picker` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -172,6 +172,10 @@ People can type instead of picking, and the calendar follows along as they type.
 
 Text that isn't a date, or a date outside `min` / `max`, shows a message when the field loses focus and leaves the value untouched. Set `allowInput={false}` for a pick-only field.
 
+Type a date or pick one. Field order, month names and the first day of the week follow the locale, while ISO and written months (“12 Mar 2026”) are always accepted.
+
+<DatePickerVariantsWrapper />
+
 ## Limits and Blocked Days
 
 ```tsx
@@ -183,6 +187,10 @@ Text that isn't a date, or a date outside `min` / `max`, shows a message when th
 ```
 
 `min` / `max` stop the arrows, the month and year panels and typed entry. `isDateDisabled` blocks individual days: they stay visible but cannot be chosen. Keep the function stable (module level or `useMemo`) so the months are not rebuilt on every render.
+
+A bookable window with weekends blocked, week numbers on and the week starting on Sunday.
+
+<DatePickerLimitsWrapper />
 
 ## Range Presets
 
@@ -209,6 +217,10 @@ const presets: DatePreset[] = [
 
 Picking a range takes two clicks: the first sets the start, the second the end, with a preview band in between. Clicking in reverse order is fine — the range is put the right way round. A third click starts a new range.
 
+Two months side by side, presets down the edge, and the preview band that follows the cursor while the second date is still open.
+
+<DateRangePickerVariantsWrapper />
+
 ## Forms
 
 With a `name`, the value posts as a hidden input so `FormData` and server actions pick it up. Dates post as `yyyy-mm-dd`; the range posts two fields:
@@ -229,6 +241,10 @@ With a `name`, the value posts as a hidden input so `FormData` and server action
 ```
 
 `error` shows a message below the control, colors the border and sets `aria-invalid`. Validation is yours; the component only displays the state.
+
+Uncontrolled fields posting ISO dates through hidden inputs — the range posts `period-start` and `period-end`.
+
+<DatePickerFormWrapper />
 
 ## Imperative API (ref)
 

@@ -20,13 +20,13 @@ import { createRequire } from "node:module";
 import { join } from "node:path";
 
 /*
- * Playwright lives in demo-showroom's node_modules, and Node resolves bare
+ * Playwright lives in playground's node_modules, and Node resolves bare
  * specifiers from the importing file rather than the working directory — so a
  * plain `import "@playwright/test"` fails from here. Resolved explicitly
  * instead of moving the probe into the showroom, which should not grow a
  * dependency on half a gigabyte of model weights.
  */
-const showroom = fileURLToPath(new URL("../../../demo-showroom/package.json", import.meta.url));
+const showroom = fileURLToPath(new URL("../../../playground/package.json", import.meta.url));
 const playwright = await import(
   pathToFileURL(createRequire(showroom).resolve("@playwright/test")).href
 );

@@ -39,7 +39,7 @@ export interface Fixture {
 /*
  * Walk up for the directory that holds both the library and the corpus. The
  * harness runs from two places with different working directories — vitest
- * rooted in demo-showroom, and the evaluation CLI rooted at the repository —
+ * rooted in playground, and the evaluation CLI rooted at the repository —
  * and `import.meta` is unavailable in the second, because the CLI loads this
  * file through the CommonJS TypeScript hook.
  */

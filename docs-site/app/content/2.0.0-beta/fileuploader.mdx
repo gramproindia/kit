@@ -8,7 +8,7 @@ order: 8
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a FileUploader -beta
+npx @grampro/kit add FileUploader
 ```
 
 The block copies the `file-uploader` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -207,6 +207,10 @@ interface ExistingFile {
 ```
 
 
+A saved record: files already on the server appear with download links, and new ones wait for “Save”, which calls `ref.upload()`.
+
+<FileUploaderEditWrapper />
+
 ## Validation
 
 Files are checked when they are dropped, picked or pasted. Rejected files are listed with a reason, and `onRejected` receives them:
@@ -230,6 +234,10 @@ Files are checked when they are dropped, picked or pasted. Rejected files are li
 
 Client checks are for the user's convenience only. Check type and size on the server as well.
 
+
+Images only, 2 MB each, three in all, no duplicates. Accepted files start uploading at once; rejected ones say which rule they broke.
+
+<FileUploaderValidationWrapper />
 
 ## Forms
 
@@ -256,6 +264,10 @@ async function save(formData: FormData) {
 
 For large files, prefer an endpoint: chunks can resume, and Server Actions usually cap the body at 1 MB by default.
 
+
+With no endpoint, the files post with the form under `name` — ready for a Server Action or a classic form handler.
+
+<FileUploaderFormWrapper />
 
 ## Imperative API (ref)
 

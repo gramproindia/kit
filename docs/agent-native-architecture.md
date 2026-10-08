@@ -110,7 +110,7 @@ is what keeps the passport machine-usable.
 The brief proposed `passport.generated.json` + `passport.manual.json`.
 *Proposed change:* keep that split but **do not commit a third merged file as a
 peer**. A committed merge is a third drift surface — this repo has already lost
-time to exactly that (a forked `demo-showroom/docs`, a stale Malayalam page, 26
+time to exactly that (a forked `playground/docs`, a stale Malayalam page, 26
 doc pages describing a CSS layer the code had moved off).
 
 ```

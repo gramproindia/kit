@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 
 /*
- * Serves the probe only. Deliberately not part of demo-showroom: the probe
+ * Serves the probe only. Deliberately not part of playground: the probe
  * imports `@huggingface/transformers` and pulls half a gigabyte of weights,
  * and neither belongs anywhere near the showroom's dev server.
  *

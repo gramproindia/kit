@@ -8,7 +8,7 @@ order: 15
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Menu -beta
+npx @grampro/kit add Menu
 ```
 
 The block copies the `menu` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -141,6 +141,10 @@ Disabled items keep their place and stay focusable, as the pattern prefers: some
 A submenu opens on hover after a short pause, on `Enter`, or on `ArrowRight`, and closes when the pointer leaves both it and its trigger. Submenus nest as deeply as you like, though two levels is usually the point at which a dialog would serve people better.
 
 <Notice message="A submenu is a manual popover, not an automatic one. Opening an automatic popover closes every other one, which would take the parent menu down with it the moment a submenu appeared." />
+
+Icons and shortcuts, a disabled item, submenus nested two deep, a checkbox item, a radio group and a destructive action — plus a second menu aligned to its trigger's end. The line underneath reports what was chosen and what closed the menu.
+
+<MenuSubmenusWrapper />
 
 ## Styling and Theming
 

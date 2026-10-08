@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: demo-showroom
+        working-directory: playground
     steps:
       - uses: actions/checkout@v4
 
@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: demo-showroom/pnpm-lock.yaml
+          cache-dependency-path: playground/pnpm-lock.yaml
 
       # The library lives outside this package; the showroom is where its
       # toolchain (vitest, React types) is installed.

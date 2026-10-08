@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated demo registry
+# Rebuilt by scripts/generate-demos.mjs, which both `dev` and `build` run, so
+# these are build output rather than source -- and the highlighted sources are
+# ~2 MB that would churn on every component change.
+app/(main)/_components/generated/

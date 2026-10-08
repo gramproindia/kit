@@ -23,7 +23,7 @@
     "gbs-add-block": "index.cjs"
   },
   "scripts": {
-    "test": "pnpm -C demo-showroom test",
+    "test": "pnpm -C playground test",
     "passport": "node tools/passport/cli.cjs",
     "passport:check": "node tools/passport/cli.cjs --check",
     "eval:grid": "node tools/eval/grid/cli.cjs"

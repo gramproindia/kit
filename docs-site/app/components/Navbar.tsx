@@ -16,7 +16,7 @@ export default function Navbar() {
   const getLatestVersion = async () => {
     try {
       const response = await fetch(
-        "https://registry.npmjs.org/gbs-add-block/latest"
+        "https://registry.npmjs.org/@grampro/kit/latest"
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");

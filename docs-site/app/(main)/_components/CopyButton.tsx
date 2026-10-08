@@ -3,12 +3,19 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 
-/** Copies the <pre> that shares its .v2-code container. */
+/**
+ * Copies the <pre> in the nearest code container.
+ *
+ * Two shapes use this: a prose code block (`.v2-code`) and a live demo's code
+ * view, where the button sits in the demo's own bar rather than a second one
+ * stacked beneath it.
+ */
 export function CopyButton() {
   const [copied, setCopied] = useState(false);
 
   const copy = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const text = event.currentTarget.closest(".v2-code")?.querySelector("pre")?.textContent ?? "";
+    const container = event.currentTarget.closest(".v2-code, figure.v2-demo");
+    const text = container?.querySelector("pre")?.textContent ?? "";
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

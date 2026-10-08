@@ -1045,7 +1045,7 @@ const validateComponents = (components, beta = false) => {
       );
     }
     console.error(`Invalid components: ${invalidComponents.join(", ")}`);
-    console.log(`\nAvailable ${beta ? "beta " : ""}components:`);
+    console.log(`\nAvailable ${beta ? "" : "1.x "}components:`);
     availableComponents.forEach((comp) => console.log(`- ${comp}`));
     if (!beta) {
       console.log("\nRedesigned beta components (install with -beta):");
@@ -1158,7 +1158,7 @@ const main = async () => {
    */
   const beta = !argv.legacy;
 
-  if (beta) {
+  if (argv["beta"] === true) {
     console.log(
       "Note: --beta is no longer needed; these components are the default. " +
         "Drop the flag.",
@@ -1171,7 +1171,7 @@ const main = async () => {
     if (parsed.command === "passport") argv.passport = true;
     if (parsed.command === "add") {
       if (parsed.operands.length === 0) {
-        console.log("Which component? Try: $0 add Button    (or: $0 list)".replace("$0", CLI_NAME));
+        console.log(`Which component? Try: ${CLI_NAME} add Button    (or: ${CLI_NAME} list)`);
         return;
       }
       argv.add = parsed.operands.join(",");
@@ -1183,7 +1183,7 @@ const main = async () => {
   // List components if requested
   if (argv.list) {
     const availableComponents = getAvailableComponents(beta);
-    console.log(`\nAvailable ${beta ? "beta " : ""}components:`);
+    console.log(`\nAvailable ${beta ? "" : "1.x "}components:`);
     availableComponents.forEach((comp) => {
       const deps = CONFIG.dependencies[comp]
         ? ` (requires: ${CONFIG.dependencies[comp].join(", ")})`

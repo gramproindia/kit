@@ -8,7 +8,7 @@ order: 18
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Card -beta
+npx @grampro/kit add Card
 ```
 
 The block copies the `card` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -115,6 +115,10 @@ A card can be the main thing on a page or one of twelve tiles in a grid, and the
 `invert` is for figures where down is the good outcome — churn, refunds, error rates, page weight. It changes the colour only: the arrow still points the way the number moved, because the arrow reports the fact and the colour is the judgement.
 
 The direction is also written out for screen readers ("Up", "Down", "No change"), so the meaning never rests on colour alone. `direction: "flat"` gets no colour at all.
+
+Three stat tiles — one rising, one falling but inverted because churn going down is good, and one loading — then a card with a header, a menu in its actions, an empty state and a footer.
+
+<CardStatsWrapper />
 
 ## Cards that are links
 

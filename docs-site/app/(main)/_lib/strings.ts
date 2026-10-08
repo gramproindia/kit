@@ -14,7 +14,6 @@ const en = {
   components: "Components",
   legacyDocs: "1.x Docs",
   reportBug: "Report a bug",
-  devDemo: "Dev demo",
   seAgent: "SE Agent",
   searchDocs: "Search docs…",
   searchAria: "Search documentation",
@@ -49,12 +48,11 @@ const en = {
   onThisPage: "On this page",
   previous: "Previous",
   next: "Next",
-  betaBadge: "Beta · Experimental",
   reactBadge: "React 19",
   noPeerDepsBadge: "No peer dependencies",
   /** {bugTracker} is replaced with a link labelled `bugTrackerLink`. */
-  betaWarning:
-    "Beta components are subject to change and may break your code. Use them at your own risk, and share feedback through the {bugTracker}.",
+  feedbackNote:
+    "Found something wrong, or missing? Open an issue on the {bugTracker}.",
   bugTrackerLink: "bug tracker",
   untranslated: "This page has not been translated yet, so the English version is shown below.",
 
@@ -79,7 +77,7 @@ const en = {
   browseComponents: "Browse components",
   figmaDesign: "Figma design",
   view1xDocs: "View 1.x docs",
-  availableInBeta: "Available in the beta",
+  availableInBeta: "Components",
   moreComing: "More components move to 2.0 as they are rebuilt. Until then, the 1.x docs stay available.",
   readDocs: "Read docs",
   highlights: [
@@ -104,8 +102,6 @@ const en = {
   comingFrom1x: "Coming from 1.x?",
   migrationBody:
     "The 2.0 components are new implementations, not drop-in upgrades. Each page ends with a table that maps the previous API to the new one.",
-  betaLabel: "Beta:",
-  betaCallout: "these components are experimental and may change in ways that break your code.",
   highlightsLabel: "Highlights",
 
   // Generated Markdown (.md pages, llms.txt)
@@ -156,7 +152,6 @@ const ml: Strings = {
   components: "കമ്പോണന്റുകൾ",
   legacyDocs: "1.x ഡോക്യുമെന്റേഷൻ",
   reportBug: "ബഗ് അറിയിക്കുക",
-  devDemo: "ഡെവ് ഡെമോ",
   seAgent: "SE ഏജന്റ്",
   searchDocs: "തിരയുക…",
   searchAria: "ഡോക്യുമെന്റേഷനിൽ തിരയുക",
@@ -190,11 +185,10 @@ const ml: Strings = {
   onThisPage: "ഈ പേജിൽ",
   previous: "മുമ്പത്തേത്",
   next: "അടുത്തത്",
-  betaBadge: "ബീറ്റ · പരീക്ഷണാത്മകം",
   reactBadge: "React 19",
   noPeerDepsBadge: "പിയർ ഡിപൻഡൻസികളില്ല",
-  betaWarning:
-    "ബീറ്റ കമ്പോണന്റുകൾ മാറാൻ സാധ്യതയുണ്ട്; അവ നിങ്ങളുടെ കോഡ് തകരാറിലാക്കിയേക്കാം. സ്വന്തം ഉത്തരവാദിത്തത്തിൽ ഉപയോഗിക്കുക, {bugTracker} വഴി അഭിപ്രായം അറിയിക്കുക.",
+  feedbackNote:
+    "എന്തെങ്കിലും തെറ്റോ വിട്ടുപോയതോ കണ്ടെത്തിയോ? {bugTracker} വഴി ഒരു ഇഷ്യൂ രേഖപ്പെടുത്തുക.",
   bugTrackerLink: "ബഗ് ട്രാക്കർ",
   untranslated: "ഈ പേജ് ഇതുവരെ വിവർത്തനം ചെയ്തിട്ടില്ല, അതിനാൽ ഇംഗ്ലീഷ് പതിപ്പാണ് താഴെ കാണിക്കുന്നത്.",
 
@@ -219,7 +213,7 @@ const ml: Strings = {
   browseComponents: "കമ്പോണന്റുകൾ കാണുക",
   figmaDesign: "Figma ഡിസൈൻ",
   view1xDocs: "1.x ഡോക്യുമെന്റേഷൻ കാണുക",
-  availableInBeta: "ബീറ്റയിൽ ലഭ്യമായവ",
+  availableInBeta: "കമ്പോണന്റുകൾ",
   moreComing:
     "പുനർനിർമിക്കുന്ന മുറയ്ക്ക് കൂടുതൽ കമ്പോണന്റുകൾ 2.0-ലേക്ക് എത്തും. അതുവരെ 1.x ഡോക്യുമെന്റേഷൻ ലഭ്യമായിരിക്കും.",
   readDocs: "ഡോക്യുമെന്റേഷൻ വായിക്കുക",
@@ -245,8 +239,6 @@ const ml: Strings = {
   comingFrom1x: "1.x-ൽ നിന്ന് വരുകയാണോ?",
   migrationBody:
     "2.0 കമ്പോണന്റുകൾ പുതുതായി എഴുതിയവയാണ്, നേരിട്ട് പകരം വയ്ക്കാവുന്ന അപ്ഗ്രേഡുകളല്ല. ഓരോ പേജിന്റെയും അവസാനം പഴയ API-യും പുതിയതും തമ്മിൽ ബന്ധിപ്പിക്കുന്ന പട്ടികയുണ്ട്.",
-  betaLabel: "ബീറ്റ:",
-  betaCallout: "ഈ കമ്പോണന്റുകൾ പരീക്ഷണാത്മകമാണ്; നിങ്ങളുടെ കോഡ് തകരാറിലാക്കുന്ന വിധത്തിൽ അവ മാറിയേക്കാം.",
   highlightsLabel: "പ്രധാന സവിശേഷതകൾ",
 
   // Generated Markdown (.md pages, llms.txt)

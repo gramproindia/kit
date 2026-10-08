@@ -8,7 +8,7 @@ order: 12
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Modal -beta
+npx @grampro/kit add Modal
 ```
 
 The block copies the `modal` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -134,6 +134,10 @@ Every one of these, except setting `open` yourself, goes through `onBeforeClose`
 - Returning `false`, or a promise that resolves `false`, keeps the modal open. If the guard throws, the modal also stays open.
 - A drag that starts inside the modal and ends on the backdrop, for example while selecting text, doesn't close it.
 
+`onBeforeClose` in practice: edit the form, then try to leave. The guard asks through the `Dialog` before anything is thrown away, and the backdrop is locked so a stray click cannot close it.
+
+<ModalGuardWrapper />
+
 ## Sizes and Drawers
 
 ```tsx
@@ -145,6 +149,10 @@ Every one of these, except setting `open` yourself, goes through `onBeforeClose`
 ```
 
 Drawers fill the height of the screen (or the width, at the bottom) and slide in from their side. `left` and `right` refer to the physical screen edges.
+
+Every size, both drawer edges, and a modal whose content is long enough to scroll. The page behind stays inert, and focus returns to the button that opened it.
+
+<ModalSizesWrapper />
 
 ## Focus
 

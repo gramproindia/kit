@@ -6,19 +6,17 @@ export const LEGACY_BASE = "/1.x.x-legacy";
 
 export const v2Config = {
   name: "GramproKit",
-  version: "2.3.0",
+  version: "2.4.0",
   description:
     "GramproKit: an agent-native UI runtime for React. Copy-in components you own, each publishing a contract that software can read.",
   legacyDocsHref: "/1.x.x-legacy/docs/getting-started",
-  github: "https://github.com/anandhuremanan/headless-gbs-components",
+  github: "https://github.com/gramproindia/kit",
   /** GBS SE Agent: a coding agent with skills for building with these components. */
   seAgent: "https://anandhuremanan.github.io/gb-codex/",
-  /** Every component with all its options, to try against the docs. */
-  devDemo: "https://gramprokit-devdemo.vercel.app/",
   /** The 2.0.0 design file. Link without Figma's ?t= session token. */
   figma: "https://www.figma.com/design/GTLm5L1yxSb7xWC8Ung3I6/Kit.gramproindia",
   bugReportHref:
-    "https://github.com/anandhuremanan/headless-gbs-components/issues",
+    "https://github.com/gramproindia/kit/issues",
   /** Sidebar group order; groups not listed here are sorted after these. */
   groups: ["General", "Data", "Inputs", "Navigation", "Overlays", "Feedback", "Display"],
 };

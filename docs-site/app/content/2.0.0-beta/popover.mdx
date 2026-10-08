@@ -8,7 +8,7 @@ order: 17
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Popover -beta
+npx @grampro/kit add Popover
 ```
 
 The block copies the `popover` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -104,6 +104,10 @@ A popover does not trap focus, and it should not: `Tab` moves through the panel 
 | A few words describing a control | [Tooltip](/tooltip) |
 | A small panel of content or controls | Popover |
 | Something that must be finished or dismissed | [Modal](/modal) or [Dialog](/dialog) |
+
+Both, side by side: tooltips that describe a button, and a popover holding checkboxes and an Apply button. `data-autofocus` decides where focus lands when the popover opens.
+
+<PopoverFiltersWrapper />
 
 ## Styling and Theming
 

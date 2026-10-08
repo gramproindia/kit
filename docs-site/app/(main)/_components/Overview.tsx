@@ -114,8 +114,8 @@ export async function Overview({ locale }: { locale: Locale }) {
 
           <div className="mx-auto mt-10 max-w-md text-left">
             <CommandTabs
-              npm="npx gbs-add-block@latest -i -beta"
-              pnpm="pnpm dlx gbs-add-block@latest -i -beta"
+              npm="npx @grampro/kit -i"
+              pnpm="pnpm dlx @grampro/kit -i"
             />
           </div>
         </div>
@@ -202,11 +202,6 @@ export async function Overview({ locale }: { locale: Locale }) {
               {s.comingFrom1x}
             </h2>
             <p className="mt-4 text-(--v2-muted)">{s.migrationBody}</p>
-            <div className="v2-callout mt-6" data-type="warning">
-              <p className="v2-callout-body">
-                <strong>{s.betaLabel}</strong> {s.betaCallout}
-              </p>
-            </div>
           </div>
 
           <ul className="divide-y divide-(--v2-border) overflow-hidden rounded-xl border border-(--v2-border)">

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, ChevronRight, FlaskConical, Languages } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, Languages } from "lucide-react";
 import { getDocs, getNav } from "../_lib/docs";
 import { renderDoc } from "../_lib/render";
 import { markdownHref } from "../_lib/markdown";
@@ -119,7 +119,7 @@ export default async function DocPage({ params }: Props) {
   const prev = docs[index - 1];
   const next = docs[index + 1];
   const { content, toc, translated } = rendered;
-  const [warningBefore, warningAfter] = splitAround(s.betaWarning, "bugTracker");
+  const [feedbackBefore, feedbackAfter] = splitAround(s.feedbackNote, "bugTracker");
   const lang = localeInfo(locale).htmlLang;
 
   return (
@@ -148,10 +148,6 @@ export default async function DocPage({ params }: Props) {
 
         <header className="mb-10 border-b border-(--v2-border) pb-8">
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <span className="v2-badge" data-tone="beta">
-              <FlaskConical className="size-3.5" aria-hidden />
-              {s.betaBadge}
-            </span>
             <span className="v2-badge">{s.reactBadge}</span>
             <span className="v2-badge">{s.noPeerDepsBadge}</span>
           </div>
@@ -160,9 +156,9 @@ export default async function DocPage({ params }: Props) {
             <p className="mt-3 max-w-2xl text-base text-pretty text-(--v2-muted) sm:text-lg">{doc.description}</p>
           )}
           <p className="mt-5 text-sm text-(--v2-muted)">
-            {warningBefore}
+            {feedbackBefore}
             <Link href={v2Config.bugReportHref}>{s.bugTrackerLink}</Link>
-            {warningAfter}
+            {feedbackAfter}
           </p>
         </header>
 

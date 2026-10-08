@@ -8,7 +8,7 @@ order: 24
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Badge -beta
+npx @grampro/kit add Badge
 ```
 
 The block copies the `badge` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -80,6 +80,10 @@ Six variants — `neutral` `accent` `success` `warning` `danger` `info` — in t
 | `outline`  | A border only         | Dense lists where a fill would be too much.   |
 
 `dot` puts a small filled circle before the label, for a status where the word is the message and the colour is a hint.
+
+Badges and tags across the variants and appearances. Counts stop at `max` and announce that they have.
+
+<BadgeVariantsWrapper />
 
 ## Props Table
 

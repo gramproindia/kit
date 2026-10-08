@@ -8,7 +8,7 @@ order: 20
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Switch -beta
+npx @grampro/kit add Switch
 ```
 
 The block copies the `switch` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -93,6 +93,10 @@ A request that is overtaken by a newer one is ignored when it finally answers, s
 Use `loading` to show the same busy state from outside, for instance while a whole form saves.
 
 <Notice message="Handle the rejection where the promise comes from if you want to tell the user why it failed. The switch returns itself to where it was; it does not know what went wrong, and it will not show a message of its own." />
+
+Three switches that take effect immediately: one local, one that saves to a pretend server, and one that always fails and puts itself back.
+
+<SwitchVariantsWrapper />
 
 ## Props Table
 

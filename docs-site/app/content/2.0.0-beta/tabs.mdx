@@ -8,7 +8,7 @@ order: 10
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Tabs -beta
+npx @grampro/kit add Tabs
 ```
 
 The block copies the `tabs` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -135,6 +135,10 @@ Use it per panel for the ones that need it: `<TabPanel value="form" keepMounted>
 ```
 
 The indicator slides between tabs and follows size changes, for example when a badge count changes. Horizontal tab lists that don't fit scroll sideways, and keyboard focus scrolls the focused tab into view.
+
+Each variant, both orientations, and a disabled tab that the arrow keys skip. Type in the form tab and switch away: `keepMounted` brings the input back as you left it.
+
+<TabsVariantsWrapper />
 
 ## Keyboard
 

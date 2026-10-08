@@ -8,7 +8,7 @@ order: 27
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Accordion -beta
+npx @grampro/kit add Accordion
 ```
 
 The block copies the `accordion` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -94,6 +94,10 @@ It also puts an explicit `role="button"` on the `<summary>`. A bare summary is e
 | `collapsible` | Whether the open panel can be closed again. Default true — set it to `false` when the panels are the whole content and an empty page would be a dead end. |
 
 <Notice message="A non-collapsible accordion built from children rather than `items` needs a `defaultValue`: without the list of panels the component cannot pick one to open, and it will not guess." />
+
+Single and multiple open, a disabled item, and one group left to the browser's own `<details>` behaviour. Ctrl+F finds text inside a closed panel.
+
+<AccordionVariantsWrapper />
 
 ## Props Table
 

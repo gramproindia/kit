@@ -8,7 +8,7 @@ order: 25
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Avatar -beta
+npx @grampro/kit add Avatar
 ```
 
 The block copies the `avatar` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -70,6 +70,10 @@ import { Avatar, AvatarGroup } from "@/component-lib/avatar";
 The colour is a hash of the name, so the same person is the same colour on every page and in every session, with nothing stored anywhere. The palette is eight hues generated with relative `oklch()`, all at one lightness, so no one person's initials come out harder to read than another's.
 
 An image that fails to load falls back to the initials rather than leaving a broken frame — which happens more than it should with avatar URLs that have expired or come from a third party.
+
+Images, initials, fallbacks and a group with an overflow count. The colour is a hash of the name, so a person keeps the same one everywhere.
+
+<AvatarVariantsWrapper />
 
 ## Props Table
 

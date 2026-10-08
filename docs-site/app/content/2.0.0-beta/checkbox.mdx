@@ -8,7 +8,7 @@ order: 5
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Checkbox -beta
+npx @grampro/kit add Checkbox
 ```
 
 The block copies the `checkbox` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -149,6 +149,10 @@ Accepts every `<input>` attribute except `type`, plus:
 ```
 
 Any `Checkbox` with a `value` inside a group reads and updates the group's array, at any depth.
+
+A single checkbox with a description and an error, a group with select-all in its mixed state and a disabled option, and a horizontal group built from children.
+
+<CheckboxGroupsWrapper />
 
 ## Forms
 

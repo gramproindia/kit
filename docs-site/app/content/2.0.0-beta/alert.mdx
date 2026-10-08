@@ -8,7 +8,7 @@ order: 23
 ## Installation
 
 ```bash
-npx gbs-add-block@latest -a Alert -beta
+npx @grampro/kit add Alert
 ```
 
 The block copies the `alert` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
@@ -93,6 +93,10 @@ An alert that appears after the page has loaded is news, and a screen reader has
 An alert that was on the page from the start announces nothing either way — a live region only speaks when its contents change — so it is read in its turn like any other text.
 
 <Notice message="Mount the alert when the thing happens, rather than keeping a hidden one and revealing it with CSS. A live region announces a change to its contents, and a node that was always there with `display: none` may not count as a change at all." />
+
+Each variant, with and without a title, dismissible and with actions.
+
+<AlertVariantsWrapper />
 
 ## Styling and Theming
 

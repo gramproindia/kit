@@ -80,6 +80,10 @@ gridRef.current?.toggleSort("salary");
 | `copyToClipboard` | `() => Promise<void>`                              | Copy selected rows as tab-separated text, or the focused cell's text. |
 
 
+25,000 rows with no pagination, driven from outside: the buttons move focus to a cell, set the sort and export only the selected rows. Editing a cell calls a save that takes 400 ms, and the cell holds the pending value until it resolves.
+
+<DataGridApiWrapper />
+
 ## Export
 
 | Format | Details                                                                                                                                                                                         |
