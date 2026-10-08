@@ -1,5 +1,39 @@
 # Changelog
 
+## 2.4.1
+
+### Fixed
+
+**The stylesheet import printed after an install is now one you can paste.**
+
+2.4.0 could put the components under `src/`, and printed the path to the
+barrel from the project root -- which is correct from nowhere in particular.
+In a Next.js app it read:
+
+```css
+@import "./src/component-lib/gbs.css" layer(components);
+```
+
+while the file to edit was `src/app/globals.css`, two directories away. You
+had to work out the `../` yourself.
+
+The installer now finds your global stylesheet in the usual places
+(`src/app/globals.css`, `app/globals.css`, `src/styles/globals.css`,
+`src/index.css` and friends), names it, and writes the path from there:
+
+```
+Add this to src/app/globals.css:
+
+  @import "tailwindcss";
+  @import "../component-lib/gbs.css" layer(components);
+```
+
+Where no stylesheet is found it falls back to the path from the project root,
+as before. The header inside the generated `gbs.css` follows the same rule.
+
+Nothing about the installed components changed; this is the installer's
+output only.
+
 ## 2.4.0
 
 The first release published as **`@grampro/kit`**. `gbs-add-block` keeps

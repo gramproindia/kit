@@ -1,76 +1,77 @@
-{
-  "name": "@grampro/kit",
-  "version": "2.4.0",
-  "description": "GramproKit \u2014 an agent-native UI runtime for React. Copy-in components you own, each publishing a contract that software can read.",
-  "type": "module",
-  "files": [
-    "index.cjs",
-    "source",
-    ".gbs",
-    "tools",
-    "schema",
-    "!tools/eval",
-    "!source/**/__tests__",
-    "!**/*.test.ts",
-    "!**/*.test.tsx",
-    "CHANGELOG.md"
-  ],
-  "engines": {
-    "node": ">=17"
-  },
-  "bin": {
-    "grampro-kit": "index.cjs",
-    "gbs-add-block": "index.cjs"
-  },
-  "scripts": {
-    "prepublishOnly": "npm test && npm run passport:check",
-    "test": "pnpm -C playground test",
-    "passport": "node tools/passport/cli.cjs",
-    "passport:check": "node tools/passport/cli.cjs --check",
-    "eval:grid": "node tools/eval/grid/cli.cjs"
-  },
-  "keywords": [
-    "react",
-    "react-19",
-    "component-library",
-    "agent-native",
-    "ui-runtime",
-    "ai-agents",
-    "webmcp",
-    "data-grid",
-    "copy-in",
-    "accessibility"
-  ],
-  "author": "Anandhu Remanan",
-  "license": "ISC",
-  "dependencies": {
-    "@grampro/headless-helpers": "^1.0.21",
-    "fs-extra": "^11.0.4",
-    "tailwind-merge": "^3.6.0",
-    "yargs": "^17.7.2"
-  },
-  "devDependencies": {
-    "@huggingface/transformers": "^4.3.1",
-    "@huggingface/transformers-structured-output": "^4.3.1",
-    "@types/fs-extra": "^11.0.4",
-    "typescript": "^6.0.3"
-  },
-  "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "overrides": {
-    "dompurify": "^3.4.16"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gramproindia/kit.git"
-  },
-  "homepage": "https://kit.gramproindia.com",
-  "bugs": {
-    "url": "https://github.com/gramproindia/kit/issues"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
-}
+{
+  "name": "@grampro/kit",
+  "version": "2.4.1",
+  "description": "GramproKit \u2014 an agent-native UI runtime for React. Copy-in components you own, each publishing a contract that software can read.",
+  "type": "module",
+  "files": [
+    "index.cjs",
+    "source",
+    ".gbs",
+    "tools",
+    "schema",
+    "!tools/eval",
+    "!source/**/__tests__",
+    "!**/*.test.ts",
+    "!**/*.test.tsx",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=17"
+  },
+  "bin": {
+    "grampro-kit": "index.cjs",
+    "gbs-add-block": "index.cjs"
+  },
+  "scripts": {
+    "prepublishOnly": "npm test && npm run passport:check",
+    "version": "npm run passport && git add -A source",
+    "test": "pnpm -C playground test",
+    "passport": "node tools/passport/cli.cjs",
+    "passport:check": "node tools/passport/cli.cjs --check",
+    "eval:grid": "node tools/eval/grid/cli.cjs"
+  },
+  "keywords": [
+    "react",
+    "react-19",
+    "component-library",
+    "agent-native",
+    "ui-runtime",
+    "ai-agents",
+    "webmcp",
+    "data-grid",
+    "copy-in",
+    "accessibility"
+  ],
+  "author": "Anandhu Remanan",
+  "license": "ISC",
+  "dependencies": {
+    "@grampro/headless-helpers": "^1.0.21",
+    "fs-extra": "^11.0.4",
+    "tailwind-merge": "^3.6.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@huggingface/transformers": "^4.3.1",
+    "@huggingface/transformers-structured-output": "^4.3.1",
+    "@types/fs-extra": "^11.0.4",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "overrides": {
+    "dompurify": "^3.4.16"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gramproindia/kit.git"
+  },
+  "homepage": "https://kit.gramproindia.com",
+  "bugs": {
+    "url": "https://github.com/gramproindia/kit/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

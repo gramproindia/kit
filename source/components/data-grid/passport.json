@@ -14,7 +14,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.0",
+    "libraryVersion": "2.4.1",
     "files": [
       "agent/coerce.ts",
       "agent/contract.ts",

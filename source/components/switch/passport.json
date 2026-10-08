@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.0",
+    "libraryVersion": "2.4.1",
     "files": [
       "core/index.ts",
       "core/toggle.ts",
