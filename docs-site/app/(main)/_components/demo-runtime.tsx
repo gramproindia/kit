@@ -16,6 +16,7 @@ import { demoSources } from "./generated/sources";
 /** Reserved height per demo, so the page does not jump while they mount. */
 const HEIGHTS: Record<string, number> = {
   DataGridWrapper: 520,
+  AskGridWrapper: 640,
   FileUploaderWrapper: 220,
   SkeletonWrapper: 200,
   CardWrapper: 220,
@@ -91,6 +92,7 @@ const DEFAULT_HEIGHT = 120;
 /** Which demos get the full width in the playground grid. */
 export const WIDE = new Set([
   "DataGridWrapper",
+  "AskGridWrapper",
   "FileUploaderWrapper",
   "CardWrapper",
   "SkeletonWrapper",
