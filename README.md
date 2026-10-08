@@ -10,8 +10,10 @@ contract describing what it is and what can safely be done to it.
 npx @grampro/kit add DataGrid
 ```
 
-The source lands in `component-lib/`. There is no runtime package to depend on,
-and nothing to wait for upstream when you need a change.
+The source lands in `component-lib/`, or `src/component-lib/` in a project
+with a `src/` folder; `--dest` puts it anywhere you like, and later installs
+follow the first. There is no runtime package to depend on, and nothing to
+wait for upstream when you need a change.
 
 > **Upgrading from 2.1.0 or 2.2.0 — one line to change.** Component CSS no
 > longer lives in a cascade layer, because a layer loses to any unlayered reset
@@ -94,7 +96,7 @@ Install the skill once per project so a coding agent uses these components
 correctly instead of guessing at the API:
 
 ```bash
-npx @grampro/kit@latest -skill
+npx @grampro/kit skill
 ```
 
 It writes the skill at the root of the project you run it in, in the place each

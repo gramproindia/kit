@@ -1,5 +1,70 @@
 # Changelog
 
+## 2.4.0
+
+The first release published as **`@grampro/kit`**. `gbs-add-block` keeps
+working for now and installs the same components, but new work happens here.
+
+### The package has a new name
+
+```bash
+npx @grampro/kit add DataGrid
+```
+
+`npx gbs-add-block` still resolves, and the `gbs-add-block` binary is still
+installed, so existing scripts keep running. Both will stay for a few
+releases before the old name is deprecated.
+
+### Commands read as commands
+
+`add`, `list`, `skill` and `passport` are verbs now:
+
+```bash
+npx @grampro/kit add Button DataGrid
+npx @grampro/kit list
+npx @grampro/kit skill --for claude
+npx @grampro/kit passport --check
+```
+
+The old flag spellings (`-a Button`, `-skill`, `-passport`) still work and
+print the new spelling once. `--legacy` reaches the 1.x component set, which
+is where `--beta` went: it used to opt *in* to the current components, and
+there is nothing left to opt into.
+
+### You choose where components land
+
+The destination was fixed at `component-lib/` in the directory you ran the
+command from, which put it beside `src/` rather than inside it for most
+projects. Now:
+
+- `--dest <path>` puts them wherever you want.
+- Failing that, an install already in the project wins, so a second `add`
+  lands beside the first. That is how a custom `--dest` is remembered; no
+  config file is written into your project.
+- Failing that, a project with a `src/` folder gets `src/component-lib/`,
+  and everything else keeps `component-lib/` at the root.
+
+Nothing moves on its own: if you already have `component-lib/`, that is
+still where components go.
+
+The stylesheet import printed after an install now names the path the files
+actually landed at, relative to your project root.
+
+### Fixed
+
+- `add Button --dest app/ui` tried to install a component called `app/ui`.
+  A flag's value was being read as a component name; the same was true of
+  `--for`.
+
+### Internal
+
+The library source moved from `source/beta-components` to
+`source/components`, and the 1.x set from `source/components` to
+`source/legacy-components`. This changes nothing for installed components —
+the files you receive and their import paths are identical — but every
+`passport.json` has a new `sourceHash`, because that hash covers
+repo-relative paths.
+
 ## 2.3.0
 
 Published as a minor, but **it contains one breaking change to styling**. Read

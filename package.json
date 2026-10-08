@@ -23,6 +23,7 @@
     "gbs-add-block": "index.cjs"
   },
   "scripts": {
+    "prepublishOnly": "npm test && npm run passport:check",
     "test": "pnpm -C playground test",
     "passport": "node tools/passport/cli.cjs",
     "passport:check": "node tools/passport/cli.cjs --check",
