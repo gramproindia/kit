@@ -2,6 +2,7 @@
   "name": "@grampro/kit-docs",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@12.4.2",
   "scripts": {
     "dev": "node scripts/generate-demos.mjs && next dev --turbopack",
     "build": "node scripts/generate-demos.mjs && next build",

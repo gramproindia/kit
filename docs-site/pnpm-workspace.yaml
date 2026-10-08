@@ -1,6 +1,26 @@
+# Which dependencies may run install scripts.
+#
+# pnpm 10 and 12 disagree on the spelling, and Vercel picks its pnpm from the
+# lockfile version, so both are here: `allowBuilds` is read by pnpm 12, the
+# two lists by pnpm 10. Without them a clean CI install fails outright with
+# ERR_PNPM_IGNORED_BUILDS.
+#
+# Only Tailwind's native engine genuinely has to build; sharp is allowed
+# because Next reaches for it when optimising images. The rest arrive through
+# @cloudflare/next-on-pages, which nothing here uses at build time.
+
 allowBuilds:
-  '@tailwindcss/oxide': set this to true or false
-  core-js: set this to true or false
-  esbuild: set this to true or false
-  sharp: set this to true or false
-  workerd: set this to true or false
+  '@tailwindcss/oxide': true
+  sharp: true
+  core-js: false
+  esbuild: false
+  workerd: false
+
+onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
+  - sharp
+
+ignoredBuiltDependencies:
+  - core-js
+  - esbuild
+  - workerd
