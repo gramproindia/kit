@@ -70,8 +70,8 @@ const CONFIG = {
   docs: "https://kit.gramproindia.com/",
 };
 
-const SOURCE_PATH = path.join(__dirname, "source", "components");
-const BETA_SOURCE_PATH = path.join(__dirname, "source", "beta-components");
+const SOURCE_PATH = path.join(__dirname, "source", "legacy-components");
+const BETA_SOURCE_PATH = path.join(__dirname, "source", "components");
 const DEFAULT_DEST_PATH = path.join(process.cwd(), "component-lib");
 
 /**

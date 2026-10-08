@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog } from "@/component-lib/dialog";
+import { Dialog } from "@/legacy-components/dialog";
 import React, { useState } from "react";
 
 export const DialogWrapper = () => {

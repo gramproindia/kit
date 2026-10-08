@@ -1,4 +1,4 @@
-import { Card } from "@/component-lib/card";
+import { Card } from "@/legacy-components/card";
 
 export const CardWrapper = () => {
   return (

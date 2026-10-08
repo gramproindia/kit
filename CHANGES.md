@@ -1,7 +1,7 @@
 # Installer changes
 
 `index.cjs` here is the CLI's script with the changes `shared/` needs, and
-`verify-source.cjs` checks a synced `source/beta-components/`. Copy both into the
+`verify-source.cjs` checks a synced `source/components/`. Copy both into the
 CLI repo, or apply the seven changes below by hand.
 
 Both use the `.cjs` extension because the CLI package is `"type": "module"`: a
@@ -24,7 +24,7 @@ from `../../shared/…`. That folder is not a component and is not in
 ### 2. Beta installs no longer copy the legacy common files
 
 `copyCommonFiles()` copies `utils.ts`, `globalStyle.ts`, `theme.ts` and `icon/`
-from `source/components/..`. No beta component imports any of them, but the old
+from `source/legacy-components/..`. No beta component imports any of them, but the old
 code ran it on every install whose project lacked `utils.ts` — so
 `-a Button -beta` in a clean project dropped four unused legacy files into it.
 The two paths are now separate.
@@ -37,7 +37,7 @@ The two paths are now separate.
 `file-uploader`. `CONFIG.betaFolders` maps the three, and `folderFor()` is used
 everywhere a path is built, including `checkComponentExists()`.
 
-Check this against your `source/beta-components/` before shipping: if those
+Check this against your `source/components/` before shipping: if those
 folders are currently named without hyphens, either rename them to match the
 development repo or empty `CONFIG.betaFolders`. The two must agree.
 
@@ -102,7 +102,7 @@ bad sync here and finding it in someone's project.
 
 ## Syncing the development repo into the CLI
 
-`source/beta-components/<name>/` must mirror `component-lib/<name>/` exactly,
+`source/components/<name>/` must mirror `component-lib/<name>/` exactly,
 `shared/` included — the import paths are relative, so the layout has to match on
 both sides. `component-lib/shared/__tests__/boundaries.test.ts` fails the build
 if a component ever imports a sibling or a third-party package, which is what
@@ -110,14 +110,14 @@ would break a single-component install.
 
 Two files in the development repo's `component-lib/` root, `theme.ts` and
 `globalStyle.ts`, are leftovers from the legacy set. Nothing imports them; don't
-copy them into `source/beta-components/`.
+copy them into `source/components/`.
 
 When anything in `shared/` changes, bump both `version.ts` and `version.json`
 together — a unit test fails if they disagree.
 
 ## Verified
 
-Against a sandbox holding a copy of `source/beta-components/` and an empty
+Against a sandbox holding a copy of `source/components/` and an empty
 project:
 
 | Case | Result |

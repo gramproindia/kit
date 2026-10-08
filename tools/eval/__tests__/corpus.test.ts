@@ -15,7 +15,7 @@ import { loadCases, loadFixture, mount, type EvalCase } from "../harness";
 import {
   GRID_OPERATIONS,
   type GridOperationName,
-} from "../../../source/beta-components/data-grid/agent";
+} from "../../../source/components/data-grid/agent";
 
 const cases = loadCases();
 const fixture = loadFixture();
@@ -139,7 +139,7 @@ describe("ambiguous cases have more than one defensible reading", () => {
 describe("the passport and the runtime agree", () => {
   const passport = JSON.parse(
     readFileSync(
-      new URL("../../../source/beta-components/data-grid/passport.json", import.meta.url),
+      new URL("../../../source/components/data-grid/passport.json", import.meta.url),
       "utf8",
     ),
   ) as { operations: Record<string, { apiMethod?: string; reversible?: boolean; summary?: string }> };

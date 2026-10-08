@@ -5,9 +5,9 @@ import { Search, ArrowRight, Code2, Layers, Zap } from "lucide-react";
 import Link from "next/link";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { ContainerTextFlip } from "@/component-lib/container-text-flip";
-import { GlareCard } from "@/component-lib/glare-card";
-import { TextHoverEffect } from "@/component-lib/text-hover-effect";
+import { ContainerTextFlip } from "@/legacy-components/container-text-flip";
+import { GlareCard } from "@/legacy-components/glare-card";
+import { TextHoverEffect } from "@/legacy-components/text-hover-effect";
 
 // G3@QB
 

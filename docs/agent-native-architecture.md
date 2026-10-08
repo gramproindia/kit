@@ -706,4 +706,4 @@ marketing. The drift check is not a nice-to-have — it is the load-bearing wall
 
 Measurements of this repository (component counts, prop counts, API surface,
 `GridState`/`FilterOperator` shape, JSDoc coverage) were taken directly from
-`source/beta-components` via the TypeScript compiler API.
+`source/components` via the TypeScript compiler API.

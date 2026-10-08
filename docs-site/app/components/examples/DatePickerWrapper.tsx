@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { DatePicker } from "@/component-lib/datepicker";
+import { DatePicker } from "@/legacy-components/datepicker";
 
 export const DatePickerWrapper = () => {
   return (

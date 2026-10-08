@@ -413,14 +413,14 @@ direction of goodness; that is a question to ask, not a guess to make.
 ## Files
 
 ```
-source/beta-components/shared/core/agent/     component-agnostic
+source/components/shared/core/agent/     component-agnostic
 ├── types.ts       OperationDefinition, OperationExecutor, ValidationResult
 ├── schema.ts      the JSON Schema subset, checked without a dependency
 ├── history.ts     snapshot undo/redo
 ├── numbers.ts     parseQuantity: lakh, crore, k, %, ₹, (negative)
 └── webmcp.ts      the WebMCP projection, for any component's agent
 
-source/beta-components/data-grid/agent/       grid-specific, framework-free
+source/components/data-grid/agent/       grid-specific, framework-free
 ├── operations.ts  the 21, and what backs each
 ├── dataset.ts     the only place that touches rows
 ├── contract.ts    the runtime contract emitter

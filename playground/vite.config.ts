@@ -22,7 +22,7 @@ export default defineConfig({
 
     alias: {
       "@/components": fileURLToPath(
-        new URL("../source/beta-components", import.meta.url),
+        new URL("../source/components", import.meta.url),
       ),
       /*
        * The documented examples. The playground renders the same files the

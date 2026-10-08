@@ -44,7 +44,7 @@ function serialise(passport) {
   return `${JSON.stringify(ordered, null, 2)}\n`;
 }
 
-/** Components in a beta-components root, excluding `shared`. */
+/** Components in a components root, excluding `shared`. */
 function listComponents(libRoot) {
   return fs
     .readdirSync(libRoot, { withFileTypes: true })

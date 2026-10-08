@@ -18,7 +18,7 @@ const path = require("path");
 require("../../ts-require.cjs").register();
 
 const harness = require("../harness.ts");
-const { GRID_OPERATIONS } = require("../../../source/beta-components/data-grid/agent/index.ts");
+const { GRID_OPERATIONS } = require("../../../source/components/data-grid/agent/index.ts");
 const { buildPrompt } = require("../grid/prompt.cjs");
 const { CORPUS_VERSION } = require("../grid/runner.cjs");
 

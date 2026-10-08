@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import MaterialInput from "@/component-lib/materialinput";
+import MaterialInput from "@/legacy-components/materialinput";
 
 export const MaterialInputWrapper = () => {
   const [inputValue, setInputValue] = useState("");

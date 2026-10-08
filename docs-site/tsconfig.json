@@ -27,7 +27,7 @@
         "./*"
       ],
       "@/components/*": [
-        "../source/beta-components/*"
+        "../source/components/*"
       ],
       "react": [
         "./node_modules/@types/react"

@@ -1,4 +1,4 @@
-import { Button } from "@/component-lib/button";
+import { Button } from "@/legacy-components/button";
 
 export const ButtonWrapper = () => {
   return (

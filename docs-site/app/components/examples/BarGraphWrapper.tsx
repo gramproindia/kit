@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BarChart } from "@/component-lib/bargraph";
+import { BarChart } from "@/legacy-components/bargraph";
 
 const data = [
   { label: "Jan", value: 40 },

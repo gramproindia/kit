@@ -11,7 +11,7 @@ const { validateStructure, validateReferences, textIssues } = require("../valida
 const { allowlistFor } = require("../policy.cjs");
 
 const REPO = resolve(__dirname, "..", "..", "..");
-const LIB = join(REPO, "source", "beta-components");
+const LIB = join(REPO, "source", "components");
 const LIBRARY_VERSION = JSON.parse(
   readFileSync(join(REPO, "package.json"), "utf8"),
 ).version;

@@ -3,16 +3,16 @@ name: Agent runtime
 on:
   push:
     paths:
-      - "source/beta-components/data-grid/**"
-      - "source/beta-components/shared/core/agent/**"
+      - "source/components/data-grid/**"
+      - "source/components/shared/core/agent/**"
       - "eval/**"
       - "tools/eval/**"
       - "tools/ts-require.cjs"
       - ".github/workflows/agent-runtime.yml"
   pull_request:
     paths:
-      - "source/beta-components/data-grid/**"
-      - "source/beta-components/shared/core/agent/**"
+      - "source/components/data-grid/**"
+      - "source/components/shared/core/agent/**"
       - "eval/**"
       - "tools/eval/**"
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FileUploader } from "@/component-lib/uploader";
+import { FileUploader } from "@/legacy-components/uploader";
 
 export const FileUploaderWrapper = () => {
   const handleFileChange = (files: any) => {

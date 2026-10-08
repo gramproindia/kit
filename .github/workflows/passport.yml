@@ -3,13 +3,13 @@ name: Component Passport
 on:
   push:
     paths:
-      - "source/beta-components/**"
+      - "source/components/**"
       - "tools/passport/**"
       - "schema/passport-v1.schema.json"
       - ".github/workflows/passport.yml"
   pull_request:
     paths:
-      - "source/beta-components/**"
+      - "source/components/**"
       - "tools/passport/**"
       - "schema/passport-v1.schema.json"
 

@@ -3,7 +3,7 @@
  *
  * Reads what is on disk:
  *   app/components/examples/2.0.0/<Name>Wrapper.tsx   the live demo
- *   ../source/beta-components/<name>/styles.css       the component's styles
+ *   ../source/components/<name>/styles.css       the component's styles
  *   app/content/2.0.0-beta/<slug>.mdx                 the doc page
  *
  * and writes three generated files (never edit them by hand):
@@ -19,7 +19,7 @@ import { codeToHtml } from "shiki";
 
 const root = process.cwd();
 const WRAPPERS = path.join(root, "app/components/examples/2.0.0");
-const LIB = path.join(root, "..", "source", "beta-components");
+const LIB = path.join(root, "..", "source", "components");
 const DOCS = path.join(root, "app/content/2.0.0-beta");
 const OUT_DIR = path.join(root, "app/(main)/_components/generated");
 
@@ -188,7 +188,7 @@ fs.writeFileSync(
 // ---------------------------------------------------------------- styles
 fs.writeFileSync(
   path.join(root, "app/(main)/generated-components.css"),
-  `${BANNER}${stylesheets.map((n) => `@import "../../../source/beta-components/${n}/styles.css";`).join("\n")}\n`,
+  `${BANNER}${stylesheets.map((n) => `@import "../../../source/components/${n}/styles.css";`).join("\n")}\n`,
   "utf8",
 );
 

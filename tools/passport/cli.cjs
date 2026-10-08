@@ -14,7 +14,7 @@ const fs = require("fs");
 const { generate, check } = require("./index.cjs");
 
 const REPO = path.resolve(__dirname, "..", "..");
-const LIB = path.join(REPO, "source", "beta-components");
+const LIB = path.join(REPO, "source", "components");
 const COVERAGE_THRESHOLD = 40; // ratchet upward over time
 
 const args = process.argv.slice(2);

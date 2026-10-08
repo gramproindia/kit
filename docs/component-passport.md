@@ -129,7 +129,7 @@ Three distinct failures, three messages:
 Coverage is a **warning**, not a gate. The threshold in `tools/passport/cli.cjs`
 starts at 40% and is meant to ratchet upward as props get documented.
 
-CI runs this on any change under `source/beta-components/` or `tools/passport/`
+CI runs this on any change under `source/components/` or `tools/passport/`
 — see `.github/workflows/passport.yml`. It installs `@types/react`, without
 which inherited props cannot resolve; the generator warns explicitly if they are
 missing rather than silently emitting a thinner passport.

@@ -10,19 +10,19 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { computeLayout, resolveColumns } from "../../source/beta-components/data-grid/core/columns";
-import { filterRows } from "../../source/beta-components/data-grid/core/filtering";
-import { createGridEngine, type GridApi, type GridModel } from "../../source/beta-components/data-grid/core/grid";
-import { buildRows, createRowIdGetter, paginate } from "../../source/beta-components/data-grid/core/rows";
-import { sortRows } from "../../source/beta-components/data-grid/core/sorting";
-import type { ColumnDef, GridOptions } from "../../source/beta-components/data-grid/core/types";
-import { createFormatters } from "../../source/beta-components/data-grid/core/values";
+import { computeLayout, resolveColumns } from "../../source/components/data-grid/core/columns";
+import { filterRows } from "../../source/components/data-grid/core/filtering";
+import { createGridEngine, type GridApi, type GridModel } from "../../source/components/data-grid/core/grid";
+import { buildRows, createRowIdGetter, paginate } from "../../source/components/data-grid/core/rows";
+import { sortRows } from "../../source/components/data-grid/core/sorting";
+import type { ColumnDef, GridOptions } from "../../source/components/data-grid/core/types";
+import { createFormatters } from "../../source/components/data-grid/core/values";
 import {
   createGridAgent,
   type GridAgent,
   type GridAgentPolicy,
   type GridColumnSemantics,
-} from "../../source/beta-components/data-grid/agent";
+} from "../../source/components/data-grid/agent";
 
 export type Row = Record<string, string | number | boolean>;
 
@@ -46,7 +46,7 @@ export interface Fixture {
 function repoRoot(): string {
   let dir = resolve(process.cwd());
   for (let i = 0; i < 8; i++) {
-    if (existsSync(join(dir, "source", "beta-components")) && existsSync(join(dir, "eval", "grid"))) {
+    if (existsSync(join(dir, "source", "components")) && existsSync(join(dir, "eval", "grid"))) {
       return dir;
     }
     const parent = dirname(dir);

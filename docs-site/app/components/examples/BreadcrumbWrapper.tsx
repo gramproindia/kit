@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Breadcrumb } from "@/component-lib/breadcrumb";
+import { Breadcrumb } from "@/legacy-components/breadcrumb";
 
 export const BreadcrumbWrapper = () => {
   return (

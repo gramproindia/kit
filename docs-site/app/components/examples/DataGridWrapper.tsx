@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { DataGrid } from "@/component-lib/datagrid";
+import { DataGrid } from "@/legacy-components/datagrid";
 
 const DataGridWrapper = () => {
   const data = [

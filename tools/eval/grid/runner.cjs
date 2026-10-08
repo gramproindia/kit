@@ -20,7 +20,7 @@ const harness = require("../harness.ts");
 // A key in `.env` beats re-exporting it into every new shell. Real environment
 // variables win, so CI secrets are never shadowed by a stale local file.
 const loadedFromEnvFile = require("../../env.cjs").load(harness.ROOT);
-const { GRID_OPERATIONS } = require("../../../source/beta-components/data-grid/agent/index.ts");
+const { GRID_OPERATIONS } = require("../../../source/components/data-grid/agent/index.ts");
 const { buildPrompt, PROMPT_VERSIONS } = require("./prompt.cjs");
 const { createMounter, scoreCase } = require("./scorer.cjs");
 const { summarise, checkPolicy, renderMarkdown } = require("./metrics.cjs");
@@ -166,7 +166,7 @@ async function run({
   const forbidden = identifyingValues(mounter().agent.contract(), fixture);
   const passport = JSON.parse(
     fs.readFileSync(
-      path.join(harness.ROOT, "source", "beta-components", "data-grid", "passport.json"),
+      path.join(harness.ROOT, "source", "components", "data-grid", "passport.json"),
       "utf8",
     ),
   );

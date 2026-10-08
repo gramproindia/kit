@@ -47,7 +47,7 @@ function promptTools() {
     const root = fileURLToPath(new URL("..", import.meta.url));
     require_(`${root}tools/ts-require.cjs`).register();
     buildPrompt = require_(`${root}tools/eval/grid/prompt.cjs`).buildPrompt;
-    operations = require_(`${root}source/beta-components/data-grid/agent/index.ts`).GRID_OPERATIONS;
+    operations = require_(`${root}source/components/data-grid/agent/index.ts`).GRID_OPERATIONS;
   }
   return { buildPrompt: buildPrompt!, operations };
 }

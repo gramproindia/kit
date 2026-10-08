@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /*
- * Checks that source/beta-components is something the installer can actually
+ * Checks that source/components is something the installer can actually
  * install. Run it in the CLI repo after syncing components across:
  *
  *   node verify-source.cjs
@@ -22,7 +22,7 @@ const CLI_ROOT = process.argv[2] ? path.resolve(process.argv[2]) : __dirname;
 const INDEX = ["index.cjs", "index.js", "index.mjs"]
   .map((name) => path.join(CLI_ROOT, name))
   .find((candidate) => fs.existsSync(candidate));
-const BETA = path.join(CLI_ROOT, "source", "beta-components");
+const BETA = path.join(CLI_ROOT, "source", "components");
 const SHARED_DIR = "shared";
 const TESTS_DIR = "__tests__";
 
@@ -82,7 +82,7 @@ if (!INDEX) {
   process.exit(1);
 }
 if (!fs.existsSync(BETA)) {
-  console.error(`No source/beta-components at ${BETA}.`);
+  console.error(`No source/components at ${BETA}.`);
   process.exit(1);
 }
 
@@ -97,7 +97,7 @@ if (betaComponents.length === 0) fail(`Could not read betaComponents out of ${pa
 const sharedPath = path.join(BETA, SHARED_DIR);
 if (!fs.existsSync(sharedPath)) {
   fail(
-    `source/beta-components/${SHARED_DIR} is missing. Every beta component imports it; ` +
+    `source/components/${SHARED_DIR} is missing. Every beta component imports it; ` +
       "without it each one fails to compile the moment it is installed.",
   );
 } else {
@@ -120,7 +120,7 @@ for (const component of betaComponents) {
       .readdirSync(BETA)
       .find((name) => name.replace(/-/g, "") === folderFor(component).replace(/-/g, ""));
     fail(
-      `-a ${component} -beta looks for source/beta-components/${folderFor(component)}, which does not exist.` +
+      `-a ${component} -beta looks for source/components/${folderFor(component)}, which does not exist.` +
         (guess ? ` Found "${guess}" instead: rename it, or fix CONFIG.betaFolders in ${path.basename(INDEX)}.` : ""),
     );
   }
@@ -130,14 +130,14 @@ for (const component of betaComponents) {
 const listed = new Set([...betaComponents.map(folderFor), SHARED_DIR]);
 for (const entry of fs.readdirSync(BETA, { withFileTypes: true })) {
   if (!entry.isDirectory()) {
-    warn(`source/beta-components/${entry.name} is a loose file; only folders are installed.`);
+    warn(`source/components/${entry.name} is a loose file; only folders are installed.`);
   } else if (!listed.has(entry.name)) {
-    warn(`source/beta-components/${entry.name} is not in betaComponents, so nobody can install it.`);
+    warn(`source/components/${entry.name} is not in betaComponents, so nobody can install it.`);
   }
 }
 for (const legacy of LEGACY_FILES) {
   if (fs.existsSync(path.join(BETA, legacy))) {
-    warn(`source/beta-components/${legacy} belongs to the legacy set; no beta component imports it.`);
+    warn(`source/components/${legacy} belongs to the legacy set; no beta component imports it.`);
   }
 }
 
@@ -157,7 +157,7 @@ for (const entry of fs.readdirSync(BETA, { withFileTypes: true })) {
       const resolved = path.resolve(path.dirname(full), specifier);
       const relative = path.relative(BETA, resolved);
       if (relative.startsWith("..")) {
-        fail(`${pkg}/${file} imports "${specifier}", which points outside beta-components.`);
+        fail(`${pkg}/${file} imports "${specifier}", which points outside components.`);
         continue;
       }
       const target = relative.split(path.sep)[0];

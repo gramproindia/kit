@@ -4,7 +4,7 @@ import { getDocsStructure } from "@/lib/docs";
 import { TableOfContents } from "./TableOfContents";
 import { ScrollToTop } from "./ScrollToTop";
 import OpenInChatGpt from "./OpenInChatGpt";
-import { Breadcrumb } from "@/component-lib/breadcrumb";
+import { Breadcrumb } from "@/legacy-components/breadcrumb";
 
 interface DocsLayoutProps {
   children?: ReactNode;

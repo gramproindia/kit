@@ -30,7 +30,7 @@ import BadgeWrapper from "@/app/components/examples/2.0.0/BadgeWrapper";
 import AccordionWrapper from "@/app/components/examples/2.0.0/AccordionWrapper";
 import AvatarWrapper from "@/app/components/examples/2.0.0/AvatarWrapper";
 import ProgressWrapper from "@/app/components/examples/2.0.0/ProgressWrapper";
-import { Button } from "@/component-lib/button";
+import { Button } from "@/legacy-components/button";
 import DataGridWrapper from "@/app/components/examples/DataGridWrapper";
 import { CodeBlock, PreBlock } from "@/app/components/CodeBlock";
 import WarningBanner from "@/app/components/WarningBanner";

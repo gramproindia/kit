@@ -1,10 +1,10 @@
 "use client";
 
-import { ContextMenu } from "@/component-lib/contextmenu";
+import { ContextMenu } from "@/legacy-components/contextmenu";
 import {
   ContextMenuItem,
   ContextMenuDivider,
-} from "@/component-lib/contextmenu/ContextMenuItem";
+} from "@/legacy-components/contextmenu/ContextMenuItem";
 
 export const ContextMenuWrapper = () => {
   const handleEdit = () => console.log("Edit clicked");

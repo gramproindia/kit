@@ -11,7 +11,7 @@ import { remarkMermaid } from "@/lib/remark-mermaid";
 import { mdxComponents } from "@/lib/mdxcomponents";
 import { TableOfContents } from "@/app/components/TableOfContents";
 import OpenInChatGpt from "@/app/components/OpenInChatGpt";
-import { Breadcrumb } from "@/component-lib/breadcrumb";
+import { Breadcrumb } from "@/legacy-components/breadcrumb";
 import { siteConfig } from "@/site.config";
 
 /** @type {import('rehype-pretty-code').Options} */

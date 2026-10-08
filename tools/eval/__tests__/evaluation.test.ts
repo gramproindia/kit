@@ -27,7 +27,7 @@ const runner = require("../grid/runner.cjs");
 const adapters = require("../grid/adapters/index.cjs");
 const baseline = require("../grid/adapters/baseline.cjs");
 const harness = require("../harness.ts");
-const { GRID_OPERATIONS } = require("../../../source/beta-components/data-grid/agent/index.ts");
+const { GRID_OPERATIONS } = require("../../../source/components/data-grid/agent/index.ts");
 
 const fixture = harness.loadFixture();
 const mounter = scorer.createMounter(harness, fixture);

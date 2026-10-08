@@ -11,22 +11,22 @@
  * reaches the same validator boundary the Node run reached.
  */
 
-import { computeLayout, resolveColumns } from "../../../source/beta-components/data-grid/core/columns";
-import { filterRows } from "../../../source/beta-components/data-grid/core/filtering";
+import { computeLayout, resolveColumns } from "../../../source/components/data-grid/core/columns";
+import { filterRows } from "../../../source/components/data-grid/core/filtering";
 import {
   createGridEngine,
   type GridModel,
-} from "../../../source/beta-components/data-grid/core/grid";
-import { buildRows, createRowIdGetter, paginate } from "../../../source/beta-components/data-grid/core/rows";
-import { sortRows } from "../../../source/beta-components/data-grid/core/sorting";
-import type { ColumnDef, GridOptions } from "../../../source/beta-components/data-grid/core/types";
-import { createFormatters } from "../../../source/beta-components/data-grid/core/values";
+} from "../../../source/components/data-grid/core/grid";
+import { buildRows, createRowIdGetter, paginate } from "../../../source/components/data-grid/core/rows";
+import { sortRows } from "../../../source/components/data-grid/core/sorting";
+import type { ColumnDef, GridOptions } from "../../../source/components/data-grid/core/types";
+import { createFormatters } from "../../../source/components/data-grid/core/values";
 import {
   createGridAgent,
   type GridAgent,
   type GridAgentPolicy,
   type GridColumnSemantics,
-} from "../../../source/beta-components/data-grid/agent";
+} from "../../../source/components/data-grid/agent";
 
 type Row = Record<string, string | number | boolean>;
 

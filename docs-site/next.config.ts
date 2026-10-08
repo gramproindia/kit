@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 /*
  * The site lives beside the library in one repo and imports it directly from
- * `../source/beta-components`, so the compilation root has to be the repo
+ * `../source/components`, so the compilation root has to be the repo
  * rather than this folder — otherwise Turbopack refuses every import that
  * resolves above it.
  *

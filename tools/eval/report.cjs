@@ -17,7 +17,7 @@ const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const CASES = path.join(ROOT, "eval", "grid", "v0", "cases.jsonl");
-const PASSPORT = path.join(ROOT, "source", "beta-components", "data-grid", "passport.json");
+const PASSPORT = path.join(ROOT, "source", "components", "data-grid", "passport.json");
 
 const pad = (text, width) => String(text).padEnd(width);
 const bar = (n, max, width = 24) =>
