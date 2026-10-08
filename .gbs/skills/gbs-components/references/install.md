@@ -2,13 +2,13 @@
 
 ## The distribution model
 
-`gbs-add-block` is **not a runtime dependency**. It is a CLI that copies
+`@grampro/kit` is **not a runtime dependency**. It is a CLI that copies
 TypeScript source into the consuming repo, the way shadcn/ui does. Nothing is
 imported from `node_modules` at runtime, and the copied files are yours to edit.
 
 `package.json` of the library declares no `main` and no `exports` — only
-`bin: { "gbs-add-block": "index.cjs" }` and `files: ["index.cjs", "source",
-".gbs"]`. There is nothing to `import "gbs-add-block"` from.
+`bin: { "@grampro/kit": "index.cjs" }` and `files: ["index.cjs", "source",
+".gbs"]`. There is nothing to `import "@grampro/kit"` from.
 
 Peer dependencies: `react@^19` and `react-dom@^19`. The beta components have no
 other runtime dependencies.
@@ -16,13 +16,13 @@ other runtime dependencies.
 ## Commands
 
 ```bash
-npx gbs-add-block -a Button --beta                 # one component
-npx gbs-add-block -a Button,Input,Modal --beta     # several
-npx gbs-add-block -i --beta                        # interactive picker
-npx gbs-add-block -l --beta                        # list available
-npx gbs-add-block -a Button --beta --force         # overwrite edited shared/ files
-npx gbs-add-block -skill                           # install this skill
-npx gbs-add-block -skill --for claude              # only the Claude Code copy
+npx @grampro/kit add Button                 # one component
+npx @grampro/kit add Button,Input,Modal     # several
+npx @grampro/kit -i --beta                        # interactive picker
+npx @grampro/kit -l --beta                        # list available
+npx @grampro/kit add Button --force         # overwrite edited shared/ files
+npx @grampro/kit skill                           # install this skill
+npx @grampro/kit skill --for claude              # only the Claude Code copy
 ```
 
 | Flag | Alias | Meaning |
@@ -44,7 +44,7 @@ interchangeable.
 ## Installing this skill
 
 ```bash
-npx gbs-add-block@latest -skill
+npx @grampro/kit@latest -skill
 ```
 
 Writes to the project root — not into `component-lib/`. Each agent reads a
@@ -55,7 +55,7 @@ different location, so the CLI writes one copy per agent from the same source:
 | `.gbs/skills/gbs-components/` | GBS SE Agent. Canonical; always written. |
 | `.claude/skills/gbs-components/` | Claude Code. Full copy; `autoAttach` becomes `paths`. |
 | `.agents/rules/gbs-components.md` | Antigravity. One file; set its glob in the IDE. |
-| `AGENTS.md` | Codex. A pointer inside `gbs-add-block` markers. |
+| `AGENTS.md` | Codex. A pointer inside `@grampro/kit` markers. |
 
 `--for claude,codex` narrows it; `--for none` writes only `.gbs/`. Switching
 targets removes the adapters you dropped.
@@ -68,7 +68,7 @@ block is rewritten.
 It can be combined with a component install:
 
 ```bash
-npx gbs-add-block -a DataGrid -beta -skill
+npx @grampro/kit add DataGrid -skill
 ```
 
 ## Where files land

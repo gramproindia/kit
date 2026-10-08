@@ -3,7 +3,7 @@ import { useEffect, useState, lazy, Suspense } from "react";
 import { Tab, TabList, TabPanel, Tabs } from "@/components/tabs";
 
 const DOCS = "https://kit.gramproindia.com";
-const REPO = "https://github.com/anandhuremanan/headless-gbs-components";
+const REPO = "https://github.com/gramproindia/kit";
 
 /** Where index.html stores an explicit choice. Absent means "follow the device". */
 const THEME_KEY = "gbs-theme";

@@ -5,7 +5,7 @@
  *   node tools/passport/cli.cjs            generate / refresh passport.json
  *   node tools/passport/cli.cjs --check    CI gate; writes nothing, exits 1 on drift
  *
- * The consumer-facing entry point is `gbs-add-block --passport`, which calls the
+ * The consumer-facing entry point is `@grampro/kit passport`, which calls the
  * same functions against the copied component-lib folder.
  */
 

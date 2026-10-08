@@ -233,8 +233,8 @@ contract. If you change the copied source, regenerate so the passport describes
 *your* version:
 
 ```bash
-npx gbs-add-block -passport           # re-derive from your component-lib/
-npx gbs-add-block -passport --check   # verify in your CI
+npx @grampro/kit passport           # re-derive from your component-lib/
+npx @grampro/kit passport --check   # verify in your CI
 ```
 
 This reads your source, so a prop you added appears with its own JSDoc and

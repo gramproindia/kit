@@ -7,7 +7,7 @@ component arrives in your project as source, with its stylesheet, and with a
 contract describing what it is and what can safely be done to it.
 
 ```bash
-npx gbs-add-block@latest -a DataGrid --beta
+npx @grampro/kit add DataGrid
 ```
 
 The source lands in `component-lib/`. There is no runtime package to depend on,
@@ -94,7 +94,7 @@ Install the skill once per project so a coding agent uses these components
 correctly instead of guessing at the API:
 
 ```bash
-npx gbs-add-block@latest -skill
+npx @grampro/kit@latest -skill
 ```
 
 It writes the skill at the root of the project you run it in, in the place each

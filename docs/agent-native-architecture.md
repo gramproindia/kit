@@ -183,7 +183,7 @@ Roughly two-thirds generatable, one-third authoring. Budget accordingly.
   "passportVersion": "1.0.0",
   "component": "Button",
   "source": {
-    "library": "gbs-add-block",
+    "library": "@grampro/kit",
     "libraryVersion": "2.1.0",
     "files": ["react/Button.tsx", "react/props.ts", "core/types.ts", "styles.css"],
     "sourceHash": "sha256:9f2c…",
@@ -465,10 +465,10 @@ but do not ship a renderer until the spec stabilises.
 ## 6. CLI and source-first ownership
 
 ```bash
-npx gbs-add-block -a DataGrid --beta                  # component + passport.json
-npx gbs-add-block -a DataGrid --beta --contract       # + contract emitter + validator
-npx gbs-add-block -a DataGrid --beta --ai             # + adapter interface + eval harness
-npx gbs-add-block --a2ui                              # + catalog projection
+npx @grampro/kit add DataGrid                  # component + passport.json
+npx @grampro/kit add DataGrid --contract       # + contract emitter + validator
+npx @grampro/kit add DataGrid --ai             # + adapter interface + eval harness
+npx @grampro/kit --a2ui                              # + catalog projection
 ```
 
 Everything is copied source. No runtime dependency, consistent with 2.1.0.
@@ -486,7 +486,7 @@ component-lib/data-grid/
 `passport.local.json` is a deep-merge overlay: add a prop you introduced, mark one
 forbidden, add an operation. The CLI reads it, never writes it, and the manifest
 protection already built for `shared/` and `.gbs/` applies. A local regenerate
-(`npx gbs-add-block --passport --regen`) re-derives from *their* modified source,
+(`npx @grampro/kit passport --regen`) re-derives from *their* modified source,
 so a fork's passport describes the fork.
 
 That is the part a packaged library cannot do: its passport describes the package,
