@@ -1,0 +1,97 @@
+---
+category: "Components"
+---
+
+# TextArea
+
+### Installation
+
+```bash
+npx gbs-add-block@latest -a TextArea
+```
+
+The `TextArea` component is a flexible and accessible multi-line input field built with React and Tailwind CSS. It supports features like error handling, floating labels, character counting, helper text, and styling variants. This documentation outlines its props, usage, and key features.
+
+### Props Table
+
+| Prop          | Type                                                  | Default                     | Description                                       |
+| ------------- | ----------------------------------------------------- | --------------------------- | ------------------------------------------------- |
+| `label`       | `string`                                              | `undefined`                 | Label text displayed above or within the textarea |
+| `placeholder` | `string`                                              | `"Enter your text here..."` | Placeholder shown when empty                      |
+| `value`       | `string`                                              | —                           | Controlled value of the textarea                  |
+| `onChange`    | `(e: React.ChangeEvent<HTMLTextAreaElement>) => void` | —                           | Callback when the value changes                   |
+| `error`       | `string`                                              | `undefined`                 | Error message shown below the textarea            |
+| `helperText`  | `string`                                              | `undefined`                 | Helper message shown when no error exists         |
+| `rows`        | `number`                                              | `4`                         | Number of visible rows                            |
+| `maxLength`   | `number`                                              | `undefined`                 | Max number of characters allowed                  |
+| `required`    | `boolean`                                             | `false`                     | Adds a required indicator and HTML validation     |
+| `disabled`    | `boolean`                                             | `false`                     | Disables the textarea                             |
+| `variant`     | `"default"` \| `"minimal"`                            | `"default"`                 | Visual style of the component                     |
+| `className`   | `string`                                              | `""`                        | Additional Tailwind classes for customization     |
+| `...props`    | `React.TextareaHTMLAttributes<HTMLTextAreaElement>`   | —                           | Spread for additional textarea props              |
+
+### Usage Guide
+
+You can import and use the `TextArea` component in your React application as shown below:
+
+```tsx
+import React, { useState } from "react";
+import { TextArea } from "./path/to/TextArea";
+
+const ExampleComponent = () => {
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setMessage(e.target.value);
+  };
+
+  return (
+    <div>
+      <h2>Feedback</h2>
+      <TextArea
+        label="Your Message"
+        placeholder="Type your message..."
+        value={message}
+        onChange={handleChange}
+        maxLength={200}
+        helperText="Let us know what you think."
+        error={message.length < 10 ? "Message is too short" : undefined}
+        required
+      />
+    </div>
+  );
+};
+
+export default ExampleComponent;
+```
+
+---
+
+### Key Functionalities
+
+1.  Floating Label Support \
+    The `minimal` variant uses a floating label that transitions based on focus and content, keeping the design sleek and unobtrusive.
+
+2.  Error Display \
+    If the `error` prop is set, a red error message with an icon appears below the textarea. This overrides the helper text.
+
+3.  Helper Text \
+    Displayed below the input when no error is present. Useful for giving users context or input tips.
+
+4.  Character Count \
+    When `maxLength` is set, the component displays a live character counter. The color shifts to amber as the limit is approached, and red when the limit is hit.
+
+5.  Disabled and Required States \
+    Visual and functional support for both states using appropriate Tailwind classes and HTML attributes.
+
+6.  Customization via Tailwind \
+    Use `className` to apply additional styling or layout tweaks as needed.
+
+---
+
+### Notes
+
+- The `minimal` variant hides the placeholder unless the textarea is focused.
+- Accessibility features like label binding and required indicators are included.
+- The `value` prop must be controlled via state to see character count updates.
+- You can extend functionality further using the spread props pattern (`...props`).

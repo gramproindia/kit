@@ -1,0 +1,172 @@
+---
+title: "Grid API & Export"
+description: "The imperative ref API, CSV/Excel/PDF export, and the framework-free utilities."
+group: "Data"
+order: 2.4
+parent: "datagrid"
+---
+
+Driving the grid from code, and getting data back out of it. Start at [Data Grid](/datagrid) for installation and the props table.
+
+## Grid API (ref)
+
+```tsx
+const gridRef = useRef<GridApi<Employee>>(null);
+
+<DataGrid ref={gridRef} data={data} columns={columns} />;
+
+gridRef.current?.toggleSort("salary");
+```
+
+#### State
+
+| Method     | Signature                                           | Description                               |
+| ---------- | --------------------------------------------------- | ----------------------------------------- |
+| `getState` | `() => GridState`                                   | Current state, including controlled keys. |
+| `setState` | `(updater: (prev: GridState) => GridState) => void` | Update any part of the state.             |
+
+#### Sorting, filtering and pagination
+
+| Method            | Signature                                                                    | Description                                                    |
+| ----------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `toggleSort`      | `(columnId: string, multi?: boolean) => void`                                | Cycle a column through ascending, descending and off.          |
+| `setSorting`      | `(sorting: SortItem[]) => void`                                              | Replace all sorts.                                             |
+| `setFilter`       | `(columnId: string, filter: Omit<ColumnFilter, "columnId"> \| null) => void` | Set or remove (`null`) a column filter.                        |
+| `clearFilters`    | `() => void`                                                                 | Remove all column filters and the search text.                 |
+| `setGlobalFilter` | `(value: string) => void`                                                    | Set the search text.                                           |
+| `setPageIndex`    | `(pageIndex: number) => void`                                                | Go to a page (zero-based).                                     |
+| `setPageSize`     | `(pageSize: number) => void`                                                 | Change the page size, keeping the first visible row on screen. |
+| `setDensity`      | `(density: "compact" \| "standard" \| "comfortable") => void`                | Change row density.                                            |
+
+#### Selection
+
+| Method                  | Signature                                                                 | Description                                                                                         |
+| ----------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `isRowSelectable`       | `(row: T) => boolean`                                                     | Whether `enableRowSelection` allows this row.                                                       |
+| `toggleRowSelected`     | `(rowId: string, options?: { value?: boolean; range?: boolean }) => void` | Toggle (or set with `value`) a row. `range: true` selects from the last toggled row.                |
+| `toggleAllRowsSelected` | `(value: boolean) => void`                                                | Select or deselect all rows matching the filters (current page in server mode). Multiple mode only. |
+| `clearSelection`        | `() => void`                                                              | Deselect everything.                                                                                |
+| `getSelectedRowIds`     | `() => string[]`                                                          | Selected ids, including rows not in the current `data`.                                             |
+| `getSelectedRows`       | `() => T[]`                                                               | Selected rows that exist in the current `data`.                                                     |
+
+#### Columns
+
+| Method                | Signature                                                                      | Description                                                                |
+| --------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| `setColumnVisibility` | `(columnId: string, visible: boolean) => void`                                 | Show or hide a column.                                                     |
+| `setColumnWidth`      | `(columnId: string, width: number \| null) => void`                            | Set a width, or `null` to reset to the column's `width`.                   |
+| `pinColumn`           | `(columnId: string, side: "left" \| "right" \| false) => void`                 | Pin to the start or end, or unpin.                                         |
+| `moveColumn`          | `(columnId: string, targetId: string, placement: "before" \| "after") => void` | Move a column next to another. It takes the target's pin side.             |
+| `resetColumns`        | `() => void`                                                                   | Restore order, visibility, widths and pinning from the column definitions. |
+
+#### Navigation and editing
+
+| Method          | Signature                                      | Description                                                                            |
+| --------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `scrollToRow`   | `(rowIndex: number) => void`                   | Scroll a row of the current page into view.                                            |
+| `focusCell`     | `(rowIndex: number, columnId: string) => void` | Scroll to and focus a cell. `rowIndex` is within the current page; `-1` is the header. |
+| `startEditing`  | `(rowId: string, columnId: string) => void`    | Open the editor for an editable cell.                                                  |
+| `cancelEditing` | `() => void`                                   | Close the open editor without saving.                                                  |
+
+#### Export
+
+| Method            | Signature                                          | Description                                                           |
+| ----------------- | -------------------------------------------------- | --------------------------------------------------------------------- |
+| `getRows`         | `(scope?: ExportScope) => T[]`                     | Rows for a scope (default `"filtered"`).                              |
+| `exportCsv`       | `(options?: ExportOptions<T>) => Promise<void>`    | Download a CSV file.                                                  |
+| `exportExcel`     | `(options?: ExportOptions<T>) => Promise<void>`    | Download an `.xlsx` file.                                             |
+| `exportPdf`       | `(options?: PdfExportOptions<T>) => Promise<void>` | Download a `.pdf` file.                                               |
+| `print`           | `(options?: PrintExportOptions<T>) => Promise<void>` | Open the browser's print dialog with a table laid out for paper.    |
+| `copyToClipboard` | `() => Promise<void>`                              | Copy selected rows as tab-separated text, or the focused cell's text. |
+
+
+## Export
+
+| Format | Details                                                                                                                                                                                         |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CSV    | UTF-8 with a byte order mark so Excel opens it correctly. Uses display text (`format`). Text starting with `=`, `+`, `-` or `@` is prefixed with `'` so spreadsheets don't run it as a formula. |
+| Excel  | A real `.xlsx` file: numbers, booleans and dates keep their types, the header row is bold and frozen, with auto-filter and column widths. No library is needed.                                 |
+| PDF    | A real `.pdf` file, written by the grid: chosen paper size and orientation, a repeated header row, page numbers and your own header and footer. Uses the standard PDF fonts, so nothing is embedded and text must be Latin-1 (see below). No library is needed.  |
+| Print  | `api.print()` opens the browser's print dialog instead, for paper or for text the standard fonts cannot encode.                                                                                 |
+
+Exports include the visible columns in their current order, excluding columns with `exportable: false`. Export code is only downloaded the first time someone exports.
+
+```tsx
+gridRef.current?.exportExcel({ fileName: "employees", scope: "selected" });
+gridRef.current?.exportPdf({
+  title: "Employee report",
+  orientation: "portrait",
+  paperSize: "A4",
+  footer: { left: "Confidential", right: "Page {page} of {pages}" },
+});
+gridRef.current?.exportCsv({ rows: allRowsFromServer });
+```
+
+| ExportOptions | Type                                                  | Default          | Description                                                                                                                          |
+| ------------- | ----------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `fileName`    | `string`                                              | `exportFileName` | File name without extension.                                                                                                         |
+| `scope`       | `"filtered"` \| `"all"` \| `"selected"` \| `"page"`   | `"filtered"`     | `filtered`: rows matching filters, in sorted order. `all`: every row in `data`. `selected`: selected rows. `page`: the current page. |
+| `rows`        | `T[]`                                                 | —                | Export these rows instead of a scope.                                                                                                |
+| `title`       | `string`                                              | the file name    | PDF only: heading and default PDF file name.                                                                                         |
+| `orientation` | `"portrait"` \| `"landscape"`                         | `"landscape"`    | PDF only.                                                                                                                            |
+| `paperSize`   | `"A3"` \| `"A4"` \| `"A5"` \| `"letter"` \| `"legal"` | `"A4"`           | PDF only.                                                                                                                            |
+| `margin`      | `number`                                              | `36`             | PDF only: page margin in points, 72 to the inch.                                                                                     |
+| `fontSize`    | `number`                                              | `9`              | PDF only: body text size in points. Row height and the bands follow from it.                                                         |
+| `header`      | `PdfBand \| null`                                     | `{ left: "{title}" }` | PDF only: repeated at the top of every page. `null` removes it.                                                                 |
+| `footer`      | `PdfBand \| null`                                     | date and page numbers | PDF only: repeated at the bottom of every page. `null` removes it.                                                              |
+| `theme`       | `Partial<PdfTheme>`                                   | zinc             | PDF only: `text`, `muted`, `border`, `headerBg`, `headerText` and `stripe` as `#rrggbb`. `stripe: null` turns off row striping.      |
+
+### PDF header and footer
+
+A band has a `left`, `center` and `right` slot. Each takes plain text, with these tokens
+substituted as the page is drawn:
+
+| Token      | Becomes                          |
+| ---------- | -------------------------------- |
+| `{title}`  | The `title` option.              |
+| `{page}`   | The current page number.         |
+| `{pages}`  | The total page count.            |
+| `{date}`   | Today, in the browser's locale.  |
+| `{time}`   | Now, in the browser's locale.    |
+
+```tsx
+gridRef.current?.exportPdf({
+  title: "Q3 headcount",
+  header: { left: "{title}", right: "Acme Inc." },
+  footer: { left: "Generated {date}", right: "Page {page} of {pages}" },
+  theme: { headerBg: "#e0f2fe", stripe: null },
+});
+```
+
+<Notice message="The PDF uses Helvetica, which every viewer provides, so no font is embedded and the file stays small. That encoding covers Latin-1 and common typographic characters; anything outside it, such as Malayalam or CJK, is written as '?'. Use api.print() for those." />
+
+Cells are a single line and are clipped with an ellipsis when they do not fit, so every
+row is the same height and a page break never lands inside one. Column proportions follow
+the grid's own widths, scaled to the page.
+
+
+## Utilities
+
+Everything below is exported from `@/component-lib/data-grid`. The same functions (without React) are exported from `@/component-lib/data-grid/core`, which is safe to import in server code.
+
+| Export               | Signature                                                             | Description                                                                                                        |
+| -------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `createColumnHelper` | `<T>() => { field, accessor, display }`                               | Typed column builders.                                                                                             |
+| `filterRows`         | `(rows, columns, filters, globalFilter, formatters) => GridRow<T>[]`  | Apply column filters and search, like client mode.                                                                 |
+| `sortRows`           | `(rows, columns, sorting) => GridRow<T>[]`                            | Stable multi-column sort, like client mode.                                                                        |
+| `paginate`           | `(rows, pagination, { enabled, server, rowCount? }) => PageResult<T>` | Slice a page and compute `pageCount`, `rowCount`, `pageOffset`.                                                    |
+| `buildRows`          | `(data, getRowId) => GridRow<T>[]`                                    | Wrap data as `{ id, index, original }` rows.                                                                       |
+| `createRowIdGetter`  | `(getRowId?) => (row, index) => string`                               | Turn a `getRowId` prop value into a function.                                                                      |
+| `resolveColumns`     | `(defs: ColumnDef<T>[]) => ResolvedColumn<T>[]`                       | Apply column defaults.                                                                                             |
+| `createFormatters`   | `(locale?, labels?) => Formatters`                                    | Date and yes/no formatting used by filters, search and export.                                                     |
+| `formatCellValue`    | `(column, value, row, formatters) => string`                          | Display text of a cell.                                                                                            |
+| `getFilterOperators` | `(column) => FilterOperator[]`                                        | Operators available for a column.                                                                                  |
+| `isFilterActive`     | `(filter) => boolean`                                                 | Whether a filter has a usable value.                                                                               |
+| `toggleSorting`      | `(sorting, columnId, multi) => SortItem[]`                            | The header-click sort cycle.                                                                                       |
+| `createInitialState` | `(options) => GridState`                                              | The grid's starting state for a set of props.                                                                      |
+| `compileFilter`      | `(column, filter, formatters) => ((row: T) => boolean) \| null`       | Build a predicate for one filter (`null` when the filter is inactive).                                             |
+| `computeLayout`      | `(columns, state, leading?) => ColumnLayout<T>`                       | Column order, widths and pin sections for a state. Used to build custom grid UIs.                                  |
+| `createGridEngine`   | `(options) => GridEngine<T>`                                          | The state engine behind `DataGrid` (store, selection, editing, navigation, export). Used to build custom grid UIs. |
+| `defaultLocaleText`  | `LocaleText`                                                          | Default English text.                                                                                              |
+
+All types (`ColumnDef`, `GridState`, `GridQuery`, `GridApi`, `SortItem`, `ColumnFilter`, `CellContext`, `EditorProps`, `CellEditEvent`, `ExportOptions`, `LocaleText`, …) are exported as well.

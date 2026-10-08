@@ -1,0 +1,281 @@
+---
+category: "Components"
+---
+
+import Notice from "@/app/components/Notice";
+
+# Form Renderer
+
+<Notice
+  message="Create The Dynamic JSON with our AI powered platform"
+  link="https://gbs-form-builder.vercel.app"
+/>
+
+### Installation
+
+```bash
+npx gbs-add-block@latest -a FormRenderer
+```
+
+The FormRenderer component is a flexible form renderer designed to dynamically generate forms based on the `sourceData` provided as props. It supports inputs, select dropdowns, and buttons with validation for required fields.
+
+### Features
+
+- Dynamic Rendering: Generate forms dynamically using the `sourceData` array.
+- Field Types: Supports `input`, `select`, `multi-select`, and `button` components.
+- Validation: Ensures required fields are filled before submission.
+- Customizable Layouts: Use `formFormationClass` and `formParentClass` to customize the form's layout.
+
+#### Props
+
+The `FormRenderer` component accepts the following props:
+
+| Prop Name            | Type                           | Default                              | Description                                                                                                                       |
+| -------------------- | ------------------------------ | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `onSubmit`           | `(formData: FormData) => void` | `undefined`                          | Callback function triggered upon form submission. The `formData` object contains the form's submitted values.                     |
+| `schema`             | `FormItem[]`                   | `undefined`                          | An array of objects defining the structure and fields of the form. Each object specifies the component type, label, options, etc. |
+| `formFormationClass` | `string`                       | `"grid grid-cols-1 text-left gap-4"` | CSS classes for styling the container that holds form fields.                                                                     |
+| `formParentClass`    | `string`                       | `"w-96"`                             | CSS classes for styling the overall form container.                                                                               |
+
+#### Usage Guide:
+
+To use the `FormRenderer` component, import it and include it in your React application. Below is an example of how to implement the `FormRenderer` component:
+
+```tsx
+//use 'use client' in case of Next.js
+
+import FormRenderer from "./FormRenderer";
+import { SourceData } from "../path"; // This can be build https://gbs-form-builder.vercel.app
+
+const formSubmit = (formData: FormData) => {
+  console.log(Object.fromEntries(formData));
+};
+
+<FormRenderer schema={sourceData} onSubmit={handleFormSubmit} />;
+```
+
+#### Handling in Next.js
+
+In Next.js you can utilize the server actions to handle form data like below.
+
+```typescript
+//actions.ts
+
+"use server";
+
+export const formSubmit = async (formData: FormData) => {
+  const username = formData.get("username");
+  const gender = formData.get("gender");
+
+  console.log("username:", username);
+  console.log("gender:", gender);
+
+  // Do something with the data here...
+};
+```
+
+#### Validating with [zod](https://zod.dev/?id=introduction)
+
+```typescript
+"use server";
+
+import { z } from "zod";
+
+const FormSchema = z.object({
+  "terms-checkbox": z.string().optional(),
+  textbox: z.string().optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  quantity: z.coerce.number().optional(),
+  price: z.coerce.number().optional(),
+  shipping: z.string().optional(),
+});
+
+export const formSubmit = async (formData: FormData) => {
+  const formObject = Object.fromEntries(formData.entries());
+
+  const result = FormSchema.safeParse(formObject);
+
+  if (!result.success) {
+    console.error("Validation failed:", result.error.format());
+    return;
+  }
+
+  console.log("Validated Data:", result.data);
+};
+```
+
+#### sourceData Field Structure:
+
+Each object in the `sourceData` array must have the following properties depending on the component type:
+
+| Field         | Type            | Required | Description                                                                      |
+| ------------- | --------------- | -------- | -------------------------------------------------------------------------------- |
+| `component`   | `string`        | Yes      | Type of form element to render (`input`, `select`, `button`).                    |
+| `name`        | `string`        | Yes      | Name of the field (used for validation and data extraction).                     |
+| `label`       | `string`        | No       | Label for the form field.                                                        |
+| `type`        | `string`        | No       | Input type (`text`, `email`, `password`, etc.) (required for `input` component). |
+| `placeholder` | `string`        | No       | Placeholder text for input fields.                                               |
+| `required`    | `boolean`       | No       | Marks the field as required; validation will highlight if empty.                 |
+| `options`     | `Array<string>` | No       | Options for the dropdown (used for `select` component).                          |
+| `value`       | `string`        | No       | Button text (used for `button` component).                                       |
+
+### Handling Cascading Select Fields
+
+To implement cascading select fields, define a `dependencyConfig` object. This configuration specifies the parent-child relationships and data structures.
+
+#### Example Configuration
+
+```typescript
+import { FormItem } from "../component-lib/formrenderer/types";
+
+export const sourceDataFormRender: FormItem[] = [
+  // Terms checkbox that controls multiple fields
+  {
+    id: "terms-checkbox-id",
+    component: "checkbox",
+    name: "terms-checkbox",
+    label: "I agree to share my information",
+    required: false,
+    // You can also write custom javascript to manipulate the
+    // the form behaviour as follows.
+    onChangeEvent: (event: any) => {
+      const form = event.target.form;
+      const textbox = form.querySelector('[name="textbox"]');
+      if (textbox) {
+        textbox.disabled = event.target.checked;
+      }
+    },
+  },
+
+  // Basic text input disabled by checkbox
+  {
+    id: "textbox-id",
+    component: "input",
+    name: "textbox",
+    label: "Additional Information",
+    type: "text",
+    placeholder: "Enter additional info",
+    required: false,
+    // Custom expressions can be passed as below.
+    disabled: "exp:${checkbox.terms-checkbox.value === true}$",
+  },
+
+  // Email input that's required when checkbox is checked
+  {
+    id: "email-id",
+    component: "input",
+    name: "email",
+    label: "Email Address",
+    type: "email",
+    placeholder: "Enter your email",
+    required: "exp:${checkbox.terms-checkbox.value === true}$",
+    disabled: "exp:${checkbox.terms-checkbox.value === false}$",
+  },
+
+  // Phone input with custom validation based on checkbox
+  {
+    id: "phone-id",
+    component: "input",
+    name: "phone",
+    label: "Phone Number",
+    type: "tel",
+    placeholder: "Enter phone number",
+    disabled: "exp:${checkbox.terms-checkbox.value === false}$",
+    required: "exp:${checkbox.terms-checkbox.value === true}$",
+  },
+
+  // Quantity field that affects price visibility
+  {
+    id: "quantity-id",
+    component: "input",
+    name: "quantity",
+    label: "Quantity",
+    type: "number",
+    placeholder: "Enter quantity",
+    required: false,
+  },
+
+  // Price field that's disabled for high quantities
+  {
+    id: "price-id",
+    component: "input",
+    name: "price",
+    label: "Price Per Unit",
+    type: "number",
+    placeholder: "Enter price",
+    disabled: "exp:${input.quantity.value >= 100}$",
+    required: "exp:${input.quantity.value < 100}$",
+  },
+
+  // Select field dependent on quantity
+  {
+    id: "shipping-id",
+    component: "select",
+    name: "shipping",
+    label: "Shipping Method",
+    options: [
+      { label: "Standard", value: "standard" },
+      { label: "Express", value: "express" },
+      { label: "Bulk", value: "bulk" },
+    ],
+    disabled: "exp:${input.quantity.value < 10}$",
+    required: "exp:${input.quantity.value >= 10}$",
+  },
+
+  {
+    id: "submit-button-id",
+    component: "button",
+    button_type: "submit",
+    value: "Submit Form",
+    disabled: "exp:${checkbox.terms-checkbox.value === false}$",
+  },
+];
+```
+
+### Custome Expressions and Scripts
+
+As you can see in the above example you can pass custom expressions to the component which can later evaluate to modify the default behavior of the form rendered.
+
+Some more advanced examples:
+
+```typescript
+// String manipulation
+value: "exp:${concat(uppercase(firstName.value), ' ', lowercase(lastName.value))}$"
+
+// Conditional formatting
+value: "exp:${iif(amount.value > 1000, formatNumber(amount.value, 2), amount.value)}$"
+
+// Complex calculations
+value: "exp:${multiply(basePrice.value, checkbox.checked ? 1.2 : 1) + shipping.value}$"
+
+// Date formatting
+value: "exp:${formatDate(startDate.value)}$"
+
+// Nested conditions
+value: "exp:${iif(checkbox.checked,
+  iif(amount.value > 1000, 'High Value', 'Normal Value'),
+  'Inactive')}$"
+```
+
+Also, along with this, the form render can perform certain event based logics based on the custom typescript code provided in the `onChange` property of the source data.
+
+example
+
+```tsx
+onChangeEvent: (event: any) => {
+      const form = event.target.form;
+      const textbox = form.querySelector('[name="textbox"]'); // based on the name property
+      if (textbox) {
+        textbox.disabled = event.target.checked;
+      }
+    },
+```
+
+This will practically enables and give full control to the custom form rendered.
+
+### Dependencies and Validation
+
+- Validation: Required fields without a value will block form submission and highlight errors.
+
+With this implementation, you can build complex, dynamic forms efficiently!

@@ -1,0 +1,245 @@
+@import "tailwindcss";
+@import "./(main)/generated-components.css";
+
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * color-scheme must be declared at the root: the build polyfills the component
+ * styles' light-dark() with variables that only exist where color-scheme is set,
+ * so without this, portaled UI such as toasts renders with no colors.
+ */
+:root {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-geist-sans: Arial, Helvetica, sans-serif;
+  --font-geist-mono: "Courier New", Courier, monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+/*
+ * `clip`, not `hidden`: `overflow-x: hidden` forces overflow-y to `auto`, which
+ * turns <body> into a scroll container that never scrolls, and every
+ * `position: sticky` element (sidebars, table of contents) stops sticking.
+ */
+html {
+  overflow-x: clip;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: clip;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* Target the scrollbar */
+::-webkit-scrollbar {
+  width: 0px; /* vertical scrollbar width */
+  height: 0px; /* horizontal scrollbar height */
+}
+
+/* Scrollbar track (background) */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+/* Scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Scrollbar thumb on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Corner where vertical and horizontal scrollbars meet */
+::-webkit-scrollbar-corner {
+  background: #f1f1f1;
+}
+
+/* ============================================
+   Rehype Pretty Code — Dual Theme Styles
+   ============================================ */
+
+/* Light mode: use the --shiki-light variables */
+code[data-theme],
+code[data-theme] span {
+  color: var(--shiki-light);
+  background-color: transparent;
+}
+
+/* Dark mode: swap to --shiki-dark variables */
+.dark code[data-theme],
+.dark code[data-theme] span {
+  color: var(--shiki-dark);
+  background-color: transparent;
+}
+
+/* --- Code block wrapper --- */
+.code-block-wrapper {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fafafa;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.code-block-wrapper:hover {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.dark .code-block-wrapper {
+  background: #161b22;
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dark .code-block-wrapper:hover {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Code block header bar --- */
+.code-block-header {
+  background: #f0f0f0;
+  color: #57606a;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.dark .code-block-header {
+  background: #1c2129;
+  color: #8b949e;
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+
+/* --- Pre block (the code area) --- */
+.code-block-pre {
+  margin: 0 !important;
+  padding: 1rem 1.25rem !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+.code-block-pre code {
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* --- Line numbers (if enabled) --- */
+code[data-line-numbers] {
+  counter-reset: line;
+}
+
+code[data-line-numbers] > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1.5rem;
+  margin-right: 1.25rem;
+  text-align: right;
+  color: #a0a0a0;
+  font-size: 0.8em;
+}
+
+.dark code[data-line-numbers] > [data-line]::before {
+  color: #484f58;
+}
+
+/* --- Highlighted lines --- */
+[data-highlighted-line] {
+  background-color: rgba(59, 130, 246, 0.08);
+  border-left: 2px solid #3b82f6;
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+  padding-left: calc(1.25rem - 2px);
+  padding-right: 1.25rem;
+}
+
+.dark [data-highlighted-line] {
+  background-color: rgba(56, 139, 253, 0.1);
+  border-left-color: #388bfd;
+}
+
+/* --- Highlighted words/chars --- */
+[data-highlighted-chars] {
+  background-color: rgba(59, 130, 246, 0.15);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+}
+
+.dark [data-highlighted-chars] {
+  background-color: rgba(56, 139, 253, 0.2);
+}
+
+/* --- Inline code --- */
+.inline-code {
+  background: #f0f0f3;
+  color: #d63384;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.dark .inline-code {
+  background: rgba(110, 118, 129, 0.2);
+  color: #f47067;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* --- Figcaption (code block title) --- */
+figcaption[data-rehype-pretty-code-title] {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  background: #f0f0f0;
+  color: #57606a;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dark figcaption[data-rehype-pretty-code-title] {
+  background: #1c2129;
+  color: #8b949e;
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}

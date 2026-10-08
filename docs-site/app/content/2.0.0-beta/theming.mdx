@@ -1,0 +1,288 @@
+---
+title: "Theming"
+description: "One set of --gbs-* variables on :root themes every component at once, with per-component and per-section overrides when you need them."
+group: "General"
+order: 0
+---
+
+## One palette, every component
+
+Each component ships a default look and needs no configuration. When you want your own
+palette, set the `--gbs-*` variables once, on `:root`, and every installed component follows —
+the DataGrid included.
+
+```css
+:root {
+  --gbs-accent: #7c3aed;
+  --gbs-accent-soft: #f3e8ff;
+  --gbs-radius: 10px;
+  --gbs-font-size: 14px;
+}
+```
+
+That is the whole API for theming the library. Everything below is for the cases where one
+palette is not enough.
+
+<Notice message="Set --gbs-* on :root, not inside a component. Components read these values through inheritance, so anything you set on an ancestor reaches every control beneath it." />
+
+## How a value is resolved
+
+Every component variable falls through the same chain, stopping at the first one that is set:
+
+1. **The component's own variable** — `--in-accent`, `--dg-accent`, `--ck-border` and so on.
+   Set this to change one component, or one instance of it.
+2. **The shared variable** — `--gbs-accent`. This is the one you normally set.
+3. **The DataGrid's variable** — `--dg-accent`, when the grid's stylesheet is loaded. Kept so
+   that projects which themed the grid before these shared variables existed still work.
+4. **The built-in default** — a `light-dark()` pair, so it follows the page's color scheme.
+
+In CSS that chain looks like this, which is what you will see if you open any `styles.css`:
+
+```css
+.in-root {
+  --in-accent: var(--gbs-accent, var(--dg-accent, light-dark(#2563eb, #60a5fa)));
+}
+```
+
+## The shared variables
+
+Defaults are written light / dark.
+
+#### Surfaces and text
+
+| Variable | Default | Used for |
+| --- | --- | --- |
+| `--gbs-bg` | `#ffffff` / `#0b0b0e` | Component background. |
+| `--gbs-fg` | `#18181b` / `#f4f4f5` | Body text. |
+| `--gbs-muted` | `#71717a` / `#a1a1aa` | Hints, counters, secondary text. |
+| `--gbs-subtle` | `#f4f4f5` / `#1c1c20` | Quiet fills, such as a secondary button. |
+| `--gbs-hover` | `#f4f4f5` / `#1f1f23` | Hover background on buttons and menu items. |
+| `--gbs-input-bg` | `#ffffff` / `#121216` | The inside of a field. |
+| `--gbs-readonly-bg` | `#fafafa` / `#0e0e12` | A field that cannot be edited. |
+| `--gbs-header-bg` | `#fafafa` / `#111114` | Grid header, modal footer. |
+| `--gbs-header-fg` | `#3f3f46` / `#d4d4d8` | Grid header text. |
+
+#### Borders and shape
+
+| Variable | Default | Used for |
+| --- | --- | --- |
+| `--gbs-border` | `#e4e4e7` / `#27272a` | Outer borders. |
+| `--gbs-border-subtle` | `#f0f0f2` / `#1c1c20` | Row separators and other quiet lines. |
+| `--gbs-border-control` | `#a1a1aa` / `#52525b` | The outline of a checkbox or radio, which needs more contrast than a panel edge. |
+| `--gbs-radius` | `8px` | Corner radius. |
+| `--gbs-font-size` | `13px` | Base size; everything else is relative to it. |
+| `--gbs-shadow` | `0 10px 30px -8px …` | Popovers and menus. |
+| `--gbs-backdrop` | `rgb(9 9 11 / 0.45)` / `rgb(0 0 0 / 0.65)` | Behind a modal or dialog. |
+
+#### Accent and status
+
+| Variable | Default | Used for |
+| --- | --- | --- |
+| `--gbs-accent` | `#2563eb` / `#60a5fa` | Selected, checked, active. |
+| `--gbs-accent-fg` | `#ffffff` / `#0b1220` | Text on an accent fill. |
+| `--gbs-accent-soft` | `#eff6ff` / `#172554` | Tinted backgrounds. |
+| `--gbs-accent-strong` | `#1d4ed8` / `#bfdbfe` | The pressed state of an accent fill. |
+| `--gbs-focus` | `#2563eb` / `#60a5fa` | Focus rings. |
+| `--gbs-danger` | `#dc2626` / `#f87171` | Errors and destructive actions. |
+| `--gbs-danger-fg` | `#ffffff` / `#1c0606` | Text on a danger fill. |
+| `--gbs-success` | `#15803d` / `#4ade80` | Completed uploads, success toasts. |
+| `--gbs-warning` | `#d97706` / `#fbbf24` | Warnings. |
+| `--gbs-info` | falls back to `--gbs-accent` | Informational dialogs and toasts. |
+
+#### Grid rows
+
+Only the DataGrid uses these.
+
+| Variable | Default | Used for |
+| --- | --- | --- |
+| `--gbs-row-alt` | `#fcfcfd` / `#0e0e12` | Striped rows. |
+| `--gbs-row-hover` | `#f4f4f5` / `#18181c` | Hovered row. |
+| `--gbs-row-selected` | `#eef4ff` / `#14213d` | Selected row. |
+| `--gbs-row-selected-hover` | `#e2ecff` / `#1a2a4d` | Selected and hovered. |
+| `--gbs-cell-px` | `12px` | Horizontal cell padding. |
+| `--gbs-pin-shadow` | `rgb(0 0 0 / 0.08)` / `rgb(0 0 0 / 0.5)` | Edge of a pinned column. |
+
+## Dark mode
+
+Defaults are `light-dark()` pairs, so they follow the page's `color-scheme` with no extra work.
+Set it once:
+
+```css
+:root {
+  color-scheme: light dark;
+}
+```
+
+To force a scheme regardless of the system setting, put `class="dark"` or `data-theme="dark"`
+(or `"light"`) on an ancestor such as `<html>`. Components respond to both.
+
+If you set your own colors, give both schemes or your dark mode will keep the light values:
+
+```css
+:root {
+  --gbs-accent: light-dark(#7c3aed, #c4b5fd);
+}
+```
+
+## Theming one section
+
+The variables inherit, so scoping a palette to part of a page is just a matter of where you
+set it:
+
+```css
+.admin-area {
+  --gbs-accent: #0f766e;
+  --gbs-radius: 4px;
+}
+```
+
+Everything inside `.admin-area` uses the teal accent; the rest of the page does not.
+
+## Theming one component
+
+Set the component's own variable instead of the shared one — it wins over `--gbs-*`:
+
+```css
+.danger-zone .bt-root {
+  --bt-bg: #b91c1c;
+}
+```
+
+Or inline, for a single instance:
+
+```tsx
+<Input style={{ "--in-radius": "999px" } as CSSProperties} />
+```
+
+Each component's page lists its own variables.
+
+## Styles and cascade layers
+
+Install a component and the CLI writes `component-lib/gbs.css`, importing every
+stylesheet you installed and rewriting itself on each install. Add one line to your
+global CSS:
+
+```css
+@import "../component-lib/gbs.css";
+```
+
+That is the whole setup for Tailwind v3, Bootstrap, and projects with no CSS framework.
+
+### With Tailwind v4
+
+Tailwind v4 is the one exception, because it puts its own utilities in a cascade layer.
+Import ours **after** the framework and **into** Tailwind's `components` layer, so a
+utility passed through `className` still wins:
+
+```css
+@import "tailwindcss";
+@import "../component-lib/gbs.css" layer(components);
+```
+
+```tsx
+<Button className="rounded-full px-6" />
+```
+
+Both parts matter. Imported before the framework, the layer registers first and
+Tailwind's preflight lands after it — which strips the component rules. Imported with no
+`layer()`, the unlayered rules outrank the utilities and `className` stops overriding
+them. The installer detects your setup and prints the line you need.
+
+If your design tokens are already Tailwind theme variables, point the two at each other
+once, and keep utilities for one-off adjustments:
+
+```css
+:root {
+  --gbs-accent: var(--color-violet-600);
+  --gbs-danger: var(--color-rose-600);
+}
+```
+
+### Why the rules are unlayered
+
+Component CSS ships in **no cascade layer at all**. That is deliberate, and it is the
+one thing worth understanding if you are styling around the kit.
+
+An unlayered rule beats every layered rule regardless of specificity — the cascade
+settles layers before it looks at selectors. So a library that puts its rules in a layer
+loses to any unlayered stylesheet on the page, and two of the most common ones are
+unlayered: **Tailwind v3's preflight** and **Bootstrap's Reboot**.
+
+Earlier releases did exactly that, and the result was measurable. With component rules
+in a `gbs` layer:
+
+| Host setup | What rendered |
+| --- | --- |
+| Tailwind v3 | components with `border: 0` and `padding-left: 0` — preflight stripped them |
+| Bootstrap 5 | every Button square, because Reboot's `button { border-radius: 0 }` won |
+| Tailwind v4 | borders and padding missing page-wide, if the documented `@layer` line was used |
+
+No line a project could write would fix the first two, because nothing layered can
+outrank unlayered CSS.
+
+Unlayered, the same rules compete on ordinary specificity — `.bt-root` is one class,
+Reboot's `button` is one element — so the components win against a reset and lose to
+your own CSS, which is what you want in both directions.
+
+<Notice message="Upgrading from 2.1.0 or 2.2.0: delete any `@layer gbs, utilities;` line you added. It is wrong in both possible positions, and the layer it referred to no longer exists." />
+
+### Your own CSS
+
+With no layer involved, ordinary rules apply: a selector of equal strength wins by
+coming later. Import `gbs.css` **before** your own stylesheets and your overrides win
+without `!important`:
+
+```css
+@import "../component-lib/gbs.css";
+@import "./app.css";               /* your rules win ties */
+```
+
+Under Tailwind v4 this is already handled — utilities and your unlayered CSS both
+outrank the `components` layer.
+
+### With Bootstrap, or any unlayered reset
+
+Nothing to do. Both stylesheets are unlayered, so specificity decides, and the
+components' class selectors beat Reboot's element selectors. The square-Button problem
+that earlier releases had is gone.
+
+Bootstrap's own classes never collided with ours either: `.btn`, `.card` and the rest
+sit alongside two-letter-prefixed names (`.bt-root`, `.in-input`, `.dg-cell`).
+
+If you would rather Bootstrap lose to *everything*, give it a layer of its own — layered
+CSS ranks below unlayered CSS, so this demotes it:
+
+```css
+@import url("bootstrap/dist/css/bootstrap.min.css") layer(vendor);
+```
+
+### Scrollbars
+
+Every scrolling surface in the kit — the data grid viewport, menus, popovers, dialogs,
+the combobox list — uses a thin scrollbar by default, through the standard
+`scrollbar-width` and `scrollbar-color` properties. Four variables control all of them:
+
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `--gbs-scrollbar-width` | `thin` | `auto`, `thin` or `none` only — the property takes no length |
+| `--gbs-scrollbar-thumb` | a muted `--gbs-accent` | follows your accent automatically |
+| `--gbs-scrollbar-thumb-hover` | a stronger mix | applied only where the device has hover |
+| `--gbs-scrollbar-track` | `transparent` | a visible track reads heavier than the bar |
+
+```css
+:root {
+  --gbs-scrollbar-width: auto;              /* bring the chunky ones back */
+  --gbs-scrollbar-thumb: var(--gbs-accent); /* tint them with the brand */
+}
+```
+
+For your own scrolling areas, add `class="gbs-scroll"` to match. Scroll containers the
+kit does not own keep the browser default — it never restyles scrollbars it was not
+asked to.
+
+## Before you ship a palette
+
+Check contrast on the pairs that carry meaning: `--gbs-fg` on `--gbs-bg`, `--gbs-muted` on
+`--gbs-bg`, and `--gbs-accent-fg` on `--gbs-accent`. The defaults meet WCAG AA in both
+schemes; a custom accent is the usual way that gets lost, most often on small text such as
+hints and counters.

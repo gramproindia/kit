@@ -1,0 +1,72 @@
+---
+category: "Components"
+---
+
+import MaterialInputWrapper from "@/components/examples/MaterialInputWrapper";
+
+# Material Input
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a MaterialInput
+```
+
+The `MaterialInput` component is a customizable and accessible text input field with a floating label, built using React. It supports various states such as focus, error, and disabled, along with optional helper text.
+
+#### Props Table
+
+| Prop         | Type                      | Default Value | Description                                                                                  |
+| ------------ | ------------------------- | ------------- | -------------------------------------------------------------------------------------------- |
+| `label`      | `string`                  | `undefined`   | The label for the input field. Displays above the input when focused or contains a value.    |
+| `type`       | `string`                  | `"text"`      | Specifies the input type (e.g., "text", "password", "email").                                |
+| `value`      | `string`                  | `undefined`   | The current value of the input field.                                                        |
+| `onChange`   | `(value: string) => void` | `undefined`   | Callback function invoked when the value of the input changes.                               |
+| `error`      | `string` or `undefined`   | `undefined`   | An error message displayed below the input field when set.                                   |
+| `helperText` | `string` or `undefined`   | `undefined`   | A helper message displayed below the input field.                                            |
+| `required`   | `boolean`                 | `false`       | Specifies whether the input field is required. Displays an asterisk (`*`) next to the label. |
+| `disabled`   | `boolean`                 | `false`       | Disables the input field when set to `true`.                                                 |
+| `className`  | `string`                  | `""`          | Additional CSS classes for customizing the outer container of the component.                 |
+
+### Example
+
+<MaterialInputWrapper />
+
+### Usage Example
+
+```tsx
+import React, { useState } from "react";
+import MaterialInput from "./MaterialInput";
+
+const Example = () => {
+  const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState("");
+
+  const handleChange = (value: string) => {
+    setInputValue(value);
+
+    if (!value.trim()) {
+      setError("This field is required.");
+    } else {
+      setError("");
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <MaterialInput
+        label="Name"
+        type="text"
+        value={inputValue}
+        onChange={handleChange}
+        error={error}
+        helperText="Enter your full name."
+        required={true}
+        className="mb-4"
+      />
+    </div>
+  );
+};
+
+export default Example;
+```

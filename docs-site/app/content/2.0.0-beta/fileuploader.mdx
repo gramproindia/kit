@@ -1,0 +1,440 @@
+---
+title: "File Uploader"
+description: "Drop, browse or paste files, validate them, and upload in chunks that can pause, resume and retry."
+group: "Inputs"
+order: 8
+---
+
+## Installation
+
+```bash
+npx gbs-add-block@latest -a FileUploader -beta
+```
+
+The block copies the `file-uploader` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
+There are **no peer dependencies** other than React.
+
+**Requirements**
+
+- React 19 and `@types/react` 19
+- TypeScript target ES2022 or newer, with `"jsx": "react-jsx"`
+- Browsers from 2024 or newer (the styles use `light-dark()`, `:has()` and `:dir()`)
+
+Import the stylesheet once, for example in your global CSS:
+
+```css
+@import "../component-lib/gbs.css";
+```
+
+or in your root layout / entry file:
+
+```ts
+import "@/component-lib/gbs.css";
+```
+
+The FileUploader lets people drop, browse or paste files, checks them against your rules, and uploads them to your server in chunks. Each file shows its own progress and can be paused, resumed, retried or canceled. Several files upload at once, and failed chunks are retried with backoff. Image previews can be turned on or off, and files already on the server can be listed with download links. Without an endpoint it works as a better `<input type="file">` inside a normal form.
+
+<Notice message="Set the --gbs-* variables on :root to theme every component at once, the grid included. Each component's own variables fall back to them, and then to the built-in palette, so components look identical out of the box." />
+
+#### Default
+
+<FileUploaderWrapperBeta />
+
+
+## Quick Start
+
+```tsx
+"use client";
+
+import { FileUploader } from "@/component-lib/file-uploader";
+
+export default function Attachments() {
+  return (
+    <FileUploader
+      label="Attachments"
+      multiple
+      accept=".pdf,image/*"
+      maxSize={20 * 1024 * 1024}
+      endpoint="/api/upload"
+      onUploadComplete={(items) =>
+        console.log(items.map((item) => item.response))
+      }
+    />
+  );
+}
+```
+
+Selected files wait for the **Upload** button. Start them yourself with `ref.current.upload()`, or right away with `autoUpload`.
+
+<Notice message="Your server needs to accept the chunk requests described in Upload Protocol. Server Implementation below has reference code for Node.js, Go, Java and .NET, plus curl commands to check any server." />
+
+
+## In this section
+
+This page covers the component: installing it, its props, and everything that happens in
+the browser. The server side is long enough to live on its own page.
+
+| Page | What is in it |
+| --- | --- |
+| [Upload Protocol & Server](/fileuploader-server) | The wire protocol, a reference server, chunked uploads, custom transports |
+
+## Props Table
+
+### Selection
+
+| Prop              | Type                                          | Default | Description                                                                                            |
+| ----------------- | --------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------ |
+| `multiple`        | `boolean`                                     | `false` | Allow several files. When `false`, a new file replaces the current one.                                |
+| `accept`          | `string`                                      | —       | Same syntax as `<input accept>`: `.pdf`, `image/*`, `application/json`. Checked on drop and paste too. |
+| `maxFiles`        | `number`                                      | —       | Total files, counting ones already selected. Ignored when `multiple` is `false`.                       |
+| `maxSize`         | `number`                                      | —       | Bytes per file.                                                                                        |
+| `minSize`         | `number`                                      | —       | Bytes per file.                                                                                        |
+| `validate`        | `(file: File) => string \| null \| undefined` | —       | Return a message to reject a file.                                                                     |
+| `allowDuplicates` | `boolean`                                     | `false` | Keep a file matching one already selected (same name, size and modified date).                         |
+
+### Uploading
+
+| Prop              | Type                                                                 | Default                 | Description                                                                        |
+| ----------------- | -------------------------------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------- |
+| `endpoint`        | `string` \| `(request: ChunkRequest) => string`                      | —                       | Where chunks are sent. Without `endpoint` or `transport`, files are only selected. |
+| `method`          | `"POST"` \| `"PUT"` \| `"PATCH"`                                     | `"POST"`                | HTTP method.                                                                       |
+| `headers`         | `Record<string, string>` \| `(request) => Record \| Promise<Record>` | —                       | Request headers. A function runs before each chunk, so tokens can refresh.         |
+| `withCredentials` | `boolean`                                                            | `false`                 | Send cookies on cross-origin requests.                                             |
+| `params`          | `object` \| `(file: File) => object`                                 | —                       | Extra data, sent as JSON in `additionalParams` with every chunk.                   |
+| `fieldNames`      | `Partial<ChunkFieldNames>`                                           | Go chunk-uploader names | Rename the form fields. See [Upload Protocol](#upload-protocol).                   |
+| `parseResponse`   | `(body: string, xhr: XMLHttpRequest) => unknown`                     | JSON, else text         | Turns each response into `item.response`.                                          |
+| `transport`       | `(request: ChunkRequest) => Promise<unknown>`                        | HTTP                    | Replaces the built-in sender. See [Custom Transport](#custom-transport).           |
+| `chunkSize`       | `number`                                                             | `5242880` (5 MiB)       | Bytes per request.                                                                 |
+| `concurrency`     | `number`                                                             | `3`                     | Files uploading at the same time.                                                  |
+| `retries`         | `number`                                                             | `3`                     | Extra attempts per chunk after a retryable failure.                                |
+| `retryDelay`      | `number`                                                             | `1000`                  | First retry delay in ms; doubles on each attempt.                                  |
+| `autoUpload`      | `boolean`                                                            | `false`                 | Upload as soon as files are added.                                                 |
+| `getFileId`       | `(item: UploadItem) => string \| undefined`                          | from the response       | The value posted for an uploaded file. See [Forms](#forms).                        |
+
+### Display and Form
+
+| Prop               | Type                                    | Default        | Description                                                                                                            |
+| ------------------ | --------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `preview`          | `boolean`                               | `true`         | Thumbnails for image files.                                                                                            |
+| `existingFiles`    | `ExistingFile[]`                        | —              | Files already on the server, listed above new ones.                                                                    |
+| `onRemoveExisting` | `(file: ExistingFile) => void`          | —              | Shows a remove button on existing files. Remove the file from your state here.                                         |
+| `removable`        | `boolean`                               | `true`         | Show remove buttons.                                                                                                   |
+| `label`            | `ReactNode`                             | —              | Field label.                                                                                                           |
+| `description`      | `ReactNode`                             | —              | Hint below the drop zone.                                                                                              |
+| `error`            | `ReactNode`                             | —              | Error message below the drop zone; also marks it invalid.                                                              |
+| `required`         | `boolean`                               | `false`        | Marks the label.                                                                                                       |
+| `disabled`         | `boolean`                               | `false`        | Blocks adding, uploading and removing.                                                                                 |
+| `size`             | `"sm"` \| `"md"` \| `"lg"`              | `"md"`         | Drop zone padding, thumbnail and font size.                                                                            |
+| `name`             | `string`                                | —              | Form field. See [Forms](#forms).                                                                                       |
+| `id`               | `string`                                | generated      | Id of the drop zone button.                                                                                            |
+| `locale`           | `string`                                | runtime locale | For file sizes and percentages.                                                                                        |
+| `className`        | `string`                                | —              | Class for the root element.                                                                                            |
+| `classNames`       | `Partial<Record<UploaderSlot, string>>` | —              | Classes per slot: `root`, `label`, `dropzone`, `rejections`, `list`, `item`, `thumb`, `progress`, `actions`, `footer`. |
+| `style`            | `CSSProperties`                         | —              | Inline style for the root (e.g. CSS variables).                                                                        |
+| `localeText`       | `Partial<UploaderLocaleText>`           | English        | Overrides UI text. See [Locale Text](#locale-text).                                                                    |
+| `ref`              | `Ref<FileUploaderHandle>`               | —              | Imperative API. See [Imperative API](#imperative-api-ref).                                                             |
+
+### Events
+
+| Prop               | Type                                         | Description                                                                     |
+| ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------- |
+| `onChange`         | `(files: File[]) => void`                    | Selected files changed: added, removed or cleared.                              |
+| `onRejected`       | `(rejections: FileRejection[]) => void`      | Files that failed validation, each with a `code`.                               |
+| `onFileSuccess`    | `(item: UploadItem) => void`                 | A file finished uploading. `item.response` holds the server's last answer.      |
+| `onFileError`      | `(item: UploadItem, error: unknown) => void` | A file failed after its retries.                                                |
+| `onUploadComplete` | `(items: UploadItem[]) => void`              | Every file in one upload run has stopped: uploaded, failed, paused or canceled. |
+
+#### UploadItem
+
+```ts
+interface UploadItem {
+  id: string; // stable row key
+  uploadId: string; // sent with every chunk; new after a cancel
+  file: File;
+  status:
+    | "idle"
+    | "queued"
+    | "uploading"
+    | "paused"
+    | "success"
+    | "error"
+    | "canceled";
+  uploadedBytes: number;
+  progress: number; // 0 to 1
+  chunkSize: number;
+  chunksDone: number;
+  totalChunks: number;
+  error?: string;
+  response?: unknown; // the server's answer to the latest chunk
+}
+```
+
+
+## Previews
+
+With `preview` (the default), image files show a thumbnail. Set `preview={false}` to show type icons only, for example for sensitive documents or long lists.
+
+- Thumbnails use object URLs, not base64. The browser doesn't copy the file into memory, and each URL is released when its row disappears.
+- Formats the browser can't draw, such as HEIC in most browsers, fall back to the image icon.
+- Other files show an icon for their kind: image, video, audio, PDF, spreadsheet, document, archive or other.
+
+
+## Existing Files
+
+Show files saved earlier, for example when editing a record. The component doesn't fetch them; load them your way and pass them in:
+
+```tsx
+const [existing, setExisting] = useState<ExistingFile[]>(record.attachments);
+
+<FileUploader
+  multiple
+  endpoint="/api/upload"
+  existingFiles={existing}
+  onRemoveExisting={(file) =>
+    setExisting((files) => files.filter((f) => f.id !== file.id))
+  }
+/>;
+```
+
+```ts
+interface ExistingFile {
+  id: string;
+  name: string;
+  size?: number;
+  type?: string;
+  url?: string; // download link, and the preview for images
+}
+```
+
+
+## Validation
+
+Files are checked when they are dropped, picked or pasted. Rejected files are listed with a reason, and `onRejected` receives them:
+
+| `code`                              | When                                                               |
+| ----------------------------------- | ------------------------------------------------------------------ |
+| `file-type`                         | Doesn't match `accept`.                                            |
+| `file-too-large` / `file-too-small` | Outside `maxSize` / `minSize`.                                     |
+| `too-many-files`                    | Over `maxFiles`, or more than one file when `multiple` is `false`. |
+| `duplicate`                         | Same name, size and modified date as a selected file.              |
+| `custom`                            | `validate` returned a message; it's in `rejection.message`.        |
+
+```tsx
+<FileUploader
+  accept="image/*"
+  validate={(file) =>
+    file.name.length > 100 ? "File names can be up to 100 characters" : null
+  }
+/>
+```
+
+Client checks are for the user's convenience only. Check type and size on the server as well.
+
+
+## Forms
+
+With a `name`, the uploader takes part in a normal form. What it posts depends on whether it uploads:
+
+| Setup                          | Posts under `name`                                                                                                                    | Posts under `name-existing` |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| With `endpoint` or `transport` | The stored id of each uploaded file: `getFileId(item)`, else `id` / `fileId` / `documentId` / `metadata.storedName` from the response | Ids of `existingFiles`      |
+| Without                        | The selected `File` objects                                                                                                           | Ids of `existingFiles`      |
+
+Without an endpoint, a Server Action receives the files directly:
+
+```tsx
+async function save(formData: FormData) {
+  "use server";
+  const files = formData.getAll("attachments") as File[];
+}
+
+<form action={save}>
+  <FileUploader name="attachments" multiple />
+  <button type="submit">Save</button>
+</form>;
+```
+
+For large files, prefer an endpoint: chunks can resume, and Server Actions usually cap the body at 1 MB by default.
+
+
+## Imperative API (ref)
+
+```tsx
+const uploader = useRef<FileUploaderHandle>(null);
+
+<FileUploader ref={uploader} endpoint="/api/upload" multiple />;
+
+const items = await uploader.current?.upload();
+```
+
+| Method     | Signature                           | Description                                                              |
+| ---------- | ----------------------------------- | ------------------------------------------------------------------------ |
+| `open`     | `() => void`                        | Open the system file picker.                                             |
+| `addFiles` | `(files) => { accepted, rejected }` | Add files from code, with the same validation.                           |
+| `upload`   | `() => Promise<UploadItem[]>`       | Upload every file not uploaded yet; resolves when they have all stopped. |
+| `pause`    | `(id?: string) => void`             | Pause one file, or all.                                                  |
+| `cancel`   | `(id?: string) => void`             | Cancel one file, or all.                                                 |
+| `clear`    | `() => void`                        | Abort and remove every file.                                             |
+| `getFiles` | `() => File[]`                      | The selected files.                                                      |
+| `getItems` | `() => UploadItem[]`                | Files with their upload state.                                           |
+
+
+## Keyboard
+
+| Keys                     | Action                                                          |
+| ------------------------ | --------------------------------------------------------------- |
+| **Tab**                  | Reach the drop zone, then each file's buttons.                  |
+| **Enter** / **Space**    | Open the file picker from the drop zone, or press a row button. |
+| **Ctrl + V** / **⌘ + V** | Paste files (e.g. a screenshot) while focus is in the uploader. |
+
+Accessibility: the drop zone is a real button whose name combines the label and the call to action, and whose hint lists the accepted types and limits. Each file's progress is a `role="progressbar"`, and every row button is labelled with the file name ("Pause report.pdf"). Rejections are announced as alerts, and finished or failed uploads through a status region.
+
+
+## Styling and Theming
+
+Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
+
+```tsx
+<FileUploader classNames={{ dropzone: "min-h-40", item: "shadow-sm" }} />
+```
+
+#### CSS variables
+
+Override them on `.fu-root`, on `:root`, or through `style`. Each variable falls back to the shared `--gbs-*` of the same name, then to the DataGrid's `--dg-*` when that stylesheet is loaded, and finally to the built-in palette.
+
+| Variable                        | Used for                                           |
+| ------------------------------- | -------------------------------------------------- |
+| `--fu-font-size`                | Base font size.                                    |
+| `--fu-dropzone-py`              | Vertical padding of the drop zone (set by `size`). |
+| `--fu-thumb-size`               | Thumbnail size (set by `size`).                    |
+| `--fu-bg`, `--fu-fg`            | Background and text color.                         |
+| `--fu-muted`                    | Hints, meta text and icons.                        |
+| `--fu-border`                   | Borders; the drop zone uses a darker mix.          |
+| `--fu-hover`                    | Hover background and the empty progress track.     |
+| `--fu-input-bg`                 | Drop zone background.                              |
+| `--fu-accent`, `--fu-accent-fg` | Progress, the browse link and the Upload button.   |
+| `--fu-accent-soft`              | Drop zone while dragging.                          |
+| `--fu-success`                  | "Uploaded" text.                                   |
+| `--fu-danger`                   | Errors and rejections.                             |
+| `--fu-focus`                    | Focus ring.                                        |
+| `--fu-radius`                   | Corner radius.                                     |
+
+#### Dark mode
+
+Colors follow the page's `color-scheme`. To force a scheme, put `class="dark"` or `data-theme="dark"` (or `"light"`) on an ancestor such as `<html>`.
+
+#### Data attributes
+
+| Element                    | Attributes                                                                                               |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Root (`.fu-root`)          | `data-size`, `data-disabled`, `data-invalid`                                                             |
+| Drop zone (`.fu-dropzone`) | `data-dragging`                                                                                          |
+| Row (`.fu-item`)           | `data-status` (`idle`, `queued`, `uploading`, `paused`, `success`, `error`, `canceled`), `data-existing` |
+| Thumbnail (`.fu-thumb`)    | `data-kind` (`image`, `video`, `audio`, `pdf`, `spreadsheet`, `document`, `archive`, `other`)            |
+
+
+## Locale Text
+
+```tsx
+<FileUploader
+  locale="de-DE"
+  localeText={{
+    dropzone: "Dateien hierher ziehen oder",
+    browse: "durchsuchen",
+    upload: (count) => `${count} hochladen`,
+    rejectTooLarge: (name, max) => `${name} ist größer als ${max}`,
+  }}
+/>
+```
+
+| Key                                                             | Default                                                             |
+| --------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `dropzone` / `browse`                                           | `"Drag files here or"` / `"browse"`                                 |
+| `dropHere`                                                      | `"Drop to add files"`                                               |
+| `hintTypes`                                                     | `(types) => types`                                                  |
+| `hintMaxSize`                                                   | `(size) => "Up to {size} each"`                                     |
+| `hintMaxFiles`                                                  | `(count) => "{count} files max"`                                    |
+| `upload`                                                        | `(count) => "Upload {count} files"`                                 |
+| `cancelAll` / `clear` / `dismiss`                               | `"Cancel all"` / `"Clear"` / `"Dismiss"`                            |
+| `remove` / `cancel` / `pause` / `resume` / `retry` / `download` | `(name) => "Remove {name}"`, …                                      |
+| `queued` / `paused` / `uploaded` / `canceled` / `failed`        | `"Waiting"` / `"Paused"` / `"Uploaded"` / `"Canceled"` / `"Failed"` |
+| `progress`                                                      | `(sent, total, percent) => "{sent} of {total} · {percent}"`         |
+| `rejectFileType`                                                | `(name) => "{name} isn't an allowed file type"`                     |
+| `rejectTooLarge` / `rejectTooSmall`                             | `(name, limit) => "{name} is larger than {limit}"`, …               |
+| `rejectTooMany`                                                 | `(max) => "You can add up to {max} files"`                          |
+| `rejectDuplicate`                                               | `(name) => "{name} is already added"`                               |
+| `announceDone` / `announceFailed`                               | `(name) => "{name} uploaded"` / `"{name} failed to upload"`         |
+
+File sizes and percentages follow `locale`.
+
+
+## Core Exports
+
+`useFileUploader(config)` returns `{ store, items, rejections }` for building a different UI on the same engine:
+
+```tsx
+const { store, items } = useFileUploader({
+  multiple: true,
+  transport: createHttpTransport({ endpoint: "/api/upload" }),
+});
+
+<input
+  type="file"
+  multiple
+  onChange={(event) => store.addFiles(event.target.files ?? [])}
+/>;
+<button onClick={() => store.upload()}>Upload</button>;
+```
+
+The framework-free core is exported from `@/component-lib/file-uploader/core`:
+
+| Export                                                                    | Description                                                                                        |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `createUploaderStore(config)`                                             | The queue: `addFiles`, `upload`, `pause`, `cancel`, `remove`, `clear`, `subscribe`, `getSnapshot`. |
+| `createHttpTransport(options)`                                            | The default XMLHttpRequest transport, with upload progress.                                        |
+| `buildChunkForm(request, options)`                                        | The multipart body for one chunk.                                                                  |
+| `partitionFiles(incoming, existing, rules)`                               | Splits a selection into accepted and rejected files.                                               |
+| `matchesAccept(file, accept)`                                             | `accept` matching as the browser's picker does it.                                                 |
+| `summarize(items)`                                                        | Total bytes, overall progress and counts per status.                                               |
+| `formatBytes(bytes, locale?)` / `fileKind(file)` / `readFileId(response)` | Display helpers.                                                                                   |
+| `UploadHttpError` / `isRetryable(error)`                                  | Error type and retry rules.                                                                        |
+
+
+## Next.js
+
+The component is a client component, and `"use client"` is already at the top of the files that need it. Upload to a Route Handler (see [Server Implementation](#server-implementation)) rather than a Server Action: Server Actions buffer the whole body and are limited to 1 MB by default, while chunks keep every request small and resumable.
+
+Nothing runs on the server: the store is created on the client, and no browser APIs are touched while rendering.
+
+
+## Migrating from the Previous Uploader
+
+| Previous                                                                           | New                                                                                                             |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `apiURL`                                                                           | `endpoint`                                                                                                      |
+| `chunk_size` (default 1 MB)                                                        | `chunkSize` (default 5 MiB)                                                                                     |
+| `startUpload={true}` toggled by the parent                                         | `ref.current.upload()`, the Upload button, or `autoUpload`                                                      |
+| `uploadedFileIdArray={(ids) => …}`                                                 | `onUploadComplete={(items) => …}`; ids come from `item.response` or `readFileId(item.response)`                 |
+| `showImagePreview` (default `false`)                                               | `preview` (default `true`)                                                                                      |
+| `fileCount`                                                                        | `maxFiles`                                                                                                      |
+| `inputFileSize` (megabytes)                                                        | `maxSize` (bytes): `inputFileSize={5}` becomes `maxSize={5 * 1024 * 1024}`                                      |
+| `selectedFiles` / `fileData`                                                       | `ref.current.addFiles(files)`                                                                                   |
+| `documentId={ids}` (the component fetched `?id=` itself)                           | `existingFiles={[{ id, name, size, url }]}`; load them your way                                                 |
+| `isRemovable` / `removedIds={(id) => …}`                                           | `removable` / `onRemoveExisting={(file) => …}`                                                                  |
+| `onChange(files)`                                                                  | Same name; receives every selected file                                                                         |
+| `multiple`, `accept`, `disabled`                                                   | Same names                                                                                                      |
+| Fields `file`, `originalname`, `originalFileSize`; no `chunkIndex` for small files | `chunk`, `fileName`, `fileSize`, always `chunkIndex` / `totalChunks`, plus `uploadId`; rename with `fieldNames` |
+| One request at a time for all files                                                | Files in parallel (`concurrency`), with retries and backoff                                                     |
+| Errors logged to the console and skipped                                           | Per-file error state, retry button and `onFileError`                                                            |
+| One overall progress animation                                                     | Progress per file plus an overall bar                                                                           |
+| Duplicates matched by name only                                                    | Matched by name, size and modified date                                                                         |
+| Base64 previews read with `FileReader`                                             | Object URLs, released with the row                                                                              |
+| Click-only drop zone `<div>`                                                       | Keyboard-accessible button, plus paste                                                                          |
+| Tailwind classes and injected `<style>` tags                                       | `styles.css` with `--fu-*` variables, `classNames` slots and `data-*` attributes                                |
+
+#### Notes
+
+- Chunks of one file are sent in order. Parallelism is across files.
+- Pausing aborts the chunk in flight, which is sent again on resume.
+- Progress is kept in memory: a page reload starts files over, although the server may still hold earlier chunks under the old `uploadId`.
+- Dropping a folder doesn't add the files inside it.

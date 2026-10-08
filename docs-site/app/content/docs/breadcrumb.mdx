@@ -1,0 +1,73 @@
+---
+category: "Components"
+---
+
+import { BreadcrumbWrapper } from "@/app/components/examples";
+
+# Breadcrumb
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a BreadCrumb
+```
+
+The `Breadcrumb` component provides a navigational aid that displays the user's current location within a website hierarchy. It enhances user experience by allowing easy navigation back to previous levels.
+
+### Props Table
+
+| Prop                | Type                          | Default                                       | Description                                                      |
+| ------------------- | ----------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
+| `showHome`          | `boolean`                     | `true`                                        | Determines whether to display a home link at the beginning.      |
+| `rootPath`          | `string`                      | `'/'`                                         | Specifies the URL path for the home link.                        |
+| `homeLabel`         | `string`                      | `'Home'`                                      | Sets the label for the home link.                                |
+| `transformLabel`    | `(segment: string) => string` | `undefined`                                   | Function to customize the transformation of path segment labels. |
+| `className`         | `string`                      | `''`                                          | Additional CSS classes for the breadcrumb container.             |
+| `activeLinkClass`   | `string`                      | `'font-medium text-gray-900 dark:text-white'` | CSS classes for the active (last) breadcrumb item.               |
+| `inactiveLinkClass` | `string`                      | `'text-gray-500 hover:text-gray-700'`         | CSS classes for inactive breadcrumb items.                       |
+
+### Example
+
+<BreadcrumbWrapper />
+
+### Usage Example
+
+Here's an example of how to integrate the `Breadcrumb` component into your project:
+
+```jsx
+import React from "react";
+import { Breadcrumb } from "your-library";
+
+const App = () => {
+  return (
+    <div>
+      <Breadcrumb className="mb-4" />
+      <h1>Current Page</h1>
+    </div>
+  );
+};
+
+export default App;
+```
+
+### Customization
+
+You can customize the appearance of the `Breadcrumb` component using Tailwind CSS or your preferred styling approach.
+
+#### Example: Custom Styling
+
+```jsx
+<Breadcrumb
+  className="bg-gray-100 p-2 rounded-md"
+  activeLinkClass="font-semibold text-blue-600"
+  inactiveLinkClass="text-gray-400 hover:text-gray-600"
+/>
+```
+
+This example customizes the breadcrumb appearance by adding background color, padding, and rounded corners. The active and inactive links are also styled distinctly.
+
+### Accessibility
+
+The `Breadcrumb` component includes an `aria-label="Breadcrumb"` to improve accessibility for screen readers, ensuring a better experience for all users.
+
+---

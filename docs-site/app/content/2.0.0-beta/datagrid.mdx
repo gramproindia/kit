@@ -1,0 +1,409 @@
+---
+title: "Data Grid"
+description: "A virtualized data grid for React 19 that stays fast with 100,000+ rows, in client or server mode."
+group: "Data"
+order: 2
+---
+
+## Installation
+
+```bash
+npx gbs-add-block@latest -a DataGrid -beta
+```
+
+The block copies the `data-grid` folder into your project, along with the small `shared` folder that every component imports. You own the code and can change it freely.
+There are **no peer dependencies** other than React.
+
+**Requirements**
+
+- React 19 and `@types/react` 19
+- TypeScript target ES2022 or newer, with `"jsx": "react-jsx"`
+- Browsers from 2024 or newer (the styles use `light-dark()`, `:has()` and the Popover API)
+
+Import the stylesheet once, for example in your global CSS:
+
+```css
+@import "../component-lib/gbs.css";
+```
+
+or in your root layout / entry file:
+
+```ts
+import "@/component-lib/gbs.css";
+```
+
+The DataGrid is a virtualized data grid for React 19 and Next.js. It renders only the rows and columns on screen, so it stays fast with 100,000+ rows. It supports sorting, typed column filters, global search, pagination, row selection, column resizing, reordering, pinning and hiding, inline editing with validation, CSV / Excel / PDF export, keyboard navigation, dark mode and right-to-left layouts. It works with data held in the browser (client mode) or fetched page by page from an API (server mode).
+
+#### Demo
+
+<DemoGrid />
+
+
+## Quick Start
+
+```tsx
+"use client";
+
+import { createColumnHelper, DataGrid } from "@/component-lib/data-grid";
+
+interface Employee {
+  id: number;
+  name: string;
+  department: string;
+  salary: number;
+  startDate: string;
+  active: boolean;
+}
+
+const col = createColumnHelper<Employee>();
+
+// Define columns outside the component, or wrap them in useMemo.
+const columns = [
+  col.field("id", { header: "ID", type: "number", width: 80, pin: "left" }),
+  col.field("name", { width: 200 }),
+  col.field("department", {
+    options: [
+      { label: "Engineering", value: "Engineering" },
+      { label: "Sales", value: "Sales" },
+    ],
+  }),
+  col.field("salary", {
+    type: "number",
+    format: (value) => `$${value.toLocaleString()}`,
+  }),
+  col.field("startDate", { header: "Start date", type: "date" }),
+  col.field("active", { type: "boolean" }),
+];
+
+export default function Employees({ data }: { data: Employee[] }) {
+  return (
+    <DataGrid
+      data={data}
+      columns={columns}
+      getRowId="id"
+      enableRowSelection
+      height={600}
+      onRowClick={(row) => console.log("Clicked", row)}
+    />
+  );
+}
+```
+
+<Notice message="Keep data, columns and getRowId stable. Define columns at module level or with useMemo, and pass getRowId as a property name such as getRowId='id'. A new columns array on every render makes the grid re-filter and re-sort each time. With React Compiler enabled this is handled for you." />
+
+
+## In this section
+
+The Data Grid has more surface than one page can hold comfortably. This page covers
+installation, the props, and the things every grid needs; the rest is split by subject:
+
+| Page | What is in it |
+| --- | --- |
+| [Columns & Cells](/datagrid-columns) | Column options, custom cell templates, inline editing |
+| [Sorting, Filtering & Server Data](/datagrid-data) | Sorting, filtering, search, selection, controlled state, server-side pagination |
+| [Asking in Words](/datagrid-ai) | The optional agent surface: `ai`, adapters, and WebMCP |
+| [Grid API & Export](/datagrid-api) | The `ref` API, CSV/Excel/PDF export, utilities |
+
+## Props Table
+
+### Data
+
+| Prop       | Type                                             | Default                        | Description                                                                                             |
+| ---------- | ------------------------------------------------ | ------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `data`     | `T[]`                                            | **required**                   | The rows to display. In server mode, the rows of the current page.                                      |
+| `columns`  | `ColumnDef<T>[]`                                 | **required**                   | Column definitions. See [Column Options](#column-options).                                              |
+| `getRowId` | `keyof T` \| `(row: T, index: number) => string` | `row.id`, else the array index | Stable row id used for selection, editing and React keys. Prefer a property name, e.g. `getRowId="id"`. |
+| `mode`     | `"client"` \| `"server"`                         | `"client"`                     | `client`: the grid sorts, filters and paginates `data`. `server`: `data` is already the current page.   |
+| `rowCount` | `number`                                         | `data.length`                  | Total number of rows on the server. Used for pagination in server mode.                                 |
+| `loading`  | `boolean`                                        | `false`                        | Shows a loading bar and sets `aria-busy`. Existing rows stay visible while loading.                     |
+
+### State
+
+| Prop            | Type                                         | Default | Description                                                                                                                      |
+| --------------- | -------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `initialState`  | `Partial<GridState>`                         | —       | Starting state (sorting, filters, page size, column layout, …). The grid manages it afterwards.                                  |
+| `state`         | `Partial<GridState>`                         | —       | Controlled state. Keys you pass here are owned by you: the grid reports changes through `onStateChange` but does not apply them. |
+| `onStateChange` | `(next: GridState, prev: GridState) => void` | —       | Called on every state change (sorting, filters, selection, column layout, density, …).                                           |
+| `onQueryChange` | `(query: GridQuery) => void`                 | —       | Called when sorting, filters, search or pagination change. Use it to fetch data in server mode.                                  |
+
+### Features
+
+| Prop                     | Type                               | Default              | Description                                                                      |
+| ------------------------ | ---------------------------------- | -------------------- | -------------------------------------------------------------------------------- |
+| `enablePagination`       | `boolean`                          | `true`               | Shows the pagination bar. When `false`, all rows scroll in one virtualized list. |
+| `pageSizeOptions`        | `number[]`                         | `[25, 50, 100, 250]` | Choices in the "Rows per page" select. The default page size is 50.              |
+| `enableSorting`          | `boolean`                          | `true`               | Header click, Enter key and the column menu sort columns.                        |
+| `enableMultiSort`        | `boolean`                          | `true`               | Shift + click (or Shift + Enter) adds a column to the sort.                      |
+| `enableFiltering`        | `boolean`                          | `true`               | Shows the filter form in the column menu.                                        |
+| `enableColumnResizing`   | `boolean`                          | `true`               | Drag the header edge to resize. Escape while dragging abandons it; double-click the edge resets the width. |
+| `enableColumnReordering` | `boolean`                          | `true`               | Drag headers to reorder, or use "Move earlier / later" in the column menu.       |
+| `enableColumnPinning`    | `boolean`                          | `true`               | "Pin to start / end" in the column menu.                                         |
+| `enableColumnHiding`     | `boolean`                          | `true`               | "Hide column" in the column menu and the Columns toolbar menu.                   |
+| `enableRowSelection`     | `boolean` \| `(row: T) => boolean` | `false`              | Adds a checkbox column. Pass a function to allow selection only for some rows.   |
+| `selectionMode`          | `"single"` \| `"multiple"`         | `"multiple"`         | `single` keeps at most one row selected and hides the select-all checkbox.       |
+| `toolbar`                | `boolean` \| `ToolbarOptions`      | `true`               | Shows the toolbar. See [Toolbar Options](#toolbar-options).                      |
+
+### Events
+
+| Prop               | Type                                                 | Default | Description                                                                                                             |
+| ------------------ | ---------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `onRowClick`       | `(row: T, event: MouseEvent) => void`                | —       | Row click. Not fired for clicks on buttons, links, inputs, selects, labels or elements with `data-dg-interactive`.      |
+| `onRowDoubleClick` | `(row: T, event: MouseEvent) => void`                | —       | Row double-click, with the same exclusions.                                                                             |
+| `onCellEdit`       | `(event: CellEditEvent<T>) => void \| Promise<void>` | —       | Called when an edit is committed. Update your `data` here. Return a promise to show the pending value until it settles. |
+
+### Layout and Appearance
+
+| Prop              | Type                                                | Default                    | Description                                                                                         |
+| ----------------- | --------------------------------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------- |
+| `height`          | `number` \| `string`                                | `520`                      | Height of the scrolling area. Ignored when `autoHeight` is set.                                     |
+| `autoHeight`      | `boolean`                                           | `false`                    | Grow to fit all rows instead of scrolling. Use with pagination or small data sets.                  |
+| `rowHeight`       | `number`                                            | from density: 32 / 40 / 52 | Fixed row height in pixels.                                                                         |
+| `headerHeight`    | `number`                                            | `max(40, rowHeight)`       | Header row height in pixels.                                                                        |
+| `emptyState`      | `ReactNode`                                         | built-in message           | Shown when there are no rows.                                                                       |
+| `getRowClassName` | `(row: T, rowIndex: number) => string \| undefined` | —                          | Extra class name per row.                                                                           |
+| `classNames`      | `Partial<Record<GridSlot, string>>`                 | —                          | Class names for `root`, `toolbar`, `viewport`, `header`, `headerCell`, `row`, `cell`, `pagination`. |
+| `className`       | `string`                                            | —                          | Class name for the root element.                                                                    |
+| `style`           | `CSSProperties`                                     | —                          | Inline style for the root element (e.g. CSS variables).                                             |
+| `locale`          | `string`                                            | browser locale             | BCP 47 locale for dates and numbers, e.g. `"en-IN"`.                                                |
+| `localeText`      | `Partial<LocaleText>`                               | English                    | Overrides UI text. See [Locale Text](#locale-text).                                                 |
+| `aria-label`      | `string`                                            | `"Data grid"`              | Accessible name of the grid.                                                                        |
+| `exportFileName`  | `string`                                            | `"export"`                 | Default file name for exports.                                                                      |
+| `ref`             | `Ref<GridApi<T>>`                                   | —                          | Imperative API. See [Grid API](#grid-api-ref).                                                      |
+
+### Toolbar Options
+
+Pass an object to `toolbar` to choose what the toolbar shows. Omitted options default to `true`.
+
+| Option        | Type        | Default | Description                                                            |
+| ------------- | ----------- | ------- | ---------------------------------------------------------------------- |
+| `search`      | `boolean`   | `true`  | Global search box.                                                     |
+| `filterChips` | `boolean`   | `true`  | Chips for active filters, each with a remove button, plus "Clear all". |
+| `columns`     | `boolean`   | `true`  | "Columns" menu to show or hide columns and reset the layout.           |
+| `density`     | `boolean`   | `true`  | "Density" menu: compact, standard, comfortable.                        |
+| `export`      | `boolean`   | `true`  | "Export" menu: CSV, Excel, PDF.                                        |
+| `start`       | `ReactNode` | —       | Custom content at the start of the toolbar.                            |
+| `end`         | `ReactNode` | —       | Custom content at the end of the toolbar.                              |
+
+```tsx
+<DataGrid
+  data={data}
+  columns={columns}
+  toolbar={{
+    density: false,
+    end: <button onClick={openCreateDialog}>Add employee</button>,
+  }}
+/>
+```
+
+
+## Keyboard Navigation
+
+The grid follows the WAI-ARIA grid pattern. One cell is focusable at a time; **Tab** moves focus into and out of the grid.
+
+| Keys                                 | Action                                                                                         |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| **Arrow keys**                       | Move between cells, including the header row.                                                  |
+| **Home** / **End**                   | First / last cell in the row.                                                                  |
+| **Ctrl + Home** / **Ctrl + End**     | First header cell / last cell of the last row.                                                 |
+| **Page Up** / **Page Down**          | Move up / down by a screenful of rows.                                                         |
+| **Enter** (header)                   | Sort the column. **Shift + Enter** adds it to the sort.                                        |
+| **Alt + ↓** or **Menu key** (header) | Open the column menu.                                                                          |
+| **Enter** / **F2** (cell)            | Start editing, or move focus into a control inside the cell.                                   |
+| **Space**                            | Toggle row selection (**Shift + Space** selects a range). On the checkbox header, toggles all. |
+| **Ctrl / Cmd + A**                   | Select all rows.                                                                               |
+| **Ctrl / Cmd + C**                   | Copy selected rows, or the focused cell.                                                       |
+| **Escape**                           | Cancel editing, return focus from a control to its cell, or abandon a column resize in progress. |
+
+
+## Styling and Theming
+
+The grid ships with default styles in `styles.css`. Rules ship **unlayered**, so a framework reset cannot strip them and a utility class passed through `className` still overrides them. Import the generated `gbs.css` once — see [Theming](/theming#styles-and-cascade-layers).
+
+```tsx
+<DataGrid
+  data={data}
+  columns={columns}
+  className="rounded-xl shadow-sm"
+  classNames={{
+    headerCell: "uppercase tracking-wide",
+    row: "hover:bg-indigo-50",
+  }}
+  getRowClassName={(row) => (row.active ? undefined : "opacity-60")}
+/>
+```
+
+#### CSS variables
+
+Override them on `.dg-root`, any ancestor, or through `style`.
+
+Every `--dg-*` below first looks for the shared `--gbs-*` variable of the same name, so one
+palette on `:root` themes the grid and every other component together:
+
+```css
+:root {
+  --gbs-accent: #7c3aed;
+  --gbs-radius: 12px;
+  --gbs-font-size: 14px;
+}
+```
+
+Set `--dg-*` when you want to change the grid alone, or to override a shared value for it:
+
+```css
+.dg-root {
+  --dg-accent: #7c3aed;
+  --dg-radius: 12px;
+  --dg-font-size: 14px;
+}
+```
+
+| Variable                                       | Used for                                    |
+| ---------------------------------------------- | ------------------------------------------- |
+| `--dg-font-size`                               | Base font size (default `13px`).            |
+| `--dg-bg`, `--dg-fg`                           | Background and text color.                  |
+| `--dg-muted`                                   | Secondary text.                             |
+| `--dg-border`, `--dg-border-subtle`            | Outer / header borders and row separators.  |
+| `--dg-header-bg`, `--dg-header-fg`             | Header row.                                 |
+| `--dg-row-alt`                                 | Alternate row background.                   |
+| `--dg-row-hover`                               | Row hover background.                       |
+| `--dg-row-selected`, `--dg-row-selected-hover` | Selected rows.                              |
+| `--dg-hover`                                   | Hover background of buttons and menu items. |
+| `--dg-input-bg`                                | Inputs, search box and editors.             |
+| `--dg-accent`, `--dg-accent-fg`                | Primary color and text on it.               |
+| `--dg-accent-soft`, `--dg-accent-strong`       | Filter chips.                               |
+| `--dg-focus`                                   | Focus and editing rings.                    |
+| `--dg-danger`                                  | Validation errors.                          |
+| `--dg-pin-shadow`                              | Shadow at the edge of pinned columns.       |
+| `--dg-shadow`                                  | Popover shadow.                             |
+| `--dg-radius`                                  | Corner radius.                              |
+| `--dg-cell-px`                                 | Horizontal cell padding (default `12px`).   |
+
+#### Dark mode
+
+Colors follow the page's `color-scheme`. To force a scheme, put `class="dark"` or `data-theme="dark"` (or `"light"`) on an ancestor such as `<html>`.
+
+#### Data attributes
+
+Use these to style states, for example `.dg-row[data-selected]` or Tailwind's `data-[active]:`.
+
+| Element                         | Attributes                                                                                                                                     |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root (`.dg-root`)               | `data-density`, `data-stale` (while filtering large data), `data-resizing`                                                                     |
+| Row (`.dg-row`)                 | `data-selected`, `data-odd`, `data-row-index`, `aria-selected`                                                                                 |
+| Cell (`.dg-cell`)               | `data-active`, `data-editable`, `data-editing`, `data-pending`, `data-invalid`, `data-pinned`, `data-pin-edge`, `data-align`, `data-col-index` |
+| Header cell (`.dg-header-cell`) | `aria-sort`, `data-sortable`, `data-active`, `data-pinned`, `data-pin-edge`, `data-align`, `data-drop` (while dragging)                        |
+
+
+## Locale Text
+
+Override any text with `localeText`. Dates and numbers use the `locale` prop.
+
+```tsx
+<DataGrid
+  locale="de-DE"
+  localeText={{
+    searchPlaceholder: "Suchen…",
+    noRows: "Keine Daten",
+    selected: (count) => `${count} ausgewählt`,
+    pageRange: (from, to, total) => `${from}–${to} von ${total}`,
+  }}
+/>
+```
+
+| Key                  | Default                                                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `gridLabel`          | `"Data grid"`                                                                                                  |
+| `search`             | `"Search"`                                                                                                     |
+| `searchPlaceholder`  | `"Search…"`                                                                                                    |
+| `columns`            | `"Columns"`                                                                                                    |
+| `resetColumns`       | `"Reset columns"`                                                                                              |
+| `export`             | `"Export"`                                                                                                     |
+| `exportCsv`          | `"CSV"`                                                                                                        |
+| `exportExcel`        | `"Excel (.xlsx)"`                                                                                              |
+| `exportPdf`          | `"PDF (.pdf)"`                                                                                                 |
+| `print`              | `"Print…"`                                                                                                     |
+| `density`            | `"Density"`                                                                                                    |
+| `densityCompact`     | `"Compact"`                                                                                                    |
+| `densityStandard`    | `"Standard"`                                                                                                   |
+| `densityComfortable` | `"Comfortable"`                                                                                                |
+| `selected`           | `(count) => "{count} selected"`                                                                                |
+| `clearSelection`     | `"Clear"`                                                                                                      |
+| `clearFilters`       | `"Clear all"`                                                                                                  |
+| `removeFilter`       | `(label) => "Remove filter: {label}"`                                                                          |
+| `filtered`           | `"Filtered"`                                                                                                   |
+| `noRows`             | `"No rows"`                                                                                                    |
+| `noResults`          | `"No rows match the current filters"`                                                                          |
+| `loading`            | `"Loading…"`                                                                                                   |
+| `pagination`         | `"Pagination"`                                                                                                 |
+| `rowsPerPage`        | `"Rows per page"`                                                                                              |
+| `pageRange`          | `(from, to, total) => "{from}–{to} of {total}"`                                                                |
+| `page`               | `"Page"`                                                                                                       |
+| `pageOf`             | `(total) => "of {total}"`                                                                                      |
+| `firstPage`          | `"First page"`                                                                                                 |
+| `previousPage`       | `"Previous page"`                                                                                              |
+| `nextPage`           | `"Next page"`                                                                                                  |
+| `lastPage`           | `"Last page"`                                                                                                  |
+| `columnMenu`         | `(header) => "{header} column options"`                                                                        |
+| `sortAscending`      | `"Sort ascending"`                                                                                             |
+| `sortDescending`     | `"Sort descending"`                                                                                            |
+| `clearSort`          | `"Clear sort"`                                                                                                 |
+| `pinLeft`            | `"Pin to start"`                                                                                               |
+| `pinRight`           | `"Pin to end"`                                                                                                 |
+| `unpin`              | `"Unpin"`                                                                                                      |
+| `hideColumn`         | `"Hide column"`                                                                                                |
+| `moveLeft`           | `"Move earlier"`                                                                                               |
+| `moveRight`          | `"Move later"`                                                                                                 |
+| `filter`             | `"Filter"`                                                                                                     |
+| `filterValue`        | `"Value"`                                                                                                      |
+| `filterFrom`         | `"From"`                                                                                                       |
+| `filterTo`           | `"To"`                                                                                                         |
+| `filterOperator`     | `"Condition"`                                                                                                  |
+| `applyFilter`        | `"Apply"`                                                                                                      |
+| `clearFilter`        | `"Clear"`                                                                                                      |
+| `operators`          | Labels for every filter operator, e.g. `contains: "contains"`, `in: "is any of"` (pass all 16 when overriding) |
+| `yes` / `no`         | `"Yes"` / `"No"`                                                                                               |
+| `selectRow`          | `"Select row"`                                                                                                 |
+| `selectAllRows`      | `"Select all rows"`                                                                                            |
+
+
+## Next.js
+
+- Every component file starts with `"use client"`, so `DataGrid` works in the App Router.
+- Column definitions contain functions, which can't be passed from a Server Component to a Client Component. Define columns in a client module (a file with `"use client"`) and render the grid there.
+- A Server Component can fetch the first page and pass `data`, `rowCount` and `initialState` (plain values) to that client component.
+
+
+## Migrating from the Previous Grid
+
+| Previous                                                                       | New                                                                                      |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `dataSource` (array)                                                           | `data`                                                                                   |
+| `dataSource` (URL string)                                                      | Fetch in your component and pass `data`. The grid no longer fetches.                     |
+| `lazy` + `pageSettings.totalCount`                                             | `mode="server"` + `rowCount`                                                             |
+| `pageSettings.pageNumber` / `pageSize`                                         | `initialState={{ pagination: { pageIndex: 0, pageSize: 10 } }}`                          |
+| `enableSearch`, `enableExcelExport`, `enablePdfExport`                         | `toolbar={{ search, export }}` (both on by default)                                      |
+| `excelName`, `pdfName`                                                         | `exportFileName`, or `fileName` in `exportExcel()` / `exportPdf()`                       |
+| `pdfOptions`                                                                   | `exportPdf({ orientation, paperSize, margin, fontSize, header, footer, theme })`          |
+| `selectAll`, `onSelectRow`                                                     | `enableRowSelection`, `onStateChange` / `getSelectedRows()`                              |
+| `isFetching`                                                                   | `loading`                                                                                |
+| `rowChange` (row click)                                                        | `onRowClick`                                                                             |
+| `rowChange` (from templates)                                                   | Pass your own callbacks to the component in `cell`                                       |
+| `pageStatus`, `activeFilterArrayValue`, `searchParamValue`, `onSearch`         | `onQueryChange`                                                                          |
+| `initialFilters`, `initialSearchParam`                                         | `initialState={{ filters, globalFilter }}`                                               |
+| `showTotalPages`                                                               | Always shown ("1–25 of 1,000")                                                           |
+| `onToolbarButtonClick`                                                         | `toolbar={{ export: false, end: <YourButtons /> }}` and the Grid API                     |
+| `gridContainerClass`, `tableHeaderStyle`, `gridColumnStyle`, other class props | `className`, `classNames`, `getRowClassName`, CSS variables                              |
+| Column `headerText`                                                            | `header`                                                                                 |
+| Column `template`                                                              | `cell`                                                                                   |
+| Column `filter: true`                                                          | Filtering is on by default; use `filterable: false` to turn it off                       |
+| Column `tooltip`                                                               | Not built in. Use `cell`, e.g. `cell: ({ value }) => <span title={value}>{value}</span>` |
+| Column `showInPdf`, `showInExcel`                                              | `exportable`, `exportValue`                                                              |
+| Filter `{ filterColumn, filterCondition, filterValue }`                        | `{ columnId, operator, value }`                                                          |
+| `ref.goToPage(n)`, `nextPage()`, `handleSearch()`, `getActiveFilters()`        | `setPageIndex(n)`, `setGlobalFilter()`, `getState().filters`                             |
+| `usePaginatedData` hook                                                        | Not needed. See [Server Side Pagination](#server-side-pagination).                       |
+
+#### Notes
+
+- Rows have a fixed height (set by density or `rowHeight`). Variable-height rows are not supported.
+- Grouping, tree data and pivoting are not supported yet.
+- Client mode handles 100,000+ rows. For millions of rows, use server mode.

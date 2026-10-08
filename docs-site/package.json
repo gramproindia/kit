@@ -1,0 +1,44 @@
+{
+  "name": "next_docs_headless",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/generate-demos.mjs && next dev --turbopack",
+    "build": "node scripts/generate-demos.mjs && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "gen:demos": "node scripts/generate-demos.mjs"
+  },
+  "dependencies": {
+    "@grampro/headless-helpers": "^1.0.19",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
+    "@next/mdx": "^16.3.5",
+    "@supabase/supabase-js": "^2.55.0",
+    "@types/mdx": "^2.0.13",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "clsx": "^2.1.1",
+    "gray-matter": "^4.0.3",
+    "lucide-react": "^0.525.0",
+    "mermaid": "^11.15.0",
+    "motion": "^12.23.12",
+    "next": "16.3.5",
+    "next-mdx-remote": "6.0.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-syntax-highlighter": "^15.6.1",
+    "rehype-pretty-code": "^0.14.3",
+    "remark-gfm": "^4.0.1",
+    "shiki": "^4.2.0",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.13",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

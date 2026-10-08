@@ -1,0 +1,234 @@
+---
+category: "Components"
+---
+
+import { FileUploaderWrapper } from "@/components/examples/UploaderWrapper";
+
+# File Uploader
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Uploader
+```
+
+The `FileUploader` component allows users to upload files either through a click or by dragging and dropping. It provides features such as image previews, error handling for file size and count, and a customizable interface.
+
+### Props Table
+
+| Prop               | Type       | Default Value             | Description                                                                     |
+| ------------------ | ---------- | ------------------------- | ------------------------------------------------------------------------------- |
+| `showImagePreview` | `boolean`  | `false`                   | Whether to show a preview for uploaded images.                                  |
+| `multiple`         | `boolean`  | `true`                    | Indicates whether multiple files can be uploaded.                               |
+| `onChange`         | `function` | `undefined`               | Callback function triggered when files are uploaded or removed.                 |
+| `startUpload`      | `boolean`  | `false`                   | Indicates if the upload process is active, triggering animations or indicators. |
+| `selectedFiles`    | `File[]`   | `[]`                      | Pre-selected files for the uploader (for editing purposes).                     |
+| `accept`           | `string`   | `undefined`               | Specifies the types of files that the uploader can accept.                      |
+| `fileCount`        | `number`   | `Infinity`                | Maximum number of files that can be uploaded at once.                           |
+| `disabled`         | `boolean`  | `false`                   | Disables the file input when set to `true`.                                     |
+| `inputFileSize`    | `number`   | `undefined`               | Maximum allowed file size in MB for uploaded files.                             |
+| `apiURL`           | `string`   | `"http://localhost:8080"` | URL of the API endpoint for uploading files.                                    |
+| `chunk_size`       | `number`   | `1024*1024 (1 Mb)`        | Size of each file chunk during upload, in bytes.                                |
+| `uploadedFileId`   | `Array`    | `undefined`               | Callback function to receive the array of uploaded file IDs.                    |
+| `documentId`       | `String[]` | `[]`                      | Array of document IDs associated with uploaded files.                           |
+| `isRemovable`      | `boolean`  | `true`                    | Allows removal of uploaded files if true.                                       |
+| `removedIds`       | `function` | `undefined` \| `[]`       | Callback function to handle IDs of removed files.                               |
+
+### Example
+
+<FileUploaderWrapper />
+
+### Usage Guide
+
+To use the `FileUploader` component, import it and include it in your React application. Below is an example of how to implement the `FileUploader` component:
+
+```jsx
+import React from "react";
+import { FileUploader } from "./path/to/FileUploader";
+
+const App = () => {
+  const handleFileChange = (files) => {
+    console.log("Uploaded files:", files);
+  };
+
+  return (
+    <div className="App">
+      <FileUploader
+        showImagePreview={true}
+        multiple={true}
+        onChange={handleFileChange}
+        startUpload={false}
+        fileCount={5}
+        inputFileSize={2} // Max size in MB
+      />
+    </div>
+  );
+};
+
+export default App;
+```
+
+#### Showing uploaded files
+
+```jsx
+import React, { useState } from "react";
+import { FileUploader } from "./component-lib/uploader/Uploader";
+
+export default function page() {
+  const [startUpload, setStartUpload] = useState(false);
+  const [documentId, setDocumentId] = useState<string[]>([]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center flex-col">
+      <FileUploader
+        multiple
+        showImagePreview
+        apiURL="http://localhost:8080/getByID"
+        startUpload={startUpload}
+        documentId={documentId} // pass the document ID array
+        removedIds={(fileId: any) => {
+          console.log(fileId); // removed id
+        }}
+      />
+      <button
+        className="bg-black text-white w-[450px] mt-2 rounded-md py-2"
+        onClick={() => {
+          setStartUpload(!startUpload);
+        }}
+      >
+        Upload Files
+      </button>
+    </div>
+  );
+}
+```
+
+### Sample Usage with Go Backend for chunked files
+
+1.  Set up Front End
+
+    Install the hook `useChunkedUpload` for chunking large files
+
+```
+npx gbs-add-block useChunkedUpload
+```
+
+2. Once install you can use the hook as follows, this will handle all the mundane stuff in uploading files.
+
+```tsx
+import { Button } from "component-lib/button";
+import { FileUploader } from "component-lib/uploader";
+import { useState } from "react";
+import { useChunkedUpload } from "path_to_hook";
+
+export default function Upload() {
+  const [files, setFiles] = useState<File[]>([]);
+
+  const { uploadFiles, isUploading } = useChunkedUpload({
+    baseUrl: "http://localhost:8080/upload",
+    chunkSize: 1024 * 1024,
+    onProgress: (fileName, progress) => {
+      console.log(`${fileName}: ${progress.toFixed(1)}%`);
+    },
+    onComplete: (fileName, result) => {
+      console.log(`✅ ${fileName} uploaded successfully!`, result);
+    },
+    onError: (fileName, error) => {
+      console.error(`❌ Failed to upload ${fileName}:`, error);
+    },
+  });
+
+  const handleUpload = async () => {
+    try {
+      await uploadFiles(files);
+    } catch (error: any) {}
+  };
+
+  return (
+    <div className="p-4 max-w-2xl mx-auto">
+      <h2 className="text-xl font-bold mb-4">Upload with Notifications</h2>
+
+      <FileUploader
+        multiple={true}
+        onChange={(files: any) => {
+          setFiles(files);
+        }}
+        fileCount={5}
+        showImagePreview
+      />
+
+      <Button
+        onClick={handleUpload}
+        disabled={isUploading || files.length === 0}
+        className="mt-4 bg-green-500 text-white p-3 rounded-lg w-full"
+      >
+        {isUploading ? "Uploading..." : `Upload ${files.length} Files`}
+      </Button>
+    </div>
+  );
+}
+```
+
+3.  &#x20;For the backend
+
+    Install the module `go get github.com/anandhuremanan/chunked-uploader` , this will help managing the re stitching of files send as chunks and saves on disk and send backs a metadata of the uploaded file.
+
+```go
+package main
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+
+	chunkedUploader "github.com/anandhuremanan/chunked-uploader" // Import it
+)
+
+func uploadHandler(w http.ResponseWriter, r *http.Request) {
+	result, err := chunkedUploader.UploaderHelper(r) // Usage of the module
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(result)
+}
+
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	}
+}
+
+func main() {
+	http.HandleFunc("/upload", corsMiddleware(uploadHandler))
+
+	log.Println("Server starting on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+```
+
+#### Key Functionalities
+
+- File Upload via Drag and Drop: Users can either click to upload files or drag and drop them into the designated area.
+- Image Preview: If enabled, the component displays image previews for uploaded files.
+- File Size and Count Validation: The component checks if uploaded files exceed the maximum file size and limits the total number of files based on the `fileCount` prop.
+- Dynamic File Removal: Users can easily remove uploaded files from the list.
+- Customizable File Types: The `accept` prop allows you to specify which file types are allowed for upload.
+- Loading Indicator: The `startsUpload` prop can be used to show an animation while files are being uploaded.
+
+#### Notes
+
+- Ensure to pass a valid callback to the `onChange` prop to handle the uploaded files effectively.
+- Customize the `fileCount` and `inputFileSize` props to suit your application's requirements.
+- To display file icons and previews correctly, ensure the `GetFileIcon` and `AestheticProcessingAnimationWithStyles` components are implemented appropriately.

@@ -1,0 +1,45 @@
+---
+category: "Components"
+---
+
+import { CardWrapper } from "@/app/components/examples";
+
+# Card
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Card
+```
+
+The `Card` component is a reusable container element that helps group related UI content. It is customizable and supports adding styles through props, making it ideal for displaying content blocks, widgets, or sections in your application.
+
+### Props Table
+
+| Prop        | Type        | Default                      | Description                                                 |
+| ----------- | ----------- | ---------------------------- | ----------------------------------------------------------- |
+| `children`  | `ReactNode` | —                            | The content to be rendered inside the Card.                 |
+| `cardClass` | `string`    | `"shadow-md rounded-xl p-4"` | Tailwind or custom CSS classes to style the card container. |
+
+### Example
+
+<CardWrapper />
+
+### Usage Example
+
+Here’s an example of how to use the `Card` component in your project:
+
+```tsx
+import { Card } from "your-library";
+
+const App = () => {
+  return (
+    <Card>
+      <h2 className="text-lg font-semibold">Card Title</h2>
+      <p>This is the card content.</p>
+    </Card>
+  );
+};
+
+export default App;
+```

@@ -1,0 +1,47 @@
+---
+title: "Default Design Pattern"
+description: "Understand the default design pattern used in the Headless UI Component Library"
+category: "Introduction"
+order: 2
+---
+
+# Default Design Pattern
+
+The Headless UI Component Library follows a default design pattern that utilizes a **black** primary color for all components. This design choice provides a clean and modern aesthetic, making it easy to build upon.
+
+#### Customizing the Design
+
+You can easily override the default styles using **Tailwind CSS**. This flexibility allows you to maintain a consistent look and feel throughout your application while adapting components to your brand's unique style.
+
+#### How to Override Default Styles:
+
+1. **Install Tailwind CSS** (if you haven’t already): To install Tailwind CSS, follow the [official installation guide](https://tailwindcss.com/docs/installation).
+2. **Configure Tailwind CSS(Optional):** Update your `tailwind.config.js` file to customize the color palette, including the primary color:
+
+   ```javascript
+   module.exports = {
+     theme: {
+       extend: {
+         colors: {
+           primary: "#your-custom-color",
+         },
+       },
+     },
+   };
+   ```
+
+3. **Use Tailwind Classes:** When using components from the library, you can apply Tailwind utility classes directly to customize their appearance. For example:
+
+   ```jsx
+   import { YourComponent } from "your-library";
+
+   function App() {
+     return (
+       <YourComponent className="bg-primary text-white">
+         Hello, World!
+       </YourComponent>
+     );
+   }
+   ```
+
+This approach allows for a cohesive design across your application while leveraging the power of Tailwind CSS for customization.

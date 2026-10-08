@@ -1,0 +1,243 @@
+---
+title: "Columns & Cells"
+description: "Column options, custom cell templates and inline editing for the Data Grid."
+group: "Data"
+order: 2.1
+parent: "datagrid"
+---
+
+Everything about what a column is and what a cell shows. Start at [Data Grid](/datagrid) for installation and the props table.
+
+## Column Options
+
+Columns can be written as plain objects (`ColumnDef<T>[]`) or with `createColumnHelper`, which infers the type of `value` in `cell`, `format`, `validate` and `sortFn` from the field.
+
+```tsx
+const col = createColumnHelper<Employee>();
+
+col.field("salary", { type: "number" }); // value: number
+col.accessor("fullName", (row) => `${row.first} ${row.last}`); // value: string
+col.display("actions", { cell: ({ row }) => <Actions row={row} /> }); // no value
+```
+
+| Option            | Type                                                                                                          | Default                                                | Description                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `field`           | `keyof T`                                                                                                     | —                                                      | Property of the row to display.                                                                 |
+| `accessor`        | `(row: T) => V`                                                                                               | —                                                      | Computes the value instead of reading a field. Requires `id`.                                   |
+| `id`              | `string`                                                                                                      | `field`                                                | Unique column id. Required for accessor and display-only columns. Duplicate ids throw an error. |
+| `header`          | `string`                                                                                                      | from the id (`startDate` → "Start Date")               | Header text.                                                                                    |
+| `type`            | `"string"` \| `"number"` \| `"date"` \| `"boolean"`                                                           | `"string"`                                             | Controls filter operators, sorting, alignment, the built-in editor and Excel cell types.        |
+| `options`         | `{ label: string; value: string \| number }[]`                                                                | —                                                      | Fixed choices. Displays labels, sorts by label, adds an "is any of" filter and a select editor. |
+| `width`           | `number`                                                                                                      | `160`                                                  | Initial width in pixels.                                                                        |
+| `minWidth`        | `number`                                                                                                      | `60`                                                   | Minimum width when resizing.                                                                    |
+| `maxWidth`        | `number`                                                                                                      | `1200`                                                 | Maximum width when resizing.                                                                    |
+| `align`           | `"start"` \| `"center"` \| `"end"`                                                                            | `end` for numbers, `center` for booleans, else `start` | Horizontal alignment of header and cells.                                                       |
+| `pin`             | `"left"` \| `"right"`                                                                                         | —                                                      | Initially pinned to the start or end.                                                           |
+| `hidden`          | `boolean`                                                                                                     | `false`                                                | Initially hidden.                                                                               |
+| `format`          | `(value: V, row: T) => string`                                                                                | built-in                                               | Display text. Also used by search, text filters, CSV, PDF and copy.                             |
+| `cell`            | `(ctx: CellContext<T, V>) => ReactNode`                                                                       | text                                                   | Custom cell content (buttons, inputs, badges, …). See [Custom Cells](#custom-cells-templates).  |
+| `sortable`        | `boolean`                                                                                                     | `true` (data columns)                                  | Allow sorting this column.                                                                      |
+| `sortFn`          | `(a: V, b: V, rowA: T, rowB: T) => number`                                                                    | built-in                                               | Custom comparison. Return a negative number, zero or a positive number.                         |
+| `filterable`      | `boolean`                                                                                                     | `true` (data columns)                                  | Show the filter form for this column.                                                           |
+| `filterFn`        | `(value: V, filter: ColumnFilter, row: T) => boolean`                                                         | built-in                                               | Custom filter matching.                                                                         |
+| `searchable`      | `boolean`                                                                                                     | `true` (data columns)                                  | Include this column in the global search.                                                       |
+| `resizable`       | `boolean`                                                                                                     | `true`                                                 | Allow resizing.                                                                                 |
+| `reorderable`     | `boolean`                                                                                                     | `true`                                                 | Allow reordering.                                                                               |
+| `pinnable`        | `boolean`                                                                                                     | `true`                                                 | Allow pinning from the column menu.                                                             |
+| `hideable`        | `boolean`                                                                                                     | `true`                                                 | Allow hiding.                                                                                   |
+| `editable`        | `boolean` \| `(row: T) => boolean`                                                                            | `false`                                                | Allow inline editing. See [Editing](#inline-editing).                                           |
+| `editor`          | `"text"` \| `"number"` \| `"date"` \| `"select"` \| `"checkbox"` \| `(props: EditorProps<T, V>) => ReactNode` | from `type` / `options`                                | Built-in editor, or a custom editor component.                                                  |
+| `validate`        | `(value: V, row: T) => string \| null \| undefined`                                                           | —                                                      | Return an error message to reject an edit.                                                      |
+| `exportable`      | `boolean`                                                                                                     | `true` for data columns                                | Include in CSV, Excel, PDF and copy.                                                            |
+| `exportValue`     | `(row: T) => string \| number \| boolean \| Date \| null`                                                     | the cell value                                         | Value used for export instead of the cell value. Also makes display-only columns exportable.    |
+| `headerClassName` | `string`                                                                                                      | —                                                      | Class name for the header cell.                                                                 |
+| `cellClassName`   | `string` \| `(ctx: CellContext<T, V>) => string \| undefined`                                                 | —                                                      | Class name for cells, optionally based on the row.                                              |
+
+"Data columns" are columns with a `field` or `accessor`. Display-only columns (only `id` and `cell`) cannot be sorted, filtered or searched.
+
+#### CellContext
+
+Passed to `cell` and `cellClassName`.
+
+| Property   | Type                | Description                                                      |
+| ---------- | ------------------- | ---------------------------------------------------------------- |
+| `row`      | `T`                 | The row object.                                                  |
+| `rowId`    | `string`            | The row id from `getRowId`.                                      |
+| `rowIndex` | `number`            | Index of the row in the displayed rows (the page).               |
+| `value`    | `V`                 | The cell value (from `field` or `accessor`).                     |
+| `column`   | `ResolvedColumn<T>` | The resolved column, including `id`, `header`, `type` and `def`. |
+
+
+## Custom Cells (Templates)
+
+`cell` replaces `template` from the previous grid. It can return any React content, including buttons, inputs and selects.
+
+```tsx
+"use client";
+
+import { useMemo } from "react";
+import { createColumnHelper, DataGrid } from "@/component-lib/data-grid";
+
+const col = createColumnHelper<Employee>();
+
+function RowActions({
+  row,
+  onEdit,
+  onDelete,
+}: {
+  row: Employee;
+  onEdit: (row: Employee) => void;
+  onDelete: (id: number) => void;
+}) {
+  return (
+    <div className="flex gap-2">
+      <button
+        className="rounded-lg bg-blue-500 px-2 py-1 text-white"
+        onClick={() => onEdit(row)}
+      >
+        Edit
+      </button>
+      <button
+        className="rounded-lg bg-red-500 px-2 py-1 text-white"
+        onClick={() => onDelete(row.id)}
+      >
+        Delete
+      </button>
+    </div>
+  );
+}
+
+export function EmployeeGrid({ data, onEdit, onDelete }: Props) {
+  const columns = useMemo(
+    () => [
+      col.field("id", { header: "ID", type: "number", width: 80 }),
+      col.field("name"),
+      col.display("actions", {
+        header: "Actions",
+        width: 160,
+        pin: "right",
+        cell: ({ row }) => (
+          <RowActions row={row} onEdit={onEdit} onDelete={onDelete} />
+        ),
+      }),
+    ],
+    [onEdit, onDelete],
+  );
+
+  return <DataGrid data={data} columns={columns} getRowId="id" />;
+}
+```
+
+**Inputs and selects inside cells**
+
+```tsx
+col.field("quantity", {
+  type: "number",
+  cell: ({ row, value }) => (
+    <input
+      type="number"
+      value={value}
+      onChange={(e) => updateRow(row.id, { quantity: e.target.valueAsNumber })}
+    />
+  ),
+});
+```
+
+Things to know:
+
+- Clicks on buttons, inputs, selects, links and labels inside a cell do not trigger `onRowClick`. Add `data-dg-interactive` to other clickable elements.
+- While focus is inside a control, the grid ignores arrow keys and Space, so the control works normally. Press **Enter** on a cell to move focus into its control, and **Escape** to return to the cell.
+- `cell` is called as a function, so you cannot call hooks directly inside it. Render a component instead: `cell: (ctx) => <MyCell {...ctx} />`.
+- Rows scrolled out of view are unmounted. Keep control values in your data or state, not in uncontrolled inputs.
+- Cells re-render when their row or the columns change. If a renderer depends on other state, add it to the `useMemo` dependencies.
+- Content must fit the fixed row height.
+
+
+## Inline Editing
+
+Mark columns as `editable` and update your data in `onCellEdit`. The grid never changes `data` itself.
+
+```tsx
+const columns = [
+  col.field("name", {
+    editable: true,
+    validate: (value) => (value.trim() ? null : "Name is required"),
+  }),
+  col.field("salary", {
+    type: "number",
+    editable: (row) => row.active,
+    validate: (value) =>
+      value === null || value < 0 ? "Enter a positive amount" : null,
+  }),
+  col.field("department", { editable: true, options: departmentOptions }), // select editor
+  col.field("startDate", { type: "date", editable: true }), // date editor
+  col.field("active", { type: "boolean", editable: true }), // checkbox editor
+];
+
+<DataGrid
+  data={employees}
+  columns={columns}
+  getRowId="id"
+  onCellEdit={async ({ rowId, columnId, value }) => {
+    await fetch(`/api/employees/${rowId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ [columnId]: value }),
+    });
+    setEmployees((prev) =>
+      prev.map((e) =>
+        String(e.id) === rowId ? { ...e, [columnId]: value } : e,
+      ),
+    );
+  }}
+/>;
+```
+
+| Action                       | Keys / mouse                      |
+| ---------------------------- | --------------------------------- |
+| Start editing                | Double-click, **Enter** or **F2** |
+| Commit and move down / up    | **Enter** / **Shift + Enter**     |
+| Commit and move right / left | **Tab** / **Shift + Tab**         |
+| Cancel                       | **Escape**                        |
+| Commit                       | Click outside the editor          |
+
+- The built-in editor is chosen from `editor`, otherwise: `options` → select, `number` → number input, `date` → date input, `boolean` → checkbox, anything else → text input.
+- The number editor returns a `number` (or `null` when empty). The date editor returns the same kind of value the cell had: a `Date`, a timestamp, or a `"YYYY-MM-DD"` string.
+- If `validate` returns a message, it is shown under the cell and the edit stays open.
+- If `onCellEdit` returns a promise, the cell shows the new value in italics until it resolves. If it rejects, the cell is outlined in red and the error is shown as a tooltip.
+
+#### CellEditEvent
+
+| Property        | Type      | Description                             |
+| --------------- | --------- | --------------------------------------- |
+| `row`           | `T`       | The row being edited (before the edit). |
+| `rowId`         | `string`  | The row id.                             |
+| `columnId`      | `string`  | The column id.                          |
+| `value`         | `unknown` | The new value.                          |
+| `previousValue` | `unknown` | The value before the edit.              |
+
+#### Custom editor
+
+```tsx
+col.field("rating", {
+  type: "number",
+  editable: true,
+  editor: ({ value, onChange, commit, cancel, error }) => (
+    <StarPicker
+      value={value}
+      onChange={(next) => commit(next)} // commit immediately with a new value
+      onCancel={cancel}
+      invalid={Boolean(error)}
+    />
+  ),
+});
+```
+
+| EditorProps property | Type                  | Description                                      |
+| -------------------- | --------------------- | ------------------------------------------------ |
+| `value`              | `V`                   | Current draft value.                             |
+| `row`                | `T`                   | The row.                                         |
+| `column`             | `ResolvedColumn<T>`   | The column.                                      |
+| `error`              | `string \| null`      | Validation message from the last commit attempt. |
+| `onChange`           | `(value: V) => void`  | Update the draft.                                |
+| `commit`             | `(value?: V) => void` | Commit the draft, or the given value.            |
+| `cancel`             | `() => void`          | Close without saving.                            |

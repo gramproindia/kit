@@ -1,0 +1,160 @@
+---
+category: "Components"
+---
+
+# Navbar
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Navbar
+```
+
+The `Navbar` component is a flexible and customizable navigation bar designed to be used in React applications. It supports nested menus, custom branding, search functionality, authentication buttons, and custom sections for additional UI elements.
+
+### Props
+
+The `Navbar` component accepts the following props:
+
+| Prop Name         | Type                      | Default     | Description                                                                |                              |
+| ----------------- | ------------------------- | ----------- | -------------------------------------------------------------------------- | ---------------------------- |
+| `brand`           | `object`                  | `{}`        | Defines the brand name and logo for the navbar.                            |                              |
+| `items`           | `Array`                   | `[]`        | Navigation items with optional nested menus.                               |                              |
+| `rightSection`    | `ReactNode`               | `null`      | Custom content for the right section (e.g., theme toggles, notifications). |                              |
+| `centerSection`   | `ReactNode`               | `null`      | Custom content for the center section (e.g., tabs).                        |                              |
+| `showSearchBar`   | `boolean`                 | `false`     | Enables a search bar in the navbar.                                        |                              |
+| `showAuthButtons` | `boolean`                 | `false`     | Displays login and signup buttons.                                         |                              |
+| `onSearch`        | `(query: string) => void` | `undefined` | Callback function when a search query is submitted.                        |                              |
+| `onLogin`         | `() => void`              | `undefined` | Callback function for login button click.                                  |                              |
+| `onSignup`        | `() => void`              | `undefined` | Callback function for signup button click.                                 |                              |
+| `variant`         | \`'light'                 | 'dark'\`    | `'light'`                                                                  | Theme variant of the navbar. |
+
+### Usage Examples
+
+#### Basic Navbar
+
+```jsx
+<Navbar
+  brand={{
+    name: "BrandName",
+    href: "/",
+    logo: (
+      <svg
+        className="h-6 w-6 text-blue-600"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+      </svg>
+    ),
+  }}
+  items={[
+    { id: "home", label: "Home", href: "/" },
+    { id: "features", label: "Features", href: "/features" },
+    {
+      id: "products",
+      label: "Products",
+      href: "#",
+      children: [
+        { id: "product-1", label: "Product 1", href: "/product-1" },
+        { id: "product-2", label: "Product 2", href: "/product-2" },
+      ],
+    },
+  ]}
+  showSearchBar={true}
+  showAuthButtons={true}
+  onSearch={(query) => console.log("Search query:", query)}
+  onLogin={() => console.log("Login clicked")}
+  onSignup={() => console.log("Signup clicked")}
+/>
+```
+
+#### Navbar with Custom Right Section
+
+```tsx
+<Navbar
+  brand={{ name: "BrandName", href: "/" }}
+  items={navItems}
+  rightSection={
+    <div className="flex items-center space-x-3">
+      <button className="p-2 rounded-full bg-gray-200 text-gray-700">🌙</button>
+      <button className="p-2">🔔</button>
+    </div>
+  }
+/>
+```
+
+#### Navbar with Custom Center Section (Tabs)
+
+```tsx
+const [activeTab, setActiveTab] = useState("home");
+
+<Navbar
+  brand={{ name: "BrandName", href: "/" }}
+  items={navItems}
+  centerSection={
+    <div className="hidden md:flex space-x-1 mx-4">
+      {["home", "trending", "subscriptions", "library"].map((tab) => (
+        <button
+          key={tab}
+          onClick={() => setActiveTab(tab)}
+          className={`px-4 py-2 text-sm rounded-md transition-colors ${
+            activeTab === tab ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
+          }`}
+        >
+          {tab.charAt(0).toUpperCase() + tab.slice(1)}
+        </button>
+      ))}
+    </div>
+  }
+  variant="dark"
+/>;
+```
+
+#### Rendering Nested Children
+
+```tsx
+const navItems = [
+  { id: "home", label: "Home", href: "/" },
+  { id: "features", label: "Features", href: "/features" },
+  {
+    id: "products",
+    label: "Products",
+    href: "#",
+    children: [
+      { id: "product-1", label: "Product 1", href: "/product-1" },
+      { id: "product-2", label: "Product 2", href: "/product-2" },
+    ],
+  },
+];
+
+<Navbar brand={{ name: "BrandName", href: "/" }} items={navItems} />;
+```
+
+### Customization
+
+#### Styling
+
+The `Navbar` component is styled using TailwindCSS. You can extend or override styles using utility classes.
+
+#### Extending with Custom Components
+
+You can pass a custom component as a menu item:
+
+```tsx
+{
+  id: "custom-item",
+  customComponent: (
+    <div className="px-3 py-2 flex items-center">
+      <button className="flex items-center text-sm font-medium focus:outline-none">
+        <span className="mr-1">Custom</span>
+        <span className="bg-red-500 text-white text-xs px-1 rounded-full">New</span>
+      </button>
+    </div>
+  ),
+},
+```
+
+### Conclusion
+
+The `Navbar` component is a powerful, customizable, and accessible navigation bar that allows developers to create complex menus, integrate authentication, and enhance UI functionality effortlessly.

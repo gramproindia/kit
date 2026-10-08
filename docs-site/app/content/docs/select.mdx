@@ -1,0 +1,82 @@
+---
+category: "Components"
+---
+
+# Select
+
+Installation
+
+```bash
+npx gbs-add-block@latest -a Select
+```
+
+The `Select` component is a customizable dropdown selection box that allows users to select a single item from a list. It features a search bar for filtering options, a clear selection button, and supports both static and dynamic item lists. This documentation details the component's props, usage, and main features.
+
+### Props Table
+
+| Prop           | Type                | Default Value         | Description                                                                           |
+| -------------- | ------------------- | --------------------- | ------------------------------------------------------------------------------------- |
+| `placeholder`  | `String`            | `"Select an Item..."` | Placeholder text displayed when no item is selected.                                  |
+| `items`        | `Array` \| `String` | `[]`                  | Array of items to select from or an API endpoint for dynamic loading of items.        |
+| `lazy`         | `Boolean`           | `false`               | If true, filtering occurs only after the search input changes.                        |
+| `showSearch`   | `Boolean`           | `true`                | If true, displays a search input for filtering items.                                 |
+| `onSelect`     | `Function`          | `undefined`           | Callback function called when an item is selected, receiving the selected item value. |
+| `selectedItem` | `String`            | `undefined`           | Initially selected item value.                                                        |
+| `error`        | `String`            | `undefined`           | Error message displayed when there's an error related to selection.                   |
+
+### Usage Guide
+
+To use the `Select` component, import it into your React application and manage the selected item through a state variable. Below is an example usage of the `Select` component:
+
+```jsx
+import React, { useState } from "react";
+import { Select } from "./path/to/Select";
+
+const ExampleComponent = () => {
+  const [selectedItem, setSelectedItem] = useState(undefined);
+
+  const handleSelect = (selected) => {
+    setSelectedItem(selected);
+  };
+
+  const items = [
+    { value: "apple", label: "Apple" },
+    { value: "banana", label: "Banana" },
+    { value: "cherry", label: "Cherry" },
+    { value: "date", label: "Date" },
+  ];
+
+  return (
+    <div>
+      <Select
+        placeholder="Select a Fruit"
+        items={items}
+        selectedItem={selectedItem}
+        onSelect={handleSelect}
+        showSearch={true}
+        error={selectedItem ? undefined : "Selection is required."}
+      />
+      <div>
+        <h3>Selected Item:</h3>
+        <p>{selectedItem || "None selected"}</p>
+      </div>
+    </div>
+  );
+};
+
+export default ExampleComponent;
+```
+
+#### Key Functionalities
+
+- Single Item Selection: Users can select one item from the dropdown list.
+- Search Feature: The `showSearch` prop enables a search input to filter the displayed items.
+- Dynamic Data Loading: The component can handle both static item arrays and dynamic loading from an API endpoint.
+- Clear Selection: Users can clear the selected item with a clear button.
+- Error Handling: Displays an error message when necessary.
+
+#### Notes
+
+- Ensure to provide `items` as an array of objects with `value` and `label` properties for proper functionality.
+- Use the `onSelect` prop to handle changes in the selection state.
+- The `error` prop can be utilized to show validation messages related to selection.
