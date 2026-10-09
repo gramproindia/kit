@@ -1595,6 +1595,25 @@
   transform: rotate(90deg);
 }
 
+/*
+ * Native selects in demos.
+ *
+ * The option list is drawn by the browser, and it paints from the option's
+ * own computed colours. Preflight leaves form controls transparent, so the
+ * options inherited the page's light text and the list came out white --
+ * unreadable in dark mode except for the highlighted row. `color-scheme` was
+ * already right; what was missing was a colour to paint with.
+ */
+.v2 select {
+  background-color: var(--v2-bg);
+  color: var(--v2-fg);
+}
+
+.v2 select option {
+  background-color: var(--v2-bg);
+  color: var(--v2-fg);
+}
+
 /* Sub-pages of a long component doc, indented under their parent. */
 .v2-nav-sub {
   margin-top: 0.125rem;

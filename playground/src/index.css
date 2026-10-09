@@ -45,6 +45,18 @@
   color-scheme: dark;
 }
 
+/*
+ * Native selects. The option list is drawn by the browser from the option's
+ * own computed colours, and form controls start transparent -- which left the
+ * list white with light text on it in dark mode. The tokens are light-dark()
+ * pairs, so this one rule serves both.
+ */
+select,
+select option {
+  background-color: var(--v2-bg);
+  color: var(--v2-fg);
+}
+
 body {
   /* The header is fixed, so the page starts below it. */
   padding-top: 3.5rem;
