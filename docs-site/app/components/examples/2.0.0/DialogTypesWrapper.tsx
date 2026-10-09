@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { dialog } from "@/components/dialog";
+import { createDialogApi, createDialogStore, DialogHost } from "@/components/dialog";
 import { button } from "./_overlays-fixtures";
+
+// Its own store and host: several dialog examples share this page, and a
+// shared host would show one example's dialogs inside another. In an app
+// there is one host and you import the ready-made `dialog`.
+const store = createDialogStore();
+const dialog = createDialogApi(store);
 
 export default function DialogTypesWrapper() {
   const [result, setResult] = useState("—");
@@ -68,6 +74,7 @@ export default function DialogTypesWrapper() {
       <p className="mt-3 text-xs text-zinc-600 dark:text-zinc-400">
         Result: {result}
       </p>
+      <DialogHost store={store} />
     </>
   );
 }

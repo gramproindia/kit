@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { dialog } from "@/components/dialog";
+import { createDialogApi, createDialogStore, DialogHost } from "@/components/dialog";
 import { Modal } from "@/components/modal";
 import { button, field } from "./_overlays-fixtures";
+
+// Its own store and host: the guard asks through a Dialog, and the other
+// examples on this page have hosts of their own. In an app there is one
+// host and you import the ready-made `dialog`.
+const store = createDialogStore();
+const dialog = createDialogApi(store);
 
 export default function ModalGuardWrapper() {
   const [open, setOpen] = useState(false);
@@ -63,6 +69,7 @@ export default function ModalGuardWrapper() {
           placeholder="Type, then press Escape"
         />
       </Modal>
+      <DialogHost store={store} />
     </>
   );
 }

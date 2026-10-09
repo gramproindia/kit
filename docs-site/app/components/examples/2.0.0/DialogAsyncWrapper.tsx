@@ -1,8 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { dialog } from "@/components/dialog";
+import { createDialogApi, createDialogStore, DialogHost } from "@/components/dialog";
 import { button, wait } from "./_overlays-fixtures";
+
+// Its own store and host: several dialog examples share this page, and a
+// shared host would show one example's dialogs inside another. In an app
+// there is one host and you import the ready-made `dialog`.
+const store = createDialogStore();
+const dialog = createDialogApi(store);
 
 export default function DialogAsyncWrapper() {
   // A stand-in for a flaky server: every second attempt fails, which is what
@@ -40,6 +46,7 @@ export default function DialogAsyncWrapper() {
           <li key={index}>{line}</li>
         ))}
       </ul>
+      <DialogHost store={store} />
     </>
   );
 }
