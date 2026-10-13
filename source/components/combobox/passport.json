@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "core/filter.ts",
       "core/index.ts",
@@ -25,7 +25,7 @@
       "react/props.ts",
       "react/useCombobox.ts"
     ],
-    "sourceHash": "sha256:959aeca51f98f6ec875c1465659f975efcee4b08d739515c8518c17f3b3df354"
+    "sourceHash": "sha256:733078840c82f0d7863a7d5e08827b2166b3233c28a9c9aa4c6b528cc46ed28d"
   },
   "props": [
     {

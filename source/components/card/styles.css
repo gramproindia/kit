@@ -53,24 +53,24 @@
   background: var(--cd-bg);
   text-decoration: none;
 }
-.cd-root[data-variant="outlined"] {
+.cd-root:where([data-variant="outlined"]) {
   border: 1px solid var(--cd-border);
 }
-.cd-root[data-variant="elevated"] {
+.cd-root:where([data-variant="elevated"]) {
   border: 1px solid transparent;
   box-shadow: var(--cd-shadow);
 }
-.cd-root[data-variant="plain"] {
+.cd-root:where([data-variant="plain"]) {
   background: transparent;
 }
 
-.cd-root[data-padding="none"] {
+.cd-root:where([data-padding="none"]) {
   --cd-px: 0px;
 }
-.cd-root[data-padding="sm"] {
+.cd-root:where([data-padding="sm"]) {
   --cd-px: 12px;
 }
-.cd-root[data-padding="lg"] {
+.cd-root:where([data-padding="lg"]) {
   --cd-px: 24px;
 }
 
@@ -84,7 +84,7 @@
 .cd-root[data-interactive]:hover {
   background: var(--cd-hover);
 }
-.cd-root[data-variant="elevated"][data-interactive]:hover {
+.cd-root:where([data-variant="elevated"])[data-interactive]:hover {
   translate: 0 -1px;
 }
 .cd-root[data-interactive]:focus-visible {
@@ -224,7 +224,7 @@
 }
 
 @media (forced-colors: active) {
-  .cd-root[data-variant="elevated"] {
+  .cd-root:where([data-variant="elevated"]) {
     border-color: CanvasText;
   }
 }

@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "core/calendar.ts",
       "core/format.ts",
@@ -29,7 +29,7 @@
       "react/props.ts",
       "react/useDatePicker.ts"
     ],
-    "sourceHash": "sha256:3dba4cc6b29876969fcc114163bd9efae4ebcf6257e23b258d4f12f643115b78"
+    "sourceHash": "sha256:e62de2f8c322abc9558a7b9c7e06dadd61da0b442cb3ac7e4ba5bf099ec92251"
   },
   "props": [
     {

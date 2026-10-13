@@ -46,12 +46,12 @@
   box-sizing: border-box;
 }
 
-.ta-root[data-size="sm"] {
+.ta-root:where([data-size="sm"]) {
   --ta-font-size: 12px;
   --ta-px: 8px;
   --ta-py: 6px;
 }
-.ta-root[data-size="lg"] {
+.ta-root:where([data-size="lg"]) {
   --ta-font-size: 14px;
   --ta-px: 12px;
   --ta-py: 10px;
@@ -100,16 +100,16 @@
   cursor: not-allowed;
 }
 
-.ta-input[data-resize="none"] {
+.ta-input:where([data-resize="none"]) {
   resize: none;
 }
-.ta-input[data-resize="vertical"] {
+.ta-input:where([data-resize="vertical"]) {
   resize: vertical;
 }
-.ta-input[data-resize="horizontal"] {
+.ta-input:where([data-resize="horizontal"]) {
   resize: horizontal;
 }
-.ta-input[data-resize="both"] {
+.ta-input:where([data-resize="both"]) {
   resize: both;
 }
 
@@ -118,7 +118,7 @@
  * component; `--ta-max-rows: none` makes max-height invalid, which means no limit.
  */
 @supports (field-sizing: content) {
-  .ta-input[data-autoresize] {
+  .ta-input:where([data-autoresize]) {
     field-sizing: content;
     min-height: calc(var(--ta-min-rows, 3) * 1lh + 2 * var(--ta-py) + 2px);
     max-height: calc(var(--ta-max-rows) * 1lh + 2 * var(--ta-py) + 2px);

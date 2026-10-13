@@ -103,19 +103,19 @@
   overflow: hidden;
 }
 
-.dl-root[data-size="md"] {
+.dl-root:where([data-size="md"]) {
   --dl-width: 540px;
 }
-.dl-root[data-intent="info"] {
+.dl-root:where([data-intent="info"]) {
   --dl-intent: var(--dl-info);
 }
-.dl-root[data-intent="success"] {
+.dl-root:where([data-intent="success"]) {
   --dl-intent: var(--dl-success);
 }
-.dl-root[data-intent="warning"] {
+.dl-root:where([data-intent="warning"]) {
   --dl-intent: var(--dl-warning);
 }
-.dl-root[data-intent="danger"] {
+.dl-root:where([data-intent="danger"]) {
   --dl-intent: var(--dl-danger);
 }
 
@@ -220,20 +220,20 @@
 .dl-button:hover:not([aria-disabled="true"]) {
   background: var(--dl-hover);
 }
-.dl-button[data-variant="primary"] {
+.dl-button:where([data-variant="primary"]) {
   border-color: var(--dl-accent);
   background: var(--dl-accent);
   color: var(--dl-accent-fg);
 }
-.dl-button[data-variant="danger"] {
+.dl-button:where([data-variant="danger"]) {
   border-color: var(--dl-danger);
   background: var(--dl-danger);
   color: var(--dl-danger-fg);
 }
-.dl-button[data-variant="primary"]:hover:not([aria-disabled="true"]) {
+.dl-button:where([data-variant="primary"]):hover:not([aria-disabled="true"]) {
   background: color-mix(in oklab, var(--dl-accent), var(--dl-fg) 12%);
 }
-.dl-button[data-variant="danger"]:hover:not([aria-disabled="true"]) {
+.dl-button:where([data-variant="danger"]):hover:not([aria-disabled="true"]) {
   background: color-mix(in oklab, var(--dl-danger), var(--dl-fg) 12%);
 }
 .dl-button:focus-visible {

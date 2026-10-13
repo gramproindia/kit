@@ -62,28 +62,28 @@
   user-select: none;
   vertical-align: middle;
 }
-.av-root[data-shape="square"] {
+.av-root:where([data-shape="square"]) {
   border-radius: var(--av-radius);
   overflow: visible;
 }
-.av-root[data-shape="square"] .av-image,
-.av-root[data-shape="square"] .av-fallback {
+.av-root:where([data-shape="square"]) .av-image,
+.av-root:where([data-shape="square"]) .av-fallback {
   border-radius: var(--av-radius);
 }
 
-.av-root[data-size="xs"] {
+.av-root:where([data-size="xs"]) {
   --av-size: 20px;
   --av-font-size: 10px;
 }
-.av-root[data-size="sm"] {
+.av-root:where([data-size="sm"]) {
   --av-size: 24px;
   --av-font-size: 11px;
 }
-.av-root[data-size="lg"] {
+.av-root:where([data-size="lg"]) {
   --av-size: 40px;
   --av-font-size: 15px;
 }
-.av-root[data-size="xl"] {
+.av-root:where([data-size="xl"]) {
   --av-size: 56px;
   --av-font-size: 20px;
 }
@@ -124,7 +124,7 @@
   border-radius: 50%;
   background: var(--av-muted);
 }
-.av-root[data-shape="square"] .av-status {
+.av-root:where([data-shape="square"]) .av-status {
   right: -2px;
   bottom: -2px;
 }
@@ -173,43 +173,43 @@
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
-.av-overflow[data-shape="square"] {
+.av-overflow:where([data-shape="square"]) {
   border-radius: var(--av-radius);
 }
-.av-group[data-size="xs"],
-.av-overflow[data-size="xs"] {
+.av-group:where([data-size="xs"]),
+.av-overflow:where([data-size="xs"]) {
   --av-size: 20px;
   --av-font-size: 10px;
 }
-.av-group[data-size="sm"],
-.av-overflow[data-size="sm"] {
+.av-group:where([data-size="sm"]),
+.av-overflow:where([data-size="sm"]) {
   --av-size: 24px;
   --av-font-size: 11px;
 }
-.av-group[data-size="lg"],
-.av-overflow[data-size="lg"] {
+.av-group:where([data-size="lg"]),
+.av-overflow:where([data-size="lg"]) {
   --av-size: 40px;
   --av-font-size: 15px;
 }
-.av-group[data-size="xl"],
-.av-overflow[data-size="xl"] {
+.av-group:where([data-size="xl"]),
+.av-overflow:where([data-size="xl"]) {
   --av-size: 56px;
   --av-font-size: 20px;
 }
 /* The group's size reaches the avatars inside it, unless one sets its own. */
-.av-group[data-size="xs"] .av-root:not([data-size]) {
+.av-group:where([data-size="xs"]) .av-root:not(:where([data-size])) {
   --av-size: 20px;
   --av-font-size: 10px;
 }
-.av-group[data-size="sm"] .av-root:not([data-size]) {
+.av-group:where([data-size="sm"]) .av-root:not(:where([data-size])) {
   --av-size: 24px;
   --av-font-size: 11px;
 }
-.av-group[data-size="lg"] .av-root:not([data-size]) {
+.av-group:where([data-size="lg"]) .av-root:not(:where([data-size])) {
   --av-size: 40px;
   --av-font-size: 15px;
 }
-.av-group[data-size="xl"] .av-root:not([data-size]) {
+.av-group:where([data-size="xl"]) .av-root:not(:where([data-size])) {
   --av-size: 56px;
   --av-font-size: 20px;
 }

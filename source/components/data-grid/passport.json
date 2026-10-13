@@ -14,7 +14,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "agent/coerce.ts",
       "agent/contract.ts",
@@ -64,7 +64,7 @@
       "react/keyboard.ts",
       "react/locale.ts"
     ],
-    "sourceHash": "sha256:4f6c3db8763142dadb7f8efc55b8663a4e1e7b1316c3448f38d33f75a31a7f31"
+    "sourceHash": "sha256:449643cb8b35e825d74f47eeaffd69937a964e2f67d0ad098e74a050eabe31ab"
   },
   "purpose": "Display and operate on tabular data. Virtualized; holds its own sort, filter, search, selection, column and pagination state in an external store exposed through GridApi.",
   "props": [

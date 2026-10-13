@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "core/index.ts",
       "core/types.ts",
@@ -19,7 +19,7 @@
       "react/props.ts",
       "react/useDelayedLoading.ts"
     ],
-    "sourceHash": "sha256:2b6b8fa25750f5a491b73f37711de1beed2b1bcf9e38e2cf1b1f419d763b6c2e"
+    "sourceHash": "sha256:42ece669a14148ab88a6dccbbf495206c489f8198793daff831c0ee1d8e9ae86"
   },
   "props": [
     {

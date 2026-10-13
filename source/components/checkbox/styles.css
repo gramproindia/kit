@@ -48,11 +48,11 @@
   gap: 8px;
   min-width: 0;
 }
-.ck-root[data-size="sm"] {
+.ck-root:where([data-size="sm"]) {
   --ck-size: 14px;
   --ck-font-size: 12px;
 }
-.ck-root[data-size="lg"] {
+.ck-root:where([data-size="lg"]) {
   --ck-size: 20px;
   --ck-font-size: 14px;
   --ck-radius: 5px;
@@ -185,7 +185,7 @@
   flex-direction: column;
   gap: 8px;
 }
-.ck-group[data-orientation="horizontal"] .ck-items {
+.ck-group:where([data-orientation="horizontal"]) .ck-items {
   flex-flow: row wrap;
   gap: 8px 20px;
 }

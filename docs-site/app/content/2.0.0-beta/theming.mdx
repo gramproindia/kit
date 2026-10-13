@@ -156,6 +156,43 @@ Or inline, for a single instance:
 
 Each component's page lists its own variables.
 
+## Restyling one variant
+
+Every variant is a handful of CSS variables and nothing else, so a new look is
+a class of your own rather than a fork:
+
+```css
+.btn-brand {
+  --bt-fill: #7c3aed;
+  --bt-fill-hover: color-mix(in oklab, #7c3aed, #09090b 12%);
+  --bt-ink: #ffffff;
+  --bt-line: transparent;
+}
+```
+
+```tsx
+<Button className="btn-brand">Save</Button>
+<Button variant="outline" className="btn-brand">Save</Button>
+```
+
+One class is enough, including on a button that already has a `variant`. The
+selectors that carry an option you chose -- `variant`, `size`, `orientation`
+and the rest -- are written so they add no weight of their own, so they never
+out-rank your class.
+
+Selectors that carry **state** still do. A disabled, invalid or selected
+element keeps its appearance whatever class you add, because those are facts
+about the moment rather than choices about the look, and a brand colour has
+no business painting over a disabled control. To change how a state looks,
+target the state too:
+
+```css
+.btn-brand[data-disabled] { --bt-fill: #e9d5ff; }
+```
+
+You can discover the variables for any component in its own stylesheet; they
+are all named for the component, like `--bt-` for Button.
+
 ## Styles and cascade layers
 
 Install a component and the CLI writes `component-lib/gbs.css`, importing every

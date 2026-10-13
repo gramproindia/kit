@@ -54,13 +54,13 @@
   box-sizing: border-box;
 }
 
-.dp-root[data-size="sm"] {
+.dp-root:where([data-size="sm"]) {
   --dp-height: 30px;
   --dp-font-size: 12px;
   --dp-px: 8px;
   --dp-day-size: 30px;
 }
-.dp-root[data-size="lg"] {
+.dp-root:where([data-size="lg"]) {
   --dp-height: 44px;
   --dp-font-size: 14px;
   --dp-px: 12px;

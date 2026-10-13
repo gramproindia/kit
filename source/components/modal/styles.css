@@ -100,16 +100,16 @@
 
 /* --------------------------------------------------------------- sizes */
 
-.md-root[data-size="sm"] {
+.md-root:where([data-size="sm"]) {
   --md-width: 400px;
 }
-.md-root[data-size="lg"] {
+.md-root:where([data-size="lg"]) {
   --md-width: 720px;
 }
-.md-root[data-size="xl"] {
+.md-root:where([data-size="xl"]) {
   --md-width: 960px;
 }
-.md-root[data-size="full"] {
+.md-root:where([data-size="full"]) {
   --md-width: 100vw;
   --md-gutter: 0px;
   height: 100dvh;
@@ -120,28 +120,28 @@
 
 /* ----------------------------------------------------------- placement */
 
-.md-root[data-placement="top"] {
+.md-root:where([data-placement="top"]) {
   margin-top: min(10vh, 80px);
 }
 
-.md-root:is([data-placement="left"], [data-placement="right"]) {
+.md-root:is(:where([data-placement="left"]), :where([data-placement="right"])) {
   --md-gutter: 0px;
   height: 100dvh;
   max-height: 100dvh;
   border-block: 0;
   border-radius: 0;
 }
-.md-root[data-placement="left"] {
+.md-root:where([data-placement="left"]) {
   --md-enter: -100% 0;
   margin: 0 auto 0 0;
   border-inline-start: 0;
 }
-.md-root[data-placement="right"] {
+.md-root:where([data-placement="right"]) {
   --md-enter: 100% 0;
   margin: 0 0 0 auto;
   border-inline-end: 0;
 }
-.md-root[data-placement="bottom"] {
+.md-root:where([data-placement="bottom"]) {
   --md-enter: 0 100%;
   width: 100vw;
   max-height: min(var(--md-width), 90dvh);

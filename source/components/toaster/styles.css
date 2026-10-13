@@ -160,16 +160,16 @@
   width: 3px;
   background: var(--ts-type-color);
 }
-.ts-toast[data-type="success"] {
+.ts-toast:where([data-type="success"]) {
   --ts-type-color: var(--ts-success);
 }
-.ts-toast[data-type="error"] {
+.ts-toast:where([data-type="error"]) {
   --ts-type-color: var(--ts-error);
 }
-.ts-toast[data-type="warning"] {
+.ts-toast:where([data-type="warning"]) {
   --ts-type-color: var(--ts-warning);
 }
-.ts-toast[data-type="info"] {
+.ts-toast:where([data-type="info"]) {
   --ts-type-color: var(--ts-info);
 }
 
@@ -180,7 +180,7 @@
   margin-top: 1px;
   color: var(--ts-type-color);
 }
-.ts-toast:is([data-type="default"], [data-type="loading"]) .ts-icon {
+.ts-toast:is(:where([data-type="default"]), :where([data-type="loading"])) .ts-icon {
   color: var(--ts-muted);
 }
 
@@ -219,12 +219,12 @@
 .ts-button:hover {
   background: var(--ts-hover);
 }
-.ts-button[data-variant="action"] {
+.ts-button:where([data-variant="action"]) {
   border-color: var(--ts-accent);
   background: var(--ts-accent);
   color: var(--ts-accent-fg);
 }
-.ts-button[data-variant="action"]:hover {
+.ts-button:where([data-variant="action"]):hover {
   background: color-mix(in oklab, var(--ts-accent), var(--ts-fg) 12%);
 }
 .ts-button:focus-visible {

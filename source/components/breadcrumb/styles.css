@@ -37,10 +37,10 @@
   box-sizing: border-box;
 }
 
-.bc-root[data-size="sm"] {
+.bc-root:where([data-size="sm"]) {
   --bc-font-size: 12px;
 }
-.bc-root[data-size="lg"] {
+.bc-root:where([data-size="lg"]) {
   --bc-font-size: 14px;
 }
 

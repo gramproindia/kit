@@ -47,12 +47,12 @@
   box-sizing: border-box;
 }
 
-.ac-root[data-size="sm"] {
+.ac-root:where([data-size="sm"]) {
   --ac-px: 10px;
   --ac-py: 8px;
   --ac-font-size: 12px;
 }
-.ac-root[data-size="lg"] {
+.ac-root:where([data-size="lg"]) {
   --ac-px: 18px;
   --ac-py: 16px;
   --ac-font-size: 14px;
@@ -68,35 +68,35 @@
 }
 
 /* Contained: one block with dividers instead of separate cards. */
-.ac-root[data-variant="contained"] {
+.ac-root:where([data-variant="contained"]) {
   gap: 0;
   border: 1px solid var(--ac-border);
   border-radius: var(--ac-radius);
   overflow: hidden;
 }
-.ac-root[data-variant="contained"] .ac-item {
+.ac-root:where([data-variant="contained"]) .ac-item {
   border: 0;
   border-block-end: 1px solid var(--ac-border);
   border-radius: 0;
 }
-.ac-root[data-variant="contained"] .ac-item:last-child {
+.ac-root:where([data-variant="contained"]) .ac-item:last-child {
   border-block-end: 0;
 }
 
 /* Plain: rules only, for a sidebar or a FAQ. */
-.ac-root[data-variant="plain"] {
+.ac-root:where([data-variant="plain"]) {
   gap: 0;
 }
-.ac-root[data-variant="plain"] .ac-item {
+.ac-root:where([data-variant="plain"]) .ac-item {
   border: 0;
   border-block-end: 1px solid var(--ac-border);
   border-radius: 0;
   background: none;
 }
-.ac-root[data-variant="plain"] .ac-header {
+.ac-root:where([data-variant="plain"]) .ac-header {
   padding-inline: 0;
 }
-.ac-root[data-variant="plain"] .ac-body {
+.ac-root:where([data-variant="plain"]) .ac-body {
   padding-inline: 0;
 }
 

@@ -50,13 +50,13 @@
   box-sizing: border-box;
 }
 
-.in-root[data-size="sm"] {
+.in-root:where([data-size="sm"]) {
   --in-height: 30px;
   --in-font-size: 12px;
   --in-px: 8px;
   --in-cell: 34px;
 }
-.in-root[data-size="lg"] {
+.in-root:where([data-size="lg"]) {
   --in-height: 44px;
   --in-font-size: 14px;
   --in-px: 12px;
@@ -160,7 +160,7 @@
   color: var(--in-muted);
   white-space: nowrap;
 }
-.in-adornment[data-side="trailing"] {
+.in-adornment:where([data-side="trailing"]) {
   padding-inline-end: 4px;
 }
 

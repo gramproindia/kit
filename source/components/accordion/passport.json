@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "core/index.ts",
       "core/open.ts",
@@ -21,7 +21,7 @@
       "react/context.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:cb253f4bd818d48805735b4f44c3a25fc66c3a074239558ccc97de1b4ed948bb"
+    "sourceHash": "sha256:87a51fb32f4a2b0982da7743b12adcbb8529dc7f02c4811f6213a42f481c8ffc"
   },
   "props": [
     {

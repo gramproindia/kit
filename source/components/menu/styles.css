@@ -76,7 +76,7 @@
     translate: 0 -2px;
   }
 }
-.mn-root[data-side="top"]:popover-open {
+.mn-root:where([data-side="top"]):popover-open {
   animation-name: mn-in-top;
 }
 @keyframes mn-in-top {
@@ -121,7 +121,7 @@
   color: var(--mn-muted);
   cursor: not-allowed;
 }
-.mn-item[data-destructive]:not([data-disabled]) {
+.mn-item:where([data-destructive]):not([data-disabled]) {
   color: var(--mn-danger);
 }
 
@@ -139,7 +139,7 @@
   align-items: center;
   color: var(--mn-muted);
 }
-.mn-item[data-destructive] .mn-icon {
+.mn-item:where([data-destructive]) .mn-icon {
   color: inherit;
 }
 

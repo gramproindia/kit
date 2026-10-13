@@ -53,12 +53,12 @@
   box-sizing: border-box;
 }
 
-.cb-root[data-size="sm"] {
+.cb-root:where([data-size="sm"]) {
   --cb-height: 30px;
   --cb-font-size: 12px;
   --cb-px: 8px;
 }
-.cb-root[data-size="lg"] {
+.cb-root:where([data-size="lg"]) {
   --cb-height: 44px;
   --cb-font-size: 14px;
   --cb-px: 12px;

@@ -58,20 +58,20 @@
   box-sizing: border-box;
 }
 
-.al-root[data-variant="success"] {
+.al-root:where([data-variant="success"]) {
   --al-accent: var(--al-success);
 }
-.al-root[data-variant="warning"] {
+.al-root:where([data-variant="warning"]) {
   --al-accent: var(--al-warning);
 }
-.al-root[data-variant="danger"] {
+.al-root:where([data-variant="danger"]) {
   --al-accent: var(--al-danger);
 }
-.al-root[data-variant="neutral"] {
+.al-root:where([data-variant="neutral"]) {
   --al-accent: var(--al-muted);
 }
 
-.al-root[data-size="sm"] {
+.al-root:where([data-size="sm"]) {
   --al-px: 10px;
   --al-py: 8px;
   --al-font-size: 12px;
@@ -89,7 +89,7 @@
   width: 16px;
   height: 16px;
 }
-.al-root[data-size="sm"] .al-icon > svg {
+.al-root:where([data-size="sm"]) .al-icon > svg {
   width: 14px;
   height: 14px;
 }

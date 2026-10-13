@@ -55,17 +55,17 @@
   box-sizing: border-box;
 }
 
-.tb-root[data-size="sm"] {
+.tb-root:where([data-size="sm"]) {
   --tb-height: 30px;
   --tb-px: 10px;
   --tb-font-size: 12px;
 }
-.tb-root[data-size="lg"] {
+.tb-root:where([data-size="lg"]) {
   --tb-height: 44px;
   --tb-px: 16px;
   --tb-font-size: 14px;
 }
-.tb-root[data-orientation="vertical"] {
+.tb-root:where([data-orientation="vertical"]) {
   flex-direction: row;
   gap: 20px;
 }
@@ -80,7 +80,7 @@
   overflow-x: auto;
   scrollbar-width: none;
 }
-.tb-root[data-orientation="vertical"] .tb-list {
+.tb-root:where([data-orientation="vertical"]) .tb-list {
   flex-direction: column;
   overflow: visible;
 }
@@ -105,7 +105,7 @@
   cursor: pointer;
   transition: color 120ms ease;
 }
-.tb-root[data-orientation="vertical"] .tb-tab {
+.tb-root:where([data-orientation="vertical"]) .tb-tab {
   justify-content: flex-start;
 }
 .tb-tab:hover:not([aria-disabled="true"]),
@@ -161,10 +161,10 @@
 
 /* ---------------------------------------------------------------- line */
 
-.tb-root[data-variant="line"] .tb-list {
+.tb-root:where([data-variant="line"]) .tb-list {
   border-bottom: 1px solid var(--tb-border);
 }
-.tb-root[data-variant="line"] .tb-indicator {
+.tb-root:where([data-variant="line"]) .tb-indicator {
   bottom: -1px;
   left: var(--tb-indicator-start);
   width: var(--tb-indicator-size);
@@ -172,11 +172,11 @@
   border-radius: 2px;
   background: var(--tb-accent);
 }
-.tb-root[data-variant="line"][data-orientation="vertical"] .tb-list {
+.tb-root:where([data-variant="line"]):where([data-orientation="vertical"]) .tb-list {
   border-bottom: 0;
   border-inline-end: 1px solid var(--tb-border);
 }
-.tb-root[data-variant="line"][data-orientation="vertical"] .tb-indicator {
+.tb-root:where([data-variant="line"]):where([data-orientation="vertical"]) .tb-indicator {
   top: var(--tb-indicator-start);
   bottom: auto;
   left: auto;
@@ -187,7 +187,7 @@
 
 /* --------------------------------------------------------------- pills */
 
-.tb-root[data-variant="pills"] .tb-indicator {
+.tb-root:where([data-variant="pills"]) .tb-indicator {
   top: 0;
   left: var(--tb-indicator-start);
   width: var(--tb-indicator-size);
@@ -195,10 +195,10 @@
   border-radius: calc(var(--tb-radius) - 2px);
   background: var(--tb-accent-soft);
 }
-.tb-root[data-variant="pills"] .tb-tab[aria-selected="true"] {
+.tb-root:where([data-variant="pills"]) .tb-tab[aria-selected="true"] {
   color: var(--tb-accent);
 }
-.tb-root[data-variant="pills"][data-orientation="vertical"] .tb-indicator {
+.tb-root:where([data-variant="pills"]):where([data-orientation="vertical"]) .tb-indicator {
   top: var(--tb-indicator-start);
   left: 0;
   width: 100%;
@@ -207,12 +207,12 @@
 
 /* ------------------------------------------------------------ enclosed */
 
-.tb-root[data-variant="enclosed"] .tb-list {
+.tb-root:where([data-variant="enclosed"]) .tb-list {
   padding: 3px;
   border-radius: var(--tb-radius);
   background: var(--tb-track);
 }
-.tb-root[data-variant="enclosed"] .tb-indicator {
+.tb-root:where([data-variant="enclosed"]) .tb-indicator {
   top: 3px;
   bottom: 3px;
   left: var(--tb-indicator-start);
@@ -221,10 +221,10 @@
   background: var(--tb-bg);
   box-shadow: 0 1px 3px light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.5));
 }
-.tb-root[data-variant="enclosed"] .tb-tab {
+.tb-root:where([data-variant="enclosed"]) .tb-tab {
   height: calc(var(--tb-height) - 6px);
 }
-.tb-root[data-variant="enclosed"][data-orientation="vertical"] .tb-indicator {
+.tb-root:where([data-variant="enclosed"]):where([data-orientation="vertical"]) .tb-indicator {
   top: var(--tb-indicator-start);
   bottom: auto;
   left: 3px;
@@ -234,7 +234,7 @@
 }
 
 /* Before the indicator is measured (server render), mark the selected tab statically. */
-.tb-root[data-variant="line"] .tb-list:not([style*="--tb-indicator-size"]) .tb-tab[aria-selected="true"] {
+.tb-root:where([data-variant="line"]) .tb-list:not([style*="--tb-indicator-size"]) .tb-tab[aria-selected="true"] {
   box-shadow: inset 0 -2px 0 var(--tb-accent);
 }
 

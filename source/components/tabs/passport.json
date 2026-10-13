@@ -12,7 +12,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "core/index.ts",
       "core/navigation.ts",
@@ -21,7 +21,7 @@
       "react/Tabs.tsx",
       "react/context.ts"
     ],
-    "sourceHash": "sha256:26d83e8f7ddcdcbcf8693f48d7f2769a53fdf4f38df38b64f7070c8e9cc3f9f5"
+    "sourceHash": "sha256:994b9d82745fdbaf05031dcd27a854e7b8f900f1d9058db0b8f43d13b11dbd68"
   },
   "props": [
     {

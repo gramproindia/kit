@@ -88,7 +88,7 @@
 
 /* ---------------------------------------------------------------- dots */
 
-.sp-indicator[data-variant="dots"] {
+.sp-indicator:where([data-variant="dots"]) {
   grid-auto-flow: column;
   gap: calc(var(--sp-size) * 0.1);
 }

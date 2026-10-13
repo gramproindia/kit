@@ -11,7 +11,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "core/api.ts",
       "core/index.ts",
@@ -26,7 +26,7 @@
       "react/props.ts",
       "react/useToasts.ts"
     ],
-    "sourceHash": "sha256:29756fca7fc33de05f42257fbb145017a6c507565eecb99ce06814ba404262ef"
+    "sourceHash": "sha256:9071d3b6937872ce25e6461cf3af993e512ac26ff8fa3c05121ee7ad53289035"
   },
   "props": [
     {

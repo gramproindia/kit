@@ -79,7 +79,7 @@
     translate: 0 -2px;
   }
 }
-.pv-root[data-side="top"]:popover-open {
+.pv-root:where([data-side="top"]):popover-open {
   animation-name: pv-in-top;
 }
 @keyframes pv-in-top {
@@ -88,7 +88,7 @@
     translate: 0 2px;
   }
 }
-.pv-root[data-side="left"]:popover-open {
+.pv-root:where([data-side="left"]):popover-open {
   animation-name: pv-in-left;
 }
 @keyframes pv-in-left {
@@ -97,7 +97,7 @@
     translate: 2px 0;
   }
 }
-.pv-root[data-side="right"]:popover-open {
+.pv-root:where([data-side="right"]):popover-open {
   animation-name: pv-in-right;
 }
 @keyframes pv-in-right {

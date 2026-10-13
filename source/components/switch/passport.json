@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "core/index.ts",
       "core/toggle.ts",
@@ -18,7 +18,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:0e4b4a46e705b32ea7bf347c63743dfadb86ee1c5eedd2ae25e4e48721ad1989"
+    "sourceHash": "sha256:0681194dbbbe6c31a4930b88e98250a66cd49e0c0f4c9b12a88f6c79ffb007ca"
   },
   "props": [
     {

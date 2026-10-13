@@ -12,7 +12,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "core/index.ts",
       "core/trend.ts",
@@ -22,7 +22,7 @@
       "react/Stat.tsx",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:549ddc0bab6442ba11768f3691605be509042dd42f313fc5d600d45b6aced521"
+    "sourceHash": "sha256:85aa3e707257ced4a3508f5fd5f15cdb4785f82e8ec0166ad80f809d01717912"
   },
   "props": [
     {

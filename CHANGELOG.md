@@ -1,5 +1,46 @@
 # Changelog
 
+## 2.4.2
+
+### Fixed
+
+**Your own class now beats a component's variant.**
+
+Restyling a variant used to fail silently. A rule like
+
+```css
+.btn-brand { --bt-fill: #7c3aed; }
+```
+
+worked on a plain button and was ignored the moment anyone wrote
+`variant="outline"`, because the shipped rule named two things
+(`.bt-root[data-variant="outline"]`) where yours named one, and the browser
+prefers the more specific selector. No error, nothing in devtools -- the
+colour simply did not apply.
+
+Selectors that carry an option you chose -- `variant`, `size`, `orientation`,
+`appearance`, `placement` and the rest -- are now written so they add no
+weight of their own. One class from you is enough, on any variant, in any
+setup:
+
+```tsx
+<Button variant="outline" className="btn-brand">Save</Button>
+```
+
+**State deliberately still wins.** Disabled, invalid, selected, loading and
+the other runtime states keep their weight, because a brand colour has no
+business painting over a disabled control. To restyle a state, name the
+state: `.btn-brand[data-disabled] { ... }`.
+
+215 selectors across 26 stylesheets. Verified by capturing the computed
+styles of 3,716 elements across every demo in light and dark before and
+after: the only differences were opacity on the shimmer and spinner, which
+differ between two runs of the same build because they are mid-animation.
+Nothing else moved.
+
+Nothing in your code needs to change. If you had already worked around this
+with a more specific selector, that still wins.
+
 ## 2.4.1
 
 ### Fixed

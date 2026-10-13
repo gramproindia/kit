@@ -49,12 +49,12 @@
   box-sizing: border-box;
 }
 
-.nm-root[data-size="sm"] {
+.nm-root:where([data-size="sm"]) {
   --nm-height: 30px;
   --nm-px: 8px;
   --nm-font-size: 12px;
 }
-.nm-root[data-size="lg"] {
+.nm-root:where([data-size="lg"]) {
   --nm-height: 44px;
   --nm-px: 12px;
   --nm-font-size: 14px;
@@ -133,7 +133,7 @@
   color: var(--nm-muted);
   white-space: nowrap;
 }
-.nm-adornment[data-side="trailing"] {
+.nm-adornment:where([data-side="trailing"]) {
   padding-inline-end: 2px;
 }
 

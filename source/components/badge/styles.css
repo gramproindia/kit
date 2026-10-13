@@ -59,53 +59,53 @@
   box-sizing: border-box;
 }
 
-.bd-root[data-variant="accent"],
-.bd-tag[data-variant="accent"] {
+.bd-root:where([data-variant="accent"]),
+.bd-tag:where([data-variant="accent"]) {
   --bd-accent: var(--bd-accent-color);
 }
-.bd-root[data-variant="success"],
-.bd-tag[data-variant="success"] {
+.bd-root:where([data-variant="success"]),
+.bd-tag:where([data-variant="success"]) {
   --bd-accent: var(--bd-success);
 }
-.bd-root[data-variant="warning"],
-.bd-tag[data-variant="warning"] {
+.bd-root:where([data-variant="warning"]),
+.bd-tag:where([data-variant="warning"]) {
   --bd-accent: var(--bd-warning);
 }
-.bd-root[data-variant="danger"],
-.bd-tag[data-variant="danger"] {
+.bd-root:where([data-variant="danger"]),
+.bd-tag:where([data-variant="danger"]) {
   --bd-accent: var(--bd-danger);
 }
-.bd-root[data-variant="info"],
-.bd-tag[data-variant="info"] {
+.bd-root:where([data-variant="info"]),
+.bd-tag:where([data-variant="info"]) {
   --bd-accent: var(--bd-info);
 }
 
 /* --------------------------------------------------------- appearances */
 
-.bd-root[data-appearance="soft"],
-.bd-tag[data-appearance="soft"] {
+.bd-root:where([data-appearance="soft"]),
+.bd-tag:where([data-appearance="soft"]) {
   background: color-mix(in oklab, var(--bd-accent) 12%, var(--bd-bg));
   color: color-mix(in oklab, var(--bd-accent) 85%, var(--bd-fg));
 }
-.bd-root[data-appearance="solid"],
-.bd-tag[data-appearance="solid"] {
+.bd-root:where([data-appearance="solid"]),
+.bd-tag:where([data-appearance="solid"]) {
   background: var(--bd-accent);
   color: var(--bd-on-accent);
 }
 /* Neutral solid would be black on near-black text; invert it instead. */
-.bd-root[data-variant="neutral"][data-appearance="solid"],
-.bd-tag[data-variant="neutral"][data-appearance="solid"] {
+.bd-root:where([data-variant="neutral"]):where([data-appearance="solid"]),
+.bd-tag:where([data-variant="neutral"]):where([data-appearance="solid"]) {
   background: var(--bd-fg);
   color: var(--bd-bg);
 }
-.bd-root[data-appearance="outline"],
-.bd-tag[data-appearance="outline"] {
+.bd-root:where([data-appearance="outline"]),
+.bd-tag:where([data-appearance="outline"]) {
   border-color: color-mix(in oklab, var(--bd-accent) 40%, var(--bd-border));
   color: color-mix(in oklab, var(--bd-accent) 85%, var(--bd-fg));
 }
 
-.bd-root[data-size="sm"],
-.bd-tag[data-size="sm"] {
+.bd-root:where([data-size="sm"]),
+.bd-tag:where([data-size="sm"]) {
   --bd-height: 17px;
   --bd-px: 6px;
   --bd-font-size: 11px;
@@ -195,8 +195,8 @@
   .bd-tag {
     border-color: CanvasText;
   }
-  .bd-root[data-appearance="solid"],
-  .bd-tag[data-appearance="solid"] {
+  .bd-root:where([data-appearance="solid"]),
+  .bd-tag:where([data-appearance="solid"]) {
     background: Highlight;
     color: HighlightText;
   }

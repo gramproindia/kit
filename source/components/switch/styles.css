@@ -47,20 +47,20 @@
   box-sizing: border-box;
 }
 
-.sw-root[data-size="sm"] {
+.sw-root:where([data-size="sm"]) {
   --sw-height: 16px;
   --sw-width: 28px;
   --sw-gap: 2px;
   --sw-font-size: 12px;
 }
-.sw-root[data-size="lg"] {
+.sw-root:where([data-size="lg"]) {
   --sw-height: 24px;
   --sw-width: 44px;
   --sw-font-size: 14px;
 }
 
 /* The label first, the track pushed to the far edge: a settings row. */
-.sw-root[data-label-position="start"] {
+.sw-root:where([data-label-position="start"]) {
   flex-direction: row-reverse;
   justify-content: space-between;
 }

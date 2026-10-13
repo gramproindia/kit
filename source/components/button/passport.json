@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.1",
+    "libraryVersion": "2.4.2",
     "files": [
       "core/index.ts",
       "core/state.ts",
@@ -18,7 +18,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:85b2394bf3f7b37bd6bafd8ea93782b6c68a6ef4c5e207a6d3e6639a8ca23f9f"
+    "sourceHash": "sha256:b10547e2d34ee9c542458b1dc8b6e067878a5b47c364409de7f314412520d8a0"
   },
   "purpose": "Trigger an action. Not for navigation unless `render` supplies a link element.",
   "props": [
