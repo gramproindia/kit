@@ -1,0 +1,324 @@
+/*
+ * Read a Figma design through the REST API and condense it to what a coding
+ * agent can act on.
+ *
+ * Written against a real response rather than the documentation: the field
+ * names here were confirmed by fetching a live file, and they match the
+ * plugin API's scene graph exactly — `layoutMode`, `itemSpacing`, `padding*`,
+ * `cornerRadius`, `fills`, `characters`, `primaryAxisAlignItems`.
+ *
+ * What it deliberately does not do is decide which component each region is.
+ * A design drawn without the component library has no `componentId` to look
+ * up, so that call is inference — and the agent, holding the catalogue and
+ * the designer's own names for things, infers better than string matching in
+ * a tool. This supplies structure, names, text and tokens; the agent decides.
+ */
+"use strict";
+
+const fs = require("fs");
+const path = require("path");
+
+/** Figma's own limit is generous; a frame beyond this is unreadable anyway. */
+const MAX_DEPTH = 10;
+
+// ------------------------------------------------------------------ token
+
+/**
+ * The token, from the environment or a .env beside the project.
+ *
+ * MCP clients pass environment through unevenly, so a .env is the fallback
+ * that works everywhere. It is read, never logged.
+ */
+function figmaToken() {
+  if (process.env.FIGMA_TOKEN) return process.env.FIGMA_TOKEN.trim();
+  for (const dir of [process.cwd(), path.join(__dirname, "..", "..")]) {
+    const file = path.join(dir, ".env");
+    if (!fs.existsSync(file)) continue;
+    const match = fs.readFileSync(file, "utf8").match(/^\s*FIGMA_TOKEN\s*=\s*(.+)$/m);
+    if (match) return match[1].trim().replace(/^["']|["']$/g, "");
+  }
+  return null;
+}
+
+/** figma.com/design/<key>/<name>?node-id=1-23 → { fileKey, nodeId } */
+function parseFigmaUrl(url) {
+  const key = String(url).match(/figma\.com\/(?:file|design|proto)\/([A-Za-z0-9]+)/);
+  if (!key) return { error: "That does not look like a Figma file URL." };
+  const node = String(url).match(/[?&]node-id=([0-9]+[-:][0-9]+)/);
+  return { fileKey: key[1], nodeId: node ? node[1].replace("-", ":") : null };
+}
+
+/*
+ * A file is fetched once and held briefly.
+ *
+ * The natural flow is two calls — list the frames, then read one — and a
+ * file of any size is hundreds of KB. Fetching it twice in a row is what
+ * earns a 429, which is how this cache came to exist.
+ */
+const CACHE_MS = 5 * 60 * 1000;
+const cache = new Map();
+
+async function figmaGet(pathname, token) {
+  const hit = cache.get(pathname);
+  if (hit && Date.now() - hit.at < CACHE_MS) return hit.body;
+
+  const res = await fetch(`https://api.figma.com/v1${pathname}`, {
+    headers: { "X-Figma-Token": token },
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    if (res.status === 403) {
+      throw new Error(
+        "Figma refused the token. Check FIGMA_TOKEN has 'File content: read' scope and can see this file.",
+      );
+    }
+    if (res.status === 429) {
+      throw new Error(
+        "Figma is rate limiting this token. Wait a minute and try again; the file is cached for five minutes once it arrives.",
+      );
+    }
+    throw new Error(`Figma returned ${res.status}: ${body.slice(0, 160)}`);
+  }
+
+  const body = await res.json();
+  cache.set(pathname, { at: Date.now(), body });
+  return body;
+}
+
+// ------------------------------------------------------------- condensing
+
+const hex = (c) => Math.round(c * 255).toString(16).padStart(2, "0");
+
+function solidFill(node) {
+  const fill = (node.fills || []).find((f) => f.type === "SOLID" && f.visible !== false);
+  return fill ? `#${hex(fill.color.r)}${hex(fill.color.g)}${hex(fill.color.b)}` : undefined;
+}
+
+function layoutOf(node) {
+  if (!node.layoutMode || node.layoutMode === "NONE") return undefined;
+  const pad = [node.paddingTop, node.paddingRight, node.paddingBottom, node.paddingLeft];
+  return {
+    direction: node.layoutMode === "HORIZONTAL" ? "row" : "column",
+    gap: node.itemSpacing || undefined,
+    padding: pad.some((v) => v) ? pad.map((v) => v || 0) : undefined,
+    align: node.counterAxisAlignItems,
+    justify: node.primaryAxisAlignItems,
+  };
+}
+
+/*
+ * Text is lifted to the parent when a node's only content is one label.
+ * Figma wraps nearly every string in its own frame, and passing that
+ * structure through verbatim buries the design in scaffolding.
+ */
+function condense(node, depth) {
+  const out = { name: node.name, type: node.type };
+
+  const layout = layoutOf(node);
+  if (layout) out.layout = layout;
+
+  if (node.type === "TEXT" && node.characters && node.characters.trim()) {
+    out.text = node.characters.trim();
+    if (node.style) {
+      out.font = { size: node.style.fontSize, weight: node.style.fontWeight };
+    }
+  }
+
+  // An instance is a lookup, when the design was built from a library.
+  if (node.type === "INSTANCE" && node.componentId) out.instanceOf = node.componentId;
+
+  const style = {};
+  const fill = solidFill(node);
+  if (fill && node.type !== "TEXT") style.fill = fill;
+  if (typeof node.cornerRadius === "number" && node.cornerRadius) style.radius = node.cornerRadius;
+  if (Object.keys(style).length) out.style = style;
+
+  if (node.absoluteBoundingBox) {
+    out.size = [Math.round(node.absoluteBoundingBox.width), Math.round(node.absoluteBoundingBox.height)];
+  }
+
+  const kids = (node.children || []).filter((c) => c.visible !== false);
+  if (kids.length && depth < MAX_DEPTH) {
+    const children = kids.map((c) => condense(c, depth + 1));
+    // A frame that exists only to hold one text node is noise.
+    if (children.length === 1 && children[0].text && !children[0].children && !out.text) {
+      out.text = children[0].text;
+      out.font = children[0].font;
+    } else {
+      out.children = children;
+    }
+  }
+
+  return out;
+}
+
+// ---------------------------------------------------------------- tokens
+
+const luminance = (h) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+const saturation = (h) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  return max === 0 ? 0 : (max - min) / max;
+};
+
+/*
+ * Colours get roles, not ranks.
+ *
+ * The most-used colour in a design is almost always the body text, and the
+ * accent is used a handful of times on the one button that matters. Sorting
+ * by frequency alone would theme the whole library the colour of its
+ * paragraphs.
+ */
+function themeFrom(colours, radii, fontSizes) {
+  const used = [...colours.entries()].sort((a, b) => b[1] - a[1]);
+  const theme = [];
+  const take = (variable, entry, note) => {
+    if (entry) theme.push({ variable, value: entry[0], seenOn: entry[1], why: note });
+  };
+
+  /*
+   * A near-black navy reads as highly saturated by the HSV measure — #192435
+   * scores 0.53 — so saturation alone picks the body text as the brand
+   * colour. Requiring real lightness as well is what separates an accent
+   * from a dark neutral.
+   */
+  const saturated = used.filter(
+    ([h]) => saturation(h) > 0.45 && luminance(h) > 0.2 && luminance(h) < 0.8,
+  );
+  const darkest = used.filter(([h]) => luminance(h) < 0.25).sort((a, b) => luminance(a[0]) - luminance(b[0]));
+  const lightest = used.filter(([h]) => luminance(h) > 0.9).sort((a, b) => b[1] - a[1]);
+  const mid = used.filter(([h]) => luminance(h) >= 0.25 && luminance(h) <= 0.9 && saturation(h) <= 0.35);
+
+  take("--gbs-accent", saturated[0], "the most-used saturated colour");
+  take("--gbs-fg", darkest[0], "the darkest colour, used for text");
+  take("--gbs-bg", lightest[0], "the lightest colour, used for surfaces");
+  take("--gbs-muted", mid[0], "a desaturated mid tone");
+
+  const radius = [...radii.entries()].sort((a, b) => b[1] - a[1])[0];
+  if (radius) theme.push({ variable: "--gbs-radius", value: `${radius[0]}px`, seenOn: radius[1] });
+
+  // The body size is the most-used that a person could actually read.
+  const body = [...fontSizes.entries()]
+    .filter(([size]) => size >= 12)
+    .sort((a, b) => b[1] - a[1])[0];
+  if (body) theme.push({ variable: "--gbs-font-size", value: `${body[0]}px`, seenOn: body[1] });
+
+  return theme;
+}
+
+function collectTokens(node, colours, radii, fontSizes) {
+  const fill = solidFill(node);
+  if (fill) colours.set(fill, (colours.get(fill) || 0) + 1);
+  if (typeof node.cornerRadius === "number" && node.cornerRadius) {
+    radii.set(node.cornerRadius, (radii.get(node.cornerRadius) || 0) + 1);
+  }
+  if (node.style && node.style.fontSize) {
+    fontSizes.set(node.style.fontSize, (fontSizes.get(node.style.fontSize) || 0) + 1);
+  }
+  for (const child of node.children || []) collectTokens(child, colours, radii, fontSizes);
+}
+
+/** Names the designer repeated are the ones that mean something. */
+function repeatedNames(node, counts) {
+  counts.set(node.name, (counts.get(node.name) || 0) + 1);
+  for (const child of node.children || []) repeatedNames(child, counts);
+}
+
+// ------------------------------------------------------------------- tool
+
+async function figmaFrame({ url, frame, depth }) {
+  const token = figmaToken();
+  if (!token) {
+    return {
+      error:
+        "No FIGMA_TOKEN. Create one at Figma → Settings → Security → Personal access tokens (scope: File content, read), then set FIGMA_TOKEN in your environment or a .env file.",
+    };
+  }
+
+  const { fileKey, nodeId, error } = parseFigmaUrl(url);
+  if (error) return { error };
+
+  let file;
+  try {
+    file = nodeId
+      ? await figmaGet(`/files/${fileKey}/nodes?ids=${encodeURIComponent(nodeId)}`, token)
+      : await figmaGet(`/files/${fileKey}`, token);
+  } catch (e) {
+    return { error: e.message };
+  }
+
+  const roots = nodeId
+    ? Object.values(file.nodes || {}).filter(Boolean).map((n) => n.document)
+    : (file.document.children || []).flatMap((page) => page.children || []);
+
+  if (roots.length === 0) return { error: "Nothing to read at that URL." };
+
+  /*
+   * Without a frame named, the whole file would arrive at once — hundreds of
+   * KB that buries the screen the agent was asked about. So the first call
+   * lists what is there and the second asks for one.
+   */
+  const wanted = frame
+    ? roots.filter((r) => r.name.toLowerCase() === String(frame).toLowerCase())
+    : roots;
+
+  if (!frame && roots.length > 1) {
+    return {
+      file: file.name,
+      frames: roots.map((r) => ({
+        name: r.name,
+        size: r.absoluteBoundingBox
+          ? [Math.round(r.absoluteBoundingBox.width), Math.round(r.absoluteBoundingBox.height)]
+          : undefined,
+      })),
+      next: "Call again with `frame` set to the one you want to build.",
+    };
+  }
+
+  if (wanted.length === 0) {
+    return { error: `No frame called "${frame}".`, frames: roots.map((r) => r.name) };
+  }
+
+  const target = wanted[0];
+  const colours = new Map();
+  const radii = new Map();
+  const fontSizes = new Map();
+  const names = new Map();
+  collectTokens(target, colours, radii, fontSizes);
+  repeatedNames(target, names);
+
+  const limit = Math.min(Number(depth) || MAX_DEPTH, MAX_DEPTH);
+  const tree = condense(target, MAX_DEPTH - limit);
+
+  const instances = [];
+  const findInstances = (n) => {
+    if (n.instanceOf) instances.push(n.name);
+    for (const c of n.children || []) findInstances(c);
+  };
+  findInstances(tree);
+
+  return {
+    file: file.name,
+    frame: target.name,
+    size: tree.size,
+    theme: themeFrom(colours, radii, fontSizes),
+    /* Repetition is the signal: eight "Status cell" nodes are a column. */
+    repeatedRegions: [...names.entries()]
+      .filter(([, n]) => n > 2)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 20)
+      .map(([name, n]) => ({ name, times: n })),
+    builtFromLibrary: instances.length > 0,
+    tree,
+    howToUse: instances.length
+      ? "This design uses component instances; `instanceOf` names the master for each."
+      : "This design was drawn without the component library, so nothing names a component directly. Use the region names and structure to decide which catalogue component each part is, then call get_component before writing it.",
+  };
+}
+
+module.exports = { figmaFrame, parseFigmaUrl, themeFrom };

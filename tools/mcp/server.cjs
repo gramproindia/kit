@@ -22,6 +22,8 @@
 
 const fs = require("fs");
 const path = require("path");
+const { execFileSync } = require("child_process");
+const { figmaFrame } = require("./figma.cjs");
 
 const CATALOGUE = path.join(__dirname, "..", "..", "source", "components");
 const REFERENCES = path.join(__dirname, "..", "..", ".gbs", "skills", "gbs-components", "references");
@@ -252,96 +254,37 @@ function validateUsage(code) {
 }
 
 /*
- * Turn an exported Figma selection into something buildable.
+ * Put components into the project the agent is working in.
  *
- * The export already dropped what an agent cannot use. What is left to do is
- * the part that needs the catalogue: say which nodes are components we ship,
- * which theme variables the design's own values map onto, and what has to be
- * installed before any of it compiles.
- *
- * It deliberately does not emit code. The agent writes that, with the
- * passports to hand and `validate_usage` to check it — a tool that generated
- * JSX would be guessing at a layout it cannot see rendered.
+ * The CLI already knows where they belong — it finds an existing install or
+ * follows the project's own layout — so this runs it rather than
+ * reimplementing that judgement.
  */
-function figmaFrame(payload) {
-  let design;
-  try {
-    design = typeof payload === "string" ? JSON.parse(payload) : payload;
-  } catch (error) {
-    return { error: `That is not JSON: ${error.message}` };
-  }
-  if (!design || !Array.isArray(design.nodes)) {
+function installComponents(names) {
+  const list = Array.isArray(names) ? names : String(names || "").split(/[\s,]+/);
+  const wanted = list.map((n) => String(n).trim()).filter(Boolean);
+  if (wanted.length === 0) return { error: "Name at least one component." };
+
+  const unknown = wanted.filter((n) => !findFolder(n));
+  if (unknown.length) {
     return {
-      error:
-        "Expected the output of the Figma plugin's 'Export selection for an agent' command.",
+      error: `Not in the catalogue: ${unknown.join(", ")}. Call list_components.`,
     };
   }
 
-  const mapped = new Map();
-  const unmapped = new Set();
-
-  const annotate = (node) => {
-    const out = { name: node.name, type: node.type };
-    if (node.component) {
-      const folder = findFolder(node.component);
-      if (folder) {
-        const p = readJson(path.join(CATALOGUE, folder, "passport.json"));
-        out.use = p.identity.component;
-        out.importFrom = `@/component-lib/${folder}`;
-        mapped.set(p.identity.component, folder);
-      } else {
-        out.unmapped = node.component;
-        unmapped.add(node.component);
-      }
-    }
-    if (node.properties) out.figmaProps = node.properties;
-    if (node.layout) out.layout = node.layout;
-    if (node.text) out.text = node.text;
-    if (node.style) out.style = node.style;
-    if (node.children) out.children = node.children.map(annotate);
-    return out;
-  };
-
-  const tree = design.nodes.map(annotate);
-
-  /*
-   * The most-used value of each kind is the one worth promoting to a theme
-   * variable; the rest are usually one-offs that belong in the page's own CSS.
-   */
-  const tokens = design.tokens || {};
-  const top = (list) => (Array.isArray(list) && list.length ? list[0] : null);
-  const colour = top(tokens.colours);
-  const radius = top(tokens.radii);
-  const fontSize = top(tokens.fontSizes);
-
-  const theme = [];
-  if (colour) theme.push({ variable: "--gbs-accent", value: colour.value, seenOn: colour.uses });
-  if (radius) theme.push({ variable: "--gbs-radius", value: `${radius.value}px`, seenOn: radius.uses });
-  if (fontSize)
-    theme.push({ variable: "--gbs-font-size", value: `${fontSize.value}px`, seenOn: fontSize.uses });
-
-  return {
-    frame: design.frame,
-    install:
-      mapped.size > 0
-        ? `npx @grampro/kit add ${[...mapped.keys()].join(" ")}`
-        : "Nothing in this selection is an instance of a kit component.",
-    components: [...mapped.keys()],
-    unmapped: [...unmapped],
-    theme,
-    tree,
-    nextSteps: [
-      "Run the install command.",
-      "Call get_component for each component before writing its JSX.",
-      "Put the theme variables on :root in your global CSS.",
-      "Call validate_usage on the finished markup.",
-      ...(unmapped.size
-        ? [
-            `${unmapped.size} node(s) are not kit components — build those from plain elements, or ask whether a component should be added.`,
-          ]
-        : []),
-    ],
-  };
+  const cli = path.join(__dirname, "..", "..", "index.cjs");
+  try {
+    const output = execFileSync(process.execPath, [cli, "add", ...wanted], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      timeout: 120000,
+    });
+    // The installer prints the one manual step; the agent needs to see it.
+    const importLine = (output.match(/^\s*@import .+$/gm) || []).map((l) => l.trim());
+    return { installed: wanted, stylesheet: importLine, output: output.trim().slice(-1200) };
+  } catch (error) {
+    return { error: `Install failed: ${(error.stdout || error.message || "").toString().slice(-600)}` };
+  }
 }
 
 const TOOLS = [
@@ -389,19 +332,36 @@ const TOOLS = [
   {
     name: "figma_frame",
     description:
-      "Turn a Figma selection exported by the GramproKit plugin into a build plan: which nodes are kit components, what to install, which theme variables the design's values map onto, and the structure to translate. Paste the plugin's JSON output as `design`.",
+      "Read a Figma design. Called with just a URL it lists the frames in the file; called with `frame` it returns that screen's structure, text, the repeated regions that indicate lists and tables, and the theme variables its colours and radii map onto. Needs FIGMA_TOKEN.",
     inputSchema: {
       type: "object",
       properties: {
-        design: {
-          type: "string",
-          description: "JSON from the plugin's 'Export selection for an agent' command.",
-        },
+        url: { type: "string", description: "A figma.com/design/... URL." },
+        frame: { type: "string", description: "Which frame to read, from the listing." },
+        depth: { type: "number", description: "How deep to descend. Lower it if the payload is large." },
       },
-      required: ["design"],
+      required: ["url"],
       additionalProperties: false,
     },
-    run: (args) => figmaFrame(args.design),
+    run: (args) => figmaFrame(args),
+  },
+  {
+    name: "install_component",
+    description:
+      "Copy components into the project being worked in, with their shared folder and stylesheet. Run this before importing them.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        names: {
+          type: "array",
+          items: { type: "string" },
+          description: 'Component names, e.g. ["DataGrid", "Button"].',
+        },
+      },
+      required: ["names"],
+      additionalProperties: false,
+    },
+    run: (args) => installComponents(args.names),
   },
   {
     name: "validate_usage",
@@ -448,8 +408,13 @@ function handle(request) {
     const tool = TOOLS.find((t) => t.name === (params && params.name));
     if (!tool) return fail(id, -32602, `Unknown tool: ${params && params.name}`);
     try {
+      // Some tools reach the network, so a result may be a promise.
       const result = tool.run((params && params.arguments) || {});
-      return reply(id, { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] });
+      return Promise.resolve(result).then(
+        (value) => reply(id, { content: [{ type: "text", text: JSON.stringify(value, null, 2) }] }),
+        (error) =>
+          reply(id, { content: [{ type: "text", text: `Tool failed: ${error.message}` }], isError: true }),
+      );
     } catch (error) {
       // Reported as a result, not a protocol error: the model should see it and retry.
       return reply(id, {
@@ -485,4 +450,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { main, listComponents, getComponent, getExample, getGuidance, validateUsage, figmaFrame, TOOLS };
+module.exports = { main, listComponents, getComponent, getExample, getGuidance, validateUsage, installComponents, TOOLS };
