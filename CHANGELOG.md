@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.4.3
+
+### Fixed
+
+**`passport --check` reported every component as stale on a machine whose
+line endings differed from the one that generated the passport.**
+
+A passport records a hash of the source it was derived from, and that hash
+was taken over the file bytes exactly as they sat on disk. A checkout on
+Windows holds CRLF and one on Linux holds LF, so the same unchanged file
+produced two different hashes, and the check announced that all 27
+components had drifted when nothing had changed at all.
+
+It now normalises line endings before hashing, so the hash describes the
+content rather than the checkout. If you have been seeing
+
+```
+passport stale - source changed since the passport was generated
+```
+
+on components you never touched, this is why, and it stops.
+
+Running `npm run passport` once after upgrading rewrites the hashes in your
+own copies.
+
 ## 2.4.2
 
 ### Fixed

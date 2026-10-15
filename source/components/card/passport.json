@@ -12,7 +12,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.4.2",
+    "libraryVersion": "2.4.3",
     "files": [
       "core/index.ts",
       "core/trend.ts",
