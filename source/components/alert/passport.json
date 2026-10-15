@@ -240,9 +240,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 19,
+    "propsTotal": 8,
     "propsDescribed": 6,
-    "describedPct": 32,
+    "describedPct": 75,
     "authoredSections": [
       "accessibility"
     ]

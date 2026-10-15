@@ -36,6 +36,10 @@ export interface ToasterProps {
   icons?: Partial<Record<ToastType, ReactNode>>;
   /** A store from `createToastStore()`. Defaults to the one behind `toast()`. */
   store?: ToastStore;
+  /**
+   * Writing direction, which decides which corner `position` means.
+   * Default `auto`, taken from the document.
+   */
   dir?: "ltr" | "rtl" | "auto";
   className?: string;
   classNames?: Partial<Record<ToasterSlot, string>>;

@@ -20,8 +20,18 @@ import type { GridAgent } from "../agent/engine";
  */
 
 export interface AskGridProps<T> {
+  /**
+   * The agent that turns a sentence into grid operations, from
+   * `useGridAgent`. `null` while none is in scope, and the box renders
+   * nothing rather than offering something that cannot answer.
+   */
   agent: GridAgent<T> | null;
   placeholder?: string;
+  /**
+   * Example questions offered before anyone types. Worth setting to the
+   * phrasings this data actually supports — they teach the shape of a good
+   * question faster than placeholder text does.
+   */
   suggestions?: readonly string[];
   className?: string;
   "aria-label"?: string;

@@ -23,7 +23,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:d087fe0d6b3c7069ea05892cbf27167e7b5aae79c9522503d2f92574c1158058"
+    "sourceHash": "sha256:f0b7d7683418b4981af453e5bf4dc08034a6d854dbca6e192283a555e77fdd0d"
   },
   "props": [
     {
@@ -31,7 +31,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The dismissing button's text. Defaults to Cancel.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "className",
@@ -52,7 +54,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The confirming button's text. Defaults to OK for an alert and Confirm\notherwise; naming the action (\"Delete project\") reads better than\neither.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "defaultValue",
@@ -67,7 +71,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The detail under the title - what is about to happen, and to what.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "dismissible",
@@ -100,7 +106,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Names the text field. Without it the field is named by the title.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "inputType",
@@ -116,7 +124,9 @@
       "typeText": "'number' | 'email' | 'tel' | 'text' | 'url' | 'password' | undefined",
       "required": false,
       "default": "text",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The field's input type, which picks the on-screen keyboard on a phone.\nDefault `text`. The value still arrives as a string.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "intent",
@@ -189,7 +199,9 @@
       "type": "boolean",
       "typeText": "boolean",
       "required": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Whether the dialog is on screen. Required: this component is always\ncontrolled, so set it to false in `onClose`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "placeholder",
@@ -216,7 +228,9 @@
       "typeText": "DialogSize | undefined",
       "required": false,
       "default": "sm",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "store",
@@ -334,9 +348,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 25,
-    "propsDescribed": 9,
-    "describedPct": 36,
+    "propsTotal": 21,
+    "propsDescribed": 16,
+    "describedPct": 76,
     "authoredSections": [
       "accessibility"
     ]

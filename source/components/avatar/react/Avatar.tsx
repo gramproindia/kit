@@ -22,6 +22,10 @@ export interface AvatarProps extends Omit<HTMLAttributes<HTMLSpanElement>, "chil
    * for the colour, so the same person is always the same colour.
    */
   name?: string;
+  /**
+   * The image. If it fails to load, the avatar falls back to the initials
+   * rather than showing a broken image, so `name` is worth setting too.
+   */
   src?: string;
   /** Overrides the text derived from `name`. */
   initials?: string;

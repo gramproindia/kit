@@ -34,14 +34,20 @@ type Renderable = ReactNode | ((props: ModalRenderProps) => ReactNode);
 export interface ModalProps {
   /** Controlled open state. */
   open?: boolean;
+  /** Open to begin with, when you are not controlling `open`. */
   defaultOpen?: boolean;
   /** `reason` says what closed it; it is undefined when opening. */
   onOpenChange?(open: boolean, reason?: CloseReason): void;
   title?: ReactNode;
+  /** A line under the title, linked as the dialog's description. */
   description?: ReactNode;
   /** Accessible name when there is no `title`. */
   "aria-label"?: string;
   children?: Renderable;
+  /**
+   * The actions row, pinned below the scrolling content so it stays
+   * reachable however long the body is.
+   */
   footer?: Renderable;
   /** Width for dialogs; for drawers, the width (left/right) or height (bottom). Default `md`. */
   size?: ModalSize;

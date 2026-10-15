@@ -18,7 +18,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:7666d0807d7131796ced32c99da380d3a6db2cf011fd2dcfa7904878799c1871"
+    "sourceHash": "sha256:8d6f65f9bdb461e0ce0c6e7fc4850141ca641f9c01e81be60fe826a62ee24669"
   },
   "purpose": "Trigger an action. Not for navigation unless `render` supplies a link element.",
   "props": [
@@ -84,7 +84,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Fill the width of the container, for forms and narrow screens.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "hidden",
@@ -388,9 +390,9 @@
   },
   "examples": [],
   "coverage": {
-    "propsTotal": 29,
-    "propsDescribed": 9,
-    "describedPct": 31,
+    "propsTotal": 10,
+    "propsDescribed": 10,
+    "describedPct": 100,
     "authoredSections": [
       "accessibility",
       "composition",

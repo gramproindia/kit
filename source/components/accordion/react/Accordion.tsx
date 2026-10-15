@@ -22,7 +22,12 @@ import { cx, type AccordionSlot } from "./props";
 export interface AccordionProps {
   /** Open panels, by value (controlled). */
   value?: string[];
+  /** Panels open to begin with, when you are not controlling `value`. */
   defaultValue?: string[];
+  /**
+   * The open panels after a change, always an array even with `multiple`
+   * off - where it holds one value, or none once a panel is closed.
+   */
   onValueChange?(value: string[]): void;
   /** Render these panels, or pass `<AccordionItem>` children. */
   items?: readonly AccordionItemData[];

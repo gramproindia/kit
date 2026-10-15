@@ -26,7 +26,7 @@
       "react/props.ts",
       "react/useToasts.ts"
     ],
-    "sourceHash": "sha256:ac828195f4d7ced89c99eb2bd78bb2581ba7a81d62dcfb892b9acef75bddda77"
+    "sourceHash": "sha256:976553d5d606c12b441caba76badad73812eea6dde400b51eb3ee17d05db7871"
   },
   "props": [
     {
@@ -63,7 +63,9 @@
       ],
       "typeText": "'ltr' | 'rtl' | 'auto' | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Writing direction, which decides which corner `position` means.\nDefault `auto`, taken from the document.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "duration",
@@ -211,9 +213,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 12,
-    "propsDescribed": 7,
-    "describedPct": 58,
+    "propsTotal": 8,
+    "propsDescribed": 8,
+    "describedPct": 100,
     "authoredSections": [
       "accessibility"
     ]

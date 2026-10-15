@@ -29,7 +29,7 @@
       "react/props.ts",
       "react/useDatePicker.ts"
     ],
-    "sourceHash": "sha256:1d3862b23e2bb13fb234af1b85344691a92f9282dae1052fa8eebd19414452bb"
+    "sourceHash": "sha256:2370299b9b495fd18671fb31106c1ba88e834227e3b9632207c048da66982370"
   },
   "props": [
     {
@@ -88,7 +88,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A hint under the label, linked as the control's description.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "disabled",
@@ -122,7 +124,9 @@
       "type": "other",
       "typeText": "DateFormat | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "How the chosen date is displayed. `Intl.DateTimeFormatOptions` for the\nusual cases, or a function for a shape Intl cannot express. Left out,\nthe locale's own date format is used - which is the right default far\nmore often than a hand-written one.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "id",
@@ -145,7 +149,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The control's name, shown above it and linked to it.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "locale",
@@ -168,7 +174,9 @@
       "type": "other",
       "typeText": "DateInput | null | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Latest selectable day. Later days are shown but cannot be picked.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "min",
@@ -176,7 +184,7 @@
       "typeText": "DateInput | null | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Earliest and latest selectable day.",
+      "description": "Earliest selectable day. Earlier days are shown but cannot be picked.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -203,14 +211,18 @@
       "type": "function",
       "signature": "((date: Date | null) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The chosen day as a `Date` at local midnight, or `null` once cleared.\r\nAccepts a string or a number in `value`, but always hands back a\r\n`Date`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onOpenChange",
       "type": "function",
       "signature": "((open: boolean) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The calendar opened or closed.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "placeholder",
@@ -269,7 +281,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Number each week down the left of the calendar. Default false.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "size",
@@ -282,7 +296,9 @@
       "typeText": "DatePickerSize | undefined",
       "required": false,
       "default": "md",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "style",
@@ -397,9 +413,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 33,
-    "propsDescribed": 14,
-    "describedPct": 42,
+    "propsTotal": 28,
+    "propsDescribed": 22,
+    "describedPct": 79,
     "authoredSections": [
       "accessibility"
     ]

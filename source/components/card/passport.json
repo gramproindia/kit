@@ -22,7 +22,7 @@
       "react/Stat.tsx",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:ef4320f169eb618584b31671b65838e1406de0bf944458079b383dcfd40c2e52"
+    "sourceHash": "sha256:5b40d5a873d8c4bd0ea3423f5a9b0ca06f2515aa1ea45149d36be3b2b4aa63e1"
   },
   "props": [
     {
@@ -81,7 +81,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A line under the heading, for context the title cannot carry.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "help",
@@ -113,7 +115,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "An icon beside the figure, to identify the metric at a glance.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "id",
@@ -179,7 +183,9 @@
       "type": "string",
       "typeText": "string | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Passed through when `href` is set. Worth setting to\n`noopener noreferrer` on any card linking off-site.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "role",
@@ -225,7 +231,9 @@
       "type": "other",
       "typeText": "StatTrend | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The change beside the figure: direction, a formatted label, and\nwhether down is the good outcome. Left out, no arrow is shown.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "value",
@@ -327,9 +335,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 27,
-    "propsDescribed": 10,
-    "describedPct": 37,
+    "propsTotal": 16,
+    "propsDescribed": 14,
+    "describedPct": 88,
     "authoredSections": [
       "accessibility"
     ]

@@ -29,7 +29,7 @@
       "react/props.ts",
       "react/useFileUploader.ts"
     ],
-    "sourceHash": "sha256:07b69e816e869610850093764502d4da38bb450f2ab729b827e4f124f6125d63"
+    "sourceHash": "sha256:f77a12b14c2d24bc55a922a38f2f85dca85eafe89f63ffb28932e0dc4639d965"
   },
   "props": [
     {
@@ -46,7 +46,9 @@
       "type": "boolean",
       "typeText": "boolean | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Accept the same file twice. Default false, where a file matching one\r\nalready selected by name, size and last-modified time is rejected.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "autoUpload",
@@ -95,7 +97,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A hint under the label, linked as the field's description. The place\r\nto say what is accepted and how large it may be.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "disabled",
@@ -137,7 +141,9 @@
       "type": "other",
       "typeText": "Partial<import(\"..\").ChunkFieldNames> | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Rename the form fields each chunk is sent under, for a server whose\r\ncontract you do not control.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "getFileId",
@@ -153,7 +159,9 @@
       "type": "other",
       "typeText": "Record<string, string> | ((request: import(\"..\").ChunkRequest) => Record<string, string> | Promise<Record<string, string>>) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Static headers, or a function - async allowed - called per chunk, which\r\nis what to use for a token that expires mid-upload.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "id",
@@ -167,7 +175,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The field's name, shown above the drop zone and linked to it.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "locale",
@@ -213,7 +223,9 @@
       ],
       "typeText": "'POST' | 'PUT' | 'PATCH' | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "HTTP method for each chunk. Default `POST`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "minSize",
@@ -257,28 +269,36 @@
       "type": "function",
       "signature": "((item: UploadItem, error: unknown) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "One file failed, after its retries were used up. `error` is an\r\n`UploadHttpError` carrying `status` and the parsed `body` when the\r\nserver answered, and whatever was thrown otherwise.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onFileSuccess",
       "type": "function",
       "signature": "((item: UploadItem) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "One file finished uploading. Fires per file, not once at the end.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onRejected",
       "type": "function",
       "signature": "((rejections: FileRejection[]) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Files that never made it in - wrong type, too large, a duplicate, or\r\nrefused by `validate`. Each rejection carries the file and the reason,\r\nso this is the hook for reporting why.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onRemoveExisting",
       "type": "function",
       "signature": "((file: ExistingFile) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Someone removed one of the already-stored files. Removing it for real\r\nis yours to do; the component only reports it.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onUploadComplete",
@@ -303,7 +323,9 @@
       "type": "function",
       "signature": "((body: string, xhr: XMLHttpRequest) => unknown) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Turn the response body into the value stored on the item, which is\r\nwhere `getFileId` then looks. Default: JSON, falling back to text.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "preview",
@@ -369,7 +391,9 @@
       "typeText": "UploaderSize | undefined",
       "required": false,
       "default": "md",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "style",
@@ -401,7 +425,9 @@
       "type": "boolean",
       "typeText": "boolean | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Send cookies on cross-origin requests. Default false.",
+      "descriptionOrigin": "jsdoc"
     }
   ],
   "events": [
@@ -508,9 +534,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 44,
-    "propsDescribed": 23,
-    "describedPct": 52,
+    "propsTotal": 39,
+    "propsDescribed": 36,
+    "describedPct": 92,
     "authoredSections": [
       "accessibility"
     ]

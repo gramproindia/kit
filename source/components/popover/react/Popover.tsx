@@ -47,11 +47,18 @@ export interface PopoverProps {
    */
   trigger: ReactElement<{ ref?: Ref<HTMLElement>; [attribute: string]: unknown }>;
   children?: ReactNode | ((props: PopoverRenderProps) => ReactNode);
+  /** Controlled open state. */
   open?: boolean;
+  /** Open to begin with, when you are not controlling `open`. */
   defaultOpen?: boolean;
+  /**
+   * `reason` says what closed it - `escape`, `outside`, `trigger` or
+   * `api` - and is undefined when opening.
+   */
   onOpenChange?(open: boolean, reason?: PopoverCloseReason): void;
   /** Heading inside the panel, which also names it. */
   title?: ReactNode;
+  /** A line under the title, linked as the panel's description. */
   description?: ReactNode;
   /** Names the panel when there is no `title`. */
   "aria-label"?: string;

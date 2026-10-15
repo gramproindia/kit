@@ -96,7 +96,9 @@ export function MenuItem(props: MenuItemProps) {
 }
 
 export interface MenuCheckboxItemProps extends BaseItemProps {
+  /** Ticked (controlled). */
   checked?: boolean;
+  /** The state after a toggle, as a plain boolean. */
   onCheckedChange?(checked: boolean): void;
   /** Default false: toggling several options in a row is the usual case. */
   closeOnSelect?: boolean;
@@ -147,7 +149,9 @@ export function MenuCheckboxItem(props: MenuCheckboxItemProps) {
 }
 
 export interface MenuRadioGroupProps {
+  /** The chosen value (controlled). */
   value?: string;
+  /** The newly chosen value. */
   onValueChange?(value: string): void;
   /** Names the group, and is shown above it when it is a string. */
   label?: ReactNode;

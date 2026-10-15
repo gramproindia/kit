@@ -17,7 +17,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:ac04de47fed41d6ef646920b241371395154173d148a5c5f9a6440ef2f589f6a"
+    "sourceHash": "sha256:71722134c43ba8dec7c9139a8c2c84ab4009247f7b8e1699308f6abbc634f278"
   },
   "props": [
     {
@@ -80,14 +80,18 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Open to begin with, when you are not controlling `open`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "description",
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A line under the title, linked as the panel's description.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "gap",
@@ -118,14 +122,18 @@
       "type": "function",
       "signature": "((open: boolean, reason?: PopoverCloseReason) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "`reason` says what closed it - `escape`, `outside`, `trigger` or\r\n`api` - and is undefined when opening.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "open",
       "type": "boolean",
       "typeText": "boolean | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Controlled open state.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "ref",
@@ -228,9 +236,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 19,
-    "propsDescribed": 8,
-    "describedPct": 42,
+    "propsTotal": 14,
+    "propsDescribed": 12,
+    "describedPct": 86,
     "authoredSections": [
       "accessibility"
     ]

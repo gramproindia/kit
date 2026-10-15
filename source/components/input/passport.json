@@ -23,7 +23,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:8059fadd4e1670ffcf97afe2f729758855d04389b0ccbe91edfc9d2a2975ee75"
+    "sourceHash": "sha256:50ff11f4a9255189704b330123d35d4f4e3550bd4cf2eed2d0735c92ba876b03"
   },
   "props": [
     {
@@ -112,7 +112,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A hint under the label, linked as the field's description.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "disabled",
@@ -182,7 +184,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The field's name, shown above it and linked to it.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "leading",
@@ -363,7 +367,9 @@
       "typeText": "FieldSize | undefined",
       "required": false,
       "default": "md",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "step",
@@ -526,9 +532,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 49,
-    "propsDescribed": 14,
-    "describedPct": 29,
+    "propsTotal": 18,
+    "propsDescribed": 16,
+    "describedPct": 89,
     "authoredSections": [
       "accessibility"
     ]

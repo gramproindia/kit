@@ -21,7 +21,7 @@
       "react/Tabs.tsx",
       "react/context.ts"
     ],
-    "sourceHash": "sha256:af648a096e1a1c4e3f61c57b4e61a6c115c3d2351d5f2c8c6b4519348ae80dfc"
+    "sourceHash": "sha256:3d8e29857c59101e547f234c45735db68cc87ee143cc87d841372ec612e2c663"
   },
   "props": [
     {
@@ -124,7 +124,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "An icon before the tab's text.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "id",
@@ -155,7 +157,9 @@
       "type": "function",
       "signature": "((value: string) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The newly selected tab. Not fired when the same tab is clicked again.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "orientation",
@@ -305,9 +309,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 25,
-    "propsDescribed": 7,
-    "describedPct": 28,
+    "propsTotal": 11,
+    "propsDescribed": 9,
+    "describedPct": 82,
     "authoredSections": [
       "accessibility"
     ]

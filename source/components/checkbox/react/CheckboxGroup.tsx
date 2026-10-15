@@ -13,7 +13,13 @@ import { cx, type CheckboxGroupSlot } from "./props";
 export interface CheckboxGroupProps {
   /** Checked values (controlled). */
   value?: string[];
+  /** The values checked to begin with, when you are not controlling `value`. */
   defaultValue?: string[];
+  /**
+   * The checked values after a change. They accumulate in the order they were
+   * checked, not the order the options are declared, so sort before comparing
+   * two selections for equality.
+   */
   onValueChange?(values: string[]): void;
   /** Render these options, or pass `<Checkbox value="…">` children. */
   options?: readonly CheckboxOption[];

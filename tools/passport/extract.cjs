@@ -16,6 +16,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { allowlistFor } = require("./policy.cjs");
+const { describable } = require("./merge.cjs");
 
 const PASSPORT_VERSION = "1.0.0";
 
@@ -435,7 +436,10 @@ function extractComponent(ts, program, checker, { name, dir, libRoot, libraryVer
     .filter((p) => /^on[A-Z]/.test(p.name))
     .map((p) => ({ name: p.name, ...(p.signature ? { signature: p.signature } : {}) }));
 
-  const described = propList.filter((p) => p.description).length;
+  // Same rule as the merge step, so the two never disagree: coverage is over
+  // the props this library declares, not the HTML attributes it inherits.
+  const countable = propList.filter(describable);
+  const described = countable.filter((p) => p.description).length;
 
   const passport = {
     passportVersion: PASSPORT_VERSION,
@@ -463,9 +467,9 @@ function extractComponent(ts, program, checker, { name, dir, libRoot, libraryVer
     safeMutations: {},
     examples: [],
     coverage: {
-      propsTotal: propList.length,
+      propsTotal: countable.length,
       propsDescribed: described,
-      describedPct: propList.length ? Math.round((described / propList.length) * 100) : 0,
+      describedPct: countable.length ? Math.round((described / countable.length) * 100) : 0,
       authoredSections: [],
     },
   };

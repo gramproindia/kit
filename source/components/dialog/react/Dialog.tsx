@@ -35,6 +35,10 @@ const INTENT_ICONS: Record<DialogIntent, ReactNode> = {
 export type DialogAction = "confirm" | "cancel";
 
 export interface DialogProps extends Omit<PromptOptions, "onConfirm"> {
+  /**
+   * Whether the dialog is on screen. Required: this component is always
+   * controlled, so set it to false in `onClose`.
+   */
   open: boolean;
   /** `alert` has one button, `confirm` two, `prompt` adds a text field. Default `confirm`. */
   kind?: DialogKind;

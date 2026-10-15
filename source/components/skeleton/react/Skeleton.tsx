@@ -14,6 +14,11 @@ export interface SkeletonProps {
   lastLineWidth?: number;
   /** A number is pixels; a string is used as given. */
   width?: number | string;
+  /**
+   * A number is pixels; a string is used as given. Left out, each variant
+   * uses its own height, which is what keeps a skeleton the size of the
+   * thing it stands in for.
+   */
   height?: number | string;
   /** Corner radius for `rect`. */
   radius?: number | string;

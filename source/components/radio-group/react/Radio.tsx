@@ -26,12 +26,29 @@ export interface RadioProps
   value: string;
   /** Selected (controlled). Inside a RadioGroup the group decides instead. */
   checked?: boolean;
+  /** Selected to begin with, for a standalone radio you are not controlling. */
   defaultChecked?: boolean;
+  /**
+   * This radio was chosen. Only ever fires with `true`, since choosing
+   * another radio deselects this one rather than firing on it — to follow a
+   * group's choice, use `onValueChange` on the RadioGroup.
+   */
   onCheckedChange?(checked: boolean): void;
+  /**
+   * The underlying DOM event, for form libraries that want the native
+   * handler.
+   */
   onChange?: ChangeEventHandler<HTMLInputElement>;
+  /** The text beside the radio. Clicking it selects this choice. */
   label?: ReactNode;
+  /** A hint under the label, linked as this choice's description. */
   description?: ReactNode;
+  /**
+   * The validation message for this one choice. A message that applies to the
+   * whole question belongs on the RadioGroup instead.
+   */
   error?: ReactNode;
+  /** Default `md`, or the size of the RadioGroup it sits in. */
   size?: RadioSize;
   classNames?: Partial<Record<RadioSlot, string>>;
   /** The `<input>` element. */

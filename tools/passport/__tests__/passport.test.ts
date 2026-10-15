@@ -6,7 +6,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
 const { buildAll, check, generate, serialise } = require("../index.cjs");
-const { mergePassport } = require("../merge.cjs");
+const { mergePassport, describable } = require("../merge.cjs");
 const { validateStructure, validateReferences, textIssues } = require("../validate.cjs");
 const { allowlistFor } = require("../policy.cjs");
 
@@ -347,12 +347,30 @@ describe("coverage", () => {
   it("counts described props and never invents a description", () => {
     for (const r of results) {
       const c = r.effective.coverage;
-      const actual = r.effective.props.filter((p: any) => p.description).length;
+      const counted = r.effective.props.filter(describable);
+      const actual = counted.filter((p: any) => p.description).length;
       expect(c.propsDescribed, r.name).toBe(actual);
-      expect(c.propsTotal, r.name).toBe(r.effective.props.length);
+      expect(c.propsTotal, r.name).toBe(counted.length);
       expect(c.describedPct, r.name).toBe(
         c.propsTotal ? Math.round((actual / c.propsTotal) * 100) : 0,
       );
+    }
+  });
+
+  /*
+   * The denominator is the point of the measure, so it is asserted rather
+   * than assumed. Counting inherited HTML attributes capped some components
+   * near 35% however well they documented their own API, which made the
+   * threshold unreachable by doing the work it asked for.
+   */
+  it("excludes inherited attributes and library-wide plumbing", () => {
+    for (const r of results) {
+      const counted = r.effective.props.filter(describable);
+      expect(counted.every((p: any) => p.origin === "derived"), r.name).toBe(true);
+      const names = counted.map((p: any) => p.name);
+      for (const plumbing of ["className", "classNames", "style", "ref", "localeText"]) {
+        expect(names, r.name).not.toContain(plumbing);
+      }
     }
   });
 

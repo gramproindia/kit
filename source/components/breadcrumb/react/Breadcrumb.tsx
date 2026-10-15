@@ -32,6 +32,7 @@ export interface BreadcrumbProps extends Omit<HTMLAttributes<HTMLElement>, "chil
    * `{ baseUrl }` so relative links become absolute, as search engines require.
    */
   structuredData?: boolean | { baseUrl: string };
+  /** Default `md`. */
   size?: "sm" | "md" | "lg";
   classNames?: Partial<Record<BreadcrumbSlot, string>>;
   localeText?: Partial<BreadcrumbLocaleText>;

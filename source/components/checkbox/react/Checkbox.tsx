@@ -25,14 +25,31 @@ export interface CheckboxProps
   > {
   /** `true`, `false` or `"indeterminate"` (controlled). */
   checked?: CheckedState;
+  /** The starting state when you are not controlling `checked`. */
   defaultChecked?: CheckedState;
+  /**
+   * The state after a change, as a plain boolean — the handler to reach for.
+   * Never fires with `"indeterminate"`: clicking a mixed box resolves it.
+   */
   onCheckedChange?(checked: boolean): void;
+  /**
+   * The underlying DOM event, for form libraries that want the native
+   * handler. For reading the new state, `onCheckedChange` is simpler.
+   */
   onChange?: ChangeEventHandler<HTMLInputElement>;
   /** Posted with the form when checked. Inside a CheckboxGroup, the value this box adds. */
   value?: string;
+  /** The text beside the box. Clicking it toggles the box. */
   label?: ReactNode;
+  /** A hint under the label, linked as the box's description. */
   description?: ReactNode;
+  /**
+   * The validation message. Setting it is enough on its own: the box reads as
+   * invalid to assistive technology and the message is announced, so no extra
+   * `aria-invalid` is needed.
+   */
   error?: ReactNode;
+  /** Default `md`, or the size of the CheckboxGroup it sits in. */
   size?: CheckboxSize;
   classNames?: Partial<Record<CheckboxSlot, string>>;
   /** The `<input>` element. */

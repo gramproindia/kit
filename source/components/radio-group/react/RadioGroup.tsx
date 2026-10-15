@@ -19,19 +19,32 @@ import { cx, type RadioGroupSlot } from "./props";
 export interface RadioGroupProps {
   /** The chosen value (controlled). `null` for nothing chosen. */
   value?: string | null;
+  /** The choice selected to begin with, when you are not controlling `value`. */
   defaultValue?: string | null;
+  /**
+   * The chosen value, or `null` when the group was emptied with `clearable`.
+   * This is the handler to use for a group; the individual radios do not need
+   * one.
+   */
   onValueChange?(value: string | null): void;
   /** Render these choices, or pass `<Radio value="…">` children. Plain strings work too. */
   options?: readonly (string | RadioOption)[];
   children?: ReactNode;
   /** The question the choices answer, shown as the group's legend. */
   label?: ReactNode;
+  /** A hint under the legend, explaining the question rather than one choice. */
   description?: ReactNode;
+  /**
+   * The validation message for the question — "choose a plan". Setting it
+   * marks every radio in the group invalid and announces the message, so no
+   * extra `aria-invalid` is needed.
+   */
   error?: ReactNode;
   required?: boolean;
   disabled?: boolean;
   /** Form field name shared by every radio. One is generated when it is left out. */
   name?: string;
+  /** Default `md`. Each radio inherits it unless it sets its own. */
   size?: RadioSize;
   /** Default `vertical`. */
   orientation?: RadioOrientation;

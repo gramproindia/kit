@@ -27,6 +27,7 @@ export interface SwitchProps
   > {
   /** On or off (controlled). */
   checked?: boolean;
+  /** The starting state when you are not controlling `checked`. */
   defaultChecked?: boolean;
   /**
    * Fires with the new state. Return a promise and the switch stays on the new
@@ -34,12 +35,25 @@ export interface SwitchProps
    * it rejects — see [Saving](#saving).
    */
   onCheckedChange?(checked: boolean): void | Promise<unknown>;
+  /**
+   * The underlying DOM event, for form libraries that want the native
+   * handler. For the new state, and for the async behaviour above, use
+   * `onCheckedChange`.
+   */
   onChange?: ChangeEventHandler<HTMLInputElement>;
   /** Posted with the form when the switch is on. Default `"on"`, as for a checkbox. */
   value?: string;
+  /** The text beside the track. Clicking it flips the switch. */
   label?: ReactNode;
+  /** A hint under the label, linked as the switch's description. */
   description?: ReactNode;
+  /**
+   * The validation message. Setting it is enough on its own: the switch reads
+   * as invalid to assistive technology and the message is announced, so no
+   * extra `aria-invalid` is needed.
+   */
   error?: ReactNode;
+  /** Default `md`. */
   size?: SwitchSize;
   /** Default `end`: the label after the track. `start` puts the track on the right, for settings rows. */
   labelPosition?: SwitchLabelPosition;

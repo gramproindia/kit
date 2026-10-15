@@ -18,7 +18,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:ea18a9023e99fd751d8295a40f257e4471948a5cc9878d808501471718da32aa"
+    "sourceHash": "sha256:3b7fef8f48d1a1290c25a263d2e92ef5dcb706b1a06899ffe5a4df1cdab663e1"
   },
   "props": [
     {
@@ -151,7 +151,9 @@
       "typeText": "'sm' | 'md' | 'lg' | undefined",
       "required": false,
       "default": "md",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "structuredData",
@@ -233,9 +235,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 20,
-    "propsDescribed": 7,
-    "describedPct": 35,
+    "propsTotal": 8,
+    "propsDescribed": 8,
+    "describedPct": 100,
     "authoredSections": [
       "accessibility"
     ]

@@ -45,17 +45,35 @@ export interface FileUploaderProps {
   minSize?: number;
   /** Return a message to reject a file. */
   validate?(file: File): string | null | undefined;
+  /**
+   * Accept the same file twice. Default false, where a file matching one
+   * already selected by name, size and last-modified time is rejected.
+   */
   allowDuplicates?: boolean;
 
   /* ------------------------------------------------------------- upload */
   /** Where chunks are POSTed. Without `endpoint` or `transport`, files are only selected. */
   endpoint?: HttpTransportOptions["endpoint"];
+  /** HTTP method for each chunk. Default `POST`. */
   method?: HttpTransportOptions["method"];
+  /**
+   * Static headers, or a function - async allowed - called per chunk, which
+   * is what to use for a token that expires mid-upload.
+   */
   headers?: HttpTransportOptions["headers"];
+  /** Send cookies on cross-origin requests. Default false. */
   withCredentials?: boolean;
   /** Extra data sent as JSON with every chunk. */
   params?: HttpTransportOptions["params"];
+  /**
+   * Rename the form fields each chunk is sent under, for a server whose
+   * contract you do not control.
+   */
   fieldNames?: HttpTransportOptions["fieldNames"];
+  /**
+   * Turn the response body into the value stored on the item, which is
+   * where `getFileId` then looks. Default: JSON, falling back to text.
+   */
   parseResponse?: HttpTransportOptions["parseResponse"];
   /** Replaces the built-in HTTP transport, e.g. for presigned URLs or an SDK. */
   transport?: Transport;
@@ -77,15 +95,25 @@ export interface FileUploaderProps {
   preview?: boolean;
   /** Files already stored, shown above new ones. */
   existingFiles?: readonly ExistingFile[];
+  /**
+   * Someone removed one of the already-stored files. Removing it for real
+   * is yours to do; the component only reports it.
+   */
   onRemoveExisting?(file: ExistingFile): void;
   /** Show remove buttons. Default true. */
   removable?: boolean;
+  /** The field's name, shown above the drop zone and linked to it. */
   label?: ReactNode;
+  /**
+   * A hint under the label, linked as the field's description. The place
+   * to say what is accepted and how large it may be.
+   */
   description?: ReactNode;
   /** Message below the drop zone; also marks it invalid. */
   error?: ReactNode;
   required?: boolean;
   disabled?: boolean;
+  /** Default `md`. */
   size?: UploaderSize;
   /**
    * Form field name. With an endpoint, the stored file ids are posted; without
@@ -103,8 +131,19 @@ export interface FileUploaderProps {
   /* ------------------------------------------------------------- events */
   /** Selected files changed. */
   onChange?(files: File[]): void;
+  /**
+   * Files that never made it in - wrong type, too large, a duplicate, or
+   * refused by `validate`. Each rejection carries the file and the reason,
+   * so this is the hook for reporting why.
+   */
   onRejected?(rejections: FileRejection[]): void;
+  /** One file finished uploading. Fires per file, not once at the end. */
   onFileSuccess?(item: UploadItem): void;
+  /**
+   * One file failed, after its retries were used up. `error` is an
+   * `UploadHttpError` carrying `status` and the parsed `body` when the
+   * server answered, and whatever was thrown otherwise.
+   */
   onFileError?(item: UploadItem, error: unknown): void;
   /** Every file in an upload run has stopped (uploaded, failed, paused or canceled). */
   onUploadComplete?(items: UploadItem[]): void;

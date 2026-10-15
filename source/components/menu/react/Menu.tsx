@@ -46,8 +46,14 @@ export interface MenuProps {
    */
   trigger: ReactElement<{ [attribute: string]: unknown }>;
   children: ReactNode;
+  /** Controlled open state. */
   open?: boolean;
+  /** Open to begin with, when you are not controlling `open`. */
   defaultOpen?: boolean;
+  /**
+   * `reason` says what closed it - `escape`, `outside`, `trigger`,
+   * `select` or `api` - and is undefined when opening.
+   */
   onOpenChange?(open: boolean, reason?: MenuCloseReason): void;
   /** Names the menu for screen readers. Defaults to the locale text. */
   label?: string;
@@ -257,6 +263,7 @@ export interface MenuSubProps {
   /** The label of the item that opens the submenu. */
   label: ReactNode;
   children: ReactNode;
+  /** Drawn before the submenu's label, at the size of the text. */
   icon?: ReactNode;
   disabled?: boolean;
   className?: string;

@@ -27,8 +27,9 @@ export type DateFormat =
   | ((date: Date, locale: string | undefined) => string);
 
 export interface DatePickerSharedProps {
-  /** Earliest and latest selectable day. */
+  /** Earliest selectable day. Earlier days are shown but cannot be picked. */
   min?: DateInput | null;
+  /** Latest selectable day. Later days are shown but cannot be picked. */
   max?: DateInput | null;
   /** Called for every rendered day; return true to block it (weekends, holidays). */
   isDateDisabled?(date: Date): boolean;
@@ -40,9 +41,16 @@ export interface DatePickerSharedProps {
   locale?: string;
   /** 0 = Sunday. Defaults to the locale's first day of the week. */
   weekStartsOn?: number;
+  /**
+   * How the chosen date is displayed. `Intl.DateTimeFormatOptions` for the
+   * usual cases, or a function for a shape Intl cannot express. Left out,
+   * the locale's own date format is used - which is the right default far
+   * more often than a hand-written one.
+   */
   format?: DateFormat;
   /** Months shown side by side. Default 1, or 2 for the range picker. */
   numberOfMonths?: number;
+  /** Number each week down the left of the calendar. Default false. */
   showWeekNumbers?: boolean;
   /** Show the "Today" shortcut in the footer. Default true. */
   showToday?: boolean;
@@ -50,7 +58,9 @@ export interface DatePickerSharedProps {
   allowInput?: boolean;
   /** Always six week rows, so the popover never changes height. Default true. */
   fixedWeeks?: boolean;
+  /** The control's name, shown above it and linked to it. */
   label?: ReactNode;
+  /** A hint under the label, linked as the control's description. */
   description?: ReactNode;
   /** Message shown below the control; also marks the control invalid. */
   error?: ReactNode;
@@ -61,6 +71,7 @@ export interface DatePickerSharedProps {
   readOnly?: boolean;
   /** Show the clear button. Default true. */
   clearable?: boolean;
+  /** Default `md`. */
   size?: DatePickerSize;
   /** Posts the value as `yyyy-mm-dd` in a hidden input. */
   name?: string;
@@ -69,6 +80,7 @@ export interface DatePickerSharedProps {
   classNames?: Partial<Record<DatePickerSlot, string>>;
   style?: CSSProperties;
   localeText?: Partial<DatePickerLocaleText>;
+  /** The calendar opened or closed. */
   onOpenChange?(open: boolean): void;
 }
 

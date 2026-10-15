@@ -21,7 +21,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:45120dc11be8aafca638f8f6248f83deeb9f98c809140f80fd8c2d2610306371"
+    "sourceHash": "sha256:0cb6347602f25bd7c77b8738d9d1ac5216ee1a6ef50b5bf54f34deeb2d914f7b"
   },
   "props": [
     {
@@ -143,7 +143,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A hint under the label, linked as the field's description.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "disabled",
@@ -157,7 +159,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The validation message. Setting it is enough on its own: the field\r\nreads as invalid to assistive technology and the message is announced.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "form",
@@ -217,7 +221,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The field's name, shown above it and linked to it.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "largeStep",
@@ -259,7 +265,9 @@
       "type": "number",
       "typeText": "number | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Largest accepted value, applied the same way as `min`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "maxLength",
@@ -273,7 +281,9 @@
       "type": "number",
       "typeText": "number | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Smallest accepted value. By default it is applied on blur rather than on\r\neach keystroke, so the field does not fight someone mid-number — see\r\n`clampBehavior` for `strict` or `none`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "minLength",
@@ -356,7 +366,9 @@
       "typeText": "NumberSize | undefined",
       "required": false,
       "default": "md",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "snapToStep",
@@ -531,9 +543,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 50,
-    "propsDescribed": 18,
-    "describedPct": 36,
+    "propsTotal": 24,
+    "propsDescribed": 23,
+    "describedPct": 96,
     "authoredSections": [
       "accessibility"
     ]

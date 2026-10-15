@@ -23,6 +23,7 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, "child
   formatValue?(value: number): string;
   /** A small filled circle before the label, for a status. */
   dot?: boolean;
+  /** An icon before the label, in place of `dot`. */
   icon?: ReactNode;
   classNames?: Partial<Record<BadgeSlot, string>>;
   ref?: Ref<HTMLSpanElement>;

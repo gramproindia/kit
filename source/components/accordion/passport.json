@@ -21,7 +21,7 @@
       "react/context.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:719b5c18a3e0f3f7479cd1c4f59d729b335053fc47708cc5ab5763b6d69a206a"
+    "sourceHash": "sha256:c04b9c09e8661f463e2a808ecd45a7c080c236bc7b398efc1b3505a45e245f00"
   },
   "props": [
     {
@@ -60,7 +60,9 @@
       "type": "other",
       "typeText": "string[] | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Panels open to begin with, when you are not controlling `value`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "description",
@@ -135,7 +137,9 @@
       "type": "function",
       "signature": "((value: string[]) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The open panels after a change, always an array even with `multiple`\r\noff - where it holds one value, or none once a panel is closed.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "ref",
@@ -249,9 +253,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 19,
-    "propsDescribed": 10,
-    "describedPct": 53,
+    "propsTotal": 15,
+    "propsDescribed": 12,
+    "describedPct": 80,
     "authoredSections": [
       "accessibility"
     ]

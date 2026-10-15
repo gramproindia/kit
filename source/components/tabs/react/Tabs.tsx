@@ -33,6 +33,7 @@ export interface TabsProps extends Omit<
   value?: string;
   /** Selected tab at first. Without either, the first enabled tab is selected. */
   defaultValue?: string;
+  /** The newly selected tab. Not fired when the same tab is clicked again. */
   onValueChange?(value: string): void;
   /** Default `horizontal`. */
   orientation?: TabsOrientation;
@@ -221,6 +222,7 @@ export interface TabProps extends Omit<
 > {
   /** Identifies the tab and its panel. */
   value: string;
+  /** An icon before the tab's text. */
   icon?: ReactNode;
   /** A small count or label after the text, e.g. unread items. */
   badge?: ReactNode;

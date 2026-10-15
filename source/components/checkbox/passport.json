@@ -22,7 +22,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:5b132e0d372a16b0536b1e8a6fb8809dbcbfb00e1282d406a0a474090f4a72f5"
+    "sourceHash": "sha256:ddf0907b2b6377c5d134ed140d8a4f47b0dc5ef39ec984c21ec33370c6d9815f"
   },
   "props": [
     {
@@ -96,21 +96,27 @@
       "typeText": "CheckedState | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The starting state when you are not controlling `checked`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "defaultValue",
       "type": "other",
       "typeText": "string[] | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The values checked to begin with, when you are not controlling `value`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "description",
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A hint under the label, linked as the box's description.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "disabled",
@@ -125,7 +131,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The validation message. Setting it is enough on its own: the box reads as\r\ninvalid to assistive technology and the message is announced, so no extra\r\n`aria-invalid` is needed.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "form",
@@ -170,7 +178,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The text beside the box. Clicking it toggles the box.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "localeText",
@@ -221,21 +231,27 @@
       "type": "function",
       "signature": "ChangeEventHandler<HTMLInputElement> | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The underlying DOM event, for form libraries that want the native\r\nhandler. For reading the new state, `onCheckedChange` is simpler.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onCheckedChange",
       "type": "function",
       "signature": "((checked: boolean) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The state after a change, as a plain boolean — the handler to reach for.\r\nNever fires with `\"indeterminate\"`: clicking a mixed box resolves it.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onValueChange",
       "type": "function",
       "signature": "((values: string[]) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The checked values after a change. They accumulate in the order they were\nchecked, not the order the options are declared, so sort before comparing\ntwo selections for equality.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "options",
@@ -324,7 +340,9 @@
       ],
       "typeText": "CheckboxSize | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`, or the size of the CheckboxGroup it sits in.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "step",
@@ -446,9 +464,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 43,
-    "propsDescribed": 7,
-    "describedPct": 16,
+    "propsTotal": 19,
+    "propsDescribed": 15,
+    "describedPct": 79,
     "authoredSections": [
       "accessibility"
     ]

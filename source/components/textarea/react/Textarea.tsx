@@ -28,10 +28,13 @@ export interface TextareaProps
   defaultValue?: string;
   /** The new text on every change. The native `onChange` fires as well. */
   onValueChange?(value: string): void;
+  /** The field's name, shown above it and linked to it. */
   label?: ReactNode;
+  /** A hint under the label, linked as the field's description. */
   description?: ReactNode;
   /** Message below the field; also marks it invalid. */
   error?: ReactNode;
+  /** Default `md`. */
   size?: FieldSize;
   /** Grow and shrink with the text, between `minRows` and `maxRows`. Default false. */
   autoResize?: boolean;

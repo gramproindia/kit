@@ -22,7 +22,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:cd5f36365c184346538fb461f4c4cd8014723621fd4d312cd5f00c415df20618"
+    "sourceHash": "sha256:7e13b8cd8a2bab1ee7a89cf691c1dc388951723939ca4a87def57d6301d8aa33"
   },
   "props": [
     {
@@ -106,21 +106,27 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Selected to begin with, for a standalone radio you are not controlling.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "defaultValue",
       "type": "string",
       "typeText": "string | null | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The choice selected to begin with, when you are not controlling `value`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "description",
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A hint under the label, linked as this choice's description.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "disabled",
@@ -135,7 +141,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The validation message for this one choice. A message that applies to the\nwhole question belongs on the RadioGroup instead.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "form",
@@ -180,7 +188,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The text beside the radio. Clicking it selects this choice.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "localeText",
@@ -231,21 +241,27 @@
       "type": "function",
       "signature": "ChangeEventHandler<HTMLInputElement> | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The underlying DOM event, for form libraries that want the native\nhandler.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onCheckedChange",
       "type": "function",
       "signature": "((checked: boolean) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "This radio was chosen. Only ever fires with `true`, since choosing\nanother radio deselects this one rather than firing on it — to follow a\ngroup's choice, use `onValueChange` on the RadioGroup.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onValueChange",
       "type": "function",
       "signature": "((value: string | null) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The chosen value, or `null` when the group was emptied with `clearable`.\r\nThis is the handler to use for a group; the individual radios do not need\r\none.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "options",
@@ -325,7 +341,9 @@
       ],
       "typeText": "RadioSize | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`, or the size of the RadioGroup it sits in.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "step",
@@ -467,9 +485,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 44,
-    "propsDescribed": 8,
-    "describedPct": 18,
+    "propsTotal": 20,
+    "propsDescribed": 16,
+    "describedPct": 80,
     "authoredSections": [
       "accessibility"
     ]

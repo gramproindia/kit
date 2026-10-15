@@ -18,7 +18,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:d96a8af61a18c077beccad85f49d1a25f1e20091aede0182c852f7f36ee9254a"
+    "sourceHash": "sha256:b2007da7ec91cbad6bd7697048cc205d22e8b94035482a9f631a75e9dabfd0e4"
   },
   "props": [
     {
@@ -85,7 +85,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The starting state when you are not controlling `checked`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "defaultValue",
@@ -99,7 +101,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A hint under the label, linked as the switch's description.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "disabled",
@@ -113,7 +117,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The validation message. Setting it is enough on its own: the switch reads\r\nas invalid to assistive technology and the message is announced, so no\r\nextra `aria-invalid` is needed.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "form",
@@ -158,7 +164,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The text beside the track. Clicking it flips the switch.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "labelPosition",
@@ -231,7 +239,9 @@
       "type": "function",
       "signature": "ChangeEventHandler<HTMLInputElement> | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The underlying DOM event, for form libraries that want the native\r\nhandler. For the new state, and for the async behaviour above, use\r\n`onCheckedChange`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onCheckedChange",
@@ -290,7 +300,9 @@
       "typeText": "SwitchSize | undefined",
       "required": false,
       "default": "md",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "step",
@@ -411,9 +423,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 39,
-    "propsDescribed": 6,
-    "describedPct": 15,
+    "propsTotal": 11,
+    "propsDescribed": 11,
+    "describedPct": 100,
     "authoredSections": [
       "accessibility"
     ]

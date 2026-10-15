@@ -43,7 +43,13 @@ export interface NumberInputProps
   defaultValue?: number | null;
   /** Fires with the parsed number, or `null` when the field is emptied. */
   onValueChange?(value: number | null): void;
+  /**
+   * Smallest accepted value. By default it is applied on blur rather than on
+   * each keystroke, so the field does not fight someone mid-number — see
+   * `clampBehavior` for `strict` or `none`.
+   */
   min?: number;
+  /** Largest accepted value, applied the same way as `min`. */
   max?: number;
   /** How much one arrow press or stepper button moves. Default 1. */
   step?: number;
@@ -75,9 +81,16 @@ export interface NumberInputProps
   selectOnFocus?: boolean;
   /** A button that empties the field. */
   clearable?: boolean;
+  /** The field's name, shown above it and linked to it. */
   label?: ReactNode;
+  /** A hint under the label, linked as the field's description. */
   description?: ReactNode;
+  /**
+   * The validation message. Setting it is enough on its own: the field
+   * reads as invalid to assistive technology and the message is announced.
+   */
   error?: ReactNode;
+  /** Default `md`. */
   size?: NumberSize;
   /** Before the number: a currency symbol, a unit. */
   leading?: ReactNode;

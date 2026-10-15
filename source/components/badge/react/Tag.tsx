@@ -11,6 +11,7 @@ export interface TagProps extends Omit<HTMLAttributes<HTMLSpanElement>, "onRemov
   variant?: BadgeVariant;
   appearance?: BadgeAppearance;
   size?: BadgeSize;
+  /** An icon before the label. */
   icon?: ReactNode;
   /** Show a remove button. Without it a Tag is a Badge with a bit more padding. */
   onRemove?(): void;

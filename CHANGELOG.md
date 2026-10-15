@@ -4,6 +4,29 @@
 
 ### Added
 
+**Every prop this library declares now carries a description.**
+
+117 did not, and the passports are what an agent reads instead of the
+source, so an undescribed prop is one it has to guess at. The worst of them
+were not obscure: `DataGrid`'s `columns` and `data` had no description at
+all, and `label`, `error`, `description` and `onChange` were bare on
+Checkbox, Switch and RadioGroup.
+
+Where reading the code turned up something a type cannot say, that is in
+the description now:
+
+- `onCellEdit` fires only when the value actually changed, and returning a
+  promise makes the edit optimistic - the cell reverts and shows the
+  rejection's message if it fails, so reject with the reason you want read.
+- `CheckboxGroup`'s values accumulate in the order they were checked, not
+  the order the options are declared, so sort before comparing selections.
+- `Checkbox.onCheckedChange` never fires with `"indeterminate"`.
+- `FileUploader` treats name, size and last-modified time as a file's
+  identity when rejecting duplicates.
+- `NumberInput`'s `min` and `max` apply on blur rather than per keystroke,
+  unless `clampBehavior` says otherwise.
+- `DatePicker.onChange` always hands back a `Date` at local midnight, even
+  though `value` accepts a string or a number.
 **The Figma token belongs to your operating system now, not to a file in
 your repository.**
 
@@ -89,6 +112,26 @@ from disk for each one.
 
 ### Fixed
 
+**`Select`'s `closeOnSelect` was documented backwards, in both directions.**
+Its description read "Keep the list open after choosing. Default false."
+while the code defaults it to `true` and closing is what the prop does. An
+agent reading that passport would have had both the behaviour and the
+default inverted - the failure mode that makes a wrong description worse
+than a missing one. MultiSelect's was already right.
+
+**Description coverage was measured against a denominator nobody could
+move.** It counted every prop, including the HTML and ARIA attributes that
+arrive through `extends ButtonHTMLAttributes` - 390 of the 507 undescribed
+props were those. So Button sat at 31% with its entire own API documented
+bar one prop, and eleven components stayed under the 40% threshold with
+nothing left to write. A gate that cannot be satisfied by doing the work it
+asks for gets ignored.
+
+It now measures the props the library authors, excluding inherited
+attributes and the handful whose meaning is library-wide (`className`,
+`style`, `ref` and friends) rather than restating them 27 times. On that
+measure the library is at 87% and the weakest component at 75%, so the
+threshold moves from 40 to 75 - a floor rather than an aspiration.
 **The rate-limit message no longer promises that waiting a minute will
 help.** It said to try again shortly, which is wrong for a cost-based limit
 whose window runs to tens of minutes or longer. It now passes Figma's own

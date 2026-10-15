@@ -64,7 +64,7 @@
       "react/keyboard.ts",
       "react/locale.ts"
     ],
-    "sourceHash": "sha256:85285e939d717fa498f6aa038e225d9f488eef52e3e530f214e51e6ae34aaa79"
+    "sourceHash": "sha256:b3fa605b7c7ae2fbb4d9ccd3900b69472665508c0c92b5a218767d4c387d20a3"
   },
   "purpose": "Display and operate on tabular data. Virtualized; holds its own sort, filter, search, selection, column and pagination state in an external store exposed through GridApi.",
   "props": [
@@ -73,7 +73,9 @@
       "type": "other",
       "typeText": "GridAgent<T> | null",
       "required": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The agent that turns a sentence into grid operations, from\n`useGridAgent`. `null` while none is in scope, and the box renders\nnothing rather than offering something that cannot answer.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "agentPolicy",
@@ -131,21 +133,27 @@
       "type": "other",
       "typeText": "readonly ColumnDef<T, unknown>[]",
       "required": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "One definition per column, and the order here is the initial column order.\nA definition says where a column's value comes from and how to render it;\neverything else about the grid is driven from these.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "data",
       "type": "other",
       "typeText": "readonly T[]",
       "required": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The rows to show. One object per row, in whatever shape your data already\nhas — columns reach into it rather than the other way round. In `server`\nmode this is the current page, not the whole set.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "emptyState",
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Shown in place of rows when there are none. Worth distinguishing \"nothing\r\nhere yet\" from \"nothing matched your filters\", which the default does not.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "enableColumnHiding",
@@ -153,7 +161,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Let columns be shown and hidden from the toolbar. Default `true`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "enableColumnPinning",
@@ -161,7 +171,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Let a column be pinned to the left or right edge. Default `true`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "enableColumnReordering",
@@ -169,7 +181,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Let a header be dragged to move the column. Default `true`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "enableColumnResizing",
@@ -177,7 +191,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Let a header edge be dragged to resize. Default `true`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "enableFiltering",
@@ -185,14 +201,18 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Per-column filters and the toolbar's search box. Default `true`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "enableMultiSort",
       "type": "boolean",
       "typeText": "boolean | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Let a shift-click add a column to the sort rather than replacing it.\nDefault `true`, and inert while `enableSorting` is off.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "enablePagination",
@@ -200,7 +220,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Page the rows instead of scrolling the whole set. Default `true`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "enableRowSelection",
@@ -208,7 +230,9 @@
       "typeText": "boolean | ((row: T) => boolean) | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Add the selection column. Default `false`. A function selects per row —\nreturn `false` and that row's checkbox is disabled, which is how to stop\nsomeone picking a record their role does not cover.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "enableSorting",
@@ -216,21 +240,27 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Let a header click sort the column. Default `true`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "exportFileName",
       "type": "string",
       "typeText": "string | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Base name for an exported file, without the extension.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "getRowClassName",
       "type": "function",
       "signature": "((row: T, rowIndex: number) => string | undefined) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A class per row, for status colouring. Return undefined for no class.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "getRowId",
@@ -246,7 +276,9 @@
       "type": "number",
       "typeText": "number | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Fixed header height in px. Defaults to the density's row height.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "height",
@@ -263,7 +295,9 @@
       "type": "other",
       "typeText": "Partial<GridState> | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Where the grid starts — a default sort, a page size, hidden columns. Read\nonce on mount and then owned by the grid, so later changes are ignored.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "loading",
@@ -271,7 +305,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Show the loading treatment over the grid. The existing rows stay in place\r\nunderneath, so a refresh does not empty the screen.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "locale",
@@ -309,7 +345,9 @@
       "type": "function",
       "signature": "((event: CellEditEvent<T>) => void | Promise<void>) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A cell was edited. Fires only when the value actually changed.\n\nReturn a promise to make the edit optimistic: the new value shows while\nit is in flight, and if the promise rejects the cell reverts to the\nunderlying data and shows the rejection's message as the cell's error.\nSo reject with the reason you want the user to read.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onQueryChange",
@@ -334,14 +372,18 @@
       "type": "function",
       "signature": "((row: T, event: MouseEvent<HTMLElement>) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Same exclusions as `onRowClick`: interactive content does not reach it.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onStateChange",
       "type": "function",
       "signature": "((next: GridState, prev: GridState) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Every change to sorting, filters, search, pagination, selection, column\nlayout or density, with the state before it for comparison. This is the\nhook for persisting a user's view.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "pageSizeOptions",
@@ -349,7 +391,9 @@
       "typeText": "number[] | undefined",
       "required": false,
       "default": "DEFAULT_PAGE_SIZES",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Page sizes offered in the pager. Default `[25, 50, 100, 250]`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "placeholder",
@@ -393,7 +437,9 @@
       "typeText": "'multiple' | 'single' | undefined",
       "required": false,
       "default": "multiple",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "`single` leaves one row selected at a time. Default `multiple`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "semantics",
@@ -410,6 +456,8 @@
       "typeText": "Partial<GridState> | undefined",
       "required": false,
       "origin": "derived",
+      "description": "Drive the grid from outside. Whatever you pass here the grid obeys rather\nthan deciding for itself, so pair it with `onStateChange` or the grid\nstops responding. Pass only the slices you want to own; the rest stay\ninternal. For a starting point you do not intend to control, use\n`initialState`.",
+      "descriptionOrigin": "jsdoc",
       "note": "Makes the grid controlled. Prefer `initialState` unless the host genuinely owns the state."
     },
     {
@@ -424,7 +472,9 @@
       "type": "other",
       "typeText": "readonly string[] | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Example questions offered before anyone types. Worth setting to the\nphrasings this data actually supports — they teach the shape of a good\nquestion faster than placeholder text does.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "toolbar",
@@ -432,7 +482,9 @@
       "typeText": "boolean | ToolbarOptions | undefined",
       "required": false,
       "default": true,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The toolbar above the grid. `true` for all of it, `false` for none, or an\r\nobject to choose parts — `{ search: true, export: false }` — and to put\r\nyour own controls at its `start` or `end`.",
+      "descriptionOrigin": "jsdoc"
     }
   ],
   "events": [
@@ -1029,9 +1081,9 @@
   },
   "examples": [],
   "coverage": {
-    "propsTotal": 45,
-    "propsDescribed": 12,
-    "describedPct": 27,
+    "propsTotal": 40,
+    "propsDescribed": 38,
+    "describedPct": 95,
     "authoredSections": [
       "accessibility",
       "composition",

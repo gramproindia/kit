@@ -19,7 +19,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:35a538fdd2522c310be181bbb598fdc6eebb99fc5dd1a0ffab3cccf8d84ac43a"
+    "sourceHash": "sha256:a586004558fc7c4059756daa252c36028f3f9b1f4cf55fcccb9b5af2ce1e21e9"
   },
   "props": [
     {
@@ -93,7 +93,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "A hint under the label, linked as the field's description.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "disabled",
@@ -137,7 +139,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The field's name, shown above it and linked to it.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "localeText",
@@ -267,7 +271,9 @@
       "typeText": "FieldSize | undefined",
       "required": false,
       "default": "md",
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Default `md`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "style",
@@ -372,9 +378,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 35,
-    "propsDescribed": 8,
-    "describedPct": 23,
+    "propsTotal": 12,
+    "propsDescribed": 10,
+    "describedPct": 83,
     "authoredSections": [
       "accessibility"
     ]

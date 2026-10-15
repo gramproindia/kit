@@ -17,6 +17,10 @@ export interface CardProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
   href?: string;
   /** Passed through when `href` is set. */
   target?: AnchorHTMLAttributes<HTMLAnchorElement>["target"];
+  /**
+   * Passed through when `href` is set. Worth setting to
+   * `noopener noreferrer` on any card linking off-site.
+   */
   rel?: string;
   /** Lifts the card on hover, for a card that is clickable by other means. */
   interactive?: boolean;
@@ -82,6 +86,7 @@ export function Card(props: CardProps) {
 export interface CardHeaderProps {
   /** The heading. Wrap it in your own `h2`/`h3` to set the level. */
   title?: ReactNode;
+  /** A line under the heading, for context the title cannot carry. */
   description?: ReactNode;
   /** Buttons or a menu, aligned to the end of the header. */
   actions?: ReactNode;

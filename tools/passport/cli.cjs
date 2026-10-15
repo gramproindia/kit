@@ -15,7 +15,14 @@ const { generate, check } = require("./index.cjs");
 
 const REPO = path.resolve(__dirname, "..", "..");
 const LIB = path.join(REPO, "source", "components");
-const COVERAGE_THRESHOLD = 40; // ratchet upward over time
+/*
+ * Ratchet upward over time. 40 was set when coverage counted every inherited
+ * HTML attribute in the denominator, which capped some components near 35% and
+ * made the gate unreachable by doing the work it asked for. Now that it
+ * measures the props this library authors, the library sits at 87% and the
+ * weakest component at 75, so this is the floor rather than an aspiration.
+ */
+const COVERAGE_THRESHOLD = 75;
 
 const args = process.argv.slice(2);
 const wantCheck = args.includes("--check");

@@ -38,11 +38,27 @@ export interface DataGridProps<T> extends GridOptions<T> {
   autoHeight?: boolean;
   /** Fixed row height in px. Defaults to the density's height. */
   rowHeight?: number;
+  /** Fixed header height in px. Defaults to the density's row height. */
   headerHeight?: number;
+  /**
+   * Show the loading treatment over the grid. The existing rows stay in place
+   * underneath, so a refresh does not empty the screen.
+   */
   loading?: boolean;
+  /**
+   * The toolbar above the grid. `true` for all of it, `false` for none, or an
+   * object to choose parts — `{ search: true, export: false }` — and to put
+   * your own controls at its `start` or `end`.
+   */
   toolbar?: boolean | ToolbarOptions;
+  /** Page sizes offered in the pager. Default `[25, 50, 100, 250]`. */
   pageSizeOptions?: number[];
+  /**
+   * Shown in place of rows when there are none. Worth distinguishing "nothing
+   * here yet" from "nothing matched your filters", which the default does not.
+   */
   emptyState?: ReactNode;
+  /** A class per row, for status colouring. Return undefined for no class. */
   getRowClassName?(row: T, rowIndex: number): string | undefined;
   classNames?: Partial<Record<GridSlot, string>>;
   className?: string;

@@ -30,6 +30,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   trailing?: ReactNode;
   /** An icon-only button. Give it an `aria-label`. */
   icon?: ReactNode;
+  /** Fill the width of the container, for forms and narrow screens. */
   fullWidth?: boolean;
   /** Return a promise to show the loading state until it settles. */
   onClick?(event: MouseEvent<HTMLElement>): unknown;

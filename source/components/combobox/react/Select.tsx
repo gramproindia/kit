@@ -13,8 +13,13 @@ import { useCombobox } from "./useCombobox";
 export interface SelectProps<V extends OptionValue = string> extends ComboboxSharedProps<V> {
   value?: V | null;
   defaultValue?: V | null;
+  /**
+   * The chosen value, and the whole option beside it so the label and
+   * anything else it carries need not be looked up again. Both are
+   * `null` once the control is cleared.
+   */
   onChange?(value: NoInfer<V> | null, option: ComboboxOption<NoInfer<V>> | null): void;
-  /** Keep the list open after choosing. Default false. */
+  /** Close the list after choosing. Default true; `false` keeps it open. */
   closeOnSelect?: boolean;
   ref?: Ref<ComboboxHandle<V>>;
 }

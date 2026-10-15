@@ -235,9 +235,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 20,
+    "propsTotal": 8,
     "propsDescribed": 8,
-    "describedPct": 40,
+    "describedPct": 100,
     "authoredSections": [
       "accessibility"
     ]

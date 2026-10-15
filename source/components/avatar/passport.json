@@ -20,7 +20,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:2e50d4901b3c6a436a1c8ee35fb43eb11488e305b0466874f007ee325aa02896"
+    "sourceHash": "sha256:541aa6ca5c99e64fba414881c07cc3c29244e03c09b665a4934690d633cc20e1"
   },
   "props": [
     {
@@ -186,7 +186,9 @@
       "type": "string",
       "typeText": "string | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The image. If it fails to load, the avatar falls back to the initials\nrather than showing a broken image, so `name` is worth setting too.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "status",
@@ -284,9 +286,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 23,
-    "propsDescribed": 9,
-    "describedPct": 39,
+    "propsTotal": 10,
+    "propsDescribed": 10,
+    "describedPct": 100,
     "authoredSections": [
       "accessibility"
     ]

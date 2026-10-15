@@ -20,7 +20,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:f6db45647bfab522ced894c388fb16f6a7fac5ebd20a7114d351b812a1f73d34"
+    "sourceHash": "sha256:16f626a94da3bac9b1a105718010edd7e1ce5a6118823ed8a53c97d658d89a3e"
   },
   "props": [
     {
@@ -128,7 +128,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "An icon before the label, in place of `dot`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "id",
@@ -322,9 +324,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 26,
-    "propsDescribed": 10,
-    "describedPct": 38,
+    "propsTotal": 13,
+    "propsDescribed": 11,
+    "describedPct": 85,
     "authoredSections": [
       "accessibility"
     ]

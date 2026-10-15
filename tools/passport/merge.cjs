@@ -72,6 +72,25 @@ function mergeProps(derived, overlayProps, origin) {
   return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+/*
+ * Props whose meaning is the same on every component in the library, and so
+ * belong in one page of conventions rather than in 27 passports. A one-line
+ * gloss on each would be filler, and filler in a passport is worse than
+ * silence: an agent reads it as information.
+ */
+const PLUMBING = new Set(["className", "classNames", "style", "ref", "key", "localeText"]);
+
+/**
+ * Whether a prop counts towards description coverage.
+ *
+ * Only what this library declares itself. An inherited prop is `aria-label`
+ * or `tabIndex` arriving through `extends ButtonHTMLAttributes` - documented
+ * by the HTML specification, and not ours to restate. Counting them put the
+ * reachable ceiling for some components near 35%, so the gate asked for work
+ * that could not move it.
+ */
+const describable = (prop) => prop.origin === "derived" && !PLUMBING.has(prop.name);
+
 /**
  * Produce the effective passport written to passport.json.
  *
@@ -112,20 +131,21 @@ function mergePassport(derived, manual = {}, local = {}) {
   }
 
   // Coverage is recomputed after overlays, since manual descriptions count.
-  const described = out.props.filter((p) => p.description).length;
+  const counted = out.props.filter(describable);
+  const described = counted.filter((p) => p.description).length;
   const authoredSections = [...AUTHORED].filter((k) => {
     const v = out[k];
     return Array.isArray(v) ? v.length > 0 : isObject(v) ? Object.keys(v).length > 0 : Boolean(v);
   }).sort();
 
   out.coverage = {
-    propsTotal: out.props.length,
+    propsTotal: counted.length,
     propsDescribed: described,
-    describedPct: out.props.length ? Math.round((described / out.props.length) * 100) : 0,
+    describedPct: counted.length ? Math.round((described / counted.length) * 100) : 0,
     authoredSections,
   };
 
   return out;
 }
 
-module.exports = { mergePassport, deepMerge, mergeProps, SOURCE_OWNED, AUTHORED, UNSAFE_KEYS };
+module.exports = { mergePassport, deepMerge, mergeProps, describable, SOURCE_OWNED, AUTHORED, UNSAFE_KEYS };

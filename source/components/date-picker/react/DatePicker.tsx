@@ -23,6 +23,11 @@ import { useDatePicker } from "./useDatePicker";
 export interface DatePickerProps extends DatePickerSharedProps {
   value?: DateInput | null;
   defaultValue?: DateInput | null;
+  /**
+   * The chosen day as a `Date` at local midnight, or `null` once cleared.
+   * Accepts a string or a number in `value`, but always hands back a
+   * `Date`.
+   */
   onChange?(date: Date | null): void;
   /** Close the calendar after choosing a date. Default true. */
   closeOnSelect?: boolean;

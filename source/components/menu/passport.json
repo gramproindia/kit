@@ -29,7 +29,7 @@
       "react/props.ts",
       "react/useMenuKeys.ts"
     ],
-    "sourceHash": "sha256:7613198a66407cdf4fa284f093ae35f5596e79cf1242097d09cdc3172c2f79d7"
+    "sourceHash": "sha256:9a6248a4986051f6506746c084b9e89728fecd0a0b430d1962f5f3ed544ce1e5"
   },
   "props": [
     {
@@ -52,7 +52,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Ticked (controlled).",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "children",
@@ -91,7 +93,9 @@
       "typeText": "boolean | undefined",
       "required": false,
       "default": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Open to begin with, when you are not controlling `open`.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "destructive",
@@ -126,7 +130,9 @@
       "type": "other",
       "typeText": "ReactNode",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Drawn before the submenu's label, at the size of the text.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "id",
@@ -156,14 +162,18 @@
       "type": "function",
       "signature": "((checked: boolean) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The state after a toggle, as a plain boolean.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onOpenChange",
       "type": "function",
       "signature": "((open: boolean, reason?: MenuCloseReason) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "`reason` says what closed it - `escape`, `outside`, `trigger`,\r\n`select` or `api` - and is undefined when opening.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "onSelect",
@@ -179,14 +189,18 @@
       "type": "function",
       "signature": "((value: string) => void) | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The newly chosen value.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "open",
       "type": "boolean",
       "typeText": "boolean | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Controlled open state.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "ref",
@@ -241,7 +255,9 @@
       "type": "string",
       "typeText": "string | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "The chosen value (controlled).",
+      "descriptionOrigin": "jsdoc"
     }
   ],
   "events": [
@@ -312,9 +328,9 @@
   "safeMutations": {},
   "examples": [],
   "coverage": {
-    "propsTotal": 25,
-    "propsDescribed": 9,
-    "describedPct": 36,
+    "propsTotal": 20,
+    "propsDescribed": 17,
+    "describedPct": 85,
     "authoredSections": [
       "accessibility"
     ]

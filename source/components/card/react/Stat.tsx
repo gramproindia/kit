@@ -23,9 +23,14 @@ export interface StatProps {
   /** What the figure is. Always visible — a number alone means nothing. */
   label: ReactNode;
   value: ReactNode;
+  /**
+   * The change beside the figure: direction, a formatted label, and
+   * whether down is the good outcome. Left out, no arrow is shown.
+   */
   trend?: StatTrend;
   /** A note under the figure. */
   help?: ReactNode;
+  /** An icon beside the figure, to identify the metric at a glance. */
   icon?: ReactNode;
   /** Shows placeholder bars instead of the figure. */
   loading?: boolean;

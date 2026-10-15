@@ -268,7 +268,17 @@ export interface PdfExportOptions<T> extends PrintExportOptions<T> {
 }
 
 export interface GridOptions<T> {
+  /**
+   * The rows to show. One object per row, in whatever shape your data already
+   * has — columns reach into it rather than the other way round. In `server`
+   * mode this is the current page, not the whole set.
+   */
   data: readonly T[];
+  /**
+   * One definition per column, and the order here is the initial column order.
+   * A definition says where a column's value comes from and how to render it;
+   * everything else about the grid is driven from these.
+   */
   columns: readonly ColumnDef<T>[];
   /**
    * Stable row id: a property name (recommended) or a function.
@@ -279,24 +289,67 @@ export interface GridOptions<T> {
   mode?: "client" | "server";
   /** Total rows on the server (server mode). */
   rowCount?: number;
+  /**
+   * Drive the grid from outside. Whatever you pass here the grid obeys rather
+   * than deciding for itself, so pair it with `onStateChange` or the grid
+   * stops responding. Pass only the slices you want to own; the rest stay
+   * internal. For a starting point you do not intend to control, use
+   * `initialState`.
+   */
   state?: Partial<GridState>;
+  /**
+   * Where the grid starts — a default sort, a page size, hidden columns. Read
+   * once on mount and then owned by the grid, so later changes are ignored.
+   */
   initialState?: Partial<GridState>;
+  /**
+   * Every change to sorting, filters, search, pagination, selection, column
+   * layout or density, with the state before it for comparison. This is the
+   * hook for persisting a user's view.
+   */
   onStateChange?(next: GridState, prev: GridState): void;
   /** Fires when sorting, filters, search or pagination change. */
   onQueryChange?(query: GridQuery): void;
+  /** Page the rows instead of scrolling the whole set. Default `true`. */
   enablePagination?: boolean;
+  /** Let a header click sort the column. Default `true`. */
   enableSorting?: boolean;
+  /**
+   * Let a shift-click add a column to the sort rather than replacing it.
+   * Default `true`, and inert while `enableSorting` is off.
+   */
   enableMultiSort?: boolean;
+  /** Per-column filters and the toolbar's search box. Default `true`. */
   enableFiltering?: boolean;
+  /** Let a header edge be dragged to resize. Default `true`. */
   enableColumnResizing?: boolean;
+  /** Let a header be dragged to move the column. Default `true`. */
   enableColumnReordering?: boolean;
+  /** Let a column be pinned to the left or right edge. Default `true`. */
   enableColumnPinning?: boolean;
+  /** Let columns be shown and hidden from the toolbar. Default `true`. */
   enableColumnHiding?: boolean;
+  /**
+   * Add the selection column. Default `false`. A function selects per row —
+   * return `false` and that row's checkbox is disabled, which is how to stop
+   * someone picking a record their role does not cover.
+   */
   enableRowSelection?: boolean | ((row: T) => boolean);
+  /** `single` leaves one row selected at a time. Default `multiple`. */
   selectionMode?: "single" | "multiple";
+  /**
+   * A cell was edited. Fires only when the value actually changed.
+   *
+   * Return a promise to make the edit optimistic: the new value shows while
+   * it is in flight, and if the promise rejects the cell reverts to the
+   * underlying data and shows the rejection's message as the cell's error.
+   * So reject with the reason you want the user to read.
+   */
   onCellEdit?(event: CellEditEvent<T>): void | Promise<void>;
   /** Not fired for clicks on interactive content (buttons, inputs, links, checkboxes). */
   onRowClick?(row: T, event: MouseEvent<HTMLElement>): void;
+  /** Same exclusions as `onRowClick`: interactive content does not reach it. */
   onRowDoubleClick?(row: T, event: MouseEvent<HTMLElement>): void;
+  /** Base name for an exported file, without the extension. */
   exportFileName?: string;
 }
