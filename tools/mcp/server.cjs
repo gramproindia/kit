@@ -251,6 +251,99 @@ function validateUsage(code) {
   };
 }
 
+/*
+ * Turn an exported Figma selection into something buildable.
+ *
+ * The export already dropped what an agent cannot use. What is left to do is
+ * the part that needs the catalogue: say which nodes are components we ship,
+ * which theme variables the design's own values map onto, and what has to be
+ * installed before any of it compiles.
+ *
+ * It deliberately does not emit code. The agent writes that, with the
+ * passports to hand and `validate_usage` to check it — a tool that generated
+ * JSX would be guessing at a layout it cannot see rendered.
+ */
+function figmaFrame(payload) {
+  let design;
+  try {
+    design = typeof payload === "string" ? JSON.parse(payload) : payload;
+  } catch (error) {
+    return { error: `That is not JSON: ${error.message}` };
+  }
+  if (!design || !Array.isArray(design.nodes)) {
+    return {
+      error:
+        "Expected the output of the Figma plugin's 'Export selection for an agent' command.",
+    };
+  }
+
+  const mapped = new Map();
+  const unmapped = new Set();
+
+  const annotate = (node) => {
+    const out = { name: node.name, type: node.type };
+    if (node.component) {
+      const folder = findFolder(node.component);
+      if (folder) {
+        const p = readJson(path.join(CATALOGUE, folder, "passport.json"));
+        out.use = p.identity.component;
+        out.importFrom = `@/component-lib/${folder}`;
+        mapped.set(p.identity.component, folder);
+      } else {
+        out.unmapped = node.component;
+        unmapped.add(node.component);
+      }
+    }
+    if (node.properties) out.figmaProps = node.properties;
+    if (node.layout) out.layout = node.layout;
+    if (node.text) out.text = node.text;
+    if (node.style) out.style = node.style;
+    if (node.children) out.children = node.children.map(annotate);
+    return out;
+  };
+
+  const tree = design.nodes.map(annotate);
+
+  /*
+   * The most-used value of each kind is the one worth promoting to a theme
+   * variable; the rest are usually one-offs that belong in the page's own CSS.
+   */
+  const tokens = design.tokens || {};
+  const top = (list) => (Array.isArray(list) && list.length ? list[0] : null);
+  const colour = top(tokens.colours);
+  const radius = top(tokens.radii);
+  const fontSize = top(tokens.fontSizes);
+
+  const theme = [];
+  if (colour) theme.push({ variable: "--gbs-accent", value: colour.value, seenOn: colour.uses });
+  if (radius) theme.push({ variable: "--gbs-radius", value: `${radius.value}px`, seenOn: radius.uses });
+  if (fontSize)
+    theme.push({ variable: "--gbs-font-size", value: `${fontSize.value}px`, seenOn: fontSize.uses });
+
+  return {
+    frame: design.frame,
+    install:
+      mapped.size > 0
+        ? `npx @grampro/kit add ${[...mapped.keys()].join(" ")}`
+        : "Nothing in this selection is an instance of a kit component.",
+    components: [...mapped.keys()],
+    unmapped: [...unmapped],
+    theme,
+    tree,
+    nextSteps: [
+      "Run the install command.",
+      "Call get_component for each component before writing its JSX.",
+      "Put the theme variables on :root in your global CSS.",
+      "Call validate_usage on the finished markup.",
+      ...(unmapped.size
+        ? [
+            `${unmapped.size} node(s) are not kit components — build those from plain elements, or ask whether a component should be added.`,
+          ]
+        : []),
+    ],
+  };
+}
+
 const TOOLS = [
   {
     name: "list_components",
@@ -292,6 +385,23 @@ const TOOLS = [
       additionalProperties: false,
     },
     run: (args) => getGuidance(args.topic),
+  },
+  {
+    name: "figma_frame",
+    description:
+      "Turn a Figma selection exported by the GramproKit plugin into a build plan: which nodes are kit components, what to install, which theme variables the design's values map onto, and the structure to translate. Paste the plugin's JSON output as `design`.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        design: {
+          type: "string",
+          description: "JSON from the plugin's 'Export selection for an agent' command.",
+        },
+      },
+      required: ["design"],
+      additionalProperties: false,
+    },
+    run: (args) => figmaFrame(args.design),
   },
   {
     name: "validate_usage",
@@ -375,4 +485,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { main, listComponents, getComponent, getExample, getGuidance, validateUsage, TOOLS };
+module.exports = { main, listComponents, getComponent, getExample, getGuidance, validateUsage, figmaFrame, TOOLS };

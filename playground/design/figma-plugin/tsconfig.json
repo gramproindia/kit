@@ -25,6 +25,7 @@
     "src/overlays.ts",
     "src/surfaces.ts",
     "src/display.ts",
+    "src/export.ts",
     "src/main.ts"
   ]
 }

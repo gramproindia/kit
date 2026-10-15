@@ -50,7 +50,15 @@ async function run() {
   figma.closePlugin(`Grampro Kit ready: ${COLOR_TOKENS.length + NUMBER_TOKENS.length} variables (${darkNote}), ${TYPE_TOKENS.length} text styles, ${components} component sets.`);
 }
 
-run().catch((error: unknown) => {
+const command = figma.command || "generate";
+
+if (command === "export") {
+  exportSelection().catch((error: unknown) => {
+    figma.closePlugin(error instanceof Error ? error.message : String(error));
+  });
+} else {
+  run().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
   figma.closePlugin(`Grampro Kit failed: ${message}`);
-});
+  });
+}

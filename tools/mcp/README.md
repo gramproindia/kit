@@ -29,6 +29,7 @@ document pasted into the prompt.
 | `get_component` | Props with types and allowed values, which are required, handler signatures, slots, states, composition rules |
 | `get_example` | Working usage from the component's README |
 | `get_guidance` | Authored notes on forms, overlays, data-grid, pickers, styling, accessibility |
+| `figma_frame` | Which nodes in a Figma selection are kit components, what to install, and which theme variables the design maps onto |
 | `validate_usage` | Whether JSX you have written matches the passports |
 
 `validate_usage` is the one that earns its place. In the experiment that
@@ -43,6 +44,27 @@ invention, and this catches it:
 
   dismissible — not a prop of this component. Did you mean: onDismiss
 ```
+
+## From a Figma design
+
+The design half does not go through this server. Figma knows its own file;
+asking it through the REST API would mean guessing at a schema that changes.
+Instead the kit's Figma plugin exports the selection, because inside Figma the
+scene graph is typed and the compiler checks every field name.
+
+1. In Figma, select a frame and run **Grampro Kit → Export selection for an
+   agent**. It condenses the selection: structure, which nodes are instances
+   of kit components, the text, and the values worth turning into theme
+   variables. Vector geometry and absolute coordinates are dropped — they
+   bury the useful part.
+2. Paste that JSON into `figma_frame`.
+3. It answers with the components to install, the `--gbs-*` variables the
+   design's own colours and radii map onto, and the structure to translate.
+
+It does not write the code. An agent with the passports to hand and
+`validate_usage` to check itself writes better JSX than a tool guessing at a
+layout it cannot see rendered. Anything in the design that is not a kit
+component is reported as unmapped rather than approximated.
 
 ## Suggested use
 
