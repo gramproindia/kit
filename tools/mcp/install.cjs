@@ -18,6 +18,31 @@ const path = require("path");
 const PACKAGE = "@grampro/kit";
 const SERVER = "grampro";
 
+/*
+ * Where the project starts, which is not necessarily where you ran this.
+ *
+ * An agent looks for `.mcp.json` at the root of the folder it opened. Writing
+ * to the working directory means that running this from `src/` puts the
+ * configuration somewhere nothing will ever read, and the command still
+ * reports success — the one way this can quietly do nothing.
+ *
+ * The nearest marker of either kind wins, rather than `.git` in preference to
+ * `package.json`. Someone who opens one workspace of a monorepo should get
+ * that workspace, and searching for `.git` first would walk straight past it
+ * and write above the folder their agent has open.
+ */
+function projectRoot(from) {
+  let dir = path.resolve(from);
+  for (;;) {
+    for (const mark of [".git", "package.json"]) {
+      if (fs.existsSync(path.join(dir, mark))) return dir;
+    }
+    const up = path.dirname(dir);
+    if (up === dir) return path.resolve(from);
+    dir = up;
+  }
+}
+
 /**
  * How the agent should start the server.
  *
@@ -135,7 +160,19 @@ const TARGETS = {
     label: "Claude Code",
     where: (cwd) => path.join(cwd, ".mcp.json"),
     apply: installJson,
-    note: "Restart Claude Code, then `/mcp` to confirm it connected.",
+    /*
+     * A `.mcp.json` server is project-scoped, and Claude Code will not load
+     * one without being asked first — it sits at "Pending approval" until
+     * you say yes, and nothing asks again. That prompt only appears at the
+     * start of a session, so an editor window already open sees nothing at
+     * all. Both are worth saying out loud, because the file is written
+     * either way and the command otherwise looks like it worked.
+     */
+    note:
+      "Reload the window (VS Code: Developer: Reload Window), approve the server\n" +
+      "      when asked, then `/mcp` should show it connected. Prefer it in every\n" +
+      "      project instead? `claude mcp add -s user grampro -- npx -y @grampro/kit mcp`\n" +
+      "      skips the approval, since user scope is yours rather than the repo's.",
   },
   codex: {
     label: "Codex",
@@ -160,7 +197,7 @@ const NAMES = Object.keys(TARGETS);
  * given it writes for every agent, because the cost of an unused config file
  * is nil and guessing wrong wastes a round trip with the user.
  */
-function install({ cwd = process.cwd(), for: which } = {}) {
+function install({ cwd = projectRoot(process.cwd()), for: which } = {}) {
   const wanted = !which || which === "all"
     ? NAMES
     : String(which)
@@ -183,12 +220,13 @@ function install({ cwd = process.cwd(), for: which } = {}) {
     }
   });
 
-  return { launch, results };
+  return { launch, results, root: cwd };
 }
 
 /** The CLI face of the above. */
 function main(operands, options = {}) {
-  const outcome = install({ cwd: process.cwd(), for: options.for });
+  const root = projectRoot(process.cwd());
+  const outcome = install({ cwd: root, for: options.for });
   if (outcome.error) {
     console.log(outcome.error);
     process.exitCode = 1;
@@ -196,10 +234,17 @@ function main(operands, options = {}) {
   }
 
   const { launch, results } = outcome;
+
+  // Say which directory, always. An agent reads these files from the folder
+  // it opened, so the wrong directory is the failure that looks like success.
+  console.log(`Project root:   ${root}`);
+  if (path.resolve(process.cwd()) !== root) {
+    console.log(`                (you ran this in ${process.cwd()})`);
+  }
   console.log(`Server command: ${launch.command} ${launch.args.join(" ")}\n`);
 
   for (const result of results) {
-    const rel = path.relative(process.cwd(), result.file) || result.file;
+    const rel = path.relative(root, result.file) || result.file;
     if (result.status === "failed") {
       console.log(`  ${result.label}: ${result.detail}`);
       process.exitCode = 1;

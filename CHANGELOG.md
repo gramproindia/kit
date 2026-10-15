@@ -45,6 +45,20 @@ and every JSON parser then rejects the file with an error naming the first
 character and explaining nothing. This writes UTF-8 without a BOM and with
 LF endings, and strips a BOM from a file that already has one.
 
+It writes to the project root — the nearest folder above you with a `.git`
+or a `package.json` — and prints which one it chose. An agent reads these
+files from the folder it has open, so running the command from a
+subdirectory would have written somewhere nothing ever looks while still
+reporting success.
+
+It also now says what has to happen next, because writing the file is not
+the same as loading the server. A `.mcp.json` server is project-scoped and
+Claude Code asks before trusting one, so it sits at `Pending approval` until
+you agree; and the configuration is read when a session starts, so an editor
+window that was already open sees nothing until it reloads. Installing at
+user scope — `claude mcp add -s user grampro -- npx -y @grampro/kit mcp` —
+skips both, at the cost of not being shareable through a commit.
+
 ### Changed
 
 **Reading a Figma design no longer downloads the whole file.**

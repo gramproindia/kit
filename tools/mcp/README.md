@@ -25,6 +25,38 @@ character and explains nothing.
 Running it again is safe. It merges into whatever is already there, leaves
 other servers alone, and says `unchanged` when there is nothing to do.
 
+It writes to the project root — the nearest folder up from you with a `.git`
+or a `package.json` — and prints which one it chose, because an agent reads
+these files from the folder it has open and writing to a subdirectory is the
+one way this can quietly do nothing.
+
+### If the server does not appear
+
+The file being written is not the same as the server being loaded, and in
+Claude Code two things stand between them.
+
+**It needs approving.** A `.mcp.json` server is project-scoped, and Claude
+Code asks before trusting one — until you say yes it sits at `Pending
+approval`, and nothing asks twice. `claude mcp reset-project-choices` brings
+the prompt back if it was dismissed.
+
+**It needs a fresh session.** The configuration is read when a session
+starts, so an editor window that was already open sees nothing. In the VS
+Code extension, run *Developer: Reload Window*.
+
+`/mcp` lists the servers and their state, which is the quickest way to tell
+"not configured" from "configured, not approved".
+
+To skip both, install it for yourself rather than for the project:
+
+```bash
+claude mcp add -s user grampro -- npx -y @grampro/kit mcp
+```
+
+User scope lives in `~/.claude.json`, loads in every project, and needs no
+approval because it is yours rather than the repository's. Project scope is
+the better choice when you want the rest of the team to get it from a commit.
+
 ### What it writes
 
 | agent | file | format |

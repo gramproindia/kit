@@ -129,6 +129,37 @@ An MCP server is not invoked by name. There is no `/grampro`; the model
 calls the tools itself when they are relevant. `/mcp` shows whether the
 server is connected.
 
+It writes to the project root - the nearest folder above you holding a
+`.git` or a `package.json` - and prints which one it picked, because an
+agent only reads these files from the folder it has open.
+
+### If the server does not show up
+
+Writing the file is not the same as loading the server, and in Claude Code
+two things sit between them.
+
+**It needs approving.** A `.mcp.json` server is project-scoped, and Claude
+Code asks before trusting one. Until you agree it stays at `Pending
+approval`, and nothing asks a second time; `claude mcp reset-project-choices`
+brings the prompt back.
+
+**It needs a fresh session.** The configuration is read at session start, so
+an editor window that was already open sees nothing. In the VS Code
+extension, run *Developer: Reload Window*.
+
+`/mcp` lists the servers with their state, which separates "not configured"
+from "configured, not approved".
+
+Both are skippable by installing it for yourself instead of for the project:
+
+```bash
+claude mcp add -s user grampro -- npx -y @grampro/kit mcp
+```
+
+User scope lives in `~/.claude.json`, loads in every project, and needs no
+approval because it belongs to you rather than to the repository. Project
+scope is still the better choice when the team should get it from a commit.
+
 ### The tools
 
 | tool | what it answers |
