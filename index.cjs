@@ -1171,7 +1171,7 @@ const validateComponents = (components, beta = false) => {
  * projects a week install this; breaking their scripts to tidy an argument
  * parser is not a trade worth making.
  */
-const COMMANDS = new Set(["add", "list", "skill", "passport"]);
+const COMMANDS = new Set(["add", "list", "skill", "passport", "mcp"]);
 
 /**
  * Flags that take a separate value, so the token after one is that value and
@@ -1274,6 +1274,7 @@ const main = async () => {
     .example("$0 passport --check", "Fail if a passport is stale (CI)")
     .example("$0 add Select --legacy", "Install from the 1.x set")
     .example("$0 add Button --dest app/ui", "Choose where they go")
+    .example("$0 mcp", "Serve the catalogue to a coding agent over MCP")
     .example("$0 -i", "Interactive selection")
     .help().argv;
 
@@ -1289,6 +1290,12 @@ const main = async () => {
       "Note: --beta is no longer needed; these components are the default. " +
         "Drop the flag.",
     );
+  }
+
+  if (parsed && parsed.command === "mcp") {
+    // Speaks JSON-RPC on stdout; nothing else may write there.
+    require("./tools/mcp/server.cjs").main();
+    return;
   }
 
   if (parsed) {

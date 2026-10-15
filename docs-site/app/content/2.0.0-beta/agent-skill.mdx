@@ -93,6 +93,45 @@ The installer records a sha256 of every file it writes — across all four locat
 
 <Notice message="Put your own house rules in a separate folder, such as .gbs/skills/our-conventions/, rather than editing this one. The installer merges into .gbs/ and leaves folders it did not write alone, so your skills and this one update independently." />
 
+## An MCP server, for agents that speak it
+
+The skill is a document an agent reads up front. The MCP server is the same
+catalogue answered on demand, which matters because the passports come to
+280 KB and a page needs two or three components.
+
+```bash
+claude mcp add grampro -- npx -y @grampro/kit mcp
+```
+
+Codex, Cursor and anything else that speaks MCP take the same command. It is
+a stdio server, no configuration, and no dependencies — so adding it costs
+nothing at install time.
+
+Five tools:
+
+| tool | what it answers |
+| --- | --- |
+| `list_components` | What exists, and what each one is for |
+| `get_component` | Props with types and allowed values, which are required, handler signatures, slots, states, composition rules |
+| `get_example` | Working usage from the component's README |
+| `get_guidance` | Authored notes on forms, overlays, the grid, pickers, styling, accessibility |
+| `validate_usage` | Whether the JSX an agent just wrote matches the passports |
+
+The last one is the point. A page written from passports alone compiles on
+the first attempt — every type, union value and handler signature in a
+passport is accurate, because it was generated from the source. What a
+passport cannot stop is a model reaching for a prop it remembers from
+somewhere else, so the server checks:
+
+```
+<Alert variant="info" title="Hi" dismissible onDismiss={…} />
+
+  dismissible — not a prop of this component. Did you mean: onDismiss
+```
+
+Worth telling your agent, once: call `get_component` before writing JSX for a
+component, and `validate_usage` on what it wrote before reporting back.
+
 ## Which agents read it
 
 No agent reads all of these locations, so the CLI writes one copy per agent from the same source. They differ only in where they sit and what their front matter is called.

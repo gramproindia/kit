@@ -90,6 +90,18 @@ In this repository:
 | [`docs/grid-agent-evaluation.md`](docs/grid-agent-evaluation.md) | the 230-case corpus and how a model gets measured against it |
 | [`docs/agent-native-architecture.md`](docs/agent-native-architecture.md) | where this is going, and which parts are still proposal |
 
+## MCP server
+
+For agents that speak MCP, the catalogue is also served on demand:
+
+```bash
+claude mcp add grampro -- npx -y @grampro/kit mcp
+```
+
+It answers what exists, each component's full contract, working examples, and
+whether the JSX an agent just wrote actually matches the component it used.
+No dependencies, no configuration. See `tools/mcp/README.md`.
+
 ## Agent skill
 
 Install the skill once per project so a coding agent uses these components
