@@ -18,7 +18,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:b10547e2d34ee9c542458b1dc8b6e067878a5b47c364409de7f314412520d8a0"
+    "sourceHash": "sha256:7666d0807d7131796ced32c99da380d3a6db2cf011fd2dcfa7904878799c1871"
   },
   "purpose": "Trigger an action. Not for navigation unless `render` supplies a link element.",
   "props": [

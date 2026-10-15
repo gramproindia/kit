@@ -26,7 +26,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The action reads `packageManager` from the repo root, and the root
+      # project uses npm, so the version is given here. Keep it in step with
+      # playground/package.json, which pins the same one for local work.
       - uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22

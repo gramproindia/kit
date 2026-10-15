@@ -29,7 +29,7 @@
       "react/props.ts",
       "react/useFileUploader.ts"
     ],
-    "sourceHash": "sha256:ff19deac106eaffa0aa59740e3d0505ed592c05d20efabda6858549cf66c24c9"
+    "sourceHash": "sha256:07b69e816e869610850093764502d4da38bb450f2ab729b827e4f124f6125d63"
   },
   "props": [
     {

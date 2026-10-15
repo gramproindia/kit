@@ -65,13 +65,19 @@ function sourceFiles(dir) {
 /**
  * Hash of the inputs the passport is derived from. Deterministic: sorted paths,
  * file contents only, no timestamps.
+ *
+ * Line endings are normalised first. The same file arrives as CRLF on a
+ * Windows checkout and LF on CI, so hashing the bytes verbatim made a
+ * passport generated on one platform read as stale on the other — which it
+ * did, for all 27 components at once. A content hash should not depend on
+ * how the file was checked out.
  */
 function hashSources(files, root) {
   const h = crypto.createHash("sha256");
   for (const f of [...files].sort()) {
     h.update(posix(path.relative(root, f)));
     h.update("\0");
-    h.update(fs.readFileSync(f));
+    h.update(fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n"));
     h.update("\0");
   }
   return `sha256:${h.digest("hex")}`;
