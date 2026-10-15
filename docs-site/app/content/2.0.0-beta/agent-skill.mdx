@@ -95,19 +95,44 @@ The installer records a sha256 of every file it writes — across all four locat
 
 ## An MCP server, for agents that speak it
 
+<Notice message="Beta. The tools work and are tested, but their names and shapes may change before this settles. The Figma token handling in particular is not where it should be — see Credentials below." />
+
 The skill is a document an agent reads up front. The MCP server is the same
 catalogue answered on demand, which matters because the passports come to
 280 KB and a page needs two or three components.
 
 ```bash
+npx @grampro/kit mcp
+```
+
+With the Claude Code CLI:
+
+```bash
 claude mcp add grampro -- npx -y @grampro/kit mcp
 ```
 
-Codex, Cursor and anything else that speaks MCP take the same command. It is
-a stdio server, no configuration, and no dependencies — so adding it costs
+Without it, write `.mcp.json` at the root of your project:
+
+```json
+{
+  "mcpServers": {
+    "grampro": {
+      "command": "node",
+      "args": ["node_modules/@grampro/kit/index.cjs", "mcp"]
+    }
+  }
+}
+```
+
+Codex, Cursor and anything else that speaks MCP take the same server. It is
+stdio, has no configuration, and brings no dependencies — so adding it costs
 nothing at install time.
 
-Five tools:
+An MCP server is not invoked by name. There is no `/grampro`; the model
+calls the tools itself when they are relevant. `/mcp` shows whether the
+server is connected.
+
+### The tools
 
 | tool | what it answers |
 | --- | --- |
@@ -115,10 +140,12 @@ Five tools:
 | `get_component` | Props with types and allowed values, which are required, handler signatures, slots, states, composition rules |
 | `get_example` | Working usage from the component's README |
 | `get_guidance` | Authored notes on forms, overlays, the grid, pickers, styling, accessibility |
+| `figma_frame` | A design's structure, text, repeated regions, and the theme variables its colours map onto |
+| `install_component` | Copies components into the project being worked in |
 | `validate_usage` | Whether the JSX an agent just wrote matches the passports |
 
-The last one is the point. A page written from passports alone compiles on
-the first attempt — every type, union value and handler signature in a
+`validate_usage` is the point. A page written from passports alone compiles
+on the first attempt — every type, union value and handler signature in a
 passport is accurate, because it was generated from the source. What a
 passport cannot stop is a model reaching for a prop it remembers from
 somewhere else, so the server checks:
@@ -129,8 +156,44 @@ somewhere else, so the server checks:
   dismissible — not a prop of this component. Did you mean: onDismiss
 ```
 
-Worth telling your agent, once: call `get_component` before writing JSX for a
-component, and `validate_usage` on what it wrote before reporting back.
+### Building from a Figma design
+
+Two routes, and the second needs no credentials.
+
+**By URL** — pass a `figma.com/design/…` link. With just the URL it lists
+the frames in the file; called again with a `frame` it returns that screen.
+This route needs a token.
+
+**By plugin export** — in Figma, run **Grampro Kit → Export selection for an
+agent** and hand the JSON over as `design`. The plugin reads the scene graph
+from inside Figma, so it works on any file you can open and asks for nothing.
+
+Either way you get the same answer: the structure, the text, the regions
+whose names repeat — eight `Status cell` nodes are a column — and the
+`--gbs-*` variables the design's own colours and radii map onto.
+
+It does not decide which component each region is. A design drawn without
+the component library has no instances to look up, so that call is
+inference, and an agent holding the catalogue and the designer's own names
+for things infers better than string matching inside a tool would. Anything
+that is not a kit component is reported as such rather than approximated.
+
+Colours are given roles rather than ranked, because the most-used colour in
+a design is the body text and a near-black navy scores high on saturation —
+so "most common" and "most saturated" both pick the wrong one. Lightness and
+saturation together find the accent.
+
+### Credentials
+
+The URL route reads `FIGMA_TOKEN` from the environment or a `.env` file.
+That means a long-lived credential sitting in a file, which is not where it
+belongs, and it is the main reason this is marked beta.
+
+A future release will keep it in the editor's own secret storage — VS Code's
+`SecretStorage`, and the equivalent elsewhere — so the token is held by the
+host rather than the repository. Until then: prefer the plugin export, which
+needs no token; give any token you do create only `File content: read`; and
+keep `.env` out of version control.
 
 ## Which agents read it
 

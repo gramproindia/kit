@@ -231,12 +231,76 @@ function repeatedNames(node, counts) {
 
 // ------------------------------------------------------------------- tool
 
-async function figmaFrame({ url, frame, depth }) {
+/*
+ * A selection exported by the plugin, which has already done the condensing
+ * inside Figma. The work left is the part that needs no file access: giving
+ * the colours roles and counting the names that repeat.
+ *
+ * This is the path for anyone who would rather not hold an API token, and
+ * for files the token cannot reach.
+ */
+function fromPluginExport(design) {
+  let parsed;
+  try {
+    parsed = typeof design === "string" ? JSON.parse(design) : design;
+  } catch (error) {
+    return { error: `That is not JSON: ${error.message}` };
+  }
+  if (!parsed || !Array.isArray(parsed.nodes)) {
+    return {
+      error:
+        "Expected the output of the Figma plugin's 'Export selection for an agent' command.",
+    };
+  }
+
+  const colours = new Map();
+  const radii = new Map();
+  const fontSizes = new Map();
+  const names = new Map();
+  const visit = (node) => {
+    names.set(node.name, (names.get(node.name) || 0) + 1);
+    if (node.style) {
+      if (node.style.fill) colours.set(node.style.fill, (colours.get(node.style.fill) || 0) + 1);
+      if (node.style.radius) radii.set(node.style.radius, (radii.get(node.style.radius) || 0) + 1);
+      if (node.style.fontSize) {
+        fontSizes.set(node.style.fontSize, (fontSizes.get(node.style.fontSize) || 0) + 1);
+      }
+    }
+    for (const child of node.children || []) visit(child);
+  };
+  for (const node of parsed.nodes) visit(node);
+
+  const instances = [];
+  const findInstances = (n) => {
+    if (n.component) instances.push(n.component);
+    for (const c of n.children || []) findInstances(c);
+  };
+  for (const node of parsed.nodes) findInstances(node);
+
+  return {
+    source: "figma plugin export",
+    frame: parsed.frame,
+    theme: themeFrom(colours, radii, fontSizes),
+    repeatedRegions: [...names.entries()]
+      .filter(([, n]) => n > 2)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 20)
+      .map(([name, n]) => ({ name, times: n })),
+    builtFromLibrary: instances.length > 0,
+    componentsNamed: [...new Set(instances)],
+    tree: parsed.nodes,
+  };
+}
+
+async function figmaFrame({ url, design, frame, depth }) {
+  // The export needs no token, so it is offered before one is demanded.
+  if (design) return fromPluginExport(design);
+
   const token = figmaToken();
   if (!token) {
     return {
       error:
-        "No FIGMA_TOKEN. Create one at Figma → Settings → Security → Personal access tokens (scope: File content, read), then set FIGMA_TOKEN in your environment or a .env file.",
+        "No FIGMA_TOKEN. Either run the kit's Figma plugin → 'Export selection for an agent' and pass the result as `design`, or create a token at Figma → Settings → Security → Personal access tokens (scope: File content, read) and set FIGMA_TOKEN.",
     };
   }
 

@@ -332,15 +332,20 @@ const TOOLS = [
   {
     name: "figma_frame",
     description:
-      "Read a Figma design. Called with just a URL it lists the frames in the file; called with `frame` it returns that screen's structure, text, the repeated regions that indicate lists and tables, and the theme variables its colours and radii map onto. Needs FIGMA_TOKEN.",
+      "BETA. Read a Figma design, from a URL (needs FIGMA_TOKEN) or from the plugin export (no token). Called with just a URL it lists the frames in the file; called with `frame` it returns that screen's structure, text, the repeated regions that indicate lists and tables, and the theme variables its colours and radii map onto. Needs FIGMA_TOKEN.",
     inputSchema: {
       type: "object",
       properties: {
-        url: { type: "string", description: "A figma.com/design/... URL." },
+        url: { type: "string", description: "A figma.com/design/... URL. Needs FIGMA_TOKEN." },
+        design: {
+          type: "string",
+          description:
+            "Alternative to url, needing no token: JSON from the kit's Figma plugin, 'Export selection for an agent'.",
+        },
         frame: { type: "string", description: "Which frame to read, from the listing." },
         depth: { type: "number", description: "How deep to descend. Lower it if the payload is large." },
       },
-      required: ["url"],
+      required: [],
       additionalProperties: false,
     },
     run: (args) => figmaFrame(args),
