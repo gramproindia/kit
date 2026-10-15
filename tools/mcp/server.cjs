@@ -36,32 +36,69 @@ const SUPPORTED_PROTOCOLS = new Set(["2024-11-05", "2025-03-26", "2025-06-18", "
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
 
-const componentFolders = () =>
-  fs
+/*
+ * The catalogue, read once.
+ *
+ * Every lookup used to re-read and re-parse passports off disk: naming one
+ * component scanned until it matched, so `get_component("DataGrid")` cost ten
+ * file reads, and `validate_usage` parsed all twenty-seven on every call. The
+ * catalogue ships inside the package and cannot change while the server runs,
+ * so it is built once on first use and kept.
+ */
+let index = null;
+
+function catalogue() {
+  if (index) return index;
+
+  const folders = fs
     .readdirSync(CATALOGUE, { withFileTypes: true })
     .filter((e) => e.isDirectory() && fs.existsSync(path.join(CATALOGUE, e.name, "passport.json")))
     .map((e) => e.name)
     .sort();
 
+  const byFolder = new Map();
+  const byName = new Map();
+
+  for (const folder of folders) {
+    // The one place that still touches disk — this is what builds the index.
+    const passport = readJson(path.join(CATALOGUE, folder, "passport.json"));
+    const entry = { folder, passport };
+    byFolder.set(folder, entry);
+
+    // Every spelling an agent might reasonably use.
+    const spellings = [folder, passport.identity.component, ...(passport.identity.exports || [])];
+    for (const spelling of spellings) {
+      byName.set(String(spelling).toLowerCase().replace(/[^a-z0-9]/g, ""), entry);
+    }
+  }
+
+  index = { folders, byFolder, byName };
+  return index;
+}
+
+const componentFolders = () => catalogue().folders;
+
 /** Resolve a name the way an agent would write it: "DataGrid", "data-grid", "datagrid". */
 function findFolder(name) {
-  const wanted = String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  for (const folder of componentFolders()) {
-    if (folder.replace(/[^a-z0-9]/g, "") === wanted) return folder;
-    const passport = readJson(path.join(CATALOGUE, folder, "passport.json"));
-    const names = [passport.identity.component, ...(passport.identity.exports || [])];
-    if (names.some((n) => String(n).toLowerCase() === wanted)) return folder;
-  }
-  return null;
+  const entry = catalogue().byName.get(
+    String(name || "").toLowerCase().replace(/[^a-z0-9]/g, ""),
+  );
+  return entry ? entry.folder : null;
 }
+
+/** The parsed passport for a folder, from the index rather than from disk. */
+const passportOf = (folder) => catalogue().byFolder.get(folder).passport;
 
 /*
  * Most passports carry no `purpose`, so the README's opening line stands in.
  * It is the sentence a human wrote about what the component is for, which is
  * exactly what an agent needs to pick one.
  */
+const purposeCache = new Map();
+
 function purposeOf(folder, passport) {
   if (passport.purpose && passport.purpose.trim()) return passport.purpose.trim();
+  if (purposeCache.has(folder)) return purposeCache.get(folder);
   const readme = path.join(CATALOGUE, folder, "README.md");
   if (!fs.existsSync(readme)) return "";
   const line = fs
@@ -69,14 +106,16 @@ function purposeOf(folder, passport) {
     .split("\n")
     .map((l) => l.trim())
     .find((l) => l && !l.startsWith("#") && !l.startsWith("<!--"));
-  return line ? line.replace(/\s+/g, " ") : "";
+  const purpose = line ? line.replace(/\s+/g, " ") : "";
+  purposeCache.set(folder, purpose);
+  return purpose;
 }
 
 // -------------------------------------------------------------------- tools
 
 function listComponents() {
   return componentFolders().map((folder) => {
-    const passport = readJson(path.join(CATALOGUE, folder, "passport.json"));
+    const passport = passportOf(folder);
     return {
       component: passport.identity.component,
       folder,
@@ -98,7 +137,7 @@ function getComponent(name) {
   if (!folder) {
     return { error: `No component named "${name}". Call list_components for the catalogue.` };
   }
-  const p = readJson(path.join(CATALOGUE, folder, "passport.json"));
+  const p = passportOf(folder);
   return {
     component: p.identity.component,
     folder,
@@ -163,7 +202,7 @@ function validateUsage(code) {
   const source = String(code || "");
   const known = new Map();
   for (const folder of componentFolders()) {
-    const p = readJson(path.join(CATALOGUE, folder, "passport.json"));
+    const p = passportOf(folder);
     const props = new Set((p.props || []).map((x) => x.name));
     for (const e of p.events || []) props.add(e.name);
     const required = (p.props || []).filter((x) => x.required).map((x) => x.name);

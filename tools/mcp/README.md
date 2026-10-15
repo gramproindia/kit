@@ -4,31 +4,58 @@ Serves the component catalogue to a coding agent, so it writes against the
 real contract instead of recalling one.
 
 > **Beta.** The tools work and are tested, but their names and shapes may
-> change before this settles. The Figma token handling in particular is not
-> where it should be — see *Credentials* below.
+> change before this settles.
+
+## Setup
+
+```bash
+npx @grampro/kit mcp install
+```
+
+That writes the configuration for every agent it knows about — Claude Code,
+Codex and Cursor — and tells you which files it touched. Restrict it with
+`--for codex` (or `claude`, `cursor`, or a comma-separated list).
+
+It is worth using rather than editing the files by hand: it writes UTF-8
+without a byte-order mark and with LF endings, which is the one thing that
+reliably goes wrong. PowerShell's `Out-File -Encoding utf8` adds a BOM, and
+every JSON parser then rejects the file with an error that names the first
+character and explains nothing.
+
+Running it again is safe. It merges into whatever is already there, leaves
+other servers alone, and says `unchanged` when there is nothing to do.
+
+### What it writes
+
+| agent | file | format |
+| --- | --- | --- |
+| Claude Code | `.mcp.json` | `mcpServers.grampro` |
+| Codex | `.codex/config.toml` | `[mcp_servers.grampro]` |
+| Cursor | `.cursor/mcp.json` | `mcpServers.grampro` |
+
+The Codex config is project-scoped. For every project instead, put the same
+`[mcp_servers.grampro]` block in `~/.codex/config.toml`.
+
+A project that already has the package installed gets a direct `node`
+invocation; anywhere else the config uses `npx -y @grampro/kit mcp`, which
+works without an install but re-resolves the package on every start.
+
+### By hand, if you prefer
 
 ```bash
 claude mcp add grampro -- npx -y @grampro/kit mcp
 ```
 
-Codex, Cursor and anything else that speaks MCP take the same command; it is
-a stdio server with no configuration. Without the CLI, write `.mcp.json` in
-your project:
-
-```json
-{
-  "mcpServers": {
-    "grampro": {
-      "command": "node",
-      "args": ["node_modules/@grampro/kit/index.cjs", "mcp"]
-    }
-  }
-}
+```toml
+# ~/.codex/config.toml
+[mcp_servers.grampro]
+command = "npx"
+args = ["-y", "@grampro/kit", "mcp"]
 ```
 
 MCP servers are not invoked by name. There is no `/grampro`; the model calls
-the tools itself when they are relevant. Use `/mcp` to check the server is
-connected.
+the tools itself when they are relevant. In Claude Code, `/mcp` shows whether
+the server connected.
 
 ## Why
 
@@ -72,12 +99,14 @@ Two routes, and the second needs no credentials.
 
 **By URL.** Pass a `figma.com/design/...` link. Called with just the URL it
 lists the frames in the file; called again with `frame` it returns that
-screen. Needs a token.
+screen. A link that already carries a `node-id` — which is what Figma copies
+when you right-click a frame — skips straight to that frame in one call.
+Needs a token.
 
 **By plugin export.** In Figma, run **Grampro Kit → Export selection for an
 agent**, then pass the JSON as `design`. The plugin reads the scene graph
-directly, so this works on any file you can open and asks for no token at
-all.
+directly, so this works on any file you can open, asks for no token, and
+never touches the REST API — which also means it cannot be rate limited.
 
 Either way the answer is the same shape: the structure, the text, the
 regions whose names repeat — eight `Status cell` nodes are a column — and
@@ -94,21 +123,51 @@ is the body text, and a near-black navy scores high on saturation, so both
 "most common" and "most saturated" pick the wrong thing. Lightness and
 saturation together find the accent.
 
+### Rate limits
+
+Figma's limits on file reads are cost-based, and the cost is the size of the
+response. Asking for a whole file to answer a question about one frame is
+what earns a 429, and the lockout is long — a `Retry-After` of 395274 has
+been observed on a single token.
+
+So nothing here fetches a whole file. Listing the frames uses `depth=1`,
+which returns the document's outline rather than its contents, and the frame
+itself is then fetched by id. A URL carrying a `node-id` skips the listing
+altogether. Responses are held for five minutes, so the natural two-call
+flow — list, then read — costs one listing and one frame.
+
+If a token is already locked out, the plugin export route still works.
+
 ## Credentials
 
-**This is the weakest part of the current design, and it is temporary.**
+The URL route needs a Figma personal access token. Store it where the
+operating system keeps credentials:
 
-The URL route reads `FIGMA_TOKEN` from the environment, or from a `.env`
-file beside the project. That means a long-lived credential sitting in a
-file, which is not where it belongs.
+```bash
+npx @grampro/kit secret set figma
+```
 
-A future release will keep it in the editor's own secret storage — VS Code's
-`SecretStorage` for the extension, and the equivalent elsewhere — so the
-token is held by the host rather than the repository. Until then:
+It prompts, with the echo off, and never takes the value as an argument —
+arguments land in shell history and in every process listing on the machine.
+Piping works too, for a script: `echo "$TOKEN" | npx @grampro/kit secret set figma`.
 
-- prefer the plugin export route, which needs no token at all;
-- if you do use a token, give it only `File content: read`;
-- keep `.env` out of version control.
+| platform | where it goes |
+| --- | --- |
+| Windows | Data Protection API, tied to your Windows account |
+| macOS | the keychain |
+| Linux | Secret Service (GNOME Keyring, KWallet) |
+| anything else | a 0600 file in your config directory, and it says so |
+
+`secret list` shows what is stored, masked, and names the backend in use.
+`secret remove figma` deletes it. Create the token at Figma → Settings →
+Security → Personal access tokens, with `File content: read` and nothing
+else.
+
+The token is read from `FIGMA_TOKEN` in the environment first, then the
+store, then a `.env` — the last only so that an upgrade does not break a
+project set up the old way. Reading from a `.env` prints a note saying to
+move it. A credential in a file inside a working tree is one `git add -A`
+away from being published, which is why this moved.
 
 ## Suggested use
 
@@ -123,10 +182,11 @@ No dependencies. MCP is newline-delimited JSON-RPC over stdio, which is a
 few hundred lines, and a server shipped inside a library that every consumer
 installs should not drag an SDK along with it.
 
+Start-up is about the cost of an empty Node process. An agent spawns the
+server once per session, and `index.cjs` routes `mcp` before loading the
+CLI's own dependencies, which are no use to a JSON-RPC loop and cost around
+70ms. The passports are indexed on the first question and not re-read after.
+
 The catalogue it serves is the one in this package, not the components
 copied into your project — so an agent can see a component before you
 install it, and `install_component` puts it in place.
-
-A Figma file is fetched once and held for five minutes. The natural flow is
-two calls, list then read, and refetching a large file in between is what
-earns a rate limit.

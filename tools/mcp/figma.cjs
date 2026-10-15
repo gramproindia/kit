@@ -24,18 +24,33 @@ const MAX_DEPTH = 10;
 // ------------------------------------------------------------------ token
 
 /**
- * The token, from the environment or a .env beside the project.
+ * The token, from the environment, the OS secret store, or a `.env`.
  *
- * MCP clients pass environment through unevenly, so a .env is the fallback
- * that works everywhere. It is read, never logged.
+ * The store is where it belongs and `.env` is kept only so that anyone who
+ * set it up that way is not broken by an upgrade. Reading from a `.env` says
+ * so once, on stderr — stdout carries JSON-RPC and nothing else may touch it.
  */
+let warnedAboutDotenv = false;
+
 function figmaToken() {
   if (process.env.FIGMA_TOKEN) return process.env.FIGMA_TOKEN.trim();
+
+  const stored = require("./secret.cjs").getSecret("figma");
+  if (stored) return stored;
+
   for (const dir of [process.cwd(), path.join(__dirname, "..", "..")]) {
     const file = path.join(dir, ".env");
     if (!fs.existsSync(file)) continue;
     const match = fs.readFileSync(file, "utf8").match(/^\s*FIGMA_TOKEN\s*=\s*(.+)$/m);
-    if (match) return match[1].trim().replace(/^["']|["']$/g, "");
+    if (!match) continue;
+    if (!warnedAboutDotenv) {
+      warnedAboutDotenv = true;
+      process.stderr.write(
+        "grampro-kit: read FIGMA_TOKEN from .env. Move it out of the repository with " +
+          "`npx @grampro/kit secret set figma`, then delete the line.\n",
+      );
+    }
+    return match[1].trim().replace(/^["']|["']$/g, "");
   }
   return null;
 }
@@ -73,8 +88,27 @@ async function figmaGet(pathname, token) {
       );
     }
     if (res.status === 429) {
+      /*
+       * Figma's file-read limit is cost-based, and once a token is over it the
+       * window is long — tens of minutes, not the "try again shortly" that
+       * this message used to promise. The plugin route is the honest advice,
+       * because it does not touch the API at all.
+       */
+      /*
+       * Retry-After is meant to be seconds, and Figma has been seen to return
+       * 395274 on a file read — four and a half days, or six minutes if the
+       * value is milliseconds. Rather than state a figure that may be wrong by
+       * three orders of magnitude, the number is passed through as given.
+       */
+      const after = res.headers.get("retry-after");
+      const when = after
+        ? `Figma's Retry-After says ${after} (nominally seconds).`
+        : "That window is usually tens of minutes, not seconds.";
       throw new Error(
-        "Figma is rate limiting this token. Wait a minute and try again; the file is cached for five minutes once it arrives.",
+        `Figma is rate limiting this token. ${when} Nothing here can shorten it. ` +
+          "To carry on now, use the kit's Figma plugin → 'Export selection for an agent' " +
+          "and pass the result as `design` — that route reads the file from inside Figma " +
+          "and never calls the API.",
       );
     }
     throw new Error(`Figma returned ${res.status}: ${body.slice(0, 160)}`);
@@ -300,27 +334,63 @@ async function figmaFrame({ url, design, frame, depth }) {
   if (!token) {
     return {
       error:
-        "No FIGMA_TOKEN. Either run the kit's Figma plugin → 'Export selection for an agent' and pass the result as `design`, or create a token at Figma → Settings → Security → Personal access tokens (scope: File content, read) and set FIGMA_TOKEN.",
+        "No Figma token. Two ways forward, and the first needs no credentials: " +
+        "run the kit's Figma plugin → 'Export selection for an agent' and pass the result as `design`. " +
+        "Otherwise create a token at Figma → Settings → Security → Personal access tokens " +
+        "(scope: File content, read) and store it with `npx @grampro/kit secret set figma`.",
     };
   }
 
   const { fileKey, nodeId, error } = parseFigmaUrl(url);
   if (error) return { error };
 
+  /*
+   * Three shapes of request, cheapest first.
+   *
+   * A URL carrying a node-id — which is what Figma gives you when you copy a
+   * link to a frame — is one targeted call and nothing else. Otherwise the
+   * frames are listed with depth=1, which returns the outline of the document
+   * rather than the document, and the chosen frame is then fetched by id.
+   * Figma's limits are cost-based and the cost is the payload, so pulling the
+   * whole file to answer either question is what earns a 429.
+   */
   let file;
+  let roots;
   try {
-    file = nodeId
-      ? await figmaGet(`/files/${fileKey}/nodes?ids=${encodeURIComponent(nodeId)}`, token)
-      : await figmaGet(`/files/${fileKey}`, token);
+    if (nodeId) {
+      file = await figmaGet(`/files/${fileKey}/nodes?ids=${encodeURIComponent(nodeId)}`, token);
+      roots = Object.values(file.nodes || {}).filter(Boolean).map((n) => n.document);
+    } else {
+      const outline = await figmaGet(`/files/${fileKey}?depth=1`, token);
+      const tops = (outline.document.children || []).flatMap((page) => page.children || []);
+
+      if (!frame) {
+        return {
+          file: outline.name,
+          frames: tops.map((f) => ({
+            name: f.name,
+            id: f.id,
+            size: f.absoluteBoundingBox
+              ? [Math.round(f.absoluteBoundingBox.width), Math.round(f.absoluteBoundingBox.height)]
+              : undefined,
+          })),
+          next: "Call again with `frame` set to the one you want to build. Passing a URL that already carries a node-id skips this step.",
+        };
+      }
+
+      const match = tops.find((f) => f.name.toLowerCase() === String(frame).toLowerCase());
+      if (!match) {
+        return { error: `No frame called "${frame}".`, frames: tops.map((f) => f.name) };
+      }
+      file = await figmaGet(`/files/${fileKey}/nodes?ids=${encodeURIComponent(match.id)}`, token);
+      roots = Object.values(file.nodes || {}).filter(Boolean).map((n) => n.document);
+      file.name = outline.name;
+    }
   } catch (e) {
     return { error: e.message };
   }
 
-  const roots = nodeId
-    ? Object.values(file.nodes || {}).filter(Boolean).map((n) => n.document)
-    : (file.document.children || []).flatMap((page) => page.children || []);
-
-  if (roots.length === 0) return { error: "Nothing to read at that URL." };
+  if (!roots || roots.length === 0) return { error: "Nothing to read at that URL." };
 
   /*
    * Without a frame named, the whole file would arrive at once — hundreds of
@@ -330,19 +400,6 @@ async function figmaFrame({ url, design, frame, depth }) {
   const wanted = frame
     ? roots.filter((r) => r.name.toLowerCase() === String(frame).toLowerCase())
     : roots;
-
-  if (!frame && roots.length > 1) {
-    return {
-      file: file.name,
-      frames: roots.map((r) => ({
-        name: r.name,
-        size: r.absoluteBoundingBox
-          ? [Math.round(r.absoluteBoundingBox.width), Math.round(r.absoluteBoundingBox.height)]
-          : undefined,
-      })),
-      next: "Call again with `frame` set to the one you want to build.",
-    };
-  }
 
   if (wanted.length === 0) {
     return { error: `No frame called "${frame}".`, frames: roots.map((r) => r.name) };

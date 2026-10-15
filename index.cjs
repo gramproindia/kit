@@ -1,5 +1,24 @@
 #!/usr/bin/env node
 
+/*
+ * The MCP server starts before the CLI does, and deliberately.
+ *
+ * An agent spawns the server once per session, and this file's own
+ * dependencies — fs-extra and yargs — cost about 70ms to load and are of no
+ * use to a JSON-RPC loop. Routing here first takes the server's start-up down
+ * to roughly what an empty Node process costs. A top-level `return` is valid
+ * in CommonJS, where a module body is already wrapped in a function.
+ *
+ * Only bare `mcp` is the server. Anything with a word after it — `install`,
+ * or a misspelling of it — is the CLI's business and falls through, so that a
+ * typo gets an answer instead of silently becoming a server waiting on stdin.
+ */
+if (process.argv[2] === "mcp" && !process.argv.slice(3).some((arg) => !arg.startsWith("-"))) {
+  // From here stdout carries JSON-RPC; nothing else may write to it.
+  require("./tools/mcp/server.cjs").main();
+  return;
+}
+
 const fs = require("fs-extra");
 const path = require("path");
 const crypto = require("crypto");
@@ -1171,7 +1190,7 @@ const validateComponents = (components, beta = false) => {
  * projects a week install this; breaking their scripts to tidy an argument
  * parser is not a trade worth making.
  */
-const COMMANDS = new Set(["add", "list", "skill", "passport", "mcp"]);
+const COMMANDS = new Set(["add", "list", "skill", "passport", "mcp", "secret"]);
 
 /**
  * Flags that take a separate value, so the token after one is that value and
@@ -1244,7 +1263,7 @@ const main = async () => {
     })
     .option("for", {
       describe:
-        "With skill: which agents to write adapters for (claude, codex, antigravity, or none)",
+        "With skill or mcp install: which agents (claude, codex, antigravity, cursor, all)",
       type: "string",
     })
     .option("passport", {
@@ -1275,6 +1294,9 @@ const main = async () => {
     .example("$0 add Select --legacy", "Install from the 1.x set")
     .example("$0 add Button --dest app/ui", "Choose where they go")
     .example("$0 mcp", "Serve the catalogue to a coding agent over MCP")
+    .example("$0 mcp install", "Register the MCP server with every agent found")
+    .example("$0 mcp install --for codex", "Only write the Codex config")
+    .example("$0 secret set figma", "Store a Figma token in the OS credential store")
     .example("$0 -i", "Interactive selection")
     .help().argv;
 
@@ -1293,8 +1315,21 @@ const main = async () => {
   }
 
   if (parsed && parsed.command === "mcp") {
-    // Speaks JSON-RPC on stdout; nothing else may write there.
-    require("./tools/mcp/server.cjs").main();
+    // Bare `mcp` never reaches this far: it is handled at the top of the file,
+    // before the CLI's dependencies load. What arrives here is `mcp install`,
+    // and anything else is a typo worth naming.
+    if (parsed.operands[0] === "install") {
+      require("./tools/mcp/install.cjs").main(parsed.operands.slice(1), { for: argv.for });
+      return;
+    }
+    console.log(
+      `Did you mean \`${CLI_NAME} mcp\` (run the server) or \`${CLI_NAME} mcp install\` (configure an agent)?`,
+    );
+    return;
+  }
+
+  if (parsed && parsed.command === "secret") {
+    await require("./tools/mcp/secret-cli.cjs").main(parsed.operands);
     return;
   }
 

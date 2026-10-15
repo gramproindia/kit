@@ -1,5 +1,117 @@
 # Changelog
 
+## 2.5.0
+
+### Added
+
+**The Figma token belongs to your operating system now, not to a file in
+your repository.**
+
+```bash
+npx @grampro/kit secret set figma
+```
+
+It prompts with the echo off and stores the token where the platform keeps
+credentials: the Data Protection API on Windows, the keychain on macOS, the
+Secret Service on Linux. Anywhere else it falls back to a 0600 file in your
+config directory and says so rather than implying otherwise. The value is
+never passed as an argument, because arguments land in shell history and in
+every process listing on the machine; pipe it instead if you need to script
+it.
+
+`secret list` shows what is stored, masked, and names the backend. `secret
+remove figma` deletes it.
+
+The old `.env` route still works, so upgrading breaks nothing, but reading
+from one now prints a note telling you to move it. A credential sitting in a
+working tree is one `git add -A` away from being published, which is the
+whole reason for the change.
+
+**`mcp install` writes the configuration for you.**
+
+```bash
+npx @grampro/kit mcp install            # every agent it knows
+npx @grampro/kit mcp install --for codex
+```
+
+Claude Code, Codex and Cursor each take the same stdio server and differ
+only in where the configuration lives and what format it is in. This writes
+`.mcp.json`, `.codex/config.toml` and `.cursor/mcp.json` respectively,
+merging into whatever is already there and leaving other servers alone.
+
+It is worth preferring over editing those files by hand, which is how this
+goes wrong: PowerShell's `Out-File -Encoding utf8` adds a byte-order mark,
+and every JSON parser then rejects the file with an error naming the first
+character and explaining nothing. This writes UTF-8 without a BOM and with
+LF endings, and strips a BOM from a file that already has one.
+
+### Changed
+
+**Reading a Figma design no longer downloads the whole file.**
+
+Figma charges for file reads by the size of the response, and the frame
+listing was fetching the entire document — 710 KB on the file this was
+tested against — to answer a question about one screen. Two of those in a
+row is what earns a 429, and the lockout is long: a `Retry-After` of 395274
+was observed on a single token.
+
+The listing now uses `depth=1`, which returns the document's outline rather
+than its contents, and the chosen frame is fetched by id. A URL that already
+carries a `node-id` — what Figma copies when you right-click a frame — goes
+straight there in one call. Responses are still held for five minutes, so
+the usual list-then-read flow costs one outline and one frame.
+
+If a token is already rate limited, the Figma plugin export route still
+works; it reads the scene graph from inside Figma and never calls the API.
+
+**The MCP server starts in about the time an empty Node process takes.**
+
+An agent spawns the server once per session, and it was loading the CLI's
+own dependencies first — `fs-extra` and `yargs`, roughly 70ms, and of no use
+to a JSON-RPC loop. The `mcp` command is now routed before they load.
+
+The passports are also indexed on the first question rather than re-read
+from disk for each one.
+
+### Fixed
+
+**The rate-limit message no longer promises that waiting a minute will
+help.** It said to try again shortly, which is wrong for a cost-based limit
+whose window runs to tens of minutes or longer. It now passes Figma's own
+`Retry-After` through as given, without asserting a unit — the value has
+been seen in a range where seconds and milliseconds differ by three orders
+of magnitude — and points at the plugin route, which cannot be rate limited.
+
+## 2.4.4
+
+### Added
+
+**An MCP server, so an agent can ask about a component instead of recalling
+it.**
+
+```bash
+npx @grampro/kit mcp
+```
+
+Seven tools: `list_components`, `get_component`, `get_example`,
+`get_guidance`, `figma_frame`, `install_component` and `validate_usage`. The
+catalogue is 280 KB of passports and a page needs two or three components,
+which is the argument for answering on demand rather than pasting a document
+into the prompt.
+
+`validate_usage` is the one that earns its place. A page written from
+passports alone compiled on the first attempt apart from a single prop the
+model had remembered from elsewhere — every type, union value and handler
+signature the passports carried came out right. So the remaining failure
+mode is invention, and that is what this checks.
+
+No dependencies: MCP is newline-delimited JSON-RPC over stdio, and a server
+shipped inside a library every consumer installs should not drag an SDK
+along with it.
+
+Marked beta — the tools work and are tested, but their names and shapes may
+change.
+
 ## 2.4.3
 
 ### Fixed
