@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Alert } from "@/components/alert";
 import { Button } from "@/components/button";
-import { card } from "./_display-fixtures";
 
 export default function AlertVariantsWrapper() {
   const [shown, setShown] = useState(true);

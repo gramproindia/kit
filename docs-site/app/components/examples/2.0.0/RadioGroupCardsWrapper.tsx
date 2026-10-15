@@ -1,7 +1,6 @@
 "use client";
 
 import { RadioGroup } from "@/components/radio-group";
-import { card } from "./_form-controls-fixtures";
 
 export default function RadioGroupCardsWrapper() {
   return (
