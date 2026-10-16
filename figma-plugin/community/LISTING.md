@@ -176,10 +176,11 @@ export, developer handoff, dark mode
 
 - Review has no fixed timeline; reports range from about a week to a month.
   No network access is the single biggest thing in your favour.
-- **Figma assigns the published plugin a numeric id on first publish**, which
-  replaces `grampro-kit-design-system-generator` in the manifest. Commit the
-  manifest afterwards so later updates publish to the same listing rather
-  than creating a second one.
+- **The plugin id is `1692828324805361551`**, issued by Figma and committed.
+  It is what identifies this listing, so every later update must publish
+  from a manifest carrying it; a different id creates a second listing and
+  the installs on the first do not follow. Note that Figma shows the id in
+  the dialog rather than writing it to the file — it was pasted in by hand.
 - A rejection can be addressed and resubmitted. Material updates are
   re-reviewed.
 - Once it is live, replace the import-from-source instructions in the docs
