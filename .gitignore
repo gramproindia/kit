@@ -10,6 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+
+# The Figma plugin ships its build: a designer importing it into Figma has no
+# Node toolchain, and the bare `dist` rule above matches at any depth.
+!figma-plugin/dist
+!figma-plugin/dist/**
 *.local
 
 # Editor directories and files

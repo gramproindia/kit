@@ -37,7 +37,7 @@ You need the **Figma desktop app**; development plugins can't be imported in the
 
 1. Create a new Figma design file, e.g. "Grampro Kit".
 2. **Plugins → Development → Import plugin from manifest…** and choose
-   `design/figma-plugin/manifest.json` from this repository.
+   `figma-plugin/manifest.json` from this repository.
 3. **Plugins → Development → Grampro Kit — Design System Generator.**
    It takes a minute and closes with a summary.
 4. Publish it: **Assets panel → Libraries (book icon) → Publish.** Other files
@@ -66,7 +66,7 @@ file:
 ## Develop
 
 ```bash
-cd design/figma-plugin
+cd figma-plugin
 npm install
 npm run build    # compiles src/*.ts to dist/code.js (committed, so designers don't need Node)
 npm run smoke    # runs the plugin against a mock Figma API to catch runtime errors
