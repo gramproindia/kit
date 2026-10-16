@@ -119,7 +119,7 @@ Documentation: https://kit.gramproindia.com/mcp-server
 
 | Field | Value |
 | --- | --- |
-| Category | **Design tools** — see the note below |
+| Category | **Design tools › Import & export** — see the note below |
 | Playground file | Optional. A file with the kit already generated shows it off. |
 | Carousel | Optional, up to nine. The two panels of the cover work as stills. |
 | Support contact | `https://github.com/gramproindia/kit/issues` |
@@ -130,32 +130,36 @@ Documentation: https://kit.gramproindia.com/mcp-server
 
 ### Category
 
-Figma's actual list, as the publish flow shows it:
+Design tools, then its submenu:
 
 ```
-Apps                    Libraries >
-Design inspirations     Presentation templates
-Design templates >      Print >
-Design tools >          Social media >
-Education >             Software development
-Icon Packs              Visual assets >
-                        Website templates
+Accessibility tools     Import & export
+Content generation      Product and brand
+Editing & effects       Prototyping & animation
+File organization       Styling
+Format & resize         Other
+Fun & creative
 ```
 
-**Design tools.** This plugin is a tool that builds a library; it is not a
-library. Libraries is where published component files live, and a plugin
-filed there is competing for attention with the files people actually
-browse that category to find.
+There is no "design systems" option, so none of these is an exact fit and
+the choice is a judgement rather than a lookup.
 
-Software development is the other defensible answer, and it is where the
-export half belongs — design-to-code and handoff plugins sit there. It
-undersells the generator, which is most of what the plugin does by volume:
-53 variables, 13 text styles, 38 component sets.
+**Import & export.** It is the only one that names something this plugin
+uniquely does. It is also the recurring use: the design system is
+generated once per project, and screens are exported every time a feature
+is built.
 
-Design tools has a submenu. Check it before settling — if it offers
-something like "design systems" that is the exact fit, and this note is
-only the parent-level answer.
+Two defensible alternatives:
 
+- **Styling** — for the generator half, which produces 53 variables and 13
+  text styles. The risk is the company it keeps: that category is full of
+  colour pickers and gradient tools, and this is not a styling utility.
+- **Content generation** — literally true, the plugin generates content. But
+  the category reads as placeholder content in practice, which sets the
+  wrong expectation.
+
+This matters far less than the name, the description and the tags, which
+are what search actually reads. Do not spend long on it.
 ## Tags
 
 Figma's tag field is free text; these are the phrases people search.
