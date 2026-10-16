@@ -108,7 +108,7 @@ document pasted into the prompt.
 | `get_component` | Props with types and allowed values, which are required, handler signatures, slots, states, composition rules |
 | `get_example` | Working usage from the component's README |
 | `get_guidance` | Authored notes on forms, overlays, the grid, pickers, styling, accessibility |
-| `figma_frame` | A design's structure, text, repeated regions and theme variables |
+| `figma_frame` | A design's structure, text, repeated regions and theme variables, from a `designFile` path, a pasted `design`, or a Figma `url` |
 | `install_component` | Copies components into the project being worked in |
 | `validate_usage` | Whether the JSX an agent wrote matches the passports |
 
@@ -125,9 +125,38 @@ invention, and this catches it:
   dismissible — not a prop of this component. Did you mean: onDismiss
 ```
 
+## A whole design at once
+
+In Figma, **Grampro Kit → Export all screens for an agent** walks every
+page and exports each top-level frame, with one set of theme values read
+across the whole design rather than guessed per frame. Save it, then:
+
+```bash
+npx @grampro/kit design ./design.json
+```
+
+```text
+Wrote 3 screen(s) to design/
+  purchase-orders.json         Purchase orders (Product) — 22 nodes
+  suppliers.json               Suppliers (Product) — 16 nodes
+  settings.json                Settings (Admin) — 12 nodes
+  index.json                   the plan: every screen, shared theme
+```
+
+A browser cannot write a directory and a plugin is an iframe, so the
+plugin hands over one file and the CLI does the filesystem work. Each
+screen is written in the shape a single-frame export has, so `figma_frame`
+reads one with `designFile` and no special case.
+
+`index.json` is the plan: every screen with its size, node count and
+repeated regions, plus the shared theme. Have an agent map regions to
+components from that and correct it before any code exists — a guess that
+`Action` is a Card rather than a Button costs one sentence there and five
+screens of rework later. Then build one screen at a time, validating each.
+
 ## From a Figma design
 
-Two routes, and the second needs no credentials.
+Three routes, and only the first needs credentials.
 
 **By URL.** Pass a `figma.com/design/...` link. Called with just the URL it
 lists the frames in the file; called again with `frame` it returns that
@@ -139,6 +168,12 @@ Needs a token.
 agent**, then pass the JSON as `design`. The plugin reads the scene graph
 directly, so this works on any file you can open, asks for no token, and
 never touches the REST API — which also means it cannot be rate limited.
+
+**By file.** Press **Save .json** in that panel and pass the path as
+`designFile`. Prefer this for anything but a small frame: a chat input
+caps at around fifty thousand characters, and a pasted export sits in the
+conversation twice — once as the argument, again inside the tool call —
+where a file appears only in the answer.
 
 Either way the answer is the same shape: the structure, the text, the
 regions whose names repeat — eight `Status cell` nodes are a column — and

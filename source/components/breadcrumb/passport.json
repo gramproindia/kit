@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.5.0",
+    "libraryVersion": "2.6.0",
     "files": [
       "core/index.ts",
       "core/trail.ts",

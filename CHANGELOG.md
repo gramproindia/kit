@@ -1,5 +1,93 @@
 # Changelog
 
+## 2.6.0
+
+### Added
+
+**A whole Figma design, exported once and built screen by screen.**
+
+In Figma, **Grampro Kit → Export all screens for an agent** walks every page
+and takes each top-level frame. Then:
+
+```bash
+npx @grampro/kit design ./design.json
+```
+
+```text
+Wrote 3 screen(s) to design/
+  purchase-orders.json         Purchase orders (Product) — 22 nodes
+  suppliers.json               Suppliers (Product) — 16 nodes
+  settings.json                Settings (Admin) — 12 nodes
+  index.json                   the plan: every screen, shared theme
+```
+
+The accuracy is in the theme rather than the convenience. Derived one
+frame at a time it disagrees with itself — a screen that is mostly white
+names a different background from one that is mostly grey — and the agent
+then themes each page differently. Read across every screen, once, it is
+well founded.
+
+`index.json` is the plan: every screen with its size, node count and the
+regions whose names repeat, plus that shared theme. It is the cheap place
+to be wrong. A design drawn without the component library names nothing
+directly, so every component is inferred, and a guess that `Action` is a
+Card rather than a Button costs one sentence there and five screens of
+rework later.
+
+**`figma_frame` reads a file.** Pass `designFile` with a path instead of
+`design` with the JSON. A chat input caps at around fifty thousand
+characters and a whole screen passes that; and a pasted export sits in the
+conversation twice, once as the argument and again inside the tool call,
+where a file appears only in the answer.
+
+**Every prop the library declares now carries a description.** 117 did
+not, and the passports are what an agent reads instead of the source, so
+an undescribed prop is one it guesses at. `DataGrid`'s `columns` and
+`data` had none at all. See 2.5.0's notes — this is that work, reaching
+npm for the first time.
+
+### Changed
+
+**The Figma export costs a third of what it did.** The copy button takes
+minified JSON: `JSON.parse` cannot tell the difference, and indentation
+was most of the payload. Three fields that said nothing went with it —
+`radius: 0` on every square frame, `padding: [0,0,0,0]` on every frame
+without padding, and `align`/`justify` restating Figma's own defaults —
+along with the child frame Figma wraps around every icon, whose entire
+content was the word "Vector" when the frame's name (`search`, `plus`)
+was the whole signal.
+
+**It also says more about what it exports.** Node size and stroke colour
+are now included, because most designs are not built from the kit's Figma
+library and an agent has to infer every component from what it can see. A
+36px pill with a label is a button; the same shape at 200px is a card. A
+white box with a border is a secondary button; without one it is a
+surface. Neither was visible before.
+
+### Fixed
+
+**The design system generator laid out over itself.** Variant grids were
+placed by column count without measuring whether the row fitted, so 14 of
+38 component sets overflowed the card holding them — Alert reached 2444px
+inside a 1320px section.
+
+**Text that was told a width kept its own.** Figma creates a text node
+auto-width, and setting it to fill is quietly ignored, so 23 layers across
+the file measured themselves from their own characters. NumberInput's
+value layer, created empty and filled in later by a component property,
+wrapped one glyph per line.
+
+**Alert's coloured edge did not match its card**, being sized before the
+card had any content and never clipped to its rounded corners. Toast drew
+the same edge with the same fault.
+
+**The uploader thumbnails and the dialog's intent badge rendered at full
+saturation**, which also hid the icon drawn on them in the same colour.
+
+**The plugin's name displayed as mojibake** in Figma's menu, and its
+build was never committed despite its README saying so, so a clone could
+not run it.
+
 ## 2.5.0
 
 ### Added
