@@ -323,6 +323,15 @@ function fromPluginExport(design) {
     builtFromLibrary: instances.length > 0,
     componentsNamed: [...new Set(instances)],
     tree: parsed.nodes,
+    /*
+     * The same closing instruction the URL route gives. Without it an agent
+     * arriving by the plugin — now the route the documentation leads with —
+     * got the tree and no word on what to do when nothing names a component,
+     * which is exactly when it starts approximating.
+     */
+    howToUse: instances.length
+      ? "This design uses component instances; `component` names the master for each."
+      : "This design was drawn without the component library, so nothing names a component directly. Use the region names and structure to decide which catalogue component each part is, then call get_component before writing it.",
   };
 }
 
