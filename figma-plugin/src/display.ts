@@ -65,6 +65,9 @@ async function buildAlerts(page: PageNode) {
             fill: "surface/bg",
             stroke: "border/default",
             radius: "radius/md",
+            // The coloured edge is square and the card is rounded, so without
+            // this the bar's corners sit outside the card. Toast already clips.
+            clip: true,
           });
           applySize(component, 460, "hug");
 

@@ -170,6 +170,21 @@ function paintOf(token) {
     const base = { type: "SOLID", color: { r: 0, g: 0, b: 0 } };
     return figma.variables.setBoundVariableForPaint(base, "color", variable);
 }
+/**
+ * The same colour, carried at a fraction of its strength.
+ *
+ * The opacity goes on the paint before the variable is bound to it. Doing
+ * it the other way round — binding, then spreading the paint and adding an
+ * opacity — is how the uploader thumbnails ended up fully saturated, which
+ * additionally hid the icon drawn on them in the same colour.
+ */
+function tintOf(token, opacity) {
+    const variable = KIT.colors[token];
+    if (!variable)
+        throw new Error(`Unknown color token: ${token}`);
+    const base = { type: "SOLID", color: { r: 0, g: 0, b: 0 }, opacity };
+    return figma.variables.setBoundVariableForPaint(base, "color", variable);
+}
 function setFill(node, token) {
     node.fills = token ? [paintOf(token)] : [];
 }
@@ -337,11 +352,17 @@ async function text(parent, characters, style, options = {}) {
  * guessed height and no constraint can arrive at the right answer.
  */
 function edgeBar(component, colour, width = 3) {
+    /*
+     * Measured before the bar exists. Appending a frame puts a 100px child
+     * into the flow, and a card that hugs grows to fit it, so reading the
+     * height afterwards sizes the bar against a card inflated by the bar.
+     */
+    const height = component.height;
     const bar = frame("Variant bar", { direction: "none", fill: colour }, component);
     bar.layoutPositioning = "ABSOLUTE";
     bar.x = 0;
     bar.y = 0;
-    bar.resize(width, component.height);
+    bar.resize(width, height);
     // Kept so the bar still tracks the card if anyone resizes it by hand.
     bar.constraints = { horizontal: "MIN", vertical: "STRETCH" };
     return bar;
@@ -1722,8 +1743,7 @@ async function buildDialog(page) {
             if (glyph) {
                 const badge = frame("Icon", { direction: "row", justify: "center", align: "center", radius: "radius/full" }, body);
                 applySize(badge, 38, 38);
-                badge.fills = [paintOf(INTENT_COLOR[intent])];
-                badge.fills = [Object.assign(Object.assign({}, badge.fills[0]), { opacity: 0.14 })];
+                badge.fills = [tintOf(INTENT_COLOR[intent], 0.14)];
                 icon(badge, glyph, INTENT_COLOR[intent], 20);
             }
             const copy = frame("Text", { direction: "column", gap: 6 }, body);
@@ -1883,7 +1903,7 @@ async function buildUploader(page) {
                     applySize(component, 460, "hug");
                     const thumb = frame("Thumbnail", { direction: "row", justify: "center", align: "center", radius: "radius/sm" }, component);
                     applySize(thumb, 40, 40);
-                    thumb.fills = [Object.assign(Object.assign({}, paintOf(`file/${kind}`)), { opacity: 0.12 })];
+                    thumb.fills = [tintOf(`file/${kind}`, 0.12)];
                     icon(thumb, kind === "image" ? "image" : "file", `file/${kind}`, 20);
                     const body = frame("Body", { direction: "column", gap: 1 }, component);
                     applySize(body, "fill", "hug");
@@ -2496,6 +2516,9 @@ async function buildAlerts(page) {
                         fill: "surface/bg",
                         stroke: "border/default",
                         radius: "radius/md",
+                        // The coloured edge is square and the card is rounded, so without
+                        // this the bar's corners sit outside the card. Toast already clips.
+                        clip: true,
                     });
                     applySize(component, 460, "hug");
                     icon(component, look.icon, look.color, small ? 14 : 16).name = "Icon";

@@ -141,8 +141,7 @@ async function buildDialog(page: PageNode) {
         if (glyph) {
           const badge = frame("Icon", { direction: "row", justify: "center", align: "center", radius: "radius/full" }, body);
           applySize(badge, 38, 38);
-          badge.fills = [paintOf(INTENT_COLOR[intent])];
-          badge.fills = [{ ...(badge.fills as SolidPaint[])[0], opacity: 0.14 }];
+          badge.fills = [tintOf(INTENT_COLOR[intent], 0.14)];
           icon(badge, glyph, INTENT_COLOR[intent], 20);
         }
         const copy = frame("Text", { direction: "column", gap: 6 }, body);
@@ -317,7 +316,7 @@ async function buildUploader(page: PageNode) {
           applySize(component, 460, "hug");
           const thumb = frame("Thumbnail", { direction: "row", justify: "center", align: "center", radius: "radius/sm" }, component);
           applySize(thumb, 40, 40);
-          thumb.fills = [{ ...paintOf(`file/${kind}`), opacity: 0.12 }];
+          thumb.fills = [tintOf(`file/${kind}`, 0.12)];
           icon(thumb, kind === "image" ? "image" : "file", `file/${kind}`, 20);
 
           const body = frame("Body", { direction: "column", gap: 1 }, component);

@@ -107,6 +107,21 @@ function paintOf(token: string): SolidPaint {
   return figma.variables.setBoundVariableForPaint(base, "color", variable);
 }
 
+/**
+ * The same colour, carried at a fraction of its strength.
+ *
+ * The opacity goes on the paint before the variable is bound to it. Doing
+ * it the other way round — binding, then spreading the paint and adding an
+ * opacity — is how the uploader thumbnails ended up fully saturated, which
+ * additionally hid the icon drawn on them in the same colour.
+ */
+function tintOf(token: string, opacity: number): SolidPaint {
+  const variable = KIT.colors[token];
+  if (!variable) throw new Error(`Unknown color token: ${token}`);
+  const base: SolidPaint = { type: "SOLID", color: { r: 0, g: 0, b: 0 }, opacity };
+  return figma.variables.setBoundVariableForPaint(base, "color", variable);
+}
+
 function setFill(node: MinimalFillsMixin, token: string | null) {
   node.fills = token ? [paintOf(token)] : [];
 }
@@ -306,11 +321,17 @@ async function text(
  * guessed height and no constraint can arrive at the right answer.
  */
 function edgeBar(component: ComponentNode, colour: string | null, width = 3): FrameNode {
+  /*
+   * Measured before the bar exists. Appending a frame puts a 100px child
+   * into the flow, and a card that hugs grows to fit it, so reading the
+   * height afterwards sizes the bar against a card inflated by the bar.
+   */
+  const height = component.height;
   const bar = frame("Variant bar", { direction: "none", fill: colour }, component);
   bar.layoutPositioning = "ABSOLUTE";
   bar.x = 0;
   bar.y = 0;
-  bar.resize(width, component.height);
+  bar.resize(width, height);
   // Kept so the bar still tracks the card if anyone resizes it by hand.
   bar.constraints = { horizontal: "MIN", vertical: "STRETCH" };
   return bar;
