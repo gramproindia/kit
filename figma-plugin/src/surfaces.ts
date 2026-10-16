@@ -22,7 +22,9 @@ async function surfaceSlot(parent: FrameNode | ComponentNode, label: string, hei
   }, parent);
   area.dashPattern = [4, 4];
   applySize(area, "fill", height);
-  await text(area, label, "Body/Small", { color: "text/muted" });
+  // Centred and filling the slot: the label is longer than a popover is
+  // wide, and unsized it grew past the card instead of wrapping inside it.
+  await text(area, label, "Body/Small", { color: "text/muted", width: "fill", align: "CENTER" });
 }
 
 /* -------------------------------------------------------------------- Menu */

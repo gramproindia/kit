@@ -253,6 +253,22 @@ function applyLayout(node, options) {
 }
 /** Sizing only takes effect once a node is inside its parent, so call this after appending. */
 function applySize(node, width, height) {
+    /*
+     * A text node will not take a width while it is auto-width.
+     *
+     * Figma creates text as WIDTH_AND_HEIGHT, which means the node measures
+     * itself from its characters; FILL and FIXED are then quietly ignored, and
+     * the node keeps whatever width its own text wants. The failures look
+     * nothing like a sizing problem: a label created empty and filled in later
+     * through a component property is ~0px wide and wraps one character per
+     * line, and a label longer than its container simply runs out of it.
+     *
+     * So anything other than a hug switches the node to HEIGHT first - wrap
+     * inside the width you are given - and a hug asks for auto-width outright.
+     */
+    if (node.type === "TEXT" && width !== undefined) {
+        node.textAutoResize = width === "hug" ? "WIDTH_AND_HEIGHT" : "HEIGHT";
+    }
     const set = (axis, size) => {
         if (size === undefined)
             return;
@@ -1536,11 +1552,14 @@ async function buildNumberComponent(component, state, size) {
     const control = await fieldShell(component, 240, state, "Quantity");
     control.paddingRight = 0;
     applySize(control, "fill", CONTROL_HEIGHT[size]);
+    // `width` goes through the helper rather than a later applySize, so the
+    // layer is set to wrap before it is told to fill. It is created empty in
+    // the Default state and filled by the Value component property.
     const value = await text(control, state === "Default" ? "" : "1,234.56", CONTROL_SIZES[size].body, {
         color: state === "Default" ? "text/muted" : "text/primary",
+        width: "fill",
     });
     value.name = "Value";
-    applySize(value, "fill");
     const unit = await text(control, "kg", "Body/Small", { color: "text/muted" });
     unit.name = "Unit";
     // The spinner: two buttons in a column, divided from the field by a rule.
@@ -2038,7 +2057,9 @@ async function surfaceSlot(parent, label, height) {
     }, parent);
     area.dashPattern = [4, 4];
     applySize(area, "fill", height);
-    await text(area, label, "Body/Small", { color: "text/muted" });
+    // Centred and filling the slot: the label is longer than a popover is
+    // wide, and unsized it grew past the card instead of wrapping inside it.
+    await text(area, label, "Body/Small", { color: "text/muted", width: "fill", align: "CENTER" });
 }
 /* -------------------------------------------------------------------- Menu */
 async function buildMenu(page) {

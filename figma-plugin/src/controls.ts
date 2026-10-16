@@ -265,11 +265,14 @@ async function buildNumberComponent(component: ComponentNode, state: string, siz
   control.paddingRight = 0;
   applySize(control, "fill", CONTROL_HEIGHT[size]);
 
+  // `width` goes through the helper rather than a later applySize, so the
+  // layer is set to wrap before it is told to fill. It is created empty in
+  // the Default state and filled by the Value component property.
   const value = await text(control, state === "Default" ? "" : "1,234.56", CONTROL_SIZES[size].body, {
     color: state === "Default" ? "text/muted" : "text/primary",
+    width: "fill",
   });
   value.name = "Value";
-  applySize(value, "fill");
 
   const unit = await text(control, "kg", "Body/Small", { color: "text/muted" });
   unit.name = "Unit";

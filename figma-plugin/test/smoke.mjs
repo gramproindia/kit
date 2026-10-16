@@ -107,6 +107,9 @@ function makeNode(type, extra = {}) {
 
 function makeText() {
   const node = makeNode("TEXT");
+  // Figma creates text auto-width, which is the whole reason a text node
+  // ignores a width it is given. Model it, or the check below cannot fire.
+  node.textAutoResize = "WIDTH_AND_HEIGHT";
   let characters = "";
   let styled = false;
   Object.defineProperty(node, "characters", {
@@ -276,6 +279,32 @@ for (const set of sets) {
  * properties still bind, the variants still exist, and the file still
  * opens. Only the geometry is wrong.
  */
+/*
+ * A text node told to FILL while it is still auto-width is a contradiction:
+ * Figma ignores the fill and the node keeps measuring itself from its own
+ * characters. That is invisible until the text is long (it runs out of its
+ * container) or empty and filled in later by a component property (it ends
+ * up ~0px wide and wraps one glyph per line, which is what NumberInput did).
+ */
+/** The nearest named ancestor, so a failure says which component to look at. */
+const whereIsIt = (node) => {
+  const trail = [];
+  for (let n = node; n && trail.length < 4; n = n.parent) {
+    if (n.name && n.name !== n.type) trail.unshift(n.name);
+  }
+  return trail.join(" / ") || "(unnamed)";
+};
+
+for (const page of figma.root.children) {
+  for (const node of page.findAll((n) => n.type === "TEXT")) {
+    if (node.layoutSizingHorizontal === "FILL" && node.textAutoResize === "WIDTH_AND_HEIGHT") {
+      problems.push(
+        `${whereIsIt(node)}: text is set to FILL while still auto-width, so it keeps its own width`,
+      );
+    }
+  }
+}
+
 const SECTION_WIDTH = 1400;
 const SECTION_PADDING = 40;
 const SECTION_CONTENT = SECTION_WIDTH - SECTION_PADDING * 2;

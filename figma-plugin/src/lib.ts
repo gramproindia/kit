@@ -216,6 +216,23 @@ function applyLayout(node: FrameNode | ComponentNode, options: FrameOptions) {
 
 /** Sizing only takes effect once a node is inside its parent, so call this after appending. */
 function applySize(node: FrameNode | ComponentNode | TextNode | InstanceNode, width?: Size, height?: Size) {
+  /*
+   * A text node will not take a width while it is auto-width.
+   *
+   * Figma creates text as WIDTH_AND_HEIGHT, which means the node measures
+   * itself from its characters; FILL and FIXED are then quietly ignored, and
+   * the node keeps whatever width its own text wants. The failures look
+   * nothing like a sizing problem: a label created empty and filled in later
+   * through a component property is ~0px wide and wraps one character per
+   * line, and a label longer than its container simply runs out of it.
+   *
+   * So anything other than a hug switches the node to HEIGHT first - wrap
+   * inside the width you are given - and a hug asks for auto-width outright.
+   */
+  if (node.type === "TEXT" && width !== undefined) {
+    node.textAutoResize = width === "hug" ? "WIDTH_AND_HEIGHT" : "HEIGHT";
+  }
+
   const set = (axis: "Horizontal" | "Vertical", size: Size | undefined) => {
     if (size === undefined) return;
     const key = axis === "Horizontal" ? "layoutSizingHorizontal" : "layoutSizingVertical";
