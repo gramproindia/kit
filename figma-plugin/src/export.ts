@@ -207,8 +207,13 @@ async function exportSelection(): Promise<void> {
     },
   };
 
+  // Indented for a person to read; minified for the agent to receive. The
+  // same tree costs about a third as much without the indentation, and
+  // JSON.parse cannot tell the difference.
   const json = JSON.stringify(payload, null, 2);
+  const compact = JSON.stringify(payload);
   const size = (json.length / 1024).toFixed(1);
+  const compactSize = (compact.length / 1024).toFixed(1);
 
   /*
    * The panel copies on click.
@@ -227,29 +232,35 @@ async function exportSelection(): Promise<void> {
        textarea { width: 100%; height: 300px; font: 11px ui-monospace, monospace;
                   border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px; resize: none; }
        .row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+       /* Off-screen, not hidden: a display:none field cannot be selected, */
+       /* and selecting is what execCommand copies. */
+       #mini { position: absolute; left: -9999px; top: 0; }
        button { padding: 7px 14px; border: 0; border-radius: 6px; font: inherit;
                 font-weight: 600; color: #fff; background: #18a0fb; cursor: pointer; }
        button:hover { background: #0d8ee0; }
        #said { color: #666; }
      </style>
-     <p><b>${payload.frame}</b> — ${size} KB. Paste this into your agent's <code>figma_frame</code> tool, as the <code>design</code> argument.</p>
+     <p><b>${payload.frame}</b> — copies as ${compactSize} KB of minified JSON (${size} KB shown). Paste it into your agent's <code>figma_frame</code> tool, as the <code>design</code> argument.</p>
      <textarea id="out" readonly></textarea>
+     <textarea id="mini" readonly></textarea>
      <div class="row"><button id="copy">Copy JSON</button><span id="said"></span></div>
      <script>
        const out = document.getElementById("out");
        out.value = ${JSON.stringify(json)};
+       const mini = document.getElementById("mini");
+       mini.value = ${JSON.stringify(compact)};
        const button = document.getElementById("copy");
        const said = document.getElementById("said");
        button.onclick = async () => {
-         out.focus();
-         out.select();
+         mini.focus();
+         mini.select();
          let done = false;
          try { done = document.execCommand("copy"); } catch (error) { done = false; }
          if (!done && navigator.clipboard) {
-           try { await navigator.clipboard.writeText(out.value); done = true; } catch (error) { done = false; }
+           try { await navigator.clipboard.writeText(mini.value); done = true; } catch (error) { done = false; }
          }
          said.textContent = done
-           ? "Copied " + out.value.length.toLocaleString() + " characters."
+           ? "Copied " + mini.value.length.toLocaleString() + " characters of minified JSON."
            : "Selected — press Ctrl+C to copy.";
          setTimeout(() => { said.textContent = ""; }, 4000);
        };

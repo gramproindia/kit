@@ -182,8 +182,45 @@ const zeroPadding = flat.filter((n) => n.layout?.padding?.every((p) => p === 0))
 const vectors = flat.filter((n) => n.type === "VECTOR").length;
 const defaultAlign = flat.filter((n) => n.layout?.align === "MIN" && n.layout?.justify === "MIN").length;
 
+/*
+ * What repetition costs.
+ *
+ * A screen is mostly the same row eight times. The repetition is the
+ * signal — eight `Status cell` siblings are a column — but carrying each
+ * one in full is the signal restated eight times. This measures how much
+ * of the payload is spent on sibling subtrees that differ only in their
+ * text, so the question of whether to collapse them can be settled with a
+ * number.
+ */
+const shapeOf = (n) =>
+  JSON.stringify({
+    name: n.name,
+    type: n.type,
+    layout: n.layout,
+    style: n.style,
+    children: (n.children ?? []).map(shapeOf),
+  });
+
+let repeatedBytes = 0;
+let repeatedGroups = 0;
+(function scan(list) {
+  const seen = new Map();
+  for (const child of list) {
+    const key = shapeOf(child);
+    seen.set(key, [...(seen.get(key) ?? []), child]);
+    scan(child.children ?? []);
+  }
+  for (const group of seen.values()) {
+    if (group.length < 2) continue;
+    repeatedGroups += 1;
+    // Everything after the first is the shape said again.
+    for (const extra of group.slice(1)) repeatedBytes += JSON.stringify(extra).length;
+  }
+})(design.nodes);
+
 console.log(`${nodes} nodes, ${(bytes / 1024).toFixed(1)} KB of JSON`);
 console.log(`  radius: 0            on ${zeroRadius} nodes`);
 console.log(`  padding: [0,0,0,0]   on ${zeroPadding} nodes`);
 console.log(`  bare VECTOR children    ${vectors}`);
 console.log(`  align/justify both MIN  ${defaultAlign}`);
+console.log(`  repeated sibling shapes ${repeatedGroups} groups, ${(repeatedBytes / 1024).toFixed(1)} KB (${Math.round((repeatedBytes / bytes) * 100)}% of the payload)`);

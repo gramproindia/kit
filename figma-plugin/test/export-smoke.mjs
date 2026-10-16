@@ -197,10 +197,11 @@ if (payload) {
  * select-all it replaced.
  */
 async function runCopyHandler({ execCommand, clipboard }) {
-  const out = { value: "the json", focus() {}, select() {}, selected: false };
+  const out = { value: "", focus() {}, select() {} };
+  const mini = { value: "", focus() {}, select() {} };
   const button = {};
   const said = { textContent: "" };
-  const nodes = { out, copy: button, said };
+  const nodes = { out, mini, copy: button, said };
 
   const script = shown.slice(shown.indexOf("<script>") + 8, shown.indexOf("</" + "script>"));
   const context = vm.createContext({
@@ -214,8 +215,9 @@ async function runCopyHandler({ execCommand, clipboard }) {
   });
   vm.runInContext(script, context);
   await button.onclick();
-  // The script assigns out.value itself, so this is the real exported JSON.
-  return { said: said.textContent, copied: out.value };
+  // The script assigns both fields itself: `out` is what a person reads,
+  // `mini` is what the button copies.
+  return { said: said.textContent, copied: mini.value, shown: out.value };
 }
 
 if (shown) {
@@ -237,6 +239,29 @@ if (shown) {
   if (!refused.said.includes("Ctrl")) {
     fail(`with both paths refused, the panel must say what to press: "${refused.said}"`);
   }
+
+  const NEWLINE = String.fromCharCode(10);
+  /*
+   * What gets copied is the minified JSON, not the indented text on screen.
+   * Indentation is most of a pretty-printed tree and none of its meaning,
+   * so it is the one thing that must not travel.
+   */
+  if (viaExec.copied.includes(NEWLINE)) fail("the copied JSON is not minified");
+  if (!viaExec.shown.includes(NEWLINE)) fail("the panel should still show the indented JSON");
+  const parsedCopy = (() => {
+    try { return JSON.parse(viaExec.copied); } catch (error) { return null; }
+  })();
+  if (!parsedCopy) fail("the copied JSON does not parse");
+  else if (JSON.stringify(parsedCopy) !== JSON.stringify(JSON.parse(viaExec.shown))) {
+    fail("the copied JSON is not the same tree as the one shown");
+  }
+  if (viaExec.copied.length >= viaExec.shown.length) {
+    fail(`minifying saved nothing: ${viaExec.copied.length} vs ${viaExec.shown.length}`);
+  }
+  console.log(
+    `copy: ${viaExec.copied.length} bytes minified, ${viaExec.shown.length} shown` +
+      ` (${Math.round((viaExec.copied.length / viaExec.shown.length) * 100)}%)`,
+  );
 }
 
 /* -------------------------------------------------------------- report */
