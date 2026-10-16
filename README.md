@@ -122,6 +122,33 @@ takes. Full walkthrough, including a prompt to paste:
 [kit.gramproindia.com/mcp-server](https://kit.gramproindia.com/mcp-server).
 Details in [`tools/mcp/README.md`](tools/mcp/README.md).
 
+## Figma plugin
+
+[**Grampro Kit on the Figma Community**](https://www.figma.com/community/plugin/1692828324805361551)
+
+Two jobs. It generates the whole design system inside Figma — 53 variables
+across light and dark, 13 text styles, 38 component sets — and it exports
+screens as JSON a coding agent can build from.
+
+```bash
+# in Figma: Grampro Kit → Export all screens for an agent → Save .json
+npx @grampro/kit design ./design.json
+```
+
+```text
+design/
+  purchase-orders.json
+  suppliers.json
+  index.json          every screen, the shared theme, the regions that repeat
+```
+
+The agent reads `index.json` to plan, then builds one screen at a time
+against `figma_frame`, `get_component` and `validate_usage`. It needs no
+Figma API token and makes no network requests of any kind.
+
+Source is in [`figma-plugin/`](figma-plugin/); the published listing is
+what to install.
+
 ## Agent skill
 
 Install the skill once per project so a coding agent uses these components

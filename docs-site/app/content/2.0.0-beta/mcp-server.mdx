@@ -119,6 +119,8 @@ disagree.
 
 ### 1. Export every screen
 
+<FigmaPlugin />
+
 In Figma: **Plugins -> Grampro Kit -> Export all screens for an agent**.
 It walks every page, takes each top-level frame, and derives one set of
 theme values from the whole design. Component sets are skipped - the
@@ -267,8 +269,9 @@ Use the plugin instead. It reads the scene graph from inside Figma, so it
 needs no token, works on any file you can open, and never calls the REST
 API - which means it cannot be rate limited.
 
-**Getting it.** [Grampro Kit on the Figma Community](https://www.figma.com/community/plugin/1692828324805361551)
-- install it like any other plugin.
+**Getting it.**
+
+<FigmaPlugin label="Install Grampro Kit" />
 
 **Using it.** Select the frame and run **Plugins → Grampro Kit → Export
 selection for an agent**. Press **Save .json** and pass the path as

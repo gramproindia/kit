@@ -49,6 +49,24 @@ the browser.
 4. Publish it: **Assets panel → Libraries (book icon) → Publish.** Other files
    then enable the library and use the components and variables.
 
+## Exporting for an agent
+
+**Grampro Kit → Export all screens for an agent** walks every page and
+exports each top-level frame, with one set of theme values read across the
+whole design. **Export selection for an agent** does the same for what you
+have selected — one frame for one screen, several for several.
+
+The panel offers two things:
+
+- **Copy JSON** puts the minified export on the clipboard. Indentation is
+  most of a pretty-printed tree and none of its meaning, so what is copied
+  is about a third the size of what is shown.
+- **Save .json** writes it to a file. Prefer this for anything but a small
+  frame: a chat input caps at around fifty thousand characters, and a
+  pasted export sits in the conversation twice where a file appears only
+  in the answer. Pass the path to `figma_frame` as `designFile`, or split
+  it into a folder with `npx @grampro/kit design ./design.json`.
+
 Dark mode: select a frame, then in the right panel under **Appearance** set the
 `Grampro Kit · Color` mode to **Dark**.
 

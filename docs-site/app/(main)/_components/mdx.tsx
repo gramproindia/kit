@@ -120,6 +120,53 @@ function WarningBanner({
   );
 }
 
+/**
+ * A link to the plugin on the Figma Community, carrying Figma's mark.
+ *
+ * The five shapes are Figma's logo and its brand colours, so it reads as
+ * "this goes to Figma" before the words are read. `aria-hidden` because the
+ * link's own text already says where it goes; announcing the logo as well
+ * would say it twice.
+ */
+function FigmaLogo() {
+  return (
+    <svg
+      viewBox="0 0 38 57"
+      width="15"
+      height="22"
+      aria-hidden="true"
+      focusable="false"
+      style={{ flex: "none" }}
+    >
+      <path d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z" fill="#1ABCFE" />
+      <path d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z" fill="#0ACF83" />
+      <path d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z" fill="#FF7262" />
+      <path d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z" fill="#F24E1E" />
+      <path d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z" fill="#A259FF" />
+    </svg>
+  );
+}
+
+/** <FigmaPlugin /> — the install button for the Figma Community listing. */
+function FigmaPlugin({
+  label = "Get the plugin on Figma Community",
+}: {
+  label?: string;
+}) {
+  return (
+    <p style={{ margin: "1.25rem 0" }}>
+      <a
+        className="v2-btn"
+        href="https://www.figma.com/community/plugin/1692828324805361551"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <FigmaLogo />
+        {label}
+      </a>
+    </p>
+  );
+}
 export const mdxComponents = {
   h1: heading("h2"), // The page header owns the only <h1>.
   h2: heading("h2"),
@@ -140,6 +187,7 @@ export const mdxComponents = {
   ),
   Callout,
   Notice,
+  FigmaPlugin,
   WarningBanner,
   CommandTabs,
   MermaidChart,
