@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "watch": "tsc -p tsconfig.json --watch",
-    "smoke": "node test/smoke.mjs && node test/export-smoke.mjs"
+    "smoke": "node test/smoke.mjs && node test/export-smoke.mjs",
+    "payload": "node test/payload-size.mjs"
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.100.0",

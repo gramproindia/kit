@@ -63,17 +63,24 @@ function solidFill(node: SceneNode): string | undefined {
 function cornerRadius(node: SceneNode): number | undefined {
   if (!("cornerRadius" in node)) return undefined;
   const radius = node.cornerRadius;
-  return typeof radius === "number" ? radius : undefined;
+  // Zero is the default and says nothing; reporting it put `radius: 0` on
+  // every square frame in the file.
+  if (typeof radius !== "number" || radius === 0) return undefined;
+  return radius;
 }
 
 function layoutOf(node: SceneNode): ExportedNode["layout"] {
   if (!("layoutMode" in node) || node.layoutMode === "NONE") return undefined;
+  const padding: [number, number, number, number] = [node.paddingTop, node.paddingRight, node.paddingBottom, node.paddingLeft];
   return {
     direction: node.layoutMode === "HORIZONTAL" ? "row" : "column",
     gap: node.itemSpacing || undefined,
-    padding: [node.paddingTop, node.paddingRight, node.paddingBottom, node.paddingLeft],
-    align: node.counterAxisAlignItems,
-    justify: node.primaryAxisAlignItems,
+    // Omitted where they are Figma's defaults. A screen is mostly frames
+    // with no padding aligned to the start, and saying so every time costs
+    // more than it tells anyone.
+    padding: padding.some((side) => side !== 0) ? padding : undefined,
+    align: node.counterAxisAlignItems === "MIN" ? undefined : node.counterAxisAlignItems,
+    justify: node.primaryAxisAlignItems === "MIN" ? undefined : node.primaryAxisAlignItems,
   };
 }
 
@@ -147,7 +154,20 @@ async function walk(node: SceneNode, depth: number): Promise<ExportedNode> {
   if (fontWeight !== undefined) style.fontWeight = fontWeight;
   if (Object.keys(style).length) out.style = style;
 
-  const descend = node.type !== "INSTANCE" && depth < 12 && "children" in node;
+  /*
+   * An icon is a frame wrapping vectors, and its name is the whole signal:
+   * `search`, `chevrons-up-down`, `plus`. Walking in yields a child called
+   * "Vector" and nothing an agent can act on — it cannot rebuild a path, and
+   * should be reaching for the matching icon in its own set instead.
+   */
+  const vectorOnly =
+    "children" in node &&
+    (node as ChildrenMixin).children.length > 0 &&
+    (node as ChildrenMixin).children.every((child) =>
+      ["VECTOR", "BOOLEAN_OPERATION", "ELLIPSE", "STAR", "POLYGON", "LINE"].includes(child.type),
+    );
+
+  const descend = node.type !== "INSTANCE" && depth < 12 && "children" in node && !vectorOnly;
   if (descend) {
     const kids: ExportedNode[] = [];
     for (const child of (node as ChildrenMixin).children) {
