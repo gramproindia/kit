@@ -20,7 +20,7 @@
   <text x="332" y="286" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="30" fill="#29ABE2">Design system generator, and a bridge to your coding agent</text>
 
   <text x="150" y="420" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="40" fill="#8A8A99">Build the full kit in Figma — variables, text styles, 38 component sets —</text>
-  <text x="150" y="478" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="40" fill="#8A8A99">then hand any frame to an agent as structured JSON.</text>
+  <text x="150" y="478" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="40" fill="#8A8A99">then hand every screen to a coding agent as structured JSON.</text>
 
   
   <g transform="translate(150 560)">
@@ -48,11 +48,11 @@
   
   <g transform="translate(1030 560)">
     <rect width="740" height="380" rx="24" fill="#141419" stroke="#26262E"/>
-    <text x="40" y="66" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#FAFAFA">Export selection for an agent</text>
-    <text x="40" y="104" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="20" fill="#8A8A99">A frame, as JSON a coding agent can build from</text>
+    <text x="40" y="66" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#FAFAFA">Export all screens for an agent</text>
+    <text x="40" y="104" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="20" fill="#8A8A99">Every screen, one shared theme, ready for a coding agent</text>
 
     <rect x="40" y="134" width="660" height="212" rx="16" fill="#0E0E13" stroke="#26262E"/>
-    <text x="72" y="178" font-family="Consolas, monospace" font-size="20"><tspan fill="#8A8A99">{</tspan></text><text x="92" y="208" font-family="Consolas, monospace" font-size="20"><tspan fill="#7FD1F2">"frame"</tspan><tspan fill="#8A8A99">: </tspan><tspan fill="#C3E88D">"Purchase orders"</tspan><tspan fill="#8A8A99">,</tspan></text><text x="92" y="238" font-family="Consolas, monospace" font-size="20"><tspan fill="#7FD1F2">"nodes"</tspan><tspan fill="#8A8A99">: [{ </tspan><tspan fill="#7FD1F2">"name"</tspan><tspan fill="#8A8A99">: </tspan><tspan fill="#C3E88D">"Status cell"</tspan><tspan fill="#8A8A99">,</tspan></text><text x="132" y="268" font-family="Consolas, monospace" font-size="20"><tspan fill="#7FD1F2">"component"</tspan><tspan fill="#8A8A99">: </tspan><tspan fill="#C3E88D">"Badge"</tspan><tspan fill="#8A8A99"> }],</tspan></text><text x="92" y="298" font-family="Consolas, monospace" font-size="20"><tspan fill="#7FD1F2">"tokens"</tspan><tspan fill="#8A8A99">: { </tspan><tspan fill="#7FD1F2">"colours"</tspan><tspan fill="#8A8A99">: [</tspan><tspan fill="#C3E88D">"#2563eb"</tspan><tspan fill="#8A8A99">] }</tspan></text><text x="72" y="328" font-family="Consolas, monospace" font-size="20"><tspan fill="#8A8A99">}</tspan></text>
+    <text x="72" y="178" font-family="Consolas, monospace" font-size="20"><tspan fill="#8A8A99">$</tspan> <tspan fill="#C3E88D">npx @grampro/kit design ./design.json</tspan></text><text x="72" y="208" font-family="Consolas, monospace" font-size="20"></text><text x="72" y="238" font-family="Consolas, monospace" font-size="20"><tspan fill="#7FD1F2">design/</tspan></text><text x="72" y="268" font-family="Consolas, monospace" font-size="20"><tspan fill="#8A8A99">  purchase-orders.json</tspan></text><text x="72" y="298" font-family="Consolas, monospace" font-size="20"><tspan fill="#8A8A99">  suppliers.json</tspan></text><text x="72" y="328" font-family="Consolas, monospace" font-size="20"><tspan fill="#8A8A99">  index.json</tspan>  <tspan fill="#5C5C6B">the plan: screens, theme</tspan></text>
   </g>
 
   <text x="150" y="1012" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="24" fill="#5C5C6B">kit.gramproindia.com · free and open source · no network access</text>

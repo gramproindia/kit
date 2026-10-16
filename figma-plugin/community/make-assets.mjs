@@ -80,24 +80,23 @@ const designPanel = `
     </g>
   </g>`;
 
+/* The right panel: what comes out, and what you do with it. */
 const agentPanel = `
   <g transform="translate(1030 560)">
     <rect width="740" height="380" rx="24" fill="${PANEL}" stroke="${LINE}"/>
-    <text x="40" y="66" font-family="${FONT}" font-size="26" font-weight="600" fill="${TEXT}">Export selection for an agent</text>
-    <text x="40" y="104" font-family="${FONT}" font-size="20" fill="${MUTED}">A frame, as JSON a coding agent can build from</text>
+    <text x="40" y="66" font-family="${FONT}" font-size="26" font-weight="600" fill="${TEXT}">Export all screens for an agent</text>
+    <text x="40" y="104" font-family="${FONT}" font-size="20" fill="${MUTED}">Every screen, one shared theme, ready for a coding agent</text>
 
     <rect x="40" y="134" width="660" height="212" rx="16" fill="#0E0E13" stroke="${LINE}"/>
     ${[
-      // [text, indent] - indent is applied as an x offset, because SVG
-      // collapses the leading whitespace inside a tspan.
-      ['<tspan fill="#8A8A99">{</tspan>', 0],
-      ['<tspan fill="#7FD1F2">"frame"</tspan><tspan fill="#8A8A99">: </tspan><tspan fill="#C3E88D">"Purchase orders"</tspan><tspan fill="#8A8A99">,</tspan>', 1],
-      ['<tspan fill="#7FD1F2">"nodes"</tspan><tspan fill="#8A8A99">: [{ </tspan><tspan fill="#7FD1F2">"name"</tspan><tspan fill="#8A8A99">: </tspan><tspan fill="#C3E88D">"Status cell"</tspan><tspan fill="#8A8A99">,</tspan>', 1],
-      ['<tspan fill="#7FD1F2">"component"</tspan><tspan fill="#8A8A99">: </tspan><tspan fill="#C3E88D">"Badge"</tspan><tspan fill="#8A8A99"> }],</tspan>', 3],
-      ['<tspan fill="#7FD1F2">"tokens"</tspan><tspan fill="#8A8A99">: { </tspan><tspan fill="#7FD1F2">"colours"</tspan><tspan fill="#8A8A99">: [</tspan><tspan fill="#C3E88D">"#2563eb"</tspan><tspan fill="#8A8A99">] }</tspan>', 1],
-      ['<tspan fill="#8A8A99">}</tspan>', 0],
+      ['<tspan fill="#8A8A99">$</tspan> <tspan fill="#C3E88D">npx @grampro/kit design ./design.json</tspan>', 0],
+      ['', 0],
+      ['<tspan fill="#7FD1F2">design/</tspan>', 0],
+      ['<tspan fill="#8A8A99">  purchase-orders.json</tspan>', 0],
+      ['<tspan fill="#8A8A99">  suppliers.json</tspan>', 0],
+      ['<tspan fill="#8A8A99">  index.json</tspan>  <tspan fill="#5C5C6B">the plan: screens, theme</tspan>', 0],
     ]
-      .map(([t, indent], i) => `<text x="${72 + indent * 20}" y="${178 + i * 30}" font-family="Consolas, monospace" font-size="20">${t}</text>`)
+      .map(([line], i) => `<text x="${72}" y="${178 + i * 30}" font-family="Consolas, monospace" font-size="20">${line}</text>`)
       .join("")}
   </g>`;
 
@@ -118,7 +117,7 @@ const cover = `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080
   <text x="332" y="286" font-family="${FONT}" font-size="30" fill="${CYAN}">Design system generator, and a bridge to your coding agent</text>
 
   <text x="150" y="420" font-family="${FONT}" font-size="40" fill="${MUTED}">Build the full kit in Figma — variables, text styles, 38 component sets —</text>
-  <text x="150" y="478" font-family="${FONT}" font-size="40" fill="${MUTED}">then hand any frame to an agent as structured JSON.</text>
+  <text x="150" y="478" font-family="${FONT}" font-size="40" fill="${MUTED}">then hand every screen to a coding agent as structured JSON.</text>
 
   ${designPanel}
   ${agentPanel}

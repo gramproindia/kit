@@ -21,7 +21,8 @@ source.
   blocked without it, and it is the step most likely to stop you mid-flow.
 - The plugin imported and working: **Plugins → Development → Import plugin
   from manifest…**, pick `figma-plugin/manifest.json`.
-- Run both commands once in a scratch file. Reviewers run what you ship.
+- Run all three commands once in a scratch file. Reviewers run what you
+  ship, and the export commands are the ones most likely to be tried.
 
 ---
 
@@ -48,7 +49,7 @@ Whichever you choose, set `name` in `manifest.json` to match.
 ## Tagline
 
 ```
-Generate a full design system in Figma, then hand any frame to your coding agent.
+Generate a full design system in Figma, then hand every screen to your coding agent.
 ```
 
 ---
@@ -56,8 +57,8 @@ Generate a full design system in Figma, then hand any frame to your coding agent
 ## Description
 
 ```
-Grampro Kit builds a complete, production-shaped design system inside Figma —
-and then gets it out again, in a form a coding agent can act on.
+Grampro Kit builds a complete, production-shaped design system inside Figma
+— and then gets it out again, in a form a coding agent can act on.
 
 **Generate design system**
 
@@ -73,31 +74,46 @@ One command produces the whole kit:
 Every component is laid out with auto-layout and bound to variables, so
 switching the Color mode to Dark re-themes the whole file.
 
+**Export all screens for an agent**
+
+Walks every page and exports each screen as structured JSON, with one set
+of theme values read across the whole design rather than guessed per frame.
+Save it into your project and split it into a folder:
+
+  npx @grampro/kit design ./design.json
+
+  design/
+    purchase-orders.json
+    suppliers.json
+    index.json          every screen, the shared theme, the regions that repeat
+
+An agent reads index.json to plan, then builds one screen at a time.
+
 **Export selection for an agent**
 
-Select any frame and run the second command. You get JSON describing the
-structure, the text, the auto-layout, the component instances and their
-properties, and the colours, radii and font sizes the design actually uses.
+The same thing, scoped. Select one frame for one screen, or several for
+several — useful when a file holds forty screens and you are building two.
 
-Paste it to a coding agent — Claude Code, Codex, Cursor — and it has what it
-needs to build the screen. With the GramproKit MCP server installed, the
-agent reads the design, installs the React components it needs, writes the
-screen and checks its own JSX against the real component API.
+**What the export carries**
 
-This route needs no API token and never calls Figma's REST API, so it works
-on any file you can open and cannot be rate limited.
+Structure, text, auto-layout, sizes and borders; the component instances and
+their variant properties where a screen was built from a library; and the
+colours, radii and font sizes the design actually uses. Rows that repeat come
+back once with their structure and once per row with their text, which is
+both smaller and closer to what a table component wants.
+
+It needs no API token and never calls Figma's REST API, so it works on any
+file you can open and cannot be rate limited.
 
 **Privacy**
 
 The plugin makes no network requests of any kind. Nothing about your file
-leaves Figma — the export is shown in a textarea for you to copy. The
-manifest declares no allowed domains, which you can verify in the source.
+leaves Figma — the export is shown for you to copy or save. The manifest
+declares no allowed domains, which you can verify in the source.
 
 Free and open source: https://github.com/gramproindia/kit
 Documentation: https://kit.gramproindia.com/mcp-server
 ```
-
----
 
 ## The rest of the form
 
