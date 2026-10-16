@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.6.2
+
+### Fixed
+
+**Selecting several frames exports several screens.** It used to produce
+one pseudo-frame called "3 selected nodes" holding all of them, which
+`design` then wrote as a single file under that name — a folder whose
+whole point is one file per screen, with one file for three. The screens
+were in there, but nothing said where one ended and the next began.
+
+A selection of several frames now produces the same shape the whole-file
+export does, so the split, the index and `figma_frame` treat them
+identically. One frame selected is still one screen.
+
+This is also the scoping the all-screens command lacks: a file with forty
+frames in it need not be exported entire to build two of them. Select the
+screens you want and export those.
+
 ## 2.6.1
 
 ### Changed

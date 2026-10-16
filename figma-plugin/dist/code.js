@@ -3112,6 +3112,38 @@ async function exportSelection() {
     colours.clear();
     radii.clear();
     fontSizes.clear();
+    /*
+     * Several frames selected are several screens.
+     *
+     * They used to come out as one pseudo-frame called "3 selected nodes"
+     * holding all of them, which the CLI then wrote as a single file under
+     * that name — a folder whose point is one file per screen, with one file
+     * for three. Emitting the same shape the whole-file export uses makes
+     * the split, the index and figma_frame treat them identically, and makes
+     * "export just these screens" possible: a file with forty frames in it
+     * need not be exported entire to build two of them.
+     */
+    const asScreens = selection.length > 1 && selection.every((node) => node.type === "FRAME");
+    if (asScreens) {
+        const screens = [];
+        for (const node of selection) {
+            screens.push({
+                name: node.name,
+                page: figma.currentPage.name,
+                size: sizeOf(node),
+                nodes: [await walk(node, 0)],
+            });
+        }
+        showPanel({
+            screens,
+            tokens: {
+                colours: ranked(colours),
+                radii: ranked(radii),
+                fontSizes: ranked(fontSizes),
+            },
+        }, `${screens.length} screens`, "design.json", "Save it into your project, then: npx @grampro/kit design ./design.json");
+        return;
+    }
     const nodes = [];
     for (const node of selection)
         nodes.push(await walk(node, 0));
