@@ -157,6 +157,22 @@ interface FrameOptions {
   clip?: boolean;
 }
 
+/*
+ * Section and variant-grid geometry, in one place because they constrain
+ * each other: a variant grid is laid out to fit the section that will hold
+ * it, and when the two were written apart the grids overflowed the cards.
+ */
+
+/** Every documentation section is this wide, padding included. */
+const SECTION_WIDTH = 1400;
+const SECTION_PADDING = 40;
+
+/** A variant set's own inset, and the space between variants. */
+const SET_PADDING = 24;
+const SET_GAP = 24;
+
+/** How much width a variant grid actually has to lay out in. */
+const SET_CONTENT_WIDTH = SECTION_WIDTH - SECTION_PADDING * 2 - SET_PADDING * 2;
 const JUSTIFY: Record<NonNullable<FrameOptions["justify"]>, "MIN" | "CENTER" | "MAX" | "SPACE_BETWEEN"> = {
   start: "MIN",
   center: "CENTER",
@@ -350,24 +366,36 @@ async function variantSet(
   set.name = name;
   set.description = description;
 
-  // A grid: `columns` variants per row, 24 px apart.
-  let x = 24;
-  let y = 24;
+  /*
+   * A grid, `columns` per row — but `columns` is a maximum, not an
+   * instruction. A row also breaks when the next variant would not fit the
+   * width a section can give it. Counting alone let wide variants run off
+   * the card: Alert is five 460px components, which is 2444px of grid in a
+   * section that offers SET_CONTENT_WIDTH.
+   */
+  let x = SET_PADDING;
+  let y = SET_PADDING;
   let rowHeight = 0;
-  set.children.forEach((child, index) => {
-    if (index > 0 && index % columns === 0) {
-      x = 24;
-      y += rowHeight + 24;
+  let inRow = 0;
+  set.children.forEach((child) => {
+    const width = Math.max(child.width, 120);
+    const tooMany = inRow >= columns;
+    const tooWide = inRow > 0 && x + width > SET_PADDING + SET_CONTENT_WIDTH;
+    if (tooMany || tooWide) {
+      x = SET_PADDING;
+      y += rowHeight + SET_GAP;
       rowHeight = 0;
+      inRow = 0;
     }
     child.x = x;
     child.y = y;
-    x += Math.max(child.width, 120) + 24;
+    x += width + SET_GAP;
     rowHeight = Math.max(rowHeight, child.height);
+    inRow += 1;
   });
   const right = Math.max(...set.children.map((child) => child.x + child.width));
   const bottom = Math.max(...set.children.map((child) => child.y + child.height));
-  set.resizeWithoutConstraints(right + 24, bottom + 24);
+  set.resizeWithoutConstraints(right + SET_PADDING, bottom + SET_PADDING);
   setStroke(set, "accent/default");
   set.dashPattern = [6, 4];
   set.cornerRadius = 8;
@@ -398,9 +426,16 @@ function booleanProperty(set: ComponentSetNode, property: string, layerName: str
 
 /** A documented section on a page: title, description, then the content. */
 async function docSection(page: PageNode, title: string, description: string): Promise<FrameNode> {
-  const section = frame(title, { direction: "column", gap: 16, padding: 40, fill: "surface/bg", radius: 16, width: 1400 });
+  const section = frame(title, {
+    direction: "column",
+    gap: 16,
+    padding: SECTION_PADDING,
+    fill: "surface/bg",
+    radius: 16,
+    width: SECTION_WIDTH,
+  });
   page.appendChild(section);
-  applySize(section, 1400, "hug");
+  applySize(section, SECTION_WIDTH, "hug");
   await text(section, title, "Title/Section");
   await text(section, description, "Body/Default", { color: "text/muted", width: "fill" });
   return section;

@@ -269,6 +269,24 @@ for (const set of sets) {
   }
 }
 
+/*
+ * No variant grid may be wider than the section holding it. Counting
+ * columns without measuring them let the Alert set reach 2444px inside a
+ * 1320px card, which is invisible to every other assertion here: the
+ * properties still bind, the variants still exist, and the file still
+ * opens. Only the geometry is wrong.
+ */
+const SECTION_WIDTH = 1400;
+const SECTION_PADDING = 40;
+const SECTION_CONTENT = SECTION_WIDTH - SECTION_PADDING * 2;
+for (const set of sets) {
+  if (set.width > SECTION_CONTENT) {
+    problems.push(
+      `${set.name}: the variant grid is ${Math.round(set.width)}px wide, overflowing its ${SECTION_CONTENT}px section`,
+    );
+  }
+}
+
 console.log(figma.closed ?? "Timed out");
 console.log(`pages: ${pages.map((page) => page.name).join(" | ")}`);
 console.log(`component sets: ${sets.length} — ${sets.map((set) => `${set.name} (${set.children.length})`).join(", ")}`);
@@ -276,5 +294,8 @@ console.log(`variables: ${variableCount}, collections: ${collections.map((c) => 
 if (problems.length) {
   console.log(`\n${problems.length} problem(s):\n- ${problems.join("\n- ")}`);
 }
-const ok = figma.closed?.startsWith("Grampro Kit ready") && unreferenced === 0;
+const widest = sets.reduce((a, b) => (a.width > b.width ? a : b), sets[0]);
+console.log(`widest grid: ${widest?.name} at ${Math.round(widest?.width ?? 0)}px (section content is ${SECTION_CONTENT}px)`);
+
+const ok = figma.closed?.startsWith("Grampro Kit ready") && unreferenced === 0 && problems.length === 0;
 process.exit(ok ? 0 : 1);
