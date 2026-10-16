@@ -183,8 +183,25 @@ library. That is what this catches:
 
 ### No token, or a rate-limited one
 
-Use the plugin instead. In Figma, select the frame and run **Grampro Kit
--> Export selection for an agent**, then paste the JSON:
+Use the plugin instead. It reads the scene graph from inside Figma, so it
+needs no token, works on any file you can open, and never calls the REST
+API - which means it cannot be rate limited.
+
+**Getting it.** A Figma Community listing is pending review. Until that
+lands, install it from source - you need the Figma **desktop** app, since
+development plugins cannot be imported in the browser:
+
+```bash
+git clone https://github.com/gramproindia/kit.git
+```
+
+Then **Plugins -> Development -> Import plugin from manifest...** and
+choose `figma-plugin/manifest.json` from the clone. The build is
+committed, so there is nothing to compile.
+
+**Using it.** Select the frame and run **Plugins -> Development -> Grampro
+Kit -> Export selection for an agent**. Copy the JSON it shows, and paste
+it with this:
 
 ```text
 Build this screen from the design JSON below. Pass it to figma_frame as the
