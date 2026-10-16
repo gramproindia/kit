@@ -108,6 +108,8 @@ export const getLlmsTxt = cache(async () => {
     "",
     "Components are copy-in blocks: `npx @grampro/kit -a <Component>` (or `pnpm dlx @grampro/kit -a <Component>`) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once. The 2.0.0 components are in beta and their APIs may change.",
     "",
+    "There is an MCP server in the package: `npx @grampro/kit mcp install` configures Claude Code, Codex and Cursor. Its tools answer what components exist (`list_components`), what a component's props actually are (`get_component`), what a Figma frame contains (`figma_frame`), and whether written JSX matches the real API (`validate_usage`). See the MCP server page for the full list and a design-to-code walkthrough.",
+    "",
     "Every page below is also available as plain Markdown by adding `.md` to its URL.",
     "",
   ];

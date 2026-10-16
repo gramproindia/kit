@@ -1,0 +1,273 @@
+---
+title: "MCP server"
+description: "Serve the component catalogue to Claude Code, Codex and Cursor over MCP (Model Context Protocol), and build a screen from a Figma design: read the frame, install the components, write the JSX, check it against the real API."
+group: "General"
+order: 27
+---
+GramproKit ships an MCP server. Model Context Protocol is how a coding
+agent calls tools, and this one answers questions about the component
+library: what exists, what a component's props really are, what a Figma
+frame contains, and whether the JSX the agent just wrote is valid.
+
+It is the difference between an agent recalling an API and reading one.
+
+<Notice message="Beta. The tools work and are tested, but their names and shapes may change before this settles." />
+
+It answers on demand, which is why it beats pasting documentation into a
+prompt: the passports come to 280 KB and a page needs two or three
+components. The [agent skill](/agent-skill) is the other half - a document
+an agent reads up front, telling it the library exists and how it is meant
+to be used. Either is useful alone; together an agent knows to reach for
+the library and can ask what it actually takes.
+
+## Setup
+
+```bash
+npx @grampro/kit mcp install
+```
+
+That writes the configuration for every agent it knows — Claude Code, Codex
+and Cursor — and names the files it touched. Narrow it with `--for codex`,
+or a comma-separated list.
+
+| agent | file | key |
+| --- | --- | --- |
+| Claude Code | `.mcp.json` | `mcpServers.grampro` |
+| Codex | `.codex/config.toml` | `[mcp_servers.grampro]` |
+| Cursor | `.cursor/mcp.json` | `mcpServers.grampro` |
+
+Use it rather than editing those files by hand. It writes UTF-8 without a
+byte-order mark and with LF endings, and a BOM is the one thing that
+reliably breaks them: PowerShell's `Out-File -Encoding utf8` adds one, and
+JSON parsers then reject the file with an error that names the first
+character and explains nothing. Running it again merges, leaves other
+servers alone, and reports `unchanged` when there is nothing to do.
+
+The Codex config is project-scoped. For every project, put the same
+`[mcp_servers.grampro]` block in `~/.codex/config.toml`.
+
+An MCP server is not invoked by name. There is no `/grampro`; the model
+calls the tools itself when they are relevant. `/mcp` shows whether the
+server is connected.
+
+It writes to the project root - the nearest folder above you holding a
+`.git` or a `package.json` - and prints which one it picked, because an
+agent only reads these files from the folder it has open.
+
+## If the server does not show up
+
+Writing the file is not the same as loading the server, and in Claude Code
+two things sit between them.
+
+**It needs approving.** A `.mcp.json` server is project-scoped, and Claude
+Code asks before trusting one. Until you agree it stays at `Pending
+approval`, and nothing asks a second time; `claude mcp reset-project-choices`
+brings the prompt back.
+
+**It needs a fresh session.** The configuration is read at session start, so
+an editor window that was already open sees nothing. In the VS Code
+extension, run *Developer: Reload Window*.
+
+`/mcp` lists the servers with their state, which separates "not configured"
+from "configured, not approved".
+
+Both are skippable by installing it for yourself instead of for the project:
+
+```bash
+claude mcp add -s user grampro -- npx -y @grampro/kit mcp
+```
+
+User scope lives in `~/.claude.json`, loads in every project, and needs no
+approval because it belongs to you rather than to the repository. Project
+scope is still the better choice when the team should get it from a commit.
+
+## The tools
+
+| tool | what it answers |
+| --- | --- |
+| `list_components` | What exists, and what each one is for |
+| `get_component` | Props with types and allowed values, which are required, handler signatures, slots, states, composition rules |
+| `get_example` | Working usage from the component's README |
+| `get_guidance` | Authored notes on forms, overlays, the grid, pickers, styling, accessibility |
+| `figma_frame` | A design's structure, text, repeated regions, and the theme variables its colours map onto |
+| `install_component` | Copies components into the project being worked in |
+| `validate_usage` | Whether the JSX an agent just wrote matches the passports |
+
+`validate_usage` is the point. A page written from passports alone compiles
+on the first attempt — every type, union value and handler signature in a
+passport is accurate, because it was generated from the source. What a
+passport cannot stop is a model reaching for a prop it remembers from
+somewhere else, so the server checks:
+
+```
+<Alert variant="info" title="Hi" dismissible onDismiss={...} />
+
+  dismissible - not a prop of this component. Did you mean: onDismiss
+```
+
+It starts in about the time an empty Node process takes. An agent spawns the
+server once per session, so the `mcp` command is routed before the CLI's own
+dependencies load; they are no use to a JSON-RPC loop and cost around 70ms.
+
+## From a Figma design to a built screen
+
+This is the run the server exists for. The agent reads the design, finds
+out what the components actually take, installs what it needs, writes the
+screen, and has its own work checked before it reports back.
+
+### Before you start
+
+```bash
+npm i -D @grampro/kit
+npx grampro-kit mcp install
+```
+
+Reload your editor window, approve the server when asked, and check `/mcp`
+shows it connected. For the Figma URL route, store a token once:
+
+```bash
+npx grampro-kit secret set figma
+```
+
+In Figma, right-click the frame you want and choose **Copy link to
+selection**. That link carries a `node-id`, which takes the read down to a
+single API call instead of listing the file first.
+
+### The prompt
+
+Paste this, with your own link and screen name. The order is the point:
+every step after the first depends on the agent having read something
+rather than assumed it.
+
+```text
+Build the "Purchase orders" screen from this Figma frame:
+https://www.figma.com/design/<file-key>/<name>?node-id=2003-3731
+
+Work in this order, using the grampro MCP server:
+
+1. figma_frame on that URL, to read the design.
+2. list_components, then get_component for each component you plan to use.
+   Do not write a prop you have not read there.
+3. install_component for anything this project does not already have.
+4. Write the screen.
+5. validate_usage on the JSX you wrote, before telling me you are done,
+   and fix whatever it reports.
+
+Use the --gbs-* theme variables figma_frame returns rather than hard-coded
+colours. If a region of the design has no matching component, tell me
+instead of approximating it.
+```
+
+### What each step is for
+
+**`figma_frame`** returns the structure, the text, the regions whose names
+repeat, and the theme variables the design's own colours map onto. It does
+not decide which component each region is - see below.
+
+**`get_component`** is the step people skip, and skipping it is what
+produces code that looks right and does not compile. The passport carries
+every prop with its type, which values a union accepts, which props are
+required, and handler signatures, all generated from the source. An agent
+that reads it does not have to remember.
+
+**`validate_usage`** is the one that earns the server its place. A page
+written from passports alone compiles on the first attempt; what a passport
+cannot prevent is a model reaching for a prop it remembers from a different
+library. That is what this catches:
+
+```text
+<Alert variant="info" title="Hi" dismissible onDismiss={...} />
+
+  dismissible - not a prop of this component. Did you mean: onDismiss
+```
+
+### No token, or a rate-limited one
+
+Use the plugin instead. In Figma, select the frame and run **Grampro Kit
+-> Export selection for an agent**, then paste the JSON:
+
+```text
+Build this screen from the design JSON below. Pass it to figma_frame as the
+`design` argument, then follow the same order: get_component before writing
+any component, install_component for what is missing, validate_usage at the
+end.
+
+<paste the plugin's JSON here>
+```
+
+The plugin reads the scene graph from inside Figma, so it needs no token,
+works on any file you can open, and cannot be rate limited.
+
+### The two routes
+
+**By URL** - pass a `figma.com/design/...` link. With just the URL it
+lists the frames in the file; called again with a `frame` it returns that
+screen. A link that already carries a `node-id`, which is what Figma
+copies when you right-click a frame, goes straight there in one call.
+This route needs a token.
+
+**By plugin export** - in Figma, run **Grampro Kit -> Export selection for
+an agent** and hand the JSON over as `design`. The plugin reads the scene
+graph from inside Figma, so it works on any file you can open, asks for
+nothing, and cannot be rate limited.
+
+Either way you get the same answer: the structure, the text, the regions
+whose names repeat - eight `Status cell` nodes are a column - and the
+`--gbs-*` variables the design's own colours and radii map onto.
+
+Colours are given roles rather than ranked, because the most-used colour
+in a design is the body text and a near-black navy scores high on
+saturation - so "most common" and "most saturated" both pick the wrong
+one. Lightness and saturation together find the accent.
+### What it will not do
+
+It does not decide which component each region of the design is. A design
+drawn without the component library has no instances to look up, so that
+call is inference - and an agent holding the catalogue and the designer's
+own names for things infers better than string matching inside a tool
+would. Anything that is not a kit component is reported as such rather
+than approximated.
+## Rate limits
+
+Figma charges for file reads by the size of the response, so asking for a
+whole file to answer a question about one frame is what earns a 429 - and
+the lockout is long. A `Retry-After` of 395274 has been seen on one token.
+
+Nothing here fetches a whole file any more. The frame listing uses
+`depth=1`, which returns the document's outline rather than its contents,
+and the frame itself is fetched by id. Responses are held for five minutes,
+so the natural flow of list-then-read costs one outline and one frame. A URL
+with a `node-id` skips the listing entirely.
+
+If a token is already locked out, the plugin export still works.
+
+## Credentials
+
+The URL route needs a Figma personal access token, and it goes where the
+operating system keeps credentials:
+
+```bash
+npx @grampro/kit secret set figma
+```
+
+It prompts with the echo off and never takes the value as an argument -
+arguments land in shell history and in every process listing on the machine.
+For a script, pipe it: `echo "$TOKEN" | npx @grampro/kit secret set figma`.
+
+| platform | where it goes |
+| --- | --- |
+| Windows | Data Protection API, tied to your Windows account |
+| macOS | the keychain |
+| Linux | Secret Service (GNOME Keyring, KWallet) |
+| anything else | a 0600 file in your config directory, and it says so |
+
+`secret list` shows what is stored, masked, and names the backend in use;
+`secret remove figma` deletes it. Give the token `File content: read` and
+nothing else.
+
+The lookup order is `FIGMA_TOKEN` in the environment, then the store, then a
+`.env` - the last only so an upgrade does not break a project set up the old
+way, and it prints a note saying to move it. A credential in a file inside a
+working tree is one `git add -A` away from being published, which is why
+this moved.
+

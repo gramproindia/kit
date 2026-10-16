@@ -11,7 +11,7 @@ export const v2Config = {
   /* Stamped from the library's package.json by scripts/generate-demos.mjs. */
   version: LIBRARY_VERSION,
   description:
-    "GramproKit: an agent-native UI runtime for React. Copy-in components you own, each publishing a contract that software can read.",
+    "GramproKit: an agent-native UI runtime for React. Copy-in components you own, each publishing a machine-readable contract. Ships an MCP server so coding agents (Claude Code, Codex, Cursor) can read the real API and build from a Figma design.",
   legacyDocsHref: "/1.x.x-legacy/docs/getting-started",
   github: "https://github.com/gramproindia/kit",
   /** GBS SE Agent: a coding agent with skills for building with these components. */

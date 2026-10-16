@@ -95,173 +95,21 @@ The installer records a sha256 of every file it writes — across all four locat
 
 ## An MCP server, for agents that speak it
 
-<Notice message="Beta. The tools work and are tested, but their names and shapes may change before this settles." />
-
-The skill is a document an agent reads up front. The MCP server is the same
-catalogue answered on demand, which matters because the passports come to
-280 KB and a page needs two or three components.
+The skill is a document an agent reads up front. The MCP server is the
+same catalogue answered on demand, which matters because the passports
+come to 280 KB and a page needs two or three components.
 
 ```bash
 npx @grampro/kit mcp install
 ```
 
-That writes the configuration for every agent it knows — Claude Code, Codex
-and Cursor — and names the files it touched. Narrow it with `--for codex`,
-or a comma-separated list.
+That configures Claude Code, Codex and Cursor in one go. The server has a
+page of its own: [MCP server](/mcp-server) covers the tools, the setup per
+agent, credentials, and a walkthrough for building a screen from a Figma
+design.
 
-| agent | file | key |
-| --- | --- | --- |
-| Claude Code | `.mcp.json` | `mcpServers.grampro` |
-| Codex | `.codex/config.toml` | `[mcp_servers.grampro]` |
-| Cursor | `.cursor/mcp.json` | `mcpServers.grampro` |
-
-Use it rather than editing those files by hand. It writes UTF-8 without a
-byte-order mark and with LF endings, and a BOM is the one thing that
-reliably breaks them: PowerShell's `Out-File -Encoding utf8` adds one, and
-JSON parsers then reject the file with an error that names the first
-character and explains nothing. Running it again merges, leaves other
-servers alone, and reports `unchanged` when there is nothing to do.
-
-The Codex config is project-scoped. For every project, put the same
-`[mcp_servers.grampro]` block in `~/.codex/config.toml`.
-
-An MCP server is not invoked by name. There is no `/grampro`; the model
-calls the tools itself when they are relevant. `/mcp` shows whether the
-server is connected.
-
-It writes to the project root - the nearest folder above you holding a
-`.git` or a `package.json` - and prints which one it picked, because an
-agent only reads these files from the folder it has open.
-
-### If the server does not show up
-
-Writing the file is not the same as loading the server, and in Claude Code
-two things sit between them.
-
-**It needs approving.** A `.mcp.json` server is project-scoped, and Claude
-Code asks before trusting one. Until you agree it stays at `Pending
-approval`, and nothing asks a second time; `claude mcp reset-project-choices`
-brings the prompt back.
-
-**It needs a fresh session.** The configuration is read at session start, so
-an editor window that was already open sees nothing. In the VS Code
-extension, run *Developer: Reload Window*.
-
-`/mcp` lists the servers with their state, which separates "not configured"
-from "configured, not approved".
-
-Both are skippable by installing it for yourself instead of for the project:
-
-```bash
-claude mcp add -s user grampro -- npx -y @grampro/kit mcp
-```
-
-User scope lives in `~/.claude.json`, loads in every project, and needs no
-approval because it belongs to you rather than to the repository. Project
-scope is still the better choice when the team should get it from a commit.
-
-### The tools
-
-| tool | what it answers |
-| --- | --- |
-| `list_components` | What exists, and what each one is for |
-| `get_component` | Props with types and allowed values, which are required, handler signatures, slots, states, composition rules |
-| `get_example` | Working usage from the component's README |
-| `get_guidance` | Authored notes on forms, overlays, the grid, pickers, styling, accessibility |
-| `figma_frame` | A design's structure, text, repeated regions, and the theme variables its colours map onto |
-| `install_component` | Copies components into the project being worked in |
-| `validate_usage` | Whether the JSX an agent just wrote matches the passports |
-
-`validate_usage` is the point. A page written from passports alone compiles
-on the first attempt — every type, union value and handler signature in a
-passport is accurate, because it was generated from the source. What a
-passport cannot stop is a model reaching for a prop it remembers from
-somewhere else, so the server checks:
-
-```
-<Alert variant="info" title="Hi" dismissible onDismiss={...} />
-
-  dismissible - not a prop of this component. Did you mean: onDismiss
-```
-
-It starts in about the time an empty Node process takes. An agent spawns the
-server once per session, so the `mcp` command is routed before the CLI's own
-dependencies load; they are no use to a JSON-RPC loop and cost around 70ms.
-
-### Building from a Figma design
-
-Two routes, and the second needs no credentials.
-
-**By URL** - pass a `figma.com/design/...` link. With just the URL it lists
-the frames in the file; called again with a `frame` it returns that screen.
-A link that already carries a `node-id`, which is what Figma copies when you
-right-click a frame, goes straight there in one call. This route needs a
-token.
-
-**By plugin export** - in Figma, run **Grampro Kit -> Export selection for an
-agent** and hand the JSON over as `design`. The plugin reads the scene graph
-from inside Figma, so it works on any file you can open, asks for nothing,
-and cannot be rate limited.
-
-Either way you get the same answer: the structure, the text, the regions
-whose names repeat - eight `Status cell` nodes are a column - and the
-`--gbs-*` variables the design's own colours and radii map onto.
-
-It does not decide which component each region is. A design drawn without
-the component library has no instances to look up, so that call is
-inference, and an agent holding the catalogue and the designer's own names
-for things infers better than string matching inside a tool would. Anything
-that is not a kit component is reported as such rather than approximated.
-
-Colours are given roles rather than ranked, because the most-used colour in
-a design is the body text and a near-black navy scores high on saturation -
-so "most common" and "most saturated" both pick the wrong one. Lightness and
-saturation together find the accent.
-
-### Rate limits
-
-Figma charges for file reads by the size of the response, so asking for a
-whole file to answer a question about one frame is what earns a 429 - and
-the lockout is long. A `Retry-After` of 395274 has been seen on one token.
-
-Nothing here fetches a whole file any more. The frame listing uses
-`depth=1`, which returns the document's outline rather than its contents,
-and the frame itself is fetched by id. Responses are held for five minutes,
-so the natural flow of list-then-read costs one outline and one frame. A URL
-with a `node-id` skips the listing entirely.
-
-If a token is already locked out, the plugin export still works.
-
-### Credentials
-
-The URL route needs a Figma personal access token, and it goes where the
-operating system keeps credentials:
-
-```bash
-npx @grampro/kit secret set figma
-```
-
-It prompts with the echo off and never takes the value as an argument -
-arguments land in shell history and in every process listing on the machine.
-For a script, pipe it: `echo "$TOKEN" | npx @grampro/kit secret set figma`.
-
-| platform | where it goes |
-| --- | --- |
-| Windows | Data Protection API, tied to your Windows account |
-| macOS | the keychain |
-| Linux | Secret Service (GNOME Keyring, KWallet) |
-| anything else | a 0600 file in your config directory, and it says so |
-
-`secret list` shows what is stored, masked, and names the backend in use;
-`secret remove figma` deletes it. Give the token `File content: read` and
-nothing else.
-
-The lookup order is `FIGMA_TOKEN` in the environment, then the store, then a
-`.env` - the last only so an upgrade does not break a project set up the old
-way, and it prints a note saying to move it. A credential in a file inside a
-working tree is one `git add -A` away from being published, which is why
-this moved.
-
+The two work together. The skill tells an agent the library exists and how
+it is meant to be used; the server lets it ask. Either is useful alone.
 ## Which agents read it
 
 No agent reads all of these locations, so the CLI writes one copy per agent from the same source. They differ only in where they sit and what their front matter is called.

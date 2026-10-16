@@ -6,6 +6,10 @@ React components you own — styled, dependency-free, and machine-readable. Each
 component arrives in your project as source, with its stylesheet, and with a
 contract describing what it is and what can safely be done to it.
 
+It ships an **MCP server**, so Claude Code, Codex and Cursor can read that
+contract instead of guessing at it — and build a screen straight from a
+Figma design.
+
 ```bash
 npx @grampro/kit add DataGrid
 ```
@@ -92,15 +96,31 @@ In this repository:
 
 ## MCP server (beta)
 
-For agents that speak MCP, the catalogue is also served on demand:
+The catalogue, served to a coding agent on demand over the Model Context
+Protocol:
 
 ```bash
-claude mcp add grampro -- npx -y @grampro/kit mcp
+npx @grampro/kit mcp install
 ```
 
-It reads a Figma design, installs what it needs, answers what exists, each component's full contract, working examples, and
-whether the JSX an agent just wrote actually matches the component it used.
-No dependencies, no configuration. See `tools/mcp/README.md`.
+That configures **Claude Code** (`.mcp.json`), **Codex**
+(`.codex/config.toml`) and **Cursor** (`.cursor/mcp.json`) in one command,
+merging into whatever is already there.
+
+Its seven tools answer what components exist (`list_components`), what a
+component's props actually are (`get_component`), how it is used
+(`get_example`, `get_guidance`), what a Figma frame contains
+(`figma_frame`), and — the one that earns its place — whether the JSX an
+agent just wrote matches the real API (`validate_usage`).
+
+`install_component` copies what the design needs into your project, so an
+agent can go from a Figma link to a working screen without you installing
+anything first.
+
+No dependencies, and it starts in about the time an empty Node process
+takes. Full walkthrough, including a prompt to paste:
+[kit.gramproindia.com/mcp-server](https://kit.gramproindia.com/mcp-server).
+Details in [`tools/mcp/README.md`](tools/mcp/README.md).
 
 ## Agent skill
 
