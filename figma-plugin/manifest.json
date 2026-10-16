@@ -20,6 +20,10 @@
     {
       "name": "Export selection for an agent",
       "command": "export"
+    },
+    {
+      "name": "Export all screens for an agent",
+      "command": "export-all"
     }
   ]
 }

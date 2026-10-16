@@ -52,7 +52,11 @@ async function run() {
 
 const command = figma.command || "generate";
 
-if (command === "export") {
+if (command === "export-all") {
+  exportAllScreens().catch((error: unknown) => {
+    figma.closePlugin(error instanceof Error ? error.message : String(error));
+  });
+} else if (command === "export") {
   exportSelection().catch((error: unknown) => {
     figma.closePlugin(error instanceof Error ? error.message : String(error));
   });

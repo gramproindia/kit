@@ -1190,7 +1190,7 @@ const validateComponents = (components, beta = false) => {
  * projects a week install this; breaking their scripts to tidy an argument
  * parser is not a trade worth making.
  */
-const COMMANDS = new Set(["add", "list", "skill", "passport", "mcp", "secret"]);
+const COMMANDS = new Set(["add", "list", "skill", "passport", "mcp", "secret", "design"]);
 
 /**
  * Flags that take a separate value, so the token after one is that value and
@@ -1297,6 +1297,7 @@ const main = async () => {
     .example("$0 mcp install", "Register the MCP server with every agent found")
     .example("$0 mcp install --for codex", "Only write the Codex config")
     .example("$0 secret set figma", "Store a Figma token in the OS credential store")
+    .example("$0 design ./design.json", "Split a whole-file Figma export into design/")
     .example("$0 -i", "Interactive selection")
     .help().argv;
 
@@ -1330,6 +1331,36 @@ const main = async () => {
 
   if (parsed && parsed.command === "secret") {
     await require("./tools/mcp/secret-cli.cjs").main(parsed.operands);
+    return;
+  }
+
+  if (parsed && parsed.command === "design") {
+    const [file, dest] = parsed.operands;
+    if (!file) {
+      console.log(`Which export? Try: ${CLI_NAME} design ./design.json`);
+      console.log("");
+      console.log("Save one from Figma first: Grampro Kit -> Export all screens for an agent.");
+      return;
+    }
+    const { splitDesign } = require("./tools/mcp/design.cjs");
+    const result = splitDesign(file, dest || "design");
+    if (result.error) {
+      console.log(result.error);
+      process.exitCode = 1;
+      return;
+    }
+    const rel = path.relative(process.cwd(), result.dest) || result.dest;
+    console.log(`Wrote ${result.written.length} screen(s) to ${rel}/`);
+    for (const screen of result.written) {
+      const where = screen.page ? ` (${screen.page})` : "";
+      console.log(`  ${screen.file.padEnd(28)} ${screen.name}${where} — ${screen.nodes} nodes`);
+    }
+    console.log(`  index.json${" ".repeat(18)} the plan: every screen, shared theme`);
+    console.log("");
+    console.log(
+      `Point an agent at it: "read ${rel}/index.json and build these screens`
+        + ` with the grampro MCP server".`,
+    );
     return;
   }
 

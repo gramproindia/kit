@@ -40,6 +40,15 @@ interface ExportedNode {
   children?: ExportedNode[];
 }
 
+/** One screen in a whole-file export. */
+interface ExportedScreen {
+  name: string;
+  /** The Figma page it sits on, which is usually how a product is grouped. */
+  page: string;
+  size?: [number, number];
+  nodes: ExportedNode[];
+}
+
 interface ExportedSelection {
   frame: string;
   nodes: ExportedNode[];
@@ -219,52 +228,17 @@ async function walk(node: SceneNode, depth: number): Promise<ExportedNode> {
 const ranked = <K>(map: Map<K, number>) =>
   [...map.entries()].sort((a, b) => b[1] - a[1]).map(([value, uses]) => ({ value, uses }));
 
-async function exportSelection(): Promise<void> {
-  const selection = figma.currentPage.selection;
-  if (selection.length === 0) {
-    figma.closePlugin("Select a frame first, then run the export.");
-    return;
-  }
-
-  colours.clear();
-  radii.clear();
-  fontSizes.clear();
-
-  const nodes: ExportedNode[] = [];
-  for (const node of selection) nodes.push(await walk(node, 0));
-
-  const payload: ExportedSelection = {
-    frame: selection.length === 1 ? selection[0].name : `${selection.length} selected nodes`,
-    nodes,
-    tokens: {
-      colours: ranked(colours),
-      radii: ranked(radii),
-      fontSizes: ranked(fontSizes),
-    },
-  };
-
-  // Indented for a person to read; minified for the agent to receive. The
-  // same tree costs about a third as much without the indentation, and
-  // JSON.parse cannot tell the difference.
+/**
+ * The panel both commands end in: the JSON to read, the JSON to copy, and
+ * a file to save. Shared so the two exports cannot drift apart in how they
+ * hand their result over.
+ */
+function showPanel(payload: unknown, title: string, fileName: string, blurb: string): void {
   const json = JSON.stringify(payload, null, 2);
   const compact = JSON.stringify(payload);
   const size = (json.length / 1024).toFixed(1);
   const compactSize = (compact.length / 1024).toFixed(1);
-  const fileName = `${payload.frame
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "") || "design"}.json`;
 
-  /*
-   * The panel copies on click.
-   *
-   * It used to select the text and leave the person to press Ctrl+C, on the
-   * grounds that a plugin cannot reach the clipboard without a user gesture.
-   * A click handler is a user gesture: execCommand("copy") works from one
-   * inside the plugin iframe. navigator.clipboard is frequently blocked
-   * there by permissions policy, so it is the fallback, and selecting the
-   * text is the last resort — which is where this started.
-   */
   figma.showUI(
     `<style>
        body { font: 12px ui-sans-serif, system-ui; margin: 0; padding: 12px; color: #333; }
@@ -282,7 +256,7 @@ async function exportSelection(): Promise<void> {
        button.ghost:hover { background: #e4e4e4; }
        #said { color: #666; }
      </style>
-     <p><b>${payload.frame}</b> — copies as ${compactSize} KB of minified JSON (${size} KB shown). Paste it into your agent's <code>figma_frame</code> tool, as the <code>design</code> argument.</p>
+     <p><b>${title}</b> — copies as ${compactSize} KB of minified JSON (${size} KB shown). ${blurb}</p>
      <textarea id="out" readonly></textarea>
      <textarea id="mini" readonly></textarea>
      <div class="row"><button id="copy">Copy JSON</button><button id="save" class="ghost">Save .json</button><span id="said"></span></div>
@@ -324,5 +298,98 @@ async function exportSelection(): Promise<void> {
        };
      </script>`,
     { width: 560, height: 440, title: "Export for agent" },
+  );
+}
+
+/** A file name from a frame name: lowercase, dashes, nothing exotic. */
+const slug = (name: string) =>
+  name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "design";
+
+/**
+ * Every top-level frame on every page.
+ *
+ * Component sets are left out: the pages this plugin generates are the
+ * library, not the product, and an agent reading them as screens would set
+ * about rebuilding the design system.
+ */
+async function exportAllScreens(): Promise<void> {
+  await figma.loadAllPagesAsync();
+
+  colours.clear();
+  radii.clear();
+  fontSizes.clear();
+
+  const screens: ExportedScreen[] = [];
+  for (const page of figma.root.children) {
+    for (const node of page.children) {
+      if (node.type !== "FRAME") continue;
+      if ("visible" in node && node.visible === false) continue;
+      screens.push({
+        name: node.name,
+        page: page.name,
+        size: sizeOf(node),
+        nodes: [await walk(node, 0)],
+      });
+    }
+  }
+
+  if (screens.length === 0) {
+    figma.closePlugin("No top-level frames found. A screen is a frame sitting directly on a page.");
+    return;
+  }
+
+  /*
+   * One set of tokens for the whole design. Derived per screen they
+   * disagree — a screen that is mostly white names a different background
+   * from one that is mostly grey — and the agent then themes each page
+   * differently.
+   */
+  showPanel(
+    {
+      screens,
+      tokens: {
+        colours: ranked(colours),
+        radii: ranked(radii),
+        fontSizes: ranked(fontSizes),
+      },
+    },
+    `${screens.length} screens`,
+    "design.json",
+    "Save it into your project, then: npx @grampro/kit design ./design.json",
+  );
+}
+
+async function exportSelection(): Promise<void> {
+  const selection = figma.currentPage.selection;
+  if (selection.length === 0) {
+    figma.closePlugin("Select a frame first, then run the export.");
+    return;
+  }
+
+  colours.clear();
+  radii.clear();
+  fontSizes.clear();
+
+  const nodes: ExportedNode[] = [];
+  for (const node of selection) nodes.push(await walk(node, 0));
+
+  const payload: ExportedSelection = {
+    frame: selection.length === 1 ? selection[0].name : `${selection.length} selected nodes`,
+    nodes,
+    tokens: {
+      colours: ranked(colours),
+      radii: ranked(radii),
+      fontSizes: ranked(fontSizes),
+    },
+  };
+
+  // Indented for a person to read; minified for the agent to receive. The
+  // same tree costs about a third as much without the indentation, and
+  // JSON.parse cannot tell the difference.
+  showPanel(
+    payload,
+    payload.frame,
+    `${slug(payload.frame)}.json`,
+    "Paste it into your agent's <code>figma_frame</code> tool as <code>design</code>, or save it and pass the path as <code>designFile</code>.",
   );
 }
