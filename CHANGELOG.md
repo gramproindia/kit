@@ -1,5 +1,40 @@
 # Changelog
 
+## 2.6.1
+
+### Changed
+
+**A screen costs about half what it did to read.** Measured on a real
+purchase-orders design: 42.9 KB to 23.9 KB, roughly 13,300 tokens to
+7,400.
+
+Eight table rows exported as eight sibling subtrees of identical shape
+whose text differed — 48% of that screen was the same row said seven
+more times. The first is now given in full, because the agent builds from
+its shape, and the rest become `repeatedText`: one array of strings per
+row, which is closer to what a DataGrid's `data` prop wants than the
+subtrees were.
+
+Runs are matched on structure rather than appearance. Keyed on style, the
+rows never matched at all: a striped table alternates its background, so
+every consecutive pair looked like a different shape and nothing
+collapsed. Where the fills do vary across a run they come back as
+`repeatedFills`, which is how the striping and the per-status badge
+colours stay legible.
+
+Only runs of three or more collapse, and only where there is depth to
+save: two of a thing is a pair, not a list, and a row of labels has
+nothing inside it worth folding.
+
+### Fixed
+
+**`depth` is honoured on the plugin and file routes.** The tool has always
+offered it — "Lower it if the payload is large" — and only ever applied
+it to a design fetched from a URL. A caller who read the schema and
+lowered it to cut a large payload got the large payload back. The same
+screen at `depth: 3` is now 3.5 KB, and what was dropped says so rather
+than going quiet.
+
 ## 2.6.0
 
 ### Added

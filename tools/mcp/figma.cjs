@@ -266,6 +266,123 @@ function repeatedNames(node, counts) {
 // ------------------------------------------------------------------- tool
 
 /*
+ * Repetition is the point, and sending it in full is the waste.
+ *
+ * A table of eight rows exports as eight siblings of identical shape whose
+ * text differs. The agent needs the shape once and the values eight times;
+ * on a real screen the other seven copies were 48% of the payload.
+ */
+
+/**
+ * A node's structure: names, types, nesting and layout.
+ *
+ * Style is deliberately not part of it. Table rows are zebra-striped, so
+ * consecutive rows differ by a background colour and nothing else — keying
+ * on style meant every pair looked distinct and no run was ever found. The
+ * variation is reported instead of being treated as a different shape.
+ */
+function shapeKey(node) {
+  return JSON.stringify([
+    node.name,
+    node.type,
+    node.layout,
+    (node.children || []).map(shapeKey),
+  ]);
+}
+
+/** The fills down a subtree, so a collapsed run can say how they alternate. */
+function fillsOf(node, into = []) {
+  if (node.style && node.style.fill) into.push(node.style.fill);
+  for (const child of node.children || []) fillsOf(child, into);
+  return into;
+}
+
+/** Every string in a subtree, in order: what one row of a table actually says. */
+function textsOf(node, into = []) {
+  if (node.text) into.push(node.text);
+  for (const child of node.children || []) textsOf(child, into);
+  return into;
+}
+
+/** How many levels deep a subtree goes. */
+const depthOf = (node) =>
+  1 + Math.max(0, ...(node.children || []).map(depthOf));
+
+/**
+ * Collapse runs of same-shaped siblings, and trim to `limit` levels.
+ *
+ * Only runs of three or more are collapsed: two of a thing is a pair, not a
+ * list, and the saving would not pay for the indirection. A run that is only
+ * one level deep is left alone too — there is nothing to save in a row of
+ * labels, and collapsing it would cost the agent the order they appear in.
+ */
+function condenseTree(nodes, limit, level = 1) {
+  const out = [];
+  let i = 0;
+
+  while (i < nodes.length) {
+    const node = nodes[i];
+    const key = shapeKey(node);
+    let run = 1;
+    while (i + run < nodes.length && shapeKey(nodes[i + run]) === key) run += 1;
+
+    const worthIt = run >= 3 && depthOf(node) > 1;
+    const trimmed = trim(node, limit, level);
+
+    if (!worthIt) {
+      for (let n = 0; n < run; n += 1) out.push(trim(nodes[i + n], limit, level));
+      i += run;
+      continue;
+    }
+
+    /*
+     * The first in full, then the rest as what they say. `repeats` is the
+     * count including this one, so an agent reading only this node knows how
+     * many rows to render.
+     */
+    const rest = [];
+    for (let n = 1; n < run; n += 1) rest.push(textsOf(nodes[i + n]));
+
+    /*
+     * Fills are reported only where they actually differ across the run.
+     * Where they do it is nearly always zebra striping, and two colours
+     * said once is the whole of it.
+     */
+    const fills = [];
+    for (let n = 0; n < run; n += 1) fills.push(fillsOf(nodes[i + n]).join(","));
+    const varies = new Set(fills).size > 1;
+
+    out.push({
+      ...trimmed,
+      repeats: run,
+      repeatsNote:
+        `${run} siblings share this structure. The first is given in full; ` +
+        "`repeatedText` holds what each of the others says, in the same order " +
+        "as the text in this one." +
+        (varies ? " `repeatedFills` gives each one's colours, which alternate." : ""),
+      repeatedText: rest,
+      ...(varies ? { repeatedFills: fills.map((f) => f.split(",")) } : {}),
+    });
+    i += run;
+  }
+
+  return out;
+}
+
+/** Drop everything below `limit` levels, saying what was dropped. */
+function trim(node, limit, level) {
+  if (!node.children || node.children.length === 0) return node;
+  if (level >= limit) {
+    const inside = node.children.reduce(
+      (n, child) => n + 1 + (child.children ? child.children.length : 0),
+      0,
+    );
+    const { children, ...rest } = node;
+    return { ...rest, truncated: `${inside}+ nodes below this, not shown` };
+  }
+  return { ...node, children: condenseTree(node.children, limit, level + 1) };
+}
+/*
  * A selection exported by the plugin, which has already done the condensing
  * inside Figma. The work left is the part that needs no file access: giving
  * the colours roles and counting the names that repeat.
@@ -273,7 +390,7 @@ function repeatedNames(node, counts) {
  * This is the path for anyone who would rather not hold an API token, and
  * for files the token cannot reach.
  */
-function fromPluginExport(design) {
+function fromPluginExport(design, depth) {
   let parsed;
   try {
     parsed = typeof design === "string" ? JSON.parse(design) : design;
@@ -311,6 +428,14 @@ function fromPluginExport(design) {
   };
   for (const node of parsed.nodes) findInstances(node);
 
+  /*
+   * `depth` was offered on this tool and only ever honoured for a URL. A
+   * caller who read the schema and lowered it to cut a large payload got
+   * the large payload back.
+   */
+  const limit = Math.min(Number(depth) || MAX_DEPTH, MAX_DEPTH);
+  const tree = condenseTree(parsed.nodes, limit);
+
   return {
     source: "figma plugin export",
     frame: parsed.frame,
@@ -322,7 +447,7 @@ function fromPluginExport(design) {
       .map(([name, n]) => ({ name, times: n })),
     builtFromLibrary: instances.length > 0,
     componentsNamed: [...new Set(instances)],
-    tree: parsed.nodes,
+    tree,
     /*
      * The same closing instruction the URL route gives. Without it an agent
      * arriving by the plugin — now the route the documentation leads with —
@@ -349,7 +474,7 @@ function fromPluginExport(design) {
  * has already condensed it; there is nothing further to drop that the
  * screen does not need.
  */
-function fromFile(file) {
+function fromFile(file, depth) {
   let resolved;
   try {
     resolved = path.resolve(file);
@@ -371,14 +496,14 @@ function fromFile(file) {
   }
   // A byte-order mark survives a round trip through some editors and is not
   // valid JSON, so it goes before parsing rather than after a confusing throw.
-  return fromPluginExport(body.replace(/^\uFEFF/, ""));
+  return fromPluginExport(body.replace(/^\uFEFF/, ""), depth);
 }
 
 async function figmaFrame({ url, design, designFile, frame, depth }) {
   // Both export routes need no token, so they are offered before one is
   // demanded. The file comes first: it is the one that scales.
-  if (designFile) return fromFile(designFile);
-  if (design) return fromPluginExport(design);
+  if (designFile) return fromFile(designFile, depth);
+  if (design) return fromPluginExport(design, depth);
 
   const token = figmaToken();
   if (!token) {
