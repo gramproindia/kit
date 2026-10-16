@@ -28,8 +28,11 @@ interface ExportedNode {
     justify?: string;
   };
   text?: string;
+  /** Rounded width and height. Absent on text, whose size is its content. */
+  size?: [number, number];
   style?: {
     fill?: string;
+    stroke?: string;
     radius?: number;
     fontSize?: number;
     fontWeight?: number;
@@ -67,6 +70,34 @@ function cornerRadius(node: SceneNode): number | undefined {
   // every square frame in the file.
   if (typeof radius !== "number" || radius === 0) return undefined;
   return radius;
+}
+
+/**
+ * The border colour, where there is one.
+ *
+ * A white box with a border is a secondary button; without one it is a
+ * surface. Capturing only fills made those two identical in the export.
+ */
+function solidStroke(node: SceneNode): string | undefined {
+  if (!("strokes" in node)) return undefined;
+  const strokes = node.strokes;
+  if (!Array.isArray(strokes)) return undefined;
+  const solid = strokes.find((s) => s.type === "SOLID" && s.visible !== false);
+  if (!solid || solid.type !== "SOLID") return undefined;
+  return `#${hex(solid.color.r)}${hex(solid.color.g)}${hex(solid.color.b)}`;
+}
+
+/**
+ * Rounded width and height.
+ *
+ * The size is how a hand-drawn design says what something is: a 36px pill
+ * with a label is a button, the same shape at 200px is a card, at 1px it is
+ * a divider. Text is left out — its size is its content and its font.
+ */
+function sizeOf(node: SceneNode): [number, number] | undefined {
+  if (node.type === "TEXT") return undefined;
+  if (!("width" in node) || !("height" in node)) return undefined;
+  return [Math.round(node.width), Math.round(node.height)];
 }
 
 function layoutOf(node: SceneNode): ExportedNode["layout"] {
@@ -116,6 +147,7 @@ const tally = <K>(map: Map<K, number>, key: K | undefined) => {
  */
 async function walk(node: SceneNode, depth: number): Promise<ExportedNode> {
   const fill = solidFill(node);
+  const stroke = solidStroke(node);
   const radius = cornerRadius(node);
   const { fontSize, fontWeight } = typography(node);
 
@@ -147,8 +179,12 @@ async function walk(node: SceneNode, depth: number): Promise<ExportedNode> {
   const text = textOf(node);
   if (text) out.text = text;
 
+  const size = sizeOf(node);
+  if (size) out.size = size;
+
   const style: ExportedNode["style"] = {};
   if (fill) style.fill = fill;
+  if (stroke) style.stroke = stroke;
   if (radius !== undefined) style.radius = radius;
   if (fontSize !== undefined) style.fontSize = fontSize;
   if (fontWeight !== undefined) style.fontWeight = fontWeight;

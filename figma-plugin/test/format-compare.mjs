@@ -18,10 +18,26 @@ import vm from "node:vm";
 
 const solid = (r, g, b) => [{ type: "SOLID", visible: true, color: { r, g, b } }];
 const INK = solid(0.098, 0.141, 0.208);
-const node = (type, extra = {}) => ({ type, name: "node", visible: true, fills: [], children: [], ...extra });
+/*
+ * Real nodes have a measured size and may have a border, and the export
+ * now reports both. A fixture without them cannot price them.
+ */
+const node = (type, extra = {}) => ({
+  type,
+  name: "node",
+  visible: true,
+  fills: [],
+  strokes: [],
+  width: 240,
+  height: 36,
+  children: [],
+  ...extra,
+});
 const text = (name, characters, fontSize = 13, fontWeight = 400) =>
   node("TEXT", { name, characters, fontSize, fontWeight, fills: INK });
 const icon = (name) => node("FRAME", { name, children: [node("VECTOR", { name: "Vector" })] });
+
+const BORDER = [{ type: "SOLID", visible: true, color: { r: 0.886, g: 0.906, b: 0.937 } }];
 
 const row = (name, children, extra = {}) =>
   node("FRAME", {
@@ -36,6 +52,7 @@ const row = (name, children, extra = {}) =>
     primaryAxisAlignItems: extra.justify ?? "MIN",
     cornerRadius: extra.radius ?? 0,
     fills: extra.fill ?? [],
+    strokes: extra.border ? BORDER : [],
     children,
   });
 const column = (name, children, extra = {}) => ({ ...row(name, children, extra), layoutMode: "VERTICAL" });

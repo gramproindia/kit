@@ -2838,6 +2838,37 @@ function cornerRadius(node) {
         return undefined;
     return radius;
 }
+/**
+ * The border colour, where there is one.
+ *
+ * A white box with a border is a secondary button; without one it is a
+ * surface. Capturing only fills made those two identical in the export.
+ */
+function solidStroke(node) {
+    if (!("strokes" in node))
+        return undefined;
+    const strokes = node.strokes;
+    if (!Array.isArray(strokes))
+        return undefined;
+    const solid = strokes.find((s) => s.type === "SOLID" && s.visible !== false);
+    if (!solid || solid.type !== "SOLID")
+        return undefined;
+    return `#${hex(solid.color.r)}${hex(solid.color.g)}${hex(solid.color.b)}`;
+}
+/**
+ * Rounded width and height.
+ *
+ * The size is how a hand-drawn design says what something is: a 36px pill
+ * with a label is a button, the same shape at 200px is a card, at 1px it is
+ * a divider. Text is left out — its size is its content and its font.
+ */
+function sizeOf(node) {
+    if (node.type === "TEXT")
+        return undefined;
+    if (!("width" in node) || !("height" in node))
+        return undefined;
+    return [Math.round(node.width), Math.round(node.height)];
+}
 function layoutOf(node) {
     if (!("layoutMode" in node) || node.layoutMode === "NONE")
         return undefined;
@@ -2887,6 +2918,7 @@ const tally = (map, key) => {
 async function walk(node, depth) {
     var _a;
     const fill = solidFill(node);
+    const stroke = solidStroke(node);
     const radius = cornerRadius(node);
     const { fontSize, fontWeight } = typography(node);
     tally(colours, fill);
@@ -2916,9 +2948,14 @@ async function walk(node, depth) {
     const text = textOf(node);
     if (text)
         out.text = text;
+    const size = sizeOf(node);
+    if (size)
+        out.size = size;
     const style = {};
     if (fill)
         style.fill = fill;
+    if (stroke)
+        style.stroke = stroke;
     if (radius !== undefined)
         style.radius = radius;
     if (fontSize !== undefined)
