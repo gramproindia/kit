@@ -1,5 +1,11 @@
 # Figma Community listing
 
+**Published: https://www.figma.com/community/plugin/1692828324805361551**
+
+Copy for updating it, and the assets beside it. The notes below were
+written for the first submission and are kept because an update goes
+through the same flow.
+
 Copy for the publish flow, and the assets beside it. Publishing a free plugin
 costs nothing; the only toll is review, which has no committed turnaround.
 
@@ -183,5 +189,6 @@ export, developer handoff, dark mode
   the dialog rather than writing it to the file — it was pasted in by hand.
 - A rejection can be addressed and resubmitted. Material updates are
   re-reviewed.
-- Once it is live, replace the import-from-source instructions in the docs
-  with the Community link.
+- The docs link the listing rather than a git clone, which is what the
+  first publish was for. The from-source path is kept in the plugin's own
+  README, since that is how a change is tried before it is published.

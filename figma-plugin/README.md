@@ -33,7 +33,13 @@ Plus, in the file's local assets:
 
 ## Run it (designers)
 
-You need the **Figma desktop app**; development plugins can't be imported in the browser.
+**[Install it from the Figma Community](https://www.figma.com/community/plugin/1692828324805361551)** — that is the
+published plugin, and nothing below is needed to use it.
+
+The rest of this file is for running it from source, which is how it is
+developed and how you try a change before publishing one. For that you
+need the **Figma desktop app**; development plugins cannot be imported in
+the browser.
 
 1. Create a new Figma design file, e.g. "Grampro Kit".
 2. **Plugins → Development → Import plugin from manifest…** and choose

@@ -127,7 +127,8 @@ invention, and this catches it:
 
 ## A whole design at once
 
-In Figma, **Grampro Kit → Export all screens for an agent** walks every
+Install [Grampro Kit from the Figma Community](https://www.figma.com/community/plugin/1692828324805361551). Then
+**Grampro Kit → Export all screens for an agent** walks every
 page and exports each top-level frame, with one set of theme values read
 across the whole design rather than guessed per frame. Save it, then:
 
