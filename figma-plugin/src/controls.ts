@@ -265,10 +265,16 @@ async function buildNumberComponent(component: ComponentNode, state: string, siz
   control.paddingRight = 0;
   applySize(control, "fill", CONTROL_HEIGHT[size]);
 
-  // `width` goes through the helper rather than a later applySize, so the
-  // layer is set to wrap before it is told to fill. It is created empty in
-  // the Default state and filled by the Value component property.
-  const value = await text(control, state === "Default" ? "" : "1,234.56", CONTROL_SIZES[size].body, {
+  /*
+   * `width` goes through the helper rather than a later applySize, so the
+   * layer wraps inside the field rather than keeping its own width.
+   *
+   * The unfilled state carries a placeholder rather than "", as every other
+   * field in the kit does. An empty text node has no width, and the Value
+   * component property writes "1,234.56" into it afterwards — a layer laid
+   * out at zero width and filled in later is exactly the case that broke.
+   */
+  const value = await text(control, "1,234.56", CONTROL_SIZES[size].body, {
     color: state === "Default" ? "text/muted" : "text/primary",
     width: "fill",
   });

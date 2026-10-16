@@ -68,14 +68,6 @@ async function buildAlerts(page: PageNode) {
           });
           applySize(component, 460, "hug");
 
-          // The variant's bar: a 3px edge rather than a border on all sides.
-          const bar = frame("Variant bar", { direction: "none", fill: look.color }, component);
-          bar.layoutPositioning = "ABSOLUTE";
-          bar.resize(3, 100);
-          bar.x = 0;
-          bar.y = 0;
-          bar.constraints = { horizontal: "MIN", vertical: "STRETCH" };
-
           icon(component, look.icon, look.color, small ? 14 : 16).name = "Icon";
 
           const content = frame("Content", { direction: "column", gap: 2 }, component);
@@ -89,6 +81,10 @@ async function buildAlerts(page: PageNode) {
           await text(button, "Add a card", "Label/Small");
 
           icon(component, "x", "text/muted", 14).name = "Dismiss";
+
+          // A 3px edge rather than a border on all sides. Last, so it can be
+          // sized to the card instead of to a guess.
+          edgeBar(component, look.color);
         },
       });
     }

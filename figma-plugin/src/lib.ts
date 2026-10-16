@@ -295,6 +295,27 @@ async function text(
   return node;
 }
 
+/**
+ * A coloured edge down the left of a card, as Alert and Toast both use.
+ *
+ * Call it AFTER the card's content exists. The bar is absolutely positioned
+ * so the card's padding does not inset it, and an absolute child is not
+ * sized by auto-layout — it keeps the height it was given, adjusted by its
+ * constraints against whatever the parent measured at the time. Created
+ * before the content, when the card is only its own padding tall, no
+ * guessed height and no constraint can arrive at the right answer.
+ */
+function edgeBar(component: ComponentNode, colour: string | null, width = 3): FrameNode {
+  const bar = frame("Variant bar", { direction: "none", fill: colour }, component);
+  bar.layoutPositioning = "ABSOLUTE";
+  bar.x = 0;
+  bar.y = 0;
+  bar.resize(width, component.height);
+  // Kept so the bar still tracks the card if anyone resizes it by hand.
+  bar.constraints = { horizontal: "MIN", vertical: "STRETCH" };
+  return bar;
+}
+
 /* ------------------------------------------------------------------ icons */
 
 const ICONS = {

@@ -326,6 +326,26 @@ async function text(parent, characters, style, options = {}) {
     }
     return node;
 }
+/**
+ * A coloured edge down the left of a card, as Alert and Toast both use.
+ *
+ * Call it AFTER the card's content exists. The bar is absolutely positioned
+ * so the card's padding does not inset it, and an absolute child is not
+ * sized by auto-layout — it keeps the height it was given, adjusted by its
+ * constraints against whatever the parent measured at the time. Created
+ * before the content, when the card is only its own padding tall, no
+ * guessed height and no constraint can arrive at the right answer.
+ */
+function edgeBar(component, colour, width = 3) {
+    const bar = frame("Variant bar", { direction: "none", fill: colour }, component);
+    bar.layoutPositioning = "ABSOLUTE";
+    bar.x = 0;
+    bar.y = 0;
+    bar.resize(width, component.height);
+    // Kept so the bar still tracks the card if anyone resizes it by hand.
+    bar.constraints = { horizontal: "MIN", vertical: "STRETCH" };
+    return bar;
+}
 /* ------------------------------------------------------------------ icons */
 const ICONS = {
     chevronDown: '<path d="m6 9 6 6 6-6"/>',
@@ -1552,10 +1572,16 @@ async function buildNumberComponent(component, state, size) {
     const control = await fieldShell(component, 240, state, "Quantity");
     control.paddingRight = 0;
     applySize(control, "fill", CONTROL_HEIGHT[size]);
-    // `width` goes through the helper rather than a later applySize, so the
-    // layer is set to wrap before it is told to fill. It is created empty in
-    // the Default state and filled by the Value component property.
-    const value = await text(control, state === "Default" ? "" : "1,234.56", CONTROL_SIZES[size].body, {
+    /*
+     * `width` goes through the helper rather than a later applySize, so the
+     * layer wraps inside the field rather than keeping its own width.
+     *
+     * The unfilled state carries a placeholder rather than "", as every other
+     * field in the kit does. An empty text node has no width, and the Value
+     * component property writes "1,234.56" into it afterwards — a layer laid
+     * out at zero width and filled in later is exactly the case that broke.
+     */
+    const value = await text(control, "1,234.56", CONTROL_SIZES[size].body, {
         color: state === "Default" ? "text/muted" : "text/primary",
         width: "fill",
     });
@@ -1762,12 +1788,6 @@ async function buildToast(page) {
                 applyLayout(component, { direction: "row", gap: 10, padding: [12, 10, 12, 14], align: "start", fill: "surface/bg", stroke: "border/default", radius: "radius/md", clip: true });
                 component.effects = [shadow(10, 30, -8, 0.18)];
                 applySize(component, 356, "hug");
-                const bar = frame("Type bar", { direction: "none", fill: look.bar }, component);
-                bar.layoutPositioning = "ABSOLUTE";
-                bar.resize(3, 200);
-                bar.x = 0;
-                bar.y = 0;
-                bar.constraints = { horizontal: "MIN", vertical: "STRETCH" };
                 if (look.icon)
                     icon(component, look.icon, look.iconColor, 18).name = "Icon";
                 const content = frame("Content", { direction: "column", gap: 2 }, component);
@@ -1779,6 +1799,8 @@ async function buildToast(page) {
                 applySize(retry, "hug", 28);
                 await text(retry, "Retry", "Label/Small", { color: "accent/on-accent" });
                 icon(component, "x", "text/muted", 14).name = "Close";
+                // Last, so it is sized to the toast rather than to a guessed height.
+                edgeBar(component, look.bar).name = "Type bar";
             },
         });
     }
@@ -2476,13 +2498,6 @@ async function buildAlerts(page) {
                         radius: "radius/md",
                     });
                     applySize(component, 460, "hug");
-                    // The variant's bar: a 3px edge rather than a border on all sides.
-                    const bar = frame("Variant bar", { direction: "none", fill: look.color }, component);
-                    bar.layoutPositioning = "ABSOLUTE";
-                    bar.resize(3, 100);
-                    bar.x = 0;
-                    bar.y = 0;
-                    bar.constraints = { horizontal: "MIN", vertical: "STRETCH" };
                     icon(component, look.icon, look.color, small ? 14 : 16).name = "Icon";
                     const content = frame("Content", { direction: "column", gap: 2 }, component);
                     applySize(content, "fill", "hug");
@@ -2493,6 +2508,9 @@ async function buildAlerts(page) {
                     applySize(button, "hug", 28);
                     await text(button, "Add a card", "Label/Small");
                     icon(component, "x", "text/muted", 14).name = "Dismiss";
+                    // A 3px edge rather than a border on all sides. Last, so it can be
+                    // sized to the card instead of to a guess.
+                    edgeBar(component, look.color);
                 },
             });
         }

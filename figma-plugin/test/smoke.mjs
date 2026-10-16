@@ -286,6 +286,32 @@ for (const set of sets) {
  * container) or empty and filled in later by a component property (it ends
  * up ~0px wide and wraps one glyph per line, which is what NumberInput did).
  */
+/*
+ * An absolutely positioned decoration sized to its parent has to be added
+ * after the content that gives the parent its size. Alert and Toast both
+ * added their coloured edge first, when the card was only its own padding
+ * tall, and guessed a height for it; no constraint can recover from that.
+ *
+ * The height itself cannot be checked here - this mock does not do layout,
+ * so every node is 100px tall - but being first in the parent is exactly
+ * the mistake, and that is visible.
+ *
+ * Only parents that hug matter. Where the parent is a fixed size its
+ * children cannot change it, so an absolute decoration may be added at any
+ * point - the circular progress ring does exactly that, legitimately.
+ */
+for (const page of figma.root.children) {
+  for (const node of page.findAll((n) => n.layoutPositioning === "ABSOLUTE")) {
+    const parent = node.parent;
+    const hugs = parent && (parent.layoutSizingVertical === "HUG" || parent.layoutSizingHorizontal === "HUG");
+    if (hugs && parent.children.length > 1 && parent.children.indexOf(node) === 0) {
+      problems.push(
+        `${parent.name} / ${node.name}: absolute child added before the content it is sized against`,
+      );
+    }
+  }
+}
+
 /** The nearest named ancestor, so a failure says which component to look at. */
 const whereIsIt = (node) => {
   const trail = [];

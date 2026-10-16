@@ -216,13 +216,6 @@ async function buildToast(page: PageNode) {
         component.effects = [shadow(10, 30, -8, 0.18)];
         applySize(component, 356, "hug");
 
-        const bar = frame("Type bar", { direction: "none", fill: look.bar }, component);
-        bar.layoutPositioning = "ABSOLUTE";
-        bar.resize(3, 200);
-        bar.x = 0;
-        bar.y = 0;
-        bar.constraints = { horizontal: "MIN", vertical: "STRETCH" };
-
         if (look.icon) icon(component, look.icon, look.iconColor, 18).name = "Icon";
         const content = frame("Content", { direction: "column", gap: 2 }, component);
         applySize(content, "fill", "hug");
@@ -234,6 +227,9 @@ async function buildToast(page: PageNode) {
         applySize(retry, "hug", 28);
         await text(retry, "Retry", "Label/Small", { color: "accent/on-accent" });
         icon(component, "x", "text/muted", 14).name = "Close";
+
+        // Last, so it is sized to the toast rather than to a guessed height.
+        edgeBar(component, look.bar).name = "Type bar";
       },
     });
   }
