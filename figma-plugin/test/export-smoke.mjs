@@ -185,6 +185,60 @@ if (payload) {
   if (!colours.length) fail("no colours were tallied");
 }
 
+/* ---------------------------------------------------------- copy button */
+
+/*
+ * The panel's copy handler, run against a fake DOM.
+ *
+ * It has three branches — execCommand, then navigator.clipboard, then
+ * leaving the text selected — and the last two only ever run when the
+ * first fails, which is exactly when nobody is watching. Each is exercised
+ * here because a copy button that silently does nothing is worse than the
+ * select-all it replaced.
+ */
+async function runCopyHandler({ execCommand, clipboard }) {
+  const out = { value: "the json", focus() {}, select() {}, selected: false };
+  const button = {};
+  const said = { textContent: "" };
+  const nodes = { out, copy: button, said };
+
+  const script = shown.slice(shown.indexOf("<script>") + 8, shown.indexOf("</" + "script>"));
+  const context = vm.createContext({
+    document: {
+      getElementById: (id) => nodes[id],
+      execCommand,
+    },
+    navigator: clipboard ? { clipboard } : {},
+    setTimeout,
+    Promise,
+  });
+  vm.runInContext(script, context);
+  await button.onclick();
+  // The script assigns out.value itself, so this is the real exported JSON.
+  return { said: said.textContent, copied: out.value };
+}
+
+if (shown) {
+  const viaExec = await runCopyHandler({ execCommand: () => true, clipboard: null });
+  if (!/^Copied /.test(viaExec.said)) fail(`execCommand path did not report a copy: "${viaExec.said}"`);
+
+  let wrote = null;
+  const viaApi = await runCopyHandler({
+    execCommand: () => false,
+    clipboard: { writeText: async (text) => { wrote = text; } },
+  });
+  if (wrote !== viaApi.copied) fail("clipboard fallback did not receive the exported JSON");
+  if (!/^Copied /.test(viaApi.said)) fail(`clipboard fallback did not report a copy: "${viaApi.said}"`);
+
+  const refused = await runCopyHandler({
+    execCommand: () => { throw new Error("blocked"); },
+    clipboard: { writeText: async () => { throw new Error("denied"); } },
+  });
+  if (!refused.said.includes("Ctrl")) {
+    fail(`with both paths refused, the panel must say what to press: "${refused.said}"`);
+  }
+}
+
 /* -------------------------------------------------------------- report */
 
 if (payload) {

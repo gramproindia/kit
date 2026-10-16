@@ -211,24 +211,48 @@ async function exportSelection(): Promise<void> {
   const size = (json.length / 1024).toFixed(1);
 
   /*
-   * Shown rather than copied: a plugin cannot reach the clipboard without a
-   * user gesture, and a textarea the author can select is less machinery
-   * than a message channel for a one-off paste.
+   * The panel copies on click.
+   *
+   * It used to select the text and leave the person to press Ctrl+C, on the
+   * grounds that a plugin cannot reach the clipboard without a user gesture.
+   * A click handler is a user gesture: execCommand("copy") works from one
+   * inside the plugin iframe. navigator.clipboard is frequently blocked
+   * there by permissions policy, so it is the fallback, and selecting the
+   * text is the last resort — which is where this started.
    */
   figma.showUI(
     `<style>
-       body { font: 12px ui-sans-serif, system-ui; margin: 0; padding: 12px; }
+       body { font: 12px ui-sans-serif, system-ui; margin: 0; padding: 12px; color: #333; }
        p { margin: 0 0 8px; color: #555; }
-       textarea { width: 100%; height: 320px; font: 11px ui-monospace, monospace; }
-       button { margin-top: 8px; padding: 6px 12px; }
+       textarea { width: 100%; height: 300px; font: 11px ui-monospace, monospace;
+                  border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px; resize: none; }
+       .row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+       button { padding: 7px 14px; border: 0; border-radius: 6px; font: inherit;
+                font-weight: 600; color: #fff; background: #18a0fb; cursor: pointer; }
+       button:hover { background: #0d8ee0; }
+       #said { color: #666; }
      </style>
-     <p><b>${payload.frame}</b> — ${size} KB. Paste this into your agent's <code>figma_frame</code> tool.</p>
+     <p><b>${payload.frame}</b> — ${size} KB. Paste this into your agent's <code>figma_frame</code> tool, as the <code>design</code> argument.</p>
      <textarea id="out" readonly></textarea>
-     <button id="copy">Select all</button>
+     <div class="row"><button id="copy">Copy JSON</button><span id="said"></span></div>
      <script>
        const out = document.getElementById("out");
        out.value = ${JSON.stringify(json)};
-       document.getElementById("copy").onclick = () => { out.focus(); out.select(); };
+       const button = document.getElementById("copy");
+       const said = document.getElementById("said");
+       button.onclick = async () => {
+         out.focus();
+         out.select();
+         let done = false;
+         try { done = document.execCommand("copy"); } catch (error) { done = false; }
+         if (!done && navigator.clipboard) {
+           try { await navigator.clipboard.writeText(out.value); done = true; } catch (error) { done = false; }
+         }
+         said.textContent = done
+           ? "Copied " + out.value.length.toLocaleString() + " characters."
+           : "Selected — press Ctrl+C to copy.";
+         setTimeout(() => { said.textContent = ""; }, 4000);
+       };
      </script>`,
     { width: 560, height: 440, title: "Export for agent" },
   );
