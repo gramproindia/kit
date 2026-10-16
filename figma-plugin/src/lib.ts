@@ -108,18 +108,19 @@ function paintOf(token: string): SolidPaint {
 }
 
 /**
- * The same colour, carried at a fraction of its strength.
+ * Fill a node with a token colour carried at a fraction of its strength.
  *
- * The opacity goes on the paint before the variable is bound to it. Doing
- * it the other way round — binding, then spreading the paint and adding an
- * opacity — is how the uploader thumbnails ended up fully saturated, which
- * additionally hid the icon drawn on them in the same colour.
+ * The fill is assigned, read back, and only then given its opacity. The
+ * readback matters: Figma normalises a paint on the way in, and the
+ * normalised object takes an opacity where the raw return of
+ * setBoundVariableForPaint does not. Setting the opacity on the paint
+ * before binding does not work either — that silently produced solid
+ * badges. This is the one order observed to hold.
  */
-function tintOf(token: string, opacity: number): SolidPaint {
-  const variable = KIT.colors[token];
-  if (!variable) throw new Error(`Unknown color token: ${token}`);
-  const base: SolidPaint = { type: "SOLID", color: { r: 0, g: 0, b: 0 }, opacity };
-  return figma.variables.setBoundVariableForPaint(base, "color", variable);
+function setTint(node: MinimalFillsMixin, token: string, opacity: number) {
+  node.fills = [paintOf(token)];
+  const [applied] = node.fills as SolidPaint[];
+  node.fills = [{ ...applied, opacity }];
 }
 
 function setFill(node: MinimalFillsMixin, token: string | null) {

@@ -171,19 +171,19 @@ function paintOf(token) {
     return figma.variables.setBoundVariableForPaint(base, "color", variable);
 }
 /**
- * The same colour, carried at a fraction of its strength.
+ * Fill a node with a token colour carried at a fraction of its strength.
  *
- * The opacity goes on the paint before the variable is bound to it. Doing
- * it the other way round — binding, then spreading the paint and adding an
- * opacity — is how the uploader thumbnails ended up fully saturated, which
- * additionally hid the icon drawn on them in the same colour.
+ * The fill is assigned, read back, and only then given its opacity. The
+ * readback matters: Figma normalises a paint on the way in, and the
+ * normalised object takes an opacity where the raw return of
+ * setBoundVariableForPaint does not. Setting the opacity on the paint
+ * before binding does not work either — that silently produced solid
+ * badges. This is the one order observed to hold.
  */
-function tintOf(token, opacity) {
-    const variable = KIT.colors[token];
-    if (!variable)
-        throw new Error(`Unknown color token: ${token}`);
-    const base = { type: "SOLID", color: { r: 0, g: 0, b: 0 }, opacity };
-    return figma.variables.setBoundVariableForPaint(base, "color", variable);
+function setTint(node, token, opacity) {
+    node.fills = [paintOf(token)];
+    const [applied] = node.fills;
+    node.fills = [Object.assign(Object.assign({}, applied), { opacity })];
 }
 function setFill(node, token) {
     node.fills = token ? [paintOf(token)] : [];
@@ -1743,7 +1743,7 @@ async function buildDialog(page) {
             if (glyph) {
                 const badge = frame("Icon", { direction: "row", justify: "center", align: "center", radius: "radius/full" }, body);
                 applySize(badge, 38, 38);
-                badge.fills = [tintOf(INTENT_COLOR[intent], 0.14)];
+                setTint(badge, INTENT_COLOR[intent], 0.14);
                 icon(badge, glyph, INTENT_COLOR[intent], 20);
             }
             const copy = frame("Text", { direction: "column", gap: 6 }, body);
@@ -1903,7 +1903,7 @@ async function buildUploader(page) {
                     applySize(component, 460, "hug");
                     const thumb = frame("Thumbnail", { direction: "row", justify: "center", align: "center", radius: "radius/sm" }, component);
                     applySize(thumb, 40, 40);
-                    thumb.fills = [tintOf(`file/${kind}`, 0.12)];
+                    setTint(thumb, `file/${kind}`, 0.12);
                     icon(thumb, kind === "image" ? "image" : "file", `file/${kind}`, 20);
                     const body = frame("Body", { direction: "column", gap: 1 }, component);
                     applySize(body, "fill", "hug");
