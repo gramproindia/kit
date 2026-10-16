@@ -119,7 +119,7 @@ Documentation: https://kit.gramproindia.com/mcp-server
 
 | Field | Value |
 | --- | --- |
-| Category | Design systems *(fall back to Libraries, then Utilities)* |
+| Category | **Design tools** — see the note below |
 | Playground file | Optional. A file with the kit already generated shows it off. |
 | Carousel | Optional, up to nine. The two panels of the cover work as stills. |
 | Support contact | `https://github.com/gramproindia/kit/issues` |
@@ -127,6 +127,34 @@ Documentation: https://kit.gramproindia.com/mcp-server
 | Network access label | It should read as no network access — the manifest declares `"allowedDomains": ["none"]`. |
 
 ---
+
+### Category
+
+Figma's actual list, as the publish flow shows it:
+
+```
+Apps                    Libraries >
+Design inspirations     Presentation templates
+Design templates >      Print >
+Design tools >          Social media >
+Education >             Software development
+Icon Packs              Visual assets >
+                        Website templates
+```
+
+**Design tools.** This plugin is a tool that builds a library; it is not a
+library. Libraries is where published component files live, and a plugin
+filed there is competing for attention with the files people actually
+browse that category to find.
+
+Software development is the other defensible answer, and it is where the
+export half belongs — design-to-code and handoff plugins sit there. It
+undersells the generator, which is most of what the plugin does by volume:
+53 variables, 13 text styles, 38 component sets.
+
+Design tools has a submenu. Check it before settling — if it offers
+something like "design systems" that is the exact fit, and this note is
+only the parent-level answer.
 
 ## Tags
 
