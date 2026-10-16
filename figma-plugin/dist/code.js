@@ -3015,6 +3015,10 @@ async function exportSelection() {
     const compact = JSON.stringify(payload);
     const size = (json.length / 1024).toFixed(1);
     const compactSize = (compact.length / 1024).toFixed(1);
+    const fileName = `${payload.frame
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "design"}.json`;
     /*
      * The panel copies on click.
      *
@@ -3037,12 +3041,14 @@ async function exportSelection() {
        button { padding: 7px 14px; border: 0; border-radius: 6px; font: inherit;
                 font-weight: 600; color: #fff; background: #18a0fb; cursor: pointer; }
        button:hover { background: #0d8ee0; }
+       button.ghost { background: #f0f0f0; color: #333; }
+       button.ghost:hover { background: #e4e4e4; }
        #said { color: #666; }
      </style>
      <p><b>${payload.frame}</b> — copies as ${compactSize} KB of minified JSON (${size} KB shown). Paste it into your agent's <code>figma_frame</code> tool, as the <code>design</code> argument.</p>
      <textarea id="out" readonly></textarea>
      <textarea id="mini" readonly></textarea>
-     <div class="row"><button id="copy">Copy JSON</button><span id="said"></span></div>
+     <div class="row"><button id="copy">Copy JSON</button><button id="save" class="ghost">Save .json</button><span id="said"></span></div>
      <script>
        const out = document.getElementById("out");
        out.value = ${JSON.stringify(json)};
@@ -3062,6 +3068,22 @@ async function exportSelection() {
            ? "Copied " + mini.value.length.toLocaleString() + " characters of minified JSON."
            : "Selected — press Ctrl+C to copy.";
          setTimeout(() => { said.textContent = ""; }, 4000);
+       };
+       document.getElementById("save").onclick = () => {
+         try {
+           const blob = new Blob([mini.value], { type: "application/json" });
+           const link = document.createElement("a");
+           link.href = URL.createObjectURL(blob);
+           link.download = ${JSON.stringify(fileName)};
+           document.body.appendChild(link);
+           link.click();
+           link.remove();
+           setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+           said.textContent = "Saved " + link.download + " — pass its path to figma_frame as designFile.";
+         } catch (error) {
+           said.textContent = "Could not save a file here. Use Copy JSON instead.";
+         }
+         setTimeout(() => { said.textContent = ""; }, 8000);
        };
      </script>`, { width: 560, height: 440, title: "Export for agent" });
 }

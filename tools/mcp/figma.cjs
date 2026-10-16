@@ -335,8 +335,49 @@ function fromPluginExport(design) {
   };
 }
 
-async function figmaFrame({ url, design, frame, depth }) {
-  // The export needs no token, so it is offered before one is demanded.
+/**
+ * The plugin's export, read from a file.
+ *
+ * Worth preferring over `design` for anything but a small frame, because a
+ * chat input caps at around fifty thousand characters and a whole screen
+ * passes that.
+ *
+ * It halves the context too, though not more: pasted, the export is in the
+ * conversation twice — once as the argument and again inside the tool call
+ * — where from a file it appears only in the answer. The tree still comes
+ * back in full, because the tree is what the agent builds from. The plugin
+ * has already condensed it; there is nothing further to drop that the
+ * screen does not need.
+ */
+function fromFile(file) {
+  let resolved;
+  try {
+    resolved = path.resolve(file);
+  } catch (error) {
+    return { error: `Not a usable path: ${file}` };
+  }
+  if (!fs.existsSync(resolved)) {
+    return {
+      error:
+        `No file at ${resolved}. Save the plugin's export first — in Figma, ` +
+        "Grampro Kit -> Export selection for an agent, then Save .json.",
+    };
+  }
+  let body;
+  try {
+    body = fs.readFileSync(resolved, "utf8");
+  } catch (error) {
+    return { error: `Could not read ${resolved}: ${error.message}` };
+  }
+  // A byte-order mark survives a round trip through some editors and is not
+  // valid JSON, so it goes before parsing rather than after a confusing throw.
+  return fromPluginExport(body.replace(/^\uFEFF/, ""));
+}
+
+async function figmaFrame({ url, design, designFile, frame, depth }) {
+  // Both export routes need no token, so they are offered before one is
+  // demanded. The file comes first: it is the one that scales.
+  if (designFile) return fromFile(designFile);
   if (design) return fromPluginExport(design);
 
   const token = figmaToken();

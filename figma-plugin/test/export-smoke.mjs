@@ -200,16 +200,25 @@ async function runCopyHandler({ execCommand, clipboard }) {
   const out = { value: "", focus() {}, select() {} };
   const mini = { value: "", focus() {}, select() {} };
   const button = {};
+  const saveButton = {};
   const said = { textContent: "" };
-  const nodes = { out, mini, copy: button, said };
+  const nodes = { out, mini, copy: button, save: saveButton, said };
+
+  // What the save handler reaches for: a Blob, an object URL, an anchor.
+  const saved = { name: null, body: null };
+  const anchor = { href: "", download: "", click() { saved.name = anchor.download; }, remove() {} };
 
   const script = shown.slice(shown.indexOf("<script>") + 8, shown.indexOf("</" + "script>"));
   const context = vm.createContext({
     document: {
       getElementById: (id) => nodes[id],
+      createElement: () => anchor,
+      body: { appendChild() {} },
       execCommand,
     },
     navigator: clipboard ? { clipboard } : {},
+    Blob: class { constructor(parts) { saved.body = parts.join(""); } },
+    URL: { createObjectURL: () => "blob:x", revokeObjectURL() {} },
     setTimeout,
     Promise,
   });
@@ -217,7 +226,14 @@ async function runCopyHandler({ execCommand, clipboard }) {
   await button.onclick();
   // The script assigns both fields itself: `out` is what a person reads,
   // `mini` is what the button copies.
-  return { said: said.textContent, copied: mini.value, shown: out.value };
+  return {
+    said: said.textContent,
+    copied: mini.value,
+    shown: out.value,
+    save: saveButton.onclick,
+    saved,
+    saidAfter: () => said.textContent,
+  };
 }
 
 if (shown) {
@@ -262,6 +278,21 @@ if (shown) {
     `copy: ${viaExec.copied.length} bytes minified, ${viaExec.shown.length} shown` +
       ` (${Math.round((viaExec.copied.length / viaExec.shown.length) * 100)}%)`,
   );
+
+  /*
+   * Saving a file is the route that does not go through a prompt at all, so
+   * what lands on disk has to be the minified JSON under a name a person can
+   * then hand to figma_frame.
+   */
+  viaExec.save();
+  if (viaExec.saved.name !== "purchase-orders.json") {
+    fail(`the saved file is named "${viaExec.saved.name}", not after the frame`);
+  }
+  if (viaExec.saved.body !== viaExec.copied) fail("the saved file is not the minified JSON");
+  if (!viaExec.saidAfter().includes("designFile")) {
+    fail(`saving should say what to do with the file: "${viaExec.saidAfter()}"`);
+  }
+  console.log(`save: ${viaExec.saved.name}, ${viaExec.saved.body.length} bytes`);
 }
 
 /* -------------------------------------------------------------- report */
