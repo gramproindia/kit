@@ -25,6 +25,19 @@ asks.
 The two pages now read in the order they are used — Theming, Agent skill,
 MCP server.
 
+**The Figma plugin's listing is in review**, which Figma is quoting at a
+few weeks. Every place that links it now says so and gives the interim
+path: clone the repository and import `figma-plugin/manifest.json` through
+**Plugins → Development → Import plugin from manifest...** in the desktop
+app. The build is committed, so there is nothing to compile.
+
+**Six links in the docs went nowhere.** `datagrid.mdx` and
+`fileuploader.mdx` pointed at `#column-options`, `#grid-api-ref`,
+`#server-side-pagination`, `#upload-protocol`, `#custom-transport` and
+`#server-implementation` as same-page anchors. Those sections moved to
+child pages when the docs were split and the links were never updated, so
+they had been doing nothing since. They point at the child pages now.
+
 **The text LLMs read was teaching a deprecated command.** `llms.txt` has a
 hand-written preamble, so it lagged behind the CLI: it told every model
 that reached the site to run `npx @grampro/kit -a <Component>`, a spelling

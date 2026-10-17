@@ -101,9 +101,9 @@ the browser. The server side is long enough to live on its own page.
 | `headers`         | `Record<string, string>` \| `(request) => Record \| Promise<Record>` | —                       | Request headers. A function runs before each chunk, so tokens can refresh.         |
 | `withCredentials` | `boolean`                                                            | `false`                 | Send cookies on cross-origin requests.                                             |
 | `params`          | `object` \| `(file: File) => object`                                 | —                       | Extra data, sent as JSON in `additionalParams` with every chunk.                   |
-| `fieldNames`      | `Partial<ChunkFieldNames>`                                           | Go chunk-uploader names | Rename the form fields. See [Upload Protocol](#upload-protocol).                   |
+| `fieldNames`      | `Partial<ChunkFieldNames>`                                           | Go chunk-uploader names | Rename the form fields. See [Upload Protocol](/fileuploader-server#upload-protocol).                   |
 | `parseResponse`   | `(body: string, xhr: XMLHttpRequest) => unknown`                     | JSON, else text         | Turns each response into `item.response`.                                          |
-| `transport`       | `(request: ChunkRequest) => Promise<unknown>`                        | HTTP                    | Replaces the built-in sender. See [Custom Transport](#custom-transport).           |
+| `transport`       | `(request: ChunkRequest) => Promise<unknown>`                        | HTTP                    | Replaces the built-in sender. See [Custom Transport](/fileuploader-server#custom-transport).           |
 | `chunkSize`       | `number`                                                             | `5242880` (5 MiB)       | Bytes per request.                                                                 |
 | `concurrency`     | `number`                                                             | `3`                     | Files uploading at the same time.                                                  |
 | `retries`         | `number`                                                             | `3`                     | Extra attempts per chunk after a retryable failure.                                |
@@ -414,7 +414,7 @@ The framework-free core is exported from `@/component-lib/file-uploader/core`:
 
 ## Next.js
 
-The component is a client component, and `"use client"` is already at the top of the files that need it. Upload to a Route Handler (see [Server Implementation](#server-implementation)) rather than a Server Action: Server Actions buffer the whole body and are limited to 1 MB by default, while chunks keep every request small and resumable.
+The component is a client component, and `"use client"` is already at the top of the files that need it. Upload to a Route Handler (see [Server Implementation](/fileuploader-server#server-implementation)) rather than a Server Action: Server Actions buffer the whole body and are limited to 1 MB by default, while chunks keep every request small and resumable.
 
 Nothing runs on the server: the store is created on the client, and no browser APIs are touched while rendering.
 

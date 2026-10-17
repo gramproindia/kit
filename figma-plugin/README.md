@@ -33,8 +33,10 @@ Plus, in the file's local assets:
 
 ## Run it (designers)
 
-**[Install it from the Figma Community](https://www.figma.com/community/plugin/1692828324805361551)** — that is the
-published plugin, and nothing below is needed to use it.
+**[Install it from the Figma Community](https://www.figma.com/community/plugin/1692828324805361551)**
+— once the listing clears review, which Figma is currently quoting at a
+few weeks. Until then the steps below are the way to run it, and they are
+short: the build is committed, so there is nothing to compile.
 
 The rest of this file is for running it from source, which is how it is
 developed and how you try a change before publishing one. For that you

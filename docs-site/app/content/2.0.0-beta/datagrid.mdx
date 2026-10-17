@@ -111,7 +111,7 @@ installation, the props, and the things every grid needs; the rest is split by s
 | Prop       | Type                                             | Default                        | Description                                                                                             |
 | ---------- | ------------------------------------------------ | ------------------------------ | ------------------------------------------------------------------------------------------------------- |
 | `data`     | `T[]`                                            | **required**                   | The rows to display. In server mode, the rows of the current page.                                      |
-| `columns`  | `ColumnDef<T>[]`                                 | **required**                   | Column definitions. See [Column Options](#column-options).                                              |
+| `columns`  | `ColumnDef<T>[]`                                 | **required**                   | Column definitions. See [Column Options](/datagrid-columns#column-options).                                              |
 | `getRowId` | `keyof T` \| `(row: T, index: number) => string` | `row.id`, else the array index | Stable row id used for selection, editing and React keys. Prefer a property name, e.g. `getRowId="id"`. |
 | `mode`     | `"client"` \| `"server"`                         | `"client"`                     | `client`: the grid sorts, filters and paginates `data`. `server`: `data` is already the current page.   |
 | `rowCount` | `number`                                         | `data.length`                  | Total number of rows on the server. Used for pagination in server mode.                                 |
@@ -168,7 +168,7 @@ installation, the props, and the things every grid needs; the rest is split by s
 | `localeText`      | `Partial<LocaleText>`                               | English                    | Overrides UI text. See [Locale Text](#locale-text).                                                 |
 | `aria-label`      | `string`                                            | `"Data grid"`              | Accessible name of the grid.                                                                        |
 | `exportFileName`  | `string`                                            | `"export"`                 | Default file name for exports.                                                                      |
-| `ref`             | `Ref<GridApi<T>>`                                   | —                          | Imperative API. See [Grid API](#grid-api-ref).                                                      |
+| `ref`             | `Ref<GridApi<T>>`                                   | —                          | Imperative API. See [Grid API](/datagrid-api#grid-api-ref).                                                      |
 
 ### Toolbar Options
 
@@ -400,7 +400,7 @@ Override any text with `localeText`. Dates and numbers use the `locale` prop.
 | Column `showInPdf`, `showInExcel`                                              | `exportable`, `exportValue`                                                              |
 | Filter `{ filterColumn, filterCondition, filterValue }`                        | `{ columnId, operator, value }`                                                          |
 | `ref.goToPage(n)`, `nextPage()`, `handleSearch()`, `getActiveFilters()`        | `setPageIndex(n)`, `setGlobalFilter()`, `getState().filters`                             |
-| `usePaginatedData` hook                                                        | Not needed. See [Server Side Pagination](#server-side-pagination).                       |
+| `usePaginatedData` hook                                                        | Not needed. See [Server Side Pagination](/datagrid-data#server-side-pagination).                       |
 
 #### Notes
 

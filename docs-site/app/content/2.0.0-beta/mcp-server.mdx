@@ -129,6 +129,11 @@ disagree.
 
 <FigmaPlugin />
 
+The listing is in review, which Figma is quoting at a few weeks. Until it
+clears, clone this repository and import `figma-plugin/manifest.json`
+through **Plugins → Development → Import plugin from manifest...** in the
+Figma desktop app. The build is committed, so there is nothing to compile.
+
 In Figma: **Plugins -> Grampro Kit -> Export all screens for an agent**.
 It walks every page, takes each top-level frame, and derives one set of
 theme values from the whole design. Component sets are skipped - the
@@ -280,6 +285,23 @@ API - which means it cannot be rate limited.
 **Getting it.**
 
 <FigmaPlugin label="Install Grampro Kit" />
+
+<Notice message="The Community listing is in review. Figma is quoting a few weeks at the moment, so until it clears, install from source — the steps below take about a minute and need no toolchain." />
+
+The build is committed, so there is nothing to compile:
+
+```bash
+git clone https://github.com/gramproindia/kit.git
+```
+
+In the Figma **desktop** app (development plugins cannot be imported in
+the browser): **Plugins → Development → Import plugin from manifest...**,
+and choose `figma-plugin/manifest.json` from the clone.
+
+It then appears under **Plugins → Development → Grampro Kit**, with the same
+three commands the published one will have. When the listing clears review
+the link above installs it normally and you can remove the development
+copy.
 
 **Using it.** Select the frame and run **Plugins → Grampro Kit → Export
 selection for an agent**. Press **Save .json** and pass the path as

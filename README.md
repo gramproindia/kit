@@ -141,6 +141,11 @@ Details in [`tools/mcp/README.md`](tools/mcp/README.md).
 
 [**Grampro Kit on the Figma Community**](https://www.figma.com/community/plugin/1692828324805361551)
 
+> In review — Figma is quoting a few weeks. Until it clears, clone this
+> repository and import `figma-plugin/manifest.json` through **Plugins →
+> Development → Import plugin from manifest...** in the Figma desktop app.
+> The build is committed, so there is nothing to compile.
+
 Two jobs. It generates the whole design system inside Figma — 53 variables
 across light and dark, 13 text styles, 38 component sets — and it exports
 screens as JSON a coding agent can build from.
