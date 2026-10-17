@@ -197,10 +197,16 @@ have edited is never replaced without `--force`.
 The 2.x line is in active development and the next release will be a major
 version. What is built and tested:
 
-- 27 beta components, source-first, zero runtime dependencies
-- Passports for all 27, generated and drift-checked
+- 27 components, source-first, zero runtime dependencies
+- Passports for all 27, generated and drift-checked, and all 27 now carry the
+  authored half too: what the component is for, what it supplies to assistive
+  technology, and which props an agent may change without altering behaviour
 - The DataGrid agent runtime: 21 operations, five validation layers, snapshot
   undo, and a frozen 231-case evaluation corpus
+- The field runtime: `setValue`, `clear`, `focus` and, where there is something
+  to disclose, `open` and `close` — on Input, Textarea, NumberInput, Checkbox,
+  Switch, RadioGroup, Combobox and DatePicker. The same five layers, written
+  once in `shared/core/agent` rather than eight times
 - **`<DataGrid ai />`** — a natural-language box, driven by an adapter the
   application supplies. No model is bundled, downloaded or named.
 - **WebMCP** — one tool, `operate_grid`, exposing the same validated boundary to
@@ -211,10 +217,17 @@ Every producer — a model, a browser agent, a form — proposes. The validator
 authorizes. The executor mutates state. That boundary is the architecture, and
 it is why no AI path gets a second route into the component.
 
-Still open: operations for DatePicker and Combobox (both are controlled
-components with no imperative write API, which the executor abstraction is meant
-to solve but has not yet proven), and the remaining authored passport metadata.
-The roadmap and its unresolved questions are in
+Nine of the 27 are agent-operable. The executor abstraction was the open
+question — a grid is driven through an imperative API, and a field is not — and
+it is settled: Combobox and DatePicker are driven through their handles,
+Input, Textarea, NumberInput, Checkbox, Switch and RadioGroup through the
+element their ref already hands back. Neither the contract, the schemas, the
+validator nor the refusals know which.
+
+Still open: the components whose value is in what they contain rather than what
+they hold — Menu, Tabs, Accordion, Modal, FileUploader — and the question of
+whether a form is better driven field by field or as one composite assembled
+from several passports. The roadmap and its unresolved questions are in
 [`docs/agent-native-architecture.md`](docs/agent-native-architecture.md).
 
 ## Styles

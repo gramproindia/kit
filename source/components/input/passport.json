@@ -11,6 +11,7 @@
   "source": {
     "libraryVersion": "2.7.0",
     "files": [
+      "core/agent.ts",
       "core/count.ts",
       "core/index.ts",
       "core/otp.ts",
@@ -23,8 +24,9 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:50ff11f4a9255189704b330123d35d4f4e3550bd4cf2eed2d0735c92ba876b03"
+    "sourceHash": "sha256:6d1ef1229a82962e2bd3bf32a15de6f7d9e43c2270e65df9f7303cd74dd479d4"
   },
+  "purpose": "A single-line text field with its label, hint and error wired together. OtpInput is the same field split into one box per character for a one-time code.",
   "props": [
     {
       "name": "aria-describedby",
@@ -130,7 +132,8 @@
       "required": false,
       "origin": "derived",
       "description": "Message below the field; also marks it invalid.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Set by the host after validating. The component never derives it."
     },
     {
       "name": "form",
@@ -205,7 +208,8 @@
       "default": 6,
       "origin": "derived",
       "description": "Number of characters. Default 6.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "OtpInput only: the number of boxes, which is also the expected code length."
     },
     {
       "name": "localeText",
@@ -222,7 +226,8 @@
       "default": false,
       "origin": "derived",
       "description": "Show dots instead of the characters.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Shapes what can be typed. Changing it can make an already-valid value unreachable."
     },
     {
       "name": "max",
@@ -523,20 +528,92 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the label is a real <label> bound to the input, so clicking it focuses the field",
+      "description and error are linked by aria-describedby",
+      "aria-invalid while `error` is set",
+      "the character counter is a live region when `showCount` is on",
+      "OtpInput moves focus between boxes and handles paste of a whole code"
+    ],
+    "required": [
+      "a `label`, or `aria-label` when the field is visually unlabelled",
+      "`type` matching the data — email, tel, url — so the right keyboard and autofill appear",
+      "`autoComplete` on anything a browser or password manager should fill"
+    ]
   },
-  "composition": {},
-  "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "composition": {
+    "mustNotContain": [
+      "label",
+      "input"
+    ],
+    "notes": "The component renders its own <label> and <input>. Wrapping it in another label binds the text to the wrong control and breaks the click target."
+  },
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    }
+  },
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placeholder",
+      "description",
+      "leading",
+      "trailing",
+      "clearable",
+      "showCount",
+      "revealPassword"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "name",
+      "type",
+      "required",
+      "disabled",
+      "readOnly",
+      "pattern",
+      "mask",
+      "onValueChange",
+      "error"
+    ],
+    "rationale": "Appearance and affordances are safe. `value` and `name` are the form's data, `type`/`pattern`/`mask` decide what is accepted, and `error` is the host's verdict on validity — an agent that writes it is claiming a validation result it did not compute."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 18,
     "propsDescribed": 16,
     "describedPct": 89,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "operations",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

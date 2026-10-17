@@ -10,6 +10,7 @@
   "source": {
     "libraryVersion": "2.7.0",
     "files": [
+      "core/agent.ts",
       "core/format.ts",
       "core/index.ts",
       "core/parse.ts",
@@ -21,8 +22,9 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:0cb6347602f25bd7c77b8738d9d1ac5216ee1a6ef50b5bf54f34deeb2d914f7b"
+    "sourceHash": "sha256:b62e20ffb71a95c6e30e7c55f895750de1015364734a3cceacea972e3dc89e6a"
   },
+  "purpose": "A numeric field that reads and writes numbers the way the locale does, with a stepper, clamping and currency formatting.",
   "props": [
     {
       "name": "aria-describedby",
@@ -79,7 +81,8 @@
       "default": "blur",
       "origin": "derived",
       "description": "When a value outside the limits is pulled back. Default `blur`.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Decides whether an out-of-range entry is corrected as it is typed or left for validation. Changing it changes what the user is allowed to leave in the field."
     },
     {
       "name": "className",
@@ -456,7 +459,8 @@
       "default": false,
       "origin": "derived",
       "description": "Let the wheel change the value while the field has focus. Default **false**:\r\na wheel that edits a focused field turns an ordinary page scroll into a\r\nsilent change to someone's data.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Scroll-to-change is off by default because it fires while a page is being scrolled past."
     }
   ],
   "inherits": [
@@ -534,20 +538,97 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "role=spinbutton semantics with aria-valuenow, aria-valuemin and aria-valuemax",
+      "ArrowUp and ArrowDown step; PageUp and PageDown use `largeStep`",
+      "the stepper buttons are aria-hidden, because the keyboard already does what they do",
+      "description and error linked by aria-describedby"
+    ],
+    "required": [
+      "a `label`, or `aria-label` when the field is visually unlabelled",
+      "`min` and `max` where a range exists, so assistive technology can announce it"
+    ]
   },
-  "composition": {},
-  "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "composition": {
+    "mustNotContain": [
+      "label",
+      "input"
+    ],
+    "notes": "Renders its own label and input."
+  },
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    }
+  },
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placeholder",
+      "description",
+      "stepper",
+      "leading",
+      "trailing",
+      "selectOnFocus",
+      "useGrouping",
+      "clearable"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "name",
+      "min",
+      "max",
+      "step",
+      "largeStep",
+      "decimals",
+      "currency",
+      "locale",
+      "clampBehavior",
+      "snapToStep",
+      "required",
+      "disabled",
+      "readOnly",
+      "onValueChange",
+      "error"
+    ],
+    "rationale": "Everything that defines the number — its bounds, its precision, its currency, how it snaps — is domain truth, not styling. Changing `decimals` or `currency` silently reinterprets a stored value."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 24,
     "propsDescribed": 23,
     "describedPct": 96,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "operations",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

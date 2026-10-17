@@ -45,7 +45,7 @@
   "author": "Anandhu Remanan",
   "license": "ISC",
   "dependencies": {
-    "@grampro/headless-helpers": "^1.0.21",
+    "@grampro/headless-helpers": "^1.0.22",
     "fs-extra": "^11.0.4",
     "tailwind-merge": "^3.6.0",
     "yargs": "^17.7.2"

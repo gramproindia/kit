@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Alert",
+  "purpose": "A message that stays in the page — neither interrupting like a dialog nor leaving like a toast. For conditions the user needs to keep seeing.",
+  "intentDomains": [
+    "Summarization"
+  ],
+  "accessibility": {
+    "supplied": [
+      "role=alert on the error and warning variants, so they are announced when they appear",
+      "the variant is carried in text and icon, not by colour alone",
+      "the dismiss control is a real button with an accessible name"
+    ],
+    "required": [
+      "a message that says what to do, not only what went wrong",
+      "do not use `onDismiss` for something the user must act on — a dismissible error can be dismissed unread"
+    ]
+  },
+  "composition": {
+    "mustNotContain": [
+      "Alert"
+    ],
+    "notes": "Actions belong in `actions`, which keeps them in the alert's landmark rather than loose in the body."
+  },
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "icon",
+      "description"
+    ],
+    "forbidden": [
+      "variant",
+      "children",
+      "actions",
+      "onDismiss"
+    ],
+    "rationale": "`variant` is the severity. Downgrading an error to info changes what the page is telling the user, and it changes whether it is announced at all."
+  },
+  "propNotes": {
+    "variant": "Decides the role: error and warning are announced, info and success are not."
+  }
+}

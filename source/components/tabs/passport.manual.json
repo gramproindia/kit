@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Tabs",
+  "purpose": "Tabs in underline, pill or segmented styles, horizontal or vertical, with panels that can stay mounted when hidden.",
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "accessibility": {
+    "supplied": [
+      "the tabs pattern: role=tablist with one tab stop, arrow keys between tabs, Home and End to the ends",
+      "each tab is linked to its panel by aria-controls and aria-labelledby",
+      "`activation` chooses whether moving focus selects, or whether Enter is needed"
+    ],
+    "required": [
+      "tab labels that make sense read out of context, since that is how they are announced",
+      "manual `activation` when switching a tab is expensive, so arrowing past one does not load it"
+    ]
+  },
+  "composition": {
+    "allowedChildren": [
+      "TabList",
+      "Tab",
+      "TabPanel"
+    ],
+    "notes": "Every Tab needs a TabPanel with the matching value. Tabs are not a substitute for navigation between URLs."
+  },
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "size",
+      "orientation",
+      "icon",
+      "badge",
+      "keepMounted",
+      "activation"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "onValueChange",
+      "name",
+      "disabled"
+    ],
+    "rationale": "Styling and layout are safe. The selected tab is application state."
+  },
+  "propNotes": {
+    "keepMounted": "Keeps hidden panels in the DOM, so form state and scroll position survive a switch. Costs the render.",
+    "activation": "`automatic` selects as focus moves; `manual` waits for Enter or Space."
+  }
+}

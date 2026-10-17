@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Modal",
+  "purpose": "Forms, details and drawers above the page, on the native <dialog> element, with focus trapped inside and the rest of the page inert.",
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "accessibility": {
+    "supplied": [
+      "native <dialog> semantics: the top layer, :modal, and the rest of the page genuinely inert rather than merely covered",
+      "focus moves in on open and returns to the trigger on close",
+      "Escape closes, unless onBeforeClose refuses",
+      "the heading is linked as the dialog's accessible name"
+    ],
+    "required": [
+      "a `description` or a heading — a modal with no name announces as nothing",
+      "`initialFocus` when the first focusable element is not the one a user should land on"
+    ]
+  },
+  "composition": {
+    "mustNotContain": [
+      "Modal",
+      "dialog"
+    ],
+    "notes": "A modal inside a modal puts two dialogs in the top layer and the focus trap of the inner one fights the outer. Use one modal and change its contents. Short questions belong in Dialog, not here."
+  },
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placement",
+      "closeButton",
+      "description"
+    ],
+    "forbidden": [
+      "open",
+      "defaultOpen",
+      "onOpenChange",
+      "onBeforeClose",
+      "closeOnBackdrop",
+      "closeOnEscape",
+      "initialFocus",
+      "keepMounted",
+      "footer",
+      "children"
+    ],
+    "rationale": "Size and placement are presentation. `open` is the application's state, and the dismissal props decide whether a user can get out — removing an escape route is never a cosmetic change."
+  },
+  "propNotes": {
+    "closeOnBackdrop": "Turning it off should be reserved for work that would be lost. A user who cannot dismiss a dialog is stuck.",
+    "onBeforeClose": "Return false to refuse a close, for unsaved work. It runs for Escape and the backdrop too."
+  }
+}

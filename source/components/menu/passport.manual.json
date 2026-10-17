@@ -1,0 +1,64 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Menu",
+  "purpose": "A menu of commands with arrow keys, typeahead, checkbox and radio items and submenus, following the WAI-ARIA menu pattern.",
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "accessibility": {
+    "supplied": [
+      "the menu pattern: role=menu with menuitem, menuitemcheckbox and menuitemradio children",
+      "arrow keys move, typeahead jumps to a matching item, Escape closes and returns focus to the trigger",
+      "submenus open on ArrowRight and close on ArrowLeft",
+      "a disabled item stays focusable so it can be read, and is not activated"
+    ],
+    "required": [
+      "an accessible name on the trigger when it is an icon",
+      "`destructive` on items that delete, so they are not styled as ordinary commands"
+    ]
+  },
+  "composition": {
+    "allowedChildren": [
+      "MenuItem",
+      "MenuCheckboxItem",
+      "MenuRadioItem",
+      "MenuGroup",
+      "MenuSeparator",
+      "MenuSub"
+    ],
+    "mustNotContain": [
+      "input",
+      "textarea",
+      "Modal"
+    ],
+    "notes": "A menu holds commands, not fields. The roving focus of the menu pattern and a text field's own key handling cannot both own the arrow keys."
+  },
+  "safeMutations": {
+    "allowed": [
+      "side",
+      "align",
+      "gap",
+      "icon",
+      "shortcut",
+      "closeOnSelect"
+    ],
+    "forbidden": [
+      "open",
+      "defaultOpen",
+      "onOpenChange",
+      "onSelect",
+      "onValueChange",
+      "onCheckedChange",
+      "value",
+      "checked",
+      "trigger",
+      "destructive",
+      "disabled"
+    ],
+    "rationale": "Placement and ornament are safe. `onSelect` is the command itself, and `destructive` is a warning an agent must not remove."
+  },
+  "propNotes": {
+    "shortcut": "Displayed only. The component does not bind the key; the application does.",
+    "destructive": "Styles the item as dangerous. Remove it only if the item stops being dangerous."
+  }
+}

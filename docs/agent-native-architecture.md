@@ -34,7 +34,7 @@ Shipped since this was written:
 Where this document and the implementation disagree, the implementation is right
 and the disagreement is noted in section 10.
 
-Scope: the 27 components of the **2.0 beta** set only. Legacy 1.x components
+Scope: the 27 components of the **2.x** set only. Legacy 1.x components
 (`FormRenderer`, `SideBar`, `MaterialInput`, `ContextMenu`, `Navbar`, `Bargraph`,
 `DarkMode`, `Toast`, `Uploader`, …) are out of scope.
 
@@ -513,7 +513,7 @@ one. The A2UI catalog records which `protocolVersion` it targets.
 
 ---
 
-## 8. Component AI classification (2.0 beta set)
+## 8. Component AI classification (2.x set)
 
 *Proposed.* Categories: **G** generative UI · **O** operational control ·
 **S** semantic interpretation · **X** extraction · **Z** summarization ·

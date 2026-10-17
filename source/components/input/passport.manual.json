@@ -1,0 +1,86 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Input",
+  "purpose": "A single-line text field with its label, hint and error wired together. OtpInput is the same field split into one box per character for a one-time code.",
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "$operationsNote": "Mirrors shared/core/agent/field.ts, which is what the runtime dispatches on. source/components/shared/core/agent/__tests__/field-passport.test.ts fails if the two drift. No `apiMethod`: a field is written through its ref — the element for most of these, a handle for Combobox and DatePicker — and that is a normal case, not a gap.",
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    }
+  },
+  "accessibility": {
+    "supplied": [
+      "the label is a real <label> bound to the input, so clicking it focuses the field",
+      "description and error are linked by aria-describedby",
+      "aria-invalid while `error` is set",
+      "the character counter is a live region when `showCount` is on",
+      "OtpInput moves focus between boxes and handles paste of a whole code"
+    ],
+    "required": [
+      "a `label`, or `aria-label` when the field is visually unlabelled",
+      "`type` matching the data — email, tel, url — so the right keyboard and autofill appear",
+      "`autoComplete` on anything a browser or password manager should fill"
+    ]
+  },
+  "composition": {
+    "mustNotContain": [
+      "label",
+      "input"
+    ],
+    "notes": "The component renders its own <label> and <input>. Wrapping it in another label binds the text to the wrong control and breaks the click target."
+  },
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placeholder",
+      "description",
+      "leading",
+      "trailing",
+      "clearable",
+      "showCount",
+      "revealPassword"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "name",
+      "type",
+      "required",
+      "disabled",
+      "readOnly",
+      "pattern",
+      "mask",
+      "onValueChange",
+      "error"
+    ],
+    "rationale": "Appearance and affordances are safe. `value` and `name` are the form's data, `type`/`pattern`/`mask` decide what is accepted, and `error` is the host's verdict on validity — an agent that writes it is claiming a validation result it did not compute."
+  },
+  "propNotes": {
+    "mask": "Shapes what can be typed. Changing it can make an already-valid value unreachable.",
+    "length": "OtpInput only: the number of boxes, which is also the expected code length.",
+    "error": "Set by the host after validating. The component never derives it."
+  }
+}

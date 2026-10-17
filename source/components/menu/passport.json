@@ -31,6 +31,7 @@
     ],
     "sourceHash": "sha256:9a6248a4986051f6506746c084b9e89728fecd0a0b430d1962f5f3ed544ce1e5"
   },
+  "purpose": "A menu of commands with arrow keys, typeahead, checkbox and radio items and submenus, following the WAI-ARIA menu pattern.",
   "props": [
     {
       "name": "align",
@@ -105,7 +106,8 @@
       "default": false,
       "origin": "derived",
       "description": "Styles it as a destructive action.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Styles the item as dangerous. Remove it only if the item stops being dangerous."
     },
     {
       "name": "disabled",
@@ -216,7 +218,8 @@
       "required": false,
       "origin": "derived",
       "description": "A hint such as ⌘K. The menu shows it; binding the key is up to you.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Displayed only. The component does not bind the key; the application does."
     },
     {
       "name": "side",
@@ -319,20 +322,72 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the menu pattern: role=menu with menuitem, menuitemcheckbox and menuitemradio children",
+      "arrow keys move, typeahead jumps to a matching item, Escape closes and returns focus to the trigger",
+      "submenus open on ArrowRight and close on ArrowLeft",
+      "a disabled item stays focusable so it can be read, and is not activated"
+    ],
+    "required": [
+      "an accessible name on the trigger when it is an icon",
+      "`destructive` on items that delete, so they are not styled as ordinary commands"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "allowedChildren": [
+      "MenuItem",
+      "MenuCheckboxItem",
+      "MenuRadioItem",
+      "MenuGroup",
+      "MenuSeparator",
+      "MenuSub"
+    ],
+    "mustNotContain": [
+      "input",
+      "textarea",
+      "Modal"
+    ],
+    "notes": "A menu holds commands, not fields. The roving focus of the menu pattern and a text field's own key handling cannot both own the arrow keys."
+  },
   "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "side",
+      "align",
+      "gap",
+      "icon",
+      "shortcut",
+      "closeOnSelect"
+    ],
+    "forbidden": [
+      "open",
+      "defaultOpen",
+      "onOpenChange",
+      "onSelect",
+      "onValueChange",
+      "onCheckedChange",
+      "value",
+      "checked",
+      "trigger",
+      "destructive",
+      "disabled"
+    ],
+    "rationale": "Placement and ornament are safe. `onSelect` is the command itself, and `destructive` is a warning an agent must not remove."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 20,
     "propsDescribed": 17,
     "describedPct": 85,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

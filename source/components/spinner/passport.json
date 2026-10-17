@@ -21,6 +21,7 @@
     ],
     "sourceHash": "sha256:35c2de8415540772f688151782dff3c84c49b7a3d03fd7e575b3d4d4d4e93d85"
   },
+  "purpose": "A loading indicator on its own, beside a label or covering content, with a delay before it appears and a minimum time on screen.",
   "props": [
     {
       "name": "aria-describedby",
@@ -74,7 +75,8 @@
       "default": 0,
       "origin": "derived",
       "description": "Milliseconds to wait before showing, so fast work doesn't flash. Default 0.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Nothing renders before this elapses, which is what stops a spinner flashing on fast connections."
     },
     {
       "name": "hidden",
@@ -226,20 +228,45 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the spinner graphic is aria-hidden and the label carries the announcement",
+      "a delay before appearing, so fast work never flashes a spinner",
+      "a minimum duration once shown, so it does not flicker out instantly"
+    ],
+    "required": [
+      "a `label` saying what is loading, or `showLabel` where it should be visible too",
+      "use Progress instead when the length is known"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "notes": "Covering content is a variant of this component rather than a separate overlay."
+  },
   "operations": {},
   "intentDomains": [],
-  "safeMutations": {},
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "variant",
+      "delay",
+      "minDuration",
+      "showLabel",
+      "label"
+    ],
+    "forbidden": [
+      "loading"
+    ],
+    "rationale": "Everything here is presentation except whether the work is happening."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 8,
     "propsDescribed": 8,
     "describedPct": 100,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

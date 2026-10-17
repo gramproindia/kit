@@ -31,6 +31,7 @@
     ],
     "sourceHash": "sha256:f77a12b14c2d24bc55a922a38f2f85dca85eafe89f63ffb28932e0dc4639d965"
   },
+  "purpose": "Drop, browse or paste files, validate them against size and type, and upload in chunks that can pause, resume and retry.",
   "props": [
     {
       "name": "accept",
@@ -58,7 +59,8 @@
       "default": false,
       "origin": "derived",
       "description": "Upload as soon as files are added. Default false.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Off means the host triggers the upload; on means dropping a file starts a network request immediately."
     },
     {
       "name": "chunkSize",
@@ -116,7 +118,8 @@
       "required": false,
       "origin": "derived",
       "description": "Where chunks are POSTed. Without `endpoint` or `transport`, files are only selected.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Where files are sent. Never an agent's to set."
     },
     {
       "name": "error",
@@ -409,7 +412,8 @@
       "required": false,
       "origin": "derived",
       "description": "Replaces the built-in HTTP transport, e.g. for presigned URLs or an SDK.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Replaces the whole upload mechanism. Treat as code, not configuration."
     },
     {
       "name": "validate",
@@ -525,20 +529,71 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the drop zone is a real button, so it is reachable and operable from the keyboard",
+      "upload progress is announced through a live region rather than only drawn",
+      "each file row names its own state and its own remove control",
+      "rejection reasons are text, not just a red border"
+    ],
+    "required": [
+      "a `label` on the drop zone saying what should be uploaded",
+      "`accept` and `maxSize` matching what the server enforces, so a file is refused before it is sent rather than after"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "notes": "The uploader owns the file list it renders. `existingFiles` describes files already on the server and is a different thing from the queue."
+  },
   "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "intentDomains": [
+    "Extraction",
+    "Classification"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "description",
+      "preview",
+      "removable",
+      "label"
+    ],
+    "forbidden": [
+      "endpoint",
+      "method",
+      "headers",
+      "params",
+      "transport",
+      "chunkSize",
+      "concurrency",
+      "retries",
+      "retryDelay",
+      "withCredentials",
+      "accept",
+      "maxSize",
+      "minSize",
+      "maxFiles",
+      "multiple",
+      "validate",
+      "autoUpload",
+      "name",
+      "required",
+      "disabled",
+      "onChange",
+      "onUploadComplete",
+      "parseResponse"
+    ],
+    "rationale": "This is the one component where a wrong prop sends data somewhere. Everything describing the destination, the credentials sent with it, or what is allowed through is off-limits to an agent; only how the queue looks is safe."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 39,
     "propsDescribed": 36,
     "describedPct": 92,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

@@ -1,0 +1,64 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "FileUploader",
+  "purpose": "Drop, browse or paste files, validate them against size and type, and upload in chunks that can pause, resume and retry.",
+  "intentDomains": [
+    "Extraction",
+    "Classification"
+  ],
+  "accessibility": {
+    "supplied": [
+      "the drop zone is a real button, so it is reachable and operable from the keyboard",
+      "upload progress is announced through a live region rather than only drawn",
+      "each file row names its own state and its own remove control",
+      "rejection reasons are text, not just a red border"
+    ],
+    "required": [
+      "a `label` on the drop zone saying what should be uploaded",
+      "`accept` and `maxSize` matching what the server enforces, so a file is refused before it is sent rather than after"
+    ]
+  },
+  "composition": {
+    "notes": "The uploader owns the file list it renders. `existingFiles` describes files already on the server and is a different thing from the queue."
+  },
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "description",
+      "preview",
+      "removable",
+      "label"
+    ],
+    "forbidden": [
+      "endpoint",
+      "method",
+      "headers",
+      "params",
+      "transport",
+      "chunkSize",
+      "concurrency",
+      "retries",
+      "retryDelay",
+      "withCredentials",
+      "accept",
+      "maxSize",
+      "minSize",
+      "maxFiles",
+      "multiple",
+      "validate",
+      "autoUpload",
+      "name",
+      "required",
+      "disabled",
+      "onChange",
+      "onUploadComplete",
+      "parseResponse"
+    ],
+    "rationale": "This is the one component where a wrong prop sends data somewhere. Everything describing the destination, the credentials sent with it, or what is allowed through is off-limits to an agent; only how the queue looks is safe."
+  },
+  "propNotes": {
+    "endpoint": "Where files are sent. Never an agent's to set.",
+    "transport": "Replaces the whole upload mechanism. Treat as code, not configuration.",
+    "autoUpload": "Off means the host triggers the upload; on means dropping a file starts a network request immediately."
+  }
+}

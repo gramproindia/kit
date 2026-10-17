@@ -623,6 +623,41 @@
   }
 
   /* A video that is a poster until it is played. */
+  /*
+   * An architecture diagram. Both themes are shipped as separate images,
+   * because a raster cannot follow a token swap the way the rest of this
+   * stylesheet does; the hidden one is never fetched.
+   */
+  .v2-diagram {
+    margin: 2rem 0;
+  }
+
+  .v2-diagram img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--v2-border);
+    border-radius: 12px;
+  }
+
+  .v2-diagram .v2-diagram-dark {
+    display: none;
+  }
+
+  .dark .v2 .v2-diagram .v2-diagram-light {
+    display: none;
+  }
+
+  .dark .v2 .v2-diagram .v2-diagram-dark {
+    display: block;
+  }
+
+  .v2-diagram figcaption {
+    margin-top: 0.625rem;
+    color: var(--v2-muted);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
   .v2-video {
     position: relative;
     aspect-ratio: 16 / 9;

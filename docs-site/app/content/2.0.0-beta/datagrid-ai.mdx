@@ -177,6 +177,8 @@ instead of a command. Measure before switching, rather than assuming bigger is b
 Whatever the adapter returns is untrusted. It goes through the same five checks a form
 would face, and only then does anything happen.
 
+<Diagram name="ask-the-grid" alt="A typed sentence goes to your adapter — your endpoint, your key, your model — which proposes a grid operation. That output is untrusted and is treated like any form submission. It then passes through five validator layers in order: schema (shape), reference (real columns), coercion (types), policy (what you allow) and plausibility (does it make sense). Only if every layer passes do the executors run and the grid filter, with the box reporting what it did and irreversible work still asking first. If a layer refuses, the grid is untouched and the box names the layer that said no — an unknown column, an operator the type lacks, or a column you marked off-limits." caption="Nothing reaches the grid until every layer has passed. A refusal is a designed result, not an error, and it names the layer that produced it." />
+
 ```
   what they typed
       → adapter          proposes

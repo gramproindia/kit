@@ -18,6 +18,23 @@ export interface DatePickerHandle<TValue> {
   toggle(): void;
   focus(): void;
   clear(): void;
+  /**
+   * Set the value, as picking from the calendar would: the change handler
+   * fires and an uncontrolled picker updates itself.
+   *
+   * Takes what the component's own `value` prop takes — a `Date`, an ISO
+   * `yyyy-mm-dd` string, or `null` for the single picker; a `{ start, end }`
+   * range for the range picker. A range given the wrong way round is
+   * normalised rather than refused, which is what choosing those two days in
+   * that order on the calendar already does.
+   *
+   * It respects `disabled` and `readOnly` and does nothing when either is set.
+   * It does *not* check `min`, `max` or `isDateDisabled`: those describe what
+   * a person may pick, and a host setting a value programmatically is not a
+   * person. The agent runtime's policy layer enforces them for anything that
+   * arrives from a model.
+   */
+  setValue(next: TValue | string | null): void;
   getValue(): TValue;
 }
 

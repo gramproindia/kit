@@ -23,6 +23,7 @@
     ],
     "sourceHash": "sha256:c04b9c09e8661f463e2a808ecd45a7c080c236bc7b398efc1b3505a45e245f00"
   },
+  "purpose": "Sections that open and close, built on native <details> and <summary>, with single or multiple expansion.",
   "props": [
     {
       "name": "children",
@@ -53,7 +54,8 @@
       "default": true,
       "origin": "derived",
       "description": "Allow the open panel to be closed again. Default true.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Whether the last open section can be closed, leaving none open."
     },
     {
       "name": "defaultValue",
@@ -244,20 +246,55 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "native <details>/<summary> semantics, so it works before JavaScript loads and is findable by in-page search",
+      "Enter and Space toggle the summary, which is focusable by default",
+      "the open state is a real DOM attribute rather than a class"
+    ],
+    "required": [
+      "summary text that says what is inside, since a collapsed section is judged entirely by its heading",
+      "`multiple` where sections are independent — forcing one open at a time hides content a user was reading"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "allowedChildren": [
+      "AccordionItem"
+    ],
+    "notes": "Items come from children or the `items` array, not both."
+  },
   "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "size",
+      "icon",
+      "iconPosition",
+      "collapsible",
+      "multiple"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "onValueChange",
+      "items",
+      "disabled"
+    ],
+    "rationale": "Appearance is safe; which section is open is state, and `items` is the content."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 15,
     "propsDescribed": 12,
     "describedPct": 80,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

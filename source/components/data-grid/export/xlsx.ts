@@ -7,8 +7,15 @@ const MAIN_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
 const REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const PKG_REL_NS = "http://schemas.openxmlformats.org/package/2006/relationships";
 
-/** Characters XML 1.0 does not allow at all. */
-const INVALID_XML_CHARS = /[^\t\n\r -퟿-�\u{10000}-\u{10FFFF}]/gu;
+/**
+ * Characters XML 1.0 does not allow at all.
+ *
+ * Written as escapes rather than as the characters themselves. The bounds
+ * here are U+D7FF, U+E000 and U+FFFD, which are invisible in an editor, do
+ * not survive every copy and paste, and made this line depend on the file
+ * being read back as UTF-8. TypeScript 7 also rejected the literal form.
+ */
+const INVALID_XML_CHARS = /[^\t\n\r\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/gu;
 
 const XML_ENTITIES: Record<string, string> = {
   "&": "&amp;",

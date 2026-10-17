@@ -12,6 +12,7 @@
   "source": {
     "libraryVersion": "2.7.0",
     "files": [
+      "core/agent.ts",
       "core/group.ts",
       "core/index.ts",
       "core/types.ts",
@@ -22,8 +23,9 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:7e13b8cd8a2bab1ee7a89cf691c1dc388951723939ca4a87def57d6301d8aa33"
+    "sourceHash": "sha256:8630723accbd754b823c4f2d7f5c1c0da02252d3a51f87b8abeaad117bd75064"
   },
+  "purpose": "One choice out of a few, on native radios: a single tab stop, arrow keys between the choices, and a card variant for richer options.",
   "props": [
     {
       "name": "aria-describedby",
@@ -394,7 +396,8 @@
       "default": "default",
       "origin": "derived",
       "description": "Default `default`. `card` draws each choice as a tile.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "`card` renders each option as a selectable surface; the semantics are identical."
     }
   ],
   "inherits": [
@@ -476,20 +479,84 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "native radio semantics: one tab stop for the group, arrow keys to move and select",
+      "a fieldset with the group label as its legend",
+      "description and error linked by aria-describedby"
+    ],
+    "required": [
+      "a `label` for the group — a set of radios with no question is meaningless",
+      "`name`, so the browser treats them as one group"
+    ]
   },
-  "composition": {},
-  "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "composition": {
+    "allowedChildren": [
+      "Radio",
+      "RadioCard"
+    ],
+    "notes": "Children or `options`, not both. A radio outside a RadioGroup loses the arrow-key behaviour."
+  },
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    }
+  },
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "orientation",
+      "variant",
+      "description"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "name",
+      "options",
+      "required",
+      "disabled",
+      "readOnly",
+      "onChange",
+      "onValueChange",
+      "error"
+    ],
+    "rationale": "The selected value is the user's answer and `options` is the question."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 20,
     "propsDescribed": 16,
     "describedPct": 80,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "operations",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

@@ -17,6 +17,97 @@ called `Button`, and Button is what the agent is going to write. An
 instance whose master is not in the response keeps its id rather than
 guessing.
 
+**Every component now says what it is for.** A passport had two halves: the
+derived one, generated from the TypeScript, and the authored one — `purpose`,
+`intentDomains`, `accessibility`, `composition`, `safeMutations`. The generator
+emits empty shells for the authored half because none of it is in the types,
+and only Button and DataGrid had ever been filled in. The other 25 are written
+now.
+
+`safeMutations` is the one an agent acts on: which props it may change without
+altering behaviour, and which it may not, with the reason. An agent restyling a
+FileUploader should be free to change `size` and `preview` and nowhere near
+`endpoint`, `headers` or `transport` — that component is the one where a wrong
+prop sends someone's data somewhere. `get_component` now returns all of it;
+until this release it served `purpose` and dropped the rest, so the authored
+half reached nobody.
+
+Where no value in the schema's `intentDomains` enum honestly describes a
+component, the list is left empty rather than filled for symmetry. Nine of them
+are presentational, and a wrong routing hint is worse than none.
+
+**A field runtime, so nine components are agent-operable instead of one.**
+`setValue`, `clear`, `focus`, and `open`/`close` for the two that have
+something to disclose, on Input, Textarea, NumberInput, Checkbox, Switch,
+RadioGroup, Combobox and DatePicker.
+
+The grid earned a runtime of its own because its operations are a language:
+filter, sort, pin, paginate, export. A field has one verb, so the verb lives in
+`shared/core/agent` once rather than eight times, and each component supplies
+only a contract built from its own props. The same five layers rule on it —
+schema, reference, coercion, policy, plausibility — so a write to a read-only
+field is refused by name, an option that does not exist comes back with the
+nearest one that does, and a number outside `min`/`max` is told which bound it
+crossed rather than being silently clamped.
+
+The open question was whether the executor abstraction generalised. A grid is
+driven through an imperative API and a field is not, and the architecture notes
+had flagged that as unproven. It holds: Combobox and DatePicker are driven
+through their handles, the other six through the element their ref already
+returns, and nothing above the executor knows which. `setValue` joins
+`ComboboxHandle` and `DatePickerHandle` as a public method; the six that expose
+the DOM element needed no API change at all, because the technique
+`Input.clear()` has always used — the prototype setter plus a real event — is
+the same write with a value in it.
+
+`useFieldAgent` binds a contract to a ref. No component grew a prop for this.
+
+**The authored passports had no schema of their own.** A `passport.manual.json`
+pointed at `passport-v1.schema.json`, which describes the *merged* passport —
+so an editor validating one reported all eight generated fields as missing
+(`passportVersion`, `identity`, `source`, `props`, `events`, `slots`, `states`,
+`coverage`), and `additionalProperties: false` made errors of the four keys only
+an overlay has: `component`, `propNotes`, `notImplemented`, `$operationsNote`.
+
+It was wrong on the two files that had it before and merely quiet; at
+twenty-seven it is the thing that teaches people to ignore squiggles.
+`schema/passport-overlay-v1.schema.json` describes what an overlay may
+actually contain, referencing the merged schema for the fields they share so
+the two cannot drift. A test holds every overlay to it, which also catches a
+mistyped key — previously a silent no-op, since the merge only reads the names
+it knows.
+
+### Security
+
+**A failed JSON parse quoted the file back.** V8 puts the first ten or so
+characters of its input into the error it throws, so pointing `designFile` at
+something that was not JSON returned a slice of it:
+
+    That is not JSON: Unexpected token 's', "sk-proj-RE"... is not valid JSON
+
+Ten bytes is not an extraction, but it is enough to confirm that a path
+exists and what kind of file sits there, and an agent can be pointed at paths
+in a loop. The server runs with your own authority and the agent could read
+the file directly, so this was hygiene rather than a hole — and it cost
+nothing to close. The three parse sites in `figma.cjs`, `design.cjs` and
+`install.cjs` now name the file and say what was expected, without quoting
+any of it.
+
+**The package no longer installs a build toolchain.**
+`@grampro/headless-helpers` declared `rollup`, its plugins and `typescript`
+as runtime dependencies, so installing the kit pulled a compiler and a
+bundler into `node_modules` and carried their advisories — an arbitrary file
+write in Rollup and two ReDoS in picomatch, none of which any of this code
+runs. Requiring `^1.0.22`, which moved them to devDependencies, removes 84
+packages from a clean install and leaves the package at zero advisories.
+
+**Mermaid rendered with sanitisation off.** The diagram component ran with
+`securityLevel: "loose"`, which permits HTML in labels and click handlers,
+and its output goes through `dangerouslySetInnerHTML`. Nothing was
+exploitable: the only diagram text comes from our own MDX at build time, and
+in fact no page renders one. But the two together are a trap for whoever
+first renders a diagram from anything else, so it is `"strict"` now.
+
 ### Changed
 
 **The docs lead with the URL route.** Pasting a Figma link is one step;
@@ -24,6 +115,54 @@ the plugin route is five, and every one is a place to stop. The reason it
 was necessary for designs built from a component library is now gone, so
 the page says plainly: use the URL for a screen, and the plugin when you
 want a whole product in one pass, or have no token, or are rate limited.
+
+**`figma_frame` describes the URL route first.** Its own description still
+said `designFile` was "the one to use for a whole screen", which was true
+only while the URL route could not resolve component names. An agent reads
+that description before it picks a route, so it was steering towards the long
+way round. It now leads with the URL and keeps the file export for what the
+file export is actually better at: a whole product in one pass, or no usable
+token. The `llms.txt` preamble said nothing about the URL route at all, and
+now says it is the shortest path from a design to a screen.
+
+**The components are out of beta.** Only the MCP server still carries the
+label, and it carries it in both places that matter: the docs page and the
+`figma_frame` tool description an agent reads.
+
+The one that was doing damage was in the agent skill, which is always in an
+agent's context. It said **"Always pass `--beta`"** and explained that without
+it you get the 1.x set. That had inverted: `--beta` became a no-op that prints
+a deprecation notice, 2.x is what `add` installs, and `--legacy` is what
+reaches 1.x. An agent following the skill was passing a dead flag and being
+told the opposite of what the CLI does. The flag table now documents
+`--legacy` instead, and says plainly that the 1.x set is unmaintained.
+
+Also gone from the CLI's own output ("Redesigned beta components" when a name
+does not match), the `llms.txt` preamble, which told every model that read the
+site that the components were beta and their APIs might change, and the README
+and architecture notes. `--beta` is still accepted, because scripts use it.
+
+### Fixed
+
+**Headings on the translated pages had meaningless ids.** The slugger kept
+only `[a-z0-9\s-]`, which leaves a Malayalam heading with nothing but its
+spaces — so every heading fell through to `section` or to the `-` its spaces
+became, and then took its id from the duplicate counter:
+
+    id="-"  id="--1"  id="--2"  id="-structured-data"  id="section-2"
+
+That counter is positional, so adding a heading renumbered every anchor below
+it: no link to one could be relied on, and four prop-table links on
+`ml/breadcrumb` and `ml/button` pointed at the English anchors and had never
+resolved. The class keeps letters, digits and combining marks in any script
+now, so those headings slug to their own text. `\p{M}` matters as much as
+`\p{L}` here: Malayalam vowel signs are combining marks, and dropping them
+mangles the text rather than emptying it. Every ASCII heading slugs to the
+same string as before, so no existing anchor moved.
+
+`pnpm check:anchors` in `docs-site` now checks every in-site fragment against
+the headings its target page actually offers, because a dead anchor does not
+404 — the page loads and ignores it.
 
 ## 2.6.3
 

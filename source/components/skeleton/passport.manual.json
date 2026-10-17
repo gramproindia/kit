@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Skeleton",
+  "purpose": "Placeholders in the shape of the content that is loading, plus an Empty state for when there turns out to be nothing.",
+  "intentDomains": [],
+  "accessibility": {
+    "supplied": [
+      "placeholders are hidden from assistive technology, so a screen reader is not read a wall of meaningless boxes",
+      "the loading condition is announced once by the region that owns it, rather than by every bar",
+      "Empty renders a heading and an action, not just an illustration"
+    ],
+    "required": [
+      "announce loading on the container, since the skeletons themselves are silent by design",
+      "an Empty state that says what to do next, not only that there is nothing"
+    ]
+  },
+  "composition": {
+    "notes": "Skeletons should match the shape of what replaces them. A layout that jumps when the content arrives is worse than a spinner."
+  },
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "animation",
+      "width",
+      "height",
+      "radius",
+      "lines",
+      "lastLineWidth",
+      "size",
+      "icon"
+    ],
+    "forbidden": [
+      "label",
+      "description",
+      "actions"
+    ],
+    "rationale": "Shape and animation are entirely presentational, which is unusual here and is why almost everything is allowed. The Empty state's words are content."
+  }
+}

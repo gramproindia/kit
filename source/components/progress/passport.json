@@ -22,6 +22,7 @@
     ],
     "sourceHash": "sha256:8c989dc440492a833963b37e6c28fd90a99e54435c545a4f053b77c83d745eaf"
   },
+  "purpose": "A bar or a ring for work with a known end, where an unknown length is a different thing from zero per cent.",
   "props": [
     {
       "name": "aria-describedby",
@@ -176,7 +177,8 @@
       "default": null,
       "origin": "derived",
       "description": "How far along. `null` means the length is not known yet.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Undefined means indeterminate, which is announced differently from 0."
     },
     {
       "name": "valueText",
@@ -185,7 +187,8 @@
       "required": false,
       "origin": "derived",
       "description": "Replace what is shown and read, e.g. \"3.2 MB of 8 MB\".",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Overrides the announced string, for units that are not percentages."
     },
     {
       "name": "variant",
@@ -251,20 +254,46 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "role=progressbar with aria-valuenow, aria-valuemin and aria-valuemax",
+      "an indeterminate progress omits aria-valuenow rather than reporting zero, which is what tells a screen reader the length is unknown",
+      "`valueText` for when a percentage is not the useful reading"
+    ],
+    "required": [
+      "a `label` saying what is in progress",
+      "leave `value` undefined for work of unknown length — zero is a claim that nothing has happened"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "notes": "A bar and a ring are the same component with a different `variant`."
+  },
   "operations": {},
   "intentDomains": [],
-  "safeMutations": {},
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "size",
+      "thickness",
+      "showValue",
+      "label"
+    ],
+    "forbidden": [
+      "value",
+      "max",
+      "valueText"
+    ],
+    "rationale": "The shape is presentation; the value is the measurement."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 9,
     "propsDescribed": 8,
     "describedPct": 89,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

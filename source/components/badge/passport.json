@@ -22,6 +22,7 @@
     ],
     "sourceHash": "sha256:16f626a94da3bac9b1a105718010edd7e1ce5a6118823ed8a53c97d658d89a3e"
   },
+  "purpose": "Short labels: a status, a category, a count that stops at 99+, and chips the user can take off.",
   "props": [
     {
       "name": "appearance",
@@ -163,7 +164,8 @@
       "default": 99,
       "origin": "derived",
       "description": "Where the count stops. Default 99.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Counts above this render as `max`+. Default 99."
     },
     {
       "name": "onRemove",
@@ -315,20 +317,54 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "a count is announced with its meaning rather than as a bare number",
+      "the remove control on a chip is a real button with an accessible name",
+      "a dot badge is marked decorative, since a dot alone says nothing"
+    ],
+    "required": [
+      "text alongside a status badge — colour is not a label",
+      "an accessible name on a dot or icon-only badge, or mark it decorative and say it elsewhere"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "mustNotContain": [
+      "button",
+      "a"
+    ],
+    "notes": "Use `onRemove` for a chip rather than nesting a button inside the badge."
+  },
   "operations": {},
   "intentDomains": [],
-  "safeMutations": {},
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "appearance",
+      "size",
+      "icon",
+      "dot",
+      "max",
+      "showZero",
+      "formatValue"
+    ],
+    "forbidden": [
+      "count",
+      "label",
+      "children",
+      "onRemove"
+    ],
+    "rationale": "Appearance is safe. The count and the label are the data."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 13,
     "propsDescribed": 11,
     "describedPct": 85,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

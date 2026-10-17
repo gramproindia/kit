@@ -1,0 +1,54 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Dialog",
+  "purpose": "Alert, confirm and prompt dialogs you call from an event handler and await, so there is no open state to hold. For short questions; a form belongs in Modal.",
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "accessibility": {
+    "supplied": [
+      "built on the same native <dialog> as Modal: top layer, inert page, focus trapped and returned",
+      "the confirm button takes initial focus, and Enter resolves it",
+      "Escape resolves as a cancel rather than leaving the promise hanging",
+      "the intent is conveyed in text, not only by the icon's colour"
+    ],
+    "required": [
+      "a question that reads as a question, and button labels that name the action rather than saying Yes and No",
+      "`intent: \"danger\"` on anything destructive, so the styling matches the stakes"
+    ]
+  },
+  "composition": {
+    "mustNotContain": [
+      "Dialog",
+      "Modal",
+      "dialog"
+    ],
+    "notes": "Called as a function, not composed as a tree. Mount the host once; do not nest it inside another dialog."
+  },
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "icon",
+      "confirmLabel",
+      "cancelLabel"
+    ],
+    "forbidden": [
+      "open",
+      "kind",
+      "intent",
+      "onConfirm",
+      "onClose",
+      "validate",
+      "store",
+      "defaultValue",
+      "required",
+      "inputType",
+      "dismissible"
+    ],
+    "rationale": "Labels and the icon are presentation, provided the labels still name the same action. `kind` changes whether it returns a boolean or a string, `intent` is the warning, and `validate` decides what a prompt will accept."
+  },
+  "propNotes": {
+    "kind": "alert, confirm or prompt. It decides the shape of what the promise resolves to.",
+    "validate": "Prompt only. Returning a string keeps the dialog open and shows it as the error."
+  }
+}

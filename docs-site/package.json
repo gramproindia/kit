@@ -8,23 +8,24 @@
     "build": "node scripts/generate-demos.mjs && next build",
     "start": "next start",
     "lint": "next lint",
-    "gen:demos": "node scripts/generate-demos.mjs"
+    "gen:demos": "node scripts/generate-demos.mjs",
+    "check:anchors": "node scripts/check-anchors.mjs"
   },
   "dependencies": {
-    "@grampro/headless-helpers": "^1.0.19",
+    "@grampro/headless-helpers": "^1.0.22",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
     "@next/mdx": "^16.3.5",
-    "@supabase/supabase-js": "^2.55.0",
+    "@supabase/supabase-js": "^2.118.0",
     "@types/mdx": "^2.0.13",
     "@types/react-syntax-highlighter": "^15.5.13",
     "clsx": "^2.1.1",
     "gray-matter": "^4.0.3",
     "hls.js": "^1.7.3",
     "lucide-react": "^0.525.0",
-    "mermaid": "^11.15.0",
+    "mermaid": "^11.17.2",
     "motion": "^12.23.12",
-    "next": "16.3.5",
+    "next": "16.3.8",
     "next-mdx-remote": "6.0.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -42,5 +43,19 @@
     "@types/react-dom": "^19.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "overrides": {
+      "js-yaml@3": "^3.15.2",
+      "browserslist": "^4.29.3",
+      "source-map-js": "^1.2.2",
+      "prismjs": "^1.30.0",
+      "mdast-util-to-hast": "^13.2.1",
+      "yaml": "^2.9.1",
+      "fflate": "^0.8.3",
+      "sharp": "^0.35.5",
+      "dompurify": "^3.4.17",
+      "@babel/core": "^7.29.7"
+    }
   }
 }

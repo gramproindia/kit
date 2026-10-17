@@ -4,7 +4,7 @@ description: Builds UI with the GramproKit component library (@grampro/kit). Use
 autoAttach: ["src/**/*.tsx", "src/**/*.jsx", "app/**/*.tsx", "components/**/*.tsx"]
 ---
 
-# GBS components (2.0 beta)
+# GBS components (2.x)
 
 ## If the MCP server is connected
 
@@ -30,8 +30,9 @@ Not an npm dependency — the CLI **copies source into the repo**:
 npx @grampro/kit add Button,Input,Modal
 ```
 
-Writes `component-lib/<folder>/` plus `component-lib/shared/`. Always pass
-`--beta`. Import the barrel in your component:
+Writes `component-lib/<folder>/` plus `component-lib/shared/`. No flag is
+needed: the 2.x components are the default. Import the barrel in your
+component:
 
 ```ts
 import { Button } from "component-lib/button";
@@ -195,7 +196,7 @@ a bigger model.
 
 ## Details (in `references/`)
 
-- `install.md` — CLI flags, folders, 1.x vs beta.
+- `install.md` — CLI flags, folders, 1.x vs 2.x.
 - `forms.md` — fields, controlled state, form posting.
 - `pickers.md` — Select, MultiSelect, DatePicker, Uploader.
 - `overlays.md` — Modal, dialog, Popover, Menu, Tooltip.

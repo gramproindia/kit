@@ -4,7 +4,7 @@ Two layers, run separately.
 
 | Layer | Runner | Location | What it proves |
 | --- | --- | --- | --- |
-| Unit | Vitest (node) | `component-lib/*/__tests__/*.test.ts` | The framework-free `core/` logic: sorting, filtering, date maths, chunk planning, dismiss rules, character counting, roving focus. Also the import boundaries that keep each component installable on its own. |
+| Unit | Vitest (node) | `source/**/__tests__/`, `tools/**/__tests__/`, `src/**/__tests__/` | The framework-free `core/` logic: sorting, filtering, date maths, chunk planning, dismiss rules, character counting, roving focus. Also the import boundaries that keep each component installable on its own. |
 | Browser | Playwright + axe-core | `tests/e2e/*.spec.ts` | What only a real engine can answer: cascade and inheritance of the `--gbs-*` tokens, the top layer and focus trap of `<dialog>`, keyboard sequences, `XMLHttpRequest` upload progress, and accessibility violations. |
 
 ```bash
@@ -14,7 +14,7 @@ pnpm test:e2e:ui # same, with the Playwright inspector
 pnpm test:all    # both
 ```
 
-Vitest is scoped to `component-lib/**/__tests__` in [vite.config.ts](../vite.config.ts) so it never tries to execute the Playwright specs. Playwright starts and stops its own dev server (`webServer` in [playwright.config.ts](../playwright.config.ts)), reusing one that is already listening outside CI.
+Vitest collects from the library rather than from this folder: a component's unit tests sit beside the component under `source/`, and what stays in `src/` is the integration layer that needs a real app around it. The globs are in [vite.config.ts](../vite.config.ts), and they are also what stops Vitest trying to execute the Playwright specs. Playwright starts and stops its own dev server (`webServer` in [playwright.config.ts](../playwright.config.ts)), reusing one that is already listening outside CI.
 
 ## Browser suites
 
@@ -28,7 +28,7 @@ Vitest is scoped to `component-lib/**/__tests__` in [vite.config.ts](../vite.con
 
 ## The boundary tests
 
-`component-lib/shared/__tests__/boundaries.test.ts` is not about behaviour. Components
+`source/components/shared/__tests__/boundaries.test.ts` is not about behaviour. Components
 are copied into a project one folder at a time, so a component that imports a
 sibling breaks the moment someone installs it alone, and a third-party import
 breaks the library's promise of having no dependencies. The test walks every

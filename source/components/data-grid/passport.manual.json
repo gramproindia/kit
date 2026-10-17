@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../schema/passport-v1.schema.json",
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
   "component": "DataGrid",
   "purpose": "Display and operate on tabular data. Virtualized; holds its own sort, filter, search, selection, column and pagination state in an external store exposed through GridApi.",
   "intentDomains": ["Query", "ActionIntent", "Extraction"],

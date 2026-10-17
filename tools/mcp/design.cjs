@@ -67,7 +67,12 @@ function splitDesign(file, dest) {
   try {
     design = JSON.parse(fs.readFileSync(source, "utf8").replace(/^﻿/, ""));
   } catch (error) {
-    return { error: `${source} is not JSON: ${error.message}` };
+    // The parse error carries a slice of the file; name the file instead.
+    return {
+      error:
+        `${source} is not JSON. Expected the Figma plugin's export — ` +
+        "run Grampro Kit -> Export all screens for an agent and save that.",
+    };
   }
 
   /*

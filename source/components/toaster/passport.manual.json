@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Toaster",
+  "purpose": "Short notifications you mount once and call from anywhere, with no hook, context or provider. For things that happened, not things that must be decided.",
+  "intentDomains": [
+    "Summarization",
+    "ActionIntent"
+  ],
+  "accessibility": {
+    "supplied": [
+      "a live region that announces new toasts without moving focus",
+      "a hotkey to jump to the toast region, for keyboard users who heard one arrive",
+      "the close button is reachable and labelled",
+      "timers pause on hover and on focus, so a toast cannot expire while it is being read"
+    ],
+    "required": [
+      "never put the only copy of something important in a toast — it leaves",
+      "a `duration` long enough to read the message, or none at all when it carries an action"
+    ]
+  },
+  "composition": {
+    "notes": "Mount one Toaster near the root. A second one gives two live regions and duplicate announcements; the store is module-level, so one is all that is needed."
+  },
+  "safeMutations": {
+    "allowed": [
+      "position",
+      "duration",
+      "closeButton",
+      "icons",
+      "limit",
+      "dir"
+    ],
+    "forbidden": [
+      "store",
+      "hotkey"
+    ],
+    "rationale": "Placement and timing are presentation. `store` is the module-level queue; replacing it detaches every existing `toast()` call from the thing on screen."
+  },
+  "propNotes": {
+    "limit": "How many are visible at once; the rest queue rather than being dropped."
+  }
+}

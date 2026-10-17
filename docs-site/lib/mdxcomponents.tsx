@@ -61,7 +61,7 @@ const createHeadingComponent = (level: number) => {
 
     const id = text
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/[^\p{L}\p{N}\p{M}\s-]/gu, "")
       .replace(/\s+/g, "-")
       .trim();
 

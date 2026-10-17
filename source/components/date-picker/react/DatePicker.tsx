@@ -124,6 +124,12 @@ export function DatePicker(props: DatePickerProps) {
       toggle: () => picker.setOpen(!picker.open),
       focus: () => inputRef.current?.focus({ preventScroll: true }),
       clear: picker.clear,
+      // `applyRange` is what the presets already use; a single picker is a
+      // range whose two ends are the same day.
+      setValue: (next) => {
+        const date = toDate(next as DateInput);
+        picker.applyRange({ start: date, end: date }, true);
+      },
       getValue: () => picker.selection.start,
     }),
     [picker],

@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Badge",
+  "purpose": "Short labels: a status, a category, a count that stops at 99+, and chips the user can take off.",
+  "intentDomains": [],
+  "accessibility": {
+    "supplied": [
+      "a count is announced with its meaning rather than as a bare number",
+      "the remove control on a chip is a real button with an accessible name",
+      "a dot badge is marked decorative, since a dot alone says nothing"
+    ],
+    "required": [
+      "text alongside a status badge — colour is not a label",
+      "an accessible name on a dot or icon-only badge, or mark it decorative and say it elsewhere"
+    ]
+  },
+  "composition": {
+    "mustNotContain": [
+      "button",
+      "a"
+    ],
+    "notes": "Use `onRemove` for a chip rather than nesting a button inside the badge."
+  },
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "appearance",
+      "size",
+      "icon",
+      "dot",
+      "max",
+      "showZero",
+      "formatValue"
+    ],
+    "forbidden": [
+      "count",
+      "label",
+      "children",
+      "onRemove"
+    ],
+    "rationale": "Appearance is safe. The count and the label are the data."
+  },
+  "propNotes": {
+    "max": "Counts above this render as `max`+. Default 99."
+  }
+}

@@ -10,6 +10,7 @@
   "source": {
     "libraryVersion": "2.7.0",
     "files": [
+      "core/agent.ts",
       "core/index.ts",
       "core/toggle.ts",
       "core/types.ts",
@@ -18,8 +19,9 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:b2007da7ec91cbad6bd7697048cc205d22e8b94035482a9f631a75e9dabfd0e4"
+    "sourceHash": "sha256:4e168aeb5ca0aef334176cc4edb1b15c63546bf415df867085dadf871f9e24af"
   },
+  "purpose": "A setting that takes effect as it is flipped, on a native checkbox with role=switch, with an optimistic pending state while the change is saved.",
   "props": [
     {
       "name": "aria-describedby",
@@ -190,7 +192,8 @@
       "default": false,
       "origin": "derived",
       "description": "Show the busy state and block presses from outside, e.g. while a form saves.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Managed when the change handler returns a promise. Setting it by hand opts out of that."
     },
     {
       "name": "localeText",
@@ -414,20 +417,75 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "role=switch on a native checkbox, with aria-checked tracking the state",
+      "Space toggles",
+      "the loading state is announced rather than silently blocking the control"
+    ],
+    "required": [
+      "a `label` saying what the setting is, phrased so that on and off are both obvious",
+      "do not use it where the change needs a Save button — that is a Checkbox"
+    ]
   },
-  "composition": {},
-  "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "composition": {
+    "mustNotContain": [
+      "label"
+    ],
+    "notes": "Renders its own label element."
+  },
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    }
+  },
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "labelPosition",
+      "description"
+    ],
+    "forbidden": [
+      "checked",
+      "defaultChecked",
+      "value",
+      "name",
+      "required",
+      "disabled",
+      "readOnly",
+      "loading",
+      "onChange",
+      "onCheckedChange",
+      "error"
+    ],
+    "rationale": "A Switch applies its change immediately, so writing `checked` is performing the setting, not describing it. `loading` is owned by the component's own async handling."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 11,
     "propsDescribed": 11,
     "describedPct": 100,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "operations",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

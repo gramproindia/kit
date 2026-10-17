@@ -22,6 +22,7 @@
     ],
     "sourceHash": "sha256:541aa6ca5c99e64fba414881c07cc3c29244e03c09b665a4934690d633cc20e1"
   },
+  "purpose": "A person as a picture or their initials, on a colour derived from their name, with a presence dot and an overflow count for groups.",
   "props": [
     {
       "name": "aria-describedby",
@@ -75,7 +76,8 @@
       "default": false,
       "origin": "derived",
       "description": "Marks the avatar as decoration, for a name printed next to it.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Hides it from assistive technology. Correct when the name is already adjacent in text."
     },
     {
       "name": "hidden",
@@ -277,20 +279,51 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the image falls back to initials, and initials to a generic icon, so there is never a broken image",
+      "the colour is derived from the name, which makes it stable rather than meaningful — it is never the only signal",
+      "a decorative avatar is hidden from assistive technology instead of announcing a name twice",
+      "the presence status is given as text, not only as a coloured dot"
+    ],
+    "required": [
+      "`name` for the accessible label, or `decorative` when the name is already beside it",
+      "`alt`-worthy `label` text where the avatar stands alone as a link to a person"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "allowedChildren": [
+      "Avatar"
+    ],
+    "notes": "AvatarGroup takes Avatar children and collapses the overflow past `max`."
+  },
   "operations": {},
   "intentDomains": [],
-  "safeMutations": {},
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "shape",
+      "max",
+      "decorative"
+    ],
+    "forbidden": [
+      "name",
+      "src",
+      "initials",
+      "status",
+      "label"
+    ],
+    "rationale": "Shape and size are presentation; the person and their presence are data."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 10,
     "propsDescribed": 10,
     "describedPct": 100,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

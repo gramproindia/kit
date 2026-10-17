@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../schema/passport-v1.schema.json",
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
   "component": "Button",
   "purpose": "Trigger an action. Not for navigation unless `render` supplies a link element.",
   "intentDomains": ["ActionIntent"],

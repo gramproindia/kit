@@ -21,6 +21,8 @@ npx @grampro/kit add DataGrid -skill
 
 An agent that has never seen this library will otherwise guess. It will write `import { Button } from "@grampro/kit"`, which does not resolve, because the CLI copies source into your repo rather than publishing a package to import from. It will reach for `onChange` on a `Switch`, which the type omits. It will wrap an `Input` in its own `<label>` and break the wiring the component already does. The skill is the file that stops all three.
 
+<Diagram name="agent-skill" alt="One command, npx @grampro/kit skill, writes two tiers of guidance into your repo. SKILL.md, about 5 KB, sits at .gbs/skills/gbs-components/ and is always in the agent's context. Beside it a references/ folder holds longer notes — forms, pickers, overlays, toaster, data-grid, data-display, styling — which the agent reads only when the task needs them. Without the skill an agent writes import { Button } from &quot;@grampro/kit&quot;, which does not resolve; with it, the agent copies the source in, imports the real path and uses props that exist. The skill is independent of the MCP server." caption="Two tiers: the small file that is always in context, and the longer notes fetched on demand. That split is why the skill fits in a budget measured in characters." />
+
 <Notice message="This is not documentation for people — it is a file your coding agent reads. It is written as rules rather than prose, and it is deliberately short, because the part that is always in the agent's context has a budget measured in characters." />
 
 ## What lands in your repo

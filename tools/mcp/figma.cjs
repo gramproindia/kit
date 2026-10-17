@@ -411,7 +411,12 @@ function fromPluginExport(design, depth) {
   try {
     parsed = typeof design === "string" ? JSON.parse(design) : design;
   } catch (error) {
-    return { error: `That is not JSON: ${error.message}` };
+    // The parse error carries a slice of the input; do not pass it on.
+    return {
+      error:
+        "That is not JSON. Expected the output of the Figma plugin's " +
+        "'Export selection for an agent', or a path to a file it saved.",
+    };
   }
   if (!parsed || !Array.isArray(parsed.nodes)) {
     return {

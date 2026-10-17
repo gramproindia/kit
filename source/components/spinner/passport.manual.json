@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Spinner",
+  "purpose": "A loading indicator on its own, beside a label or covering content, with a delay before it appears and a minimum time on screen.",
+  "intentDomains": [],
+  "accessibility": {
+    "supplied": [
+      "the spinner graphic is aria-hidden and the label carries the announcement",
+      "a delay before appearing, so fast work never flashes a spinner",
+      "a minimum duration once shown, so it does not flicker out instantly"
+    ],
+    "required": [
+      "a `label` saying what is loading, or `showLabel` where it should be visible too",
+      "use Progress instead when the length is known"
+    ]
+  },
+  "composition": {
+    "notes": "Covering content is a variant of this component rather than a separate overlay."
+  },
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "variant",
+      "delay",
+      "minDuration",
+      "showLabel",
+      "label"
+    ],
+    "forbidden": [
+      "loading"
+    ],
+    "rationale": "Everything here is presentation except whether the work is happening."
+  },
+  "propNotes": {
+    "delay": "Nothing renders before this elapses, which is what stops a spinner flashing on fast connections."
+  }
+}

@@ -19,6 +19,7 @@
     ],
     "sourceHash": "sha256:b7a7aefbc8fcb4c9f4063dd0bc312ca2316ac848946c3055c8e69a8fe8780916"
   },
+  "purpose": "A short label on hover or keyboard focus, with a delay, Escape to dismiss, and the accessibility wiring that makes it readable rather than decorative.",
   "props": [
     {
       "name": "align",
@@ -151,20 +152,52 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the trigger is described by the tooltip, so it is announced with the control rather than as stray text",
+      "it opens on keyboard focus, not only on hover",
+      "Escape dismisses it without moving focus",
+      "a delay before opening, so moving the pointer across a toolbar does not flash every label"
+    ],
+    "required": [
+      "never put essential information only in a tooltip — it is unreachable on touch and gone on blur",
+      "an interactive trigger. A tooltip on a non-focusable element cannot be reached by keyboard"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "mustNotContain": [
+      "button",
+      "a",
+      "input"
+    ],
+    "notes": "Tooltip content must not be interactive: it disappears on blur, so nothing inside it can be reached. Use a Popover when the panel has controls."
+  },
   "operations": {},
   "intentDomains": [],
-  "safeMutations": {},
+  "safeMutations": {
+    "allowed": [
+      "side",
+      "align",
+      "gap",
+      "delay",
+      "closeDelay"
+    ],
+    "forbidden": [
+      "content",
+      "disabled",
+      "children"
+    ],
+    "rationale": "Placement and timing are presentation. The content is the message."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 9,
     "propsDescribed": 7,
     "describedPct": 78,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

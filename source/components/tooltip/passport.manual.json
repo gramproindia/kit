@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Tooltip",
+  "purpose": "A short label on hover or keyboard focus, with a delay, Escape to dismiss, and the accessibility wiring that makes it readable rather than decorative.",
+  "intentDomains": [],
+  "accessibility": {
+    "supplied": [
+      "the trigger is described by the tooltip, so it is announced with the control rather than as stray text",
+      "it opens on keyboard focus, not only on hover",
+      "Escape dismisses it without moving focus",
+      "a delay before opening, so moving the pointer across a toolbar does not flash every label"
+    ],
+    "required": [
+      "never put essential information only in a tooltip — it is unreachable on touch and gone on blur",
+      "an interactive trigger. A tooltip on a non-focusable element cannot be reached by keyboard"
+    ]
+  },
+  "composition": {
+    "mustNotContain": [
+      "button",
+      "a",
+      "input"
+    ],
+    "notes": "Tooltip content must not be interactive: it disappears on blur, so nothing inside it can be reached. Use a Popover when the panel has controls."
+  },
+  "safeMutations": {
+    "allowed": [
+      "side",
+      "align",
+      "gap",
+      "delay",
+      "closeDelay"
+    ],
+    "forbidden": [
+      "content",
+      "disabled",
+      "children"
+    ],
+    "rationale": "Placement and timing are presentation. The content is the message."
+  }
+}

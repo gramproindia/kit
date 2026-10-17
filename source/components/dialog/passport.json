@@ -25,6 +25,7 @@
     ],
     "sourceHash": "sha256:f0b7d7683418b4981af453e5bf4dc08034a6d854dbca6e192283a555e77fdd0d"
   },
+  "purpose": "Alert, confirm and prompt dialogs you call from an event handler and await, so there is no open state to hold. For short questions; a form belongs in Modal.",
   "props": [
     {
       "name": "cancelLabel",
@@ -158,7 +159,8 @@
       "default": "confirm",
       "origin": "derived",
       "description": "`alert` has one button, `confirm` two, `prompt` adds a text field. Default `confirm`.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "alert, confirm or prompt. It decides the shape of what the promise resolves to."
     },
     {
       "name": "localeText",
@@ -263,7 +265,8 @@
       "required": false,
       "origin": "derived",
       "description": "Return a message to block confirming.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Prompt only. Returning a string keeps the dialog open and shows it as the error."
     }
   ],
   "inherits": [
@@ -339,20 +342,62 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "built on the same native <dialog> as Modal: top layer, inert page, focus trapped and returned",
+      "the confirm button takes initial focus, and Enter resolves it",
+      "Escape resolves as a cancel rather than leaving the promise hanging",
+      "the intent is conveyed in text, not only by the icon's colour"
+    ],
+    "required": [
+      "a question that reads as a question, and button labels that name the action rather than saying Yes and No",
+      "`intent: \"danger\"` on anything destructive, so the styling matches the stakes"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "mustNotContain": [
+      "Dialog",
+      "Modal",
+      "dialog"
+    ],
+    "notes": "Called as a function, not composed as a tree. Mount the host once; do not nest it inside another dialog."
+  },
   "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "icon",
+      "confirmLabel",
+      "cancelLabel"
+    ],
+    "forbidden": [
+      "open",
+      "kind",
+      "intent",
+      "onConfirm",
+      "onClose",
+      "validate",
+      "store",
+      "defaultValue",
+      "required",
+      "inputType",
+      "dismissible"
+    ],
+    "rationale": "Labels and the icon are presentation, provided the labels still name the same action. `kind` changes whether it returns a boolean or a string, `intent` is the warning, and `validate` decides what a prompt will accept."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 21,
     "propsDescribed": 16,
     "describedPct": 76,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

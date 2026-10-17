@@ -76,12 +76,12 @@ export function InvoiceHeader({ invoice }) {
 | `itemsBeforeCollapse` | `number`                                       | `1`                | എലിപ്സിസിന് മുമ്പ് നിലനിർത്തുന്ന ക്രമ്പുകൾ.                                              |
 | `itemsAfterCollapse`  | `number`                                       | `1`                | എലിപ്സിസിന് ശേഷം നിലനിർത്തുന്ന ക്രമ്പുകൾ, നിലവിലെ പേജ് ഉൾപ്പെടെ.                         |
 | `renderLink`          | `(props: BreadcrumbLinkProps) => ReactElement` | ഒരു `<a>`          | നിങ്ങളുടെ റൗട്ടർ ഉപയോഗിച്ച് ലിങ്കുകൾ വരയ്ക്കുക.                                          |
-| `structuredData`      | `boolean` \| `{ baseUrl: string }`             | `false`            | schema.org `BreadcrumbList` JSON-LD ചേർക്കുക. [Structured Data](#structured-data) കാണുക. |
+| `structuredData`      | `boolean` \| `{ baseUrl: string }`             | `false`            | schema.org `BreadcrumbList` JSON-LD ചേർക്കുക. [Structured Data](#ഘടനാപരമായ-ഡാറ്റ-structured-data) കാണുക. |
 | `size`                | `"sm"` \| `"md"` \| `"lg"`                     | `"md"`             | ഫോണ്ട് സൈസ്.                                                                             |
 | `aria-label`          | `string`                                       | `localeText.label` | നാവിഗേഷൻ ലാൻഡ്മാർക്കിന്റെ പേര്.                                                          |
 | `className`           | `string`                                       | —                  | `<nav>`-ന് വേണ്ടിയുള്ള ക്ലാസ്.                                                           |
 | `classNames`          | `Partial<Record<BreadcrumbSlot, string>>`      | —                  | സ്ലോട്ടുകൾ: `root`, `list`, `item`, `link`, `current`, `separator`, `ellipsis`.          |
-| `localeText`          | `Partial<BreadcrumbLocaleText>`                | ഇംഗ്ലീഷ്           | [Locale Text](#locale-text) കാണുക.                                                       |
+| `localeText`          | `Partial<BreadcrumbLocaleText>`                | ഇംഗ്ലീഷ്           | [Locale Text](#ലോക്കൽ-ടെക്സ്റ്റ്) കാണുക.                                                       |
 
 #### BreadcrumbItem
 

@@ -373,10 +373,16 @@ export function useCombobox<V extends OptionValue>(params: UseComboboxParams<V>)
       toggle: () => setOpen(!open),
       focus: () => controlRef.current?.focus(),
       clear: () => commit([]),
+      // `clear` was always a write; this is the same write with a value in it.
+      setValue: (next) => {
+        const list = next == null ? [] : Array.isArray(next) ? [...next] : [next as V];
+        if (!multiple) return commit(list.slice(0, 1));
+        commit(max === undefined ? list : list.slice(0, max));
+      },
       getValue: () => [...values],
       getSelectedOptions: () => selectedOptions,
     }),
-    [setOpen, open, commit, values, selectedOptions, controlRef],
+    [setOpen, open, commit, values, selectedOptions, controlRef, multiple, max],
   );
 
   return {

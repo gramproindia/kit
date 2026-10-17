@@ -12,6 +12,7 @@
   "source": {
     "libraryVersion": "2.7.0",
     "files": [
+      "core/agent.ts",
       "core/calendar.ts",
       "core/format.ts",
       "core/index.ts",
@@ -29,8 +30,9 @@
       "react/props.ts",
       "react/useDatePicker.ts"
     ],
-    "sourceHash": "sha256:2370299b9b495fd18671fb31106c1ba88e834227e3b9632207c048da66982370"
+    "sourceHash": "sha256:abe15583c9bca1d5cce8aa9a3cbbcfcfd29ad44b7e63a3b66956089dc2d18f72"
   },
+  "purpose": "DatePicker and DateRangePicker: a text field people can type dates into, plus a calendar, both honouring the locale's order and separators.",
   "props": [
     {
       "name": "allowInput",
@@ -126,7 +128,8 @@
       "required": false,
       "origin": "derived",
       "description": "How the chosen date is displayed. `Intl.DateTimeFormatOptions` for the\nusual cases, or a function for a shape Intl cannot express. Left out,\nthe locale's own date format is used - which is the right default far\nmore often than a hand-written one.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "How a typed string is parsed as well as displayed. Changing it can turn a valid entry into a different day."
     },
     {
       "name": "id",
@@ -238,7 +241,8 @@
       "required": false,
       "origin": "derived",
       "description": "Shortcuts shown beside the calendar (\"Last 7 days\").",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Labelled shortcuts such as last quarter. They write the same value the calendar does."
     },
     {
       "name": "readOnly",
@@ -404,20 +408,107 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the calendar is a grid with arrow keys between days, PageUp/PageDown between months, Home and End within a week",
+      "the selected and focused days are distinguished for assistive technology, not only by colour",
+      "the field accepts typing, so the calendar is never the only way in",
+      "Escape closes the calendar and returns focus to the field"
+    ],
+    "required": [
+      "a `label`, or `aria-label` when the field is visually unlabelled",
+      "a `locale` matching the user's, since 03/04 is two different days in two places"
+    ]
   },
-  "composition": {},
-  "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "composition": {
+    "notes": "The calendar renders in the top layer. `presets` are shortcuts into the same value, not a separate control."
+  },
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    },
+    "open": {
+      "summary": "Open the field's calendar or option list.",
+      "effects": [
+        "shows the overlay"
+      ],
+      "reversible": true
+    },
+    "close": {
+      "summary": "Close the field's calendar or option list.",
+      "effects": [
+        "hides the overlay"
+      ],
+      "reversible": true
+    }
+  },
+  "intentDomains": [
+    "TemporalInterpretation",
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placeholder",
+      "description",
+      "numberOfMonths",
+      "showToday",
+      "showWeekNumbers",
+      "fixedWeeks",
+      "presets",
+      "clearable",
+      "closeOnSelect",
+      "allowInput"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "name",
+      "min",
+      "max",
+      "isDateDisabled",
+      "format",
+      "locale",
+      "weekStartsOn",
+      "required",
+      "disabled",
+      "readOnly",
+      "onChange",
+      "error"
+    ],
+    "rationale": "Calendar chrome is presentation. `min`, `max` and `isDateDisabled` are the rules about which dates are legal, and `format` and `locale` decide how a typed string is read — changing either can reinterpret a date the user already entered."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 28,
     "propsDescribed": 22,
     "describedPct": 79,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "operations",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

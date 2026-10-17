@@ -28,7 +28,7 @@ const readline = require("readline");
 
 // Configuration
 const CONFIG = {
-  components: [
+  legacyComponents: [
     "Card",
     "Select",
     "SideBar",
@@ -55,7 +55,7 @@ const CONFIG = {
     "UsePaginatedData",
     "UseUploader",
   ],
-  betaComponents: [
+  components: [
     "DataGrid",
     "Combobox",
     "DatePicker",
@@ -84,8 +84,8 @@ const CONFIG = {
     "Badge",
     "Progress",
   ],
-  // Beta folder names that are not simply the lowercased component name.
-  betaFolders: {
+  // Folder names that are not simply the lowercased component name.
+  folders: {
     DataGrid: "data-grid",
     DatePicker: "date-picker",
     FileUploader: "file-uploader",
@@ -198,7 +198,7 @@ const NL = String.fromCharCode(10);
 const CLI_NAME = "@grampro/kit";
 
 /**
- * Every beta component imports its shared helpers from `../../shared`, so this
+ * Every component imports its shared helpers from `../../shared`, so this
  * folder is installed alongside whatever the user picked. It is not a component
  * and never appears in the component list.
  */
@@ -220,14 +220,14 @@ const normalizeComponent = (component, availableComponents) =>
     (available) => available.toLowerCase() === component.toLowerCase(),
   );
 
-const getAvailableComponents = (beta = false) =>
-  beta ? CONFIG.betaComponents : CONFIG.components;
+const getAvailableComponents = (current = false) =>
+  current ? CONFIG.components : CONFIG.legacyComponents;
 
-const getSourcePath = (beta = false) => (beta ? SOURCE_PATH : LEGACY_SOURCE_PATH);
+const getSourcePath = (current = false) => (current ? SOURCE_PATH : LEGACY_SOURCE_PATH);
 
 /** The folder a component lives in, which is not always its lowercased name. */
-const folderFor = (component, beta = false) =>
-  (beta && CONFIG.betaFolders[component]) || component.toLowerCase();
+const folderFor = (component, current = false) =>
+  (current && CONFIG.folders[component]) || component.toLowerCase();
 
 
 /*
@@ -271,8 +271,8 @@ const relativeFrom = (file, dir) => {
   return rel.startsWith(".") ? rel : "./" + rel;
 };
 
-const writeStyleBarrel = async (destPath, beta) => {
-  if (!beta) return null;
+const writeStyleBarrel = async (destPath, current) => {
+  if (!current) return null;
 
   // Whatever is on disk now, not whatever this run happened to install: the
   // barrel has to stay correct across repeated and partial installs.
@@ -452,7 +452,7 @@ const installShared = async (destPath, { force = false } = {}) => {
 
   if (!fs.existsSync(src)) {
     throw new Error(
-      `The shared folder is missing from ${SOURCE_PATH}. Beta components cannot be installed without it.`,
+      `The shared folder is missing from ${SOURCE_PATH}. Components cannot be installed without it.`,
     );
   }
 
@@ -914,12 +914,12 @@ const isSkillWord = (value) =>
   typeof value === "string" && value.trim().toLowerCase() === "skill";
 
 /** The files a component needs beside it, which differ between the two sets. */
-const copySupportFiles = async (destPath, beta, options) => {
-  if (beta) {
+const copySupportFiles = async (destPath, current, options) => {
+  if (current) {
     await installShared(destPath, options);
     return;
   }
-  // The legacy components' common files. Beta components use none of them.
+  // The legacy components' common files. The current set uses none of them.
   if (!fs.existsSync(path.join(destPath, "utils.ts"))) {
     await copyCommonFiles(destPath);
   }
@@ -927,22 +927,22 @@ const copySupportFiles = async (destPath, beta, options) => {
 
 /* -------------------------------------------------------------- components */
 
-const checkComponentExists = (component, destPath, beta = false) => {
-  const componentPath = path.join(destPath, folderFor(component, beta));
+const checkComponentExists = (component, destPath, current = false) => {
+  const componentPath = path.join(destPath, folderFor(component, current));
   return fs.existsSync(componentPath);
 };
 
-const copyComponent = async (component, destPath, beta = false) => {
+const copyComponent = async (component, destPath, current = false) => {
   try {
     const componentSrc = path.join(
-      getSourcePath(beta),
-      folderFor(component, beta),
+      getSourcePath(current),
+      folderFor(component, current),
     );
-    const componentDest = path.join(destPath, folderFor(component, beta));
+    const componentDest = path.join(destPath, folderFor(component, current));
 
     if (!fs.existsSync(componentSrc)) {
       throw new Error(
-        `Component ${component} not found in ${beta ? "beta " : ""}source directory.`,
+        `Component ${component} not found in ${current ? "" : "1.x "}source directory.`,
       );
     }
 
@@ -969,17 +969,17 @@ const copyComponent = async (component, destPath, beta = false) => {
 const installComponentWithDependencies = async (
   component,
   destPath,
-  beta = false,
+  current = false,
 ) => {
   // Get dependencies for the component
   const dependencies = CONFIG.dependencies[component] || [];
   const componentsToInstall = new Set([component, ...dependencies]);
 
   // Check which components need to be installed
-  const pendingInstalls = beta
+  const pendingInstalls = current
     ? Array.from(componentsToInstall)
     : Array.from(componentsToInstall).filter(
-        (comp) => !checkComponentExists(comp, destPath, beta),
+        (comp) => !checkComponentExists(comp, destPath, current),
       );
 
   if (pendingInstalls.length === 0) {
@@ -991,7 +991,7 @@ const installComponentWithDependencies = async (
 
   // Install all pending components
   for (const comp of pendingInstalls) {
-    await copyComponent(comp, destPath, beta);
+    await copyComponent(comp, destPath, current);
   }
 
   if (dependencies.length > 0) {
@@ -1001,7 +1001,7 @@ const installComponentWithDependencies = async (
     });
   }
 
-  reportStyleBarrel(await writeStyleBarrel(destPath, beta));
+  reportStyleBarrel(await writeStyleBarrel(destPath, current));
 
   console.log(`\nFor documentation visit: ${CONFIG.docs}`);
 };
@@ -1009,7 +1009,7 @@ const installComponentWithDependencies = async (
 const installMultipleComponents = async (
   components,
   destPath,
-  beta = false,
+  current = false,
 ) => {
   const allComponentsToInstall = new Set();
 
@@ -1021,10 +1021,10 @@ const installMultipleComponents = async (
   });
 
   // Filter out already installed components
-  const pendingInstalls = beta
+  const pendingInstalls = current
     ? Array.from(allComponentsToInstall)
     : Array.from(allComponentsToInstall).filter(
-        (comp) => !checkComponentExists(comp, destPath, beta),
+        (comp) => !checkComponentExists(comp, destPath, current),
       );
 
   if (pendingInstalls.length === 0) {
@@ -1038,7 +1038,7 @@ const installMultipleComponents = async (
 
   // Install all pending components
   for (const comp of pendingInstalls) {
-    await copyComponent(comp, destPath, beta);
+    await copyComponent(comp, destPath, current);
   }
 
   // Show dependency information
@@ -1055,12 +1055,12 @@ const installMultipleComponents = async (
     });
   }
 
-  reportStyleBarrel(await writeStyleBarrel(destPath, beta));
+  reportStyleBarrel(await writeStyleBarrel(destPath, current));
 
   console.log(`\nFor documentation visit: ${CONFIG.docs}`);
 };
 
-const interactiveComponentSelector = async (beta = false) => {
+const interactiveComponentSelector = async (current = false) => {
   return new Promise((resolve) => {
     const rl = readline.createInterface({
       input: process.stdin,
@@ -1077,7 +1077,7 @@ const interactiveComponentSelector = async (beta = false) => {
         "Use ↑/↓ arrow keys to navigate, SPACE to select/deselect, ENTER to install\n",
       );
 
-      const availableComponents = getAvailableComponents(beta);
+      const availableComponents = getAvailableComponents(current);
 
       availableComponents.forEach((component, index) => {
         const isSelected = selectedComponents.has(component);
@@ -1109,13 +1109,13 @@ const interactiveComponentSelector = async (beta = false) => {
           break;
         case "[B": // Down arrow
           currentIndex = Math.min(
-            getAvailableComponents(beta).length - 1,
+            getAvailableComponents(current).length - 1,
             currentIndex + 1,
           );
           renderMenu();
           break;
         case " ": // Space bar
-          const component = getAvailableComponents(beta)[currentIndex];
+          const component = getAvailableComponents(current)[currentIndex];
           if (selectedComponents.has(component)) {
             selectedComponents.delete(component);
           } else {
@@ -1158,23 +1158,23 @@ const parseMultipleComponents = (componentString) => {
     .filter((comp) => comp.length > 0);
 };
 
-const validateComponents = (components, beta = false) => {
-  const availableComponents = getAvailableComponents(beta);
+const validateComponents = (components, current = false) => {
+  const availableComponents = getAvailableComponents(current);
   const invalidComponents = components.filter(
     (comp) => !availableComponents.includes(comp),
   );
   if (invalidComponents.length > 0) {
     if (invalidComponents.some((comp) => comp.toLowerCase() === SHARED_DIR)) {
       console.error(
-        "`shared` is not a component: it is installed automatically with any beta component.",
+        "`shared` is not a component: it is installed automatically with any component.",
       );
     }
     console.error(`Invalid components: ${invalidComponents.join(", ")}`);
-    console.log(`\nAvailable ${beta ? "" : "1.x "}components:`);
+    console.log(`\nAvailable ${current ? "" : "1.x "}components:`);
     availableComponents.forEach((comp) => console.log(`- ${comp}`));
-    if (!beta) {
-      console.log("\nRedesigned beta components (install with -beta):");
-      CONFIG.betaComponents.forEach((comp) => console.log(`- ${comp}`));
+    if (!current) {
+      console.log("\nThe 2.x components, which are the default (drop --legacy):");
+      CONFIG.components.forEach((comp) => console.log(`- ${comp}`));
     }
     return false;
   }
@@ -1306,7 +1306,7 @@ const main = async () => {
    * which is where the old `--beta` flag's meaning went: it used to opt *in* to
    * these, and now there is nothing to opt into.
    */
-  const beta = !argv.legacy;
+  const current = !argv.legacy;
 
   if (argv["beta"] === true) {
     console.log(
@@ -1381,24 +1381,24 @@ const main = async () => {
 
   // List components if requested
   if (argv.list) {
-    const availableComponents = getAvailableComponents(beta);
-    console.log(`\nAvailable ${beta ? "" : "1.x "}components:`);
+    const availableComponents = getAvailableComponents(current);
+    console.log(`\nAvailable ${current ? "" : "1.x "}components:`);
     availableComponents.forEach((comp) => {
       const deps = CONFIG.dependencies[comp]
         ? ` (requires: ${CONFIG.dependencies[comp].join(", ")})`
         : "";
       console.log(`- ${comp}${deps}`);
     });
-    if (beta) {
+    if (current) {
       console.log(
-        `\nEvery beta component also installs component-lib/${SHARED_DIR}, which they all import.`,
+        `\nEvery component also installs component-lib/${SHARED_DIR}, which they all import.`,
       );
       console.log(
         `${NL}The agent skill installs separately, at the project root, for ${SKILL_TARGETS.join(", ")} and the GBS agent:${NL}  npx @grampro/kit skill`,
       );
     } else {
-      console.log("\nRedesigned beta components (install with -beta):");
-      CONFIG.betaComponents.forEach((comp) => console.log(`- ${comp}`));
+      console.log("\nThe 2.x components, which are the default (drop --legacy):");
+      CONFIG.components.forEach((comp) => console.log(`- ${comp}`));
     }
     return;
   }
@@ -1406,7 +1406,7 @@ const main = async () => {
   // Interactive mode
   if (argv.interactive) {
     console.log("Starting interactive component selector...\n");
-    const selectedComponents = await interactiveComponentSelector(beta);
+    const selectedComponents = await interactiveComponentSelector(current);
 
     if (selectedComponents.length === 0) {
       console.log("No components selected. Exiting...");
@@ -1416,10 +1416,10 @@ const main = async () => {
     const destPath = resolveDestPath(argv.dest);
     await fs.ensureDir(destPath);
 
-    await copySupportFiles(destPath, beta, { force: argv.force });
+    await copySupportFiles(destPath, current, { force: argv.force });
 
     // Install selected components
-    await installMultipleComponents(selectedComponents, destPath, beta);
+    await installMultipleComponents(selectedComponents, destPath, current);
     return;
   }
 
@@ -1453,27 +1453,27 @@ const main = async () => {
   const componentInput = argv.add;
   const components = parseMultipleComponents(componentInput).map(
     (component) =>
-      normalizeComponent(component, getAvailableComponents(beta)) ||
+      normalizeComponent(component, getAvailableComponents(current)) ||
       component,
   );
 
   // Validate all components
-  if (!validateComponents(components, beta)) {
+  if (!validateComponents(components, current)) {
     process.exit(1);
   }
 
   const destPath = resolveDestPath(argv.dest);
   await fs.ensureDir(destPath);
 
-  await copySupportFiles(destPath, beta, { force: argv.force });
+  await copySupportFiles(destPath, current, { force: argv.force });
 
   // Install components
   if (components.length === 1) {
     // Single component installation (existing behavior)
-    await installComponentWithDependencies(components[0], destPath, beta);
+    await installComponentWithDependencies(components[0], destPath, current);
   } else {
     // Multiple components installation
-    await installMultipleComponents(components, destPath, beta);
+    await installMultipleComponents(components, destPath, current);
   }
 };
 

@@ -11,6 +11,7 @@
   "source": {
     "libraryVersion": "2.7.0",
     "files": [
+      "core/agent.ts",
       "core/filter.ts",
       "core/index.ts",
       "core/types.ts",
@@ -25,8 +26,9 @@
       "react/props.ts",
       "react/useCombobox.ts"
     ],
-    "sourceHash": "sha256:9cd7b0e88a1ee4b9bd83cab6ad6d55613476a35e4d7ea70be9fc7ac9fe2a58e7"
+    "sourceHash": "sha256:5243c2cc6863f8c2dcd248c2fd46417390fec66a8d5b0d405177a372e9c0566f"
   },
+  "purpose": "Select and MultiSelect: a searchable combobox for one or many values, with options in the browser's top layer, optional virtualisation and create-on-type.",
   "props": [
     {
       "name": "allowCreate",
@@ -213,7 +215,8 @@
       "required": false,
       "origin": "derived",
       "description": "`client` filters `options` locally; `server` expects `options` to be the current results.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Single or multiple. Changing it changes the shape of `value`, so it cannot be toggled on a live field."
     },
     {
       "name": "name",
@@ -376,7 +379,8 @@
       "default": true,
       "origin": "derived",
       "description": "`true` / `false` to force, or a count above which virtualization turns on (default 80).",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Worth turning on past a few hundred options; it changes nothing a user can observe."
     }
   ],
   "events": [
@@ -457,20 +461,108 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the combobox pattern: aria-expanded, aria-controls, aria-activedescendant on the control",
+      "arrow keys move the active option, Enter selects, Escape closes and returns focus",
+      "the listbox renders in the top layer, so it is never clipped by an ancestor's overflow",
+      "the empty and loading states are announced rather than leaving silence"
+    ],
+    "required": [
+      "a `label`, or `aria-label` when the control is visually unlabelled",
+      "an `emptyMessage` that says what to do next, not just that nothing matched"
+    ]
   },
-  "composition": {},
-  "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "composition": {
+    "notes": "Options come from the `options` array, not from children. `renderOption` changes how one is drawn but must not introduce its own focusable elements — the listbox owns focus."
+  },
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    },
+    "open": {
+      "summary": "Open the field's calendar or option list.",
+      "effects": [
+        "shows the overlay"
+      ],
+      "reversible": true
+    },
+    "close": {
+      "summary": "Close the field's calendar or option list.",
+      "effects": [
+        "hides the overlay"
+      ],
+      "reversible": true
+    }
+  },
+  "intentDomains": [
+    "ActionIntent",
+    "Recommendation",
+    "Classification"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placeholder",
+      "description",
+      "emptyMessage",
+      "maxHeight",
+      "maxVisibleTags",
+      "searchable",
+      "clearable",
+      "closeOnSelect",
+      "showSelectAll",
+      "virtualize"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "name",
+      "options",
+      "mode",
+      "max",
+      "required",
+      "disabled",
+      "allowCreate",
+      "onChange",
+      "onCreate",
+      "onLoadMore",
+      "filterFn",
+      "error"
+    ],
+    "rationale": "Presentation and affordances are safe. `options` is the domain, `mode` decides single or multiple, and `allowCreate` lets a user invent values the backend may not accept."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 34,
     "propsDescribed": 28,
     "describedPct": 82,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "operations",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

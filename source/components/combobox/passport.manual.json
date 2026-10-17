@@ -1,0 +1,101 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Combobox",
+  "purpose": "Select and MultiSelect: a searchable combobox for one or many values, with options in the browser's top layer, optional virtualisation and create-on-type.",
+  "intentDomains": [
+    "ActionIntent",
+    "Recommendation",
+    "Classification"
+  ],
+  "$operationsNote": "Mirrors shared/core/agent/field.ts, which is what the runtime dispatches on. source/components/shared/core/agent/__tests__/field-passport.test.ts fails if the two drift. No `apiMethod`: a field is written through its ref — the element for most of these, a handle for Combobox and DatePicker — and that is a normal case, not a gap.",
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    },
+    "open": {
+      "summary": "Open the field's calendar or option list.",
+      "effects": [
+        "shows the overlay"
+      ],
+      "reversible": true
+    },
+    "close": {
+      "summary": "Close the field's calendar or option list.",
+      "effects": [
+        "hides the overlay"
+      ],
+      "reversible": true
+    }
+  },
+  "accessibility": {
+    "supplied": [
+      "the combobox pattern: aria-expanded, aria-controls, aria-activedescendant on the control",
+      "arrow keys move the active option, Enter selects, Escape closes and returns focus",
+      "the listbox renders in the top layer, so it is never clipped by an ancestor's overflow",
+      "the empty and loading states are announced rather than leaving silence"
+    ],
+    "required": [
+      "a `label`, or `aria-label` when the control is visually unlabelled",
+      "an `emptyMessage` that says what to do next, not just that nothing matched"
+    ]
+  },
+  "composition": {
+    "notes": "Options come from the `options` array, not from children. `renderOption` changes how one is drawn but must not introduce its own focusable elements — the listbox owns focus."
+  },
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placeholder",
+      "description",
+      "emptyMessage",
+      "maxHeight",
+      "maxVisibleTags",
+      "searchable",
+      "clearable",
+      "closeOnSelect",
+      "showSelectAll",
+      "virtualize"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "name",
+      "options",
+      "mode",
+      "max",
+      "required",
+      "disabled",
+      "allowCreate",
+      "onChange",
+      "onCreate",
+      "onLoadMore",
+      "filterFn",
+      "error"
+    ],
+    "rationale": "Presentation and affordances are safe. `options` is the domain, `mode` decides single or multiple, and `allowCreate` lets a user invent values the backend may not accept."
+  },
+  "propNotes": {
+    "mode": "Single or multiple. Changing it changes the shape of `value`, so it cannot be toggled on a live field.",
+    "virtualize": "Worth turning on past a few hundred options; it changes nothing a user can observe."
+  }
+}

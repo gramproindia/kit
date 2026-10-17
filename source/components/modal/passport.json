@@ -21,6 +21,7 @@
     ],
     "sourceHash": "sha256:078ceea5f6cf953d95a999fd958a6b2ed8a61e3c9060665eeca4efd53fb70413"
   },
+  "purpose": "Forms, details and drawers above the page, on the native <dialog> element, with focus trapped inside and the rest of the page inert.",
   "props": [
     {
       "name": "aria-label",
@@ -70,7 +71,8 @@
       "default": true,
       "origin": "derived",
       "description": "Default true.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Turning it off should be reserved for work that would be lost. A user who cannot dismiss a dialog is stuck."
     },
     {
       "name": "closeOnEscape",
@@ -150,7 +152,8 @@
       "required": false,
       "origin": "derived",
       "description": "Return `false` (or a promise of it) to keep the modal open, e.g. for unsaved changes.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Return false to refuse a close, for unsaved work. It runs for Escape and the backdrop too."
     },
     {
       "name": "onOpenChange",
@@ -276,20 +279,60 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "native <dialog> semantics: the top layer, :modal, and the rest of the page genuinely inert rather than merely covered",
+      "focus moves in on open and returns to the trigger on close",
+      "Escape closes, unless onBeforeClose refuses",
+      "the heading is linked as the dialog's accessible name"
+    ],
+    "required": [
+      "a `description` or a heading — a modal with no name announces as nothing",
+      "`initialFocus` when the first focusable element is not the one a user should land on"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "mustNotContain": [
+      "Modal",
+      "dialog"
+    ],
+    "notes": "A modal inside a modal puts two dialogs in the top layer and the focus trap of the inner one fights the outer. Use one modal and change its contents. Short questions belong in Dialog, not here."
+  },
   "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placement",
+      "closeButton",
+      "description"
+    ],
+    "forbidden": [
+      "open",
+      "defaultOpen",
+      "onOpenChange",
+      "onBeforeClose",
+      "closeOnBackdrop",
+      "closeOnEscape",
+      "initialFocus",
+      "keepMounted",
+      "footer",
+      "children"
+    ],
+    "rationale": "Size and placement are presentation. `open` is the application's state, and the dismissal props decide whether a user can get out — removing an escape route is never a cosmetic change."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 17,
     "propsDescribed": 14,
     "describedPct": 82,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

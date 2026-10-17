@@ -23,6 +23,7 @@
     ],
     "sourceHash": "sha256:3d8e29857c59101e547f234c45735db68cc87ee143cc87d841372ec612e2c663"
   },
+  "purpose": "Tabs in underline, pill or segmented styles, horizontal or vertical, with panels that can stay mounted when hidden.",
   "props": [
     {
       "name": "activation",
@@ -36,7 +37,8 @@
       "default": "automatic",
       "origin": "derived",
       "description": "Default `automatic`: arrow keys select as they move.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "`automatic` selects as focus moves; `manual` waits for Enter or Space."
     },
     {
       "name": "aria-describedby",
@@ -143,7 +145,8 @@
       "default": false,
       "origin": "derived",
       "description": "Overrides `keepMounted` on `Tabs` for this panel.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Keeps hidden panels in the DOM, so form state and scroll position survive a switch. Costs the render."
     },
     {
       "name": "name",
@@ -300,20 +303,58 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the tabs pattern: role=tablist with one tab stop, arrow keys between tabs, Home and End to the ends",
+      "each tab is linked to its panel by aria-controls and aria-labelledby",
+      "`activation` chooses whether moving focus selects, or whether Enter is needed"
+    ],
+    "required": [
+      "tab labels that make sense read out of context, since that is how they are announced",
+      "manual `activation` when switching a tab is expensive, so arrowing past one does not load it"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "allowedChildren": [
+      "TabList",
+      "Tab",
+      "TabPanel"
+    ],
+    "notes": "Every Tab needs a TabPanel with the matching value. Tabs are not a substitute for navigation between URLs."
+  },
   "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "size",
+      "orientation",
+      "icon",
+      "badge",
+      "keepMounted",
+      "activation"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "onValueChange",
+      "name",
+      "disabled"
+    ],
+    "rationale": "Styling and layout are safe. The selected tab is application state."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 11,
     "propsDescribed": 9,
     "describedPct": 82,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

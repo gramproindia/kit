@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kit.gramproindia.com/schema/passport-overlay-v1.schema.json",
+  "title": "GramproKit Passport Overlay v1",
+  "description": "The authored half of a component passport: passport.manual.json, written by the library, and passport.local.json, owned by the consuming developer. An overlay is a partial — the generator supplies passportVersion, identity, source, props, events, slots, states and coverage from the TypeScript, and merging the two produces passport.json, which passport-v1.schema.json describes. Validating an overlay against that schema reports all eight generated fields as missing and rejects the keys only an overlay has, which is why this file exists.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["component"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "component": {
+      "type": "string",
+      "description": "Which component this annotates. Checked against the folder it sits in."
+    },
+    "purpose": {
+      "$ref": "./passport-v1.schema.json#/properties/purpose"
+    },
+    "accessibility": {
+      "$ref": "./passport-v1.schema.json#/properties/accessibility"
+    },
+    "composition": {
+      "$ref": "./passport-v1.schema.json#/properties/composition"
+    },
+    "operations": {
+      "$ref": "./passport-v1.schema.json#/properties/operations"
+    },
+    "intentDomains": {
+      "$ref": "./passport-v1.schema.json#/properties/intentDomains"
+    },
+    "safeMutations": {
+      "$ref": "./passport-v1.schema.json#/properties/safeMutations"
+    },
+    "examples": {
+      "$ref": "./passport-v1.schema.json#/properties/examples"
+    },
+    "props": {
+      "type": "array",
+      "description": "Annotations for derived props, by name: a description, a note or a deprecation. Only passport.local.json may introduce a prop that is not in the source.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "note": { "type": "string" },
+          "deprecated": { "type": ["string", "boolean"] }
+        }
+      }
+    },
+    "propNotes": {
+      "type": "object",
+      "description": "Shorthand for annotating derived props: a map of prop name to note. Every key must name a prop the source actually has.",
+      "additionalProperties": { "type": "string" }
+    },
+    "notImplemented": {
+      "type": "array",
+      "description": "Capabilities a reader might reasonably expect and this component does not have. Saying so is cheaper than an agent discovering it by writing code that cannot work.",
+      "items": { "type": "string" }
+    },
+    "$operationsNote": {
+      "type": "string",
+      "description": "Where the operations block is mirrored from, and what fails if the two drift."
+    }
+  }
+}

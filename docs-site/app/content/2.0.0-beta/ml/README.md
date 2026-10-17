@@ -1,6 +1,6 @@
 # Malayalam translations (മലയാളം)
 
-Translated docs for the 2.0.0 beta site. Served at `/2.0.0-beta/ml/<slug>`.
+Translated docs for the 2.x site. Served at `/2.0.0-beta/ml/<slug>`.
 
 ## How to add one
 

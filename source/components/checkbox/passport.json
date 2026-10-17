@@ -12,6 +12,7 @@
   "source": {
     "libraryVersion": "2.7.0",
     "files": [
+      "core/agent.ts",
       "core/group.ts",
       "core/index.ts",
       "core/types.ts",
@@ -22,8 +23,9 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:ddf0907b2b6377c5d134ed140d8a4f47b0dc5ef39ec984c21ec33370c6d9815f"
+    "sourceHash": "sha256:864a782462120954cea168efe6df111474541556f8518107677c1098cceaa035"
   },
+  "purpose": "A single native checkbox, and CheckboxGroup for several that share a name, with mixed state, a select-all and group-level validation.",
   "props": [
     {
       "name": "aria-describedby",
@@ -260,7 +262,8 @@
       "required": false,
       "origin": "derived",
       "description": "Render these options, or pass `<Checkbox value=\"…\">` children.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "The declarative form of the group's children. Supply this or Checkbox children, never both."
     },
     {
       "name": "orientation",
@@ -455,20 +458,90 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "native <input type=checkbox> semantics, including Space to toggle",
+      "the indeterminate state is set as a DOM property, which is the only way it exists",
+      "CheckboxGroup renders a fieldset with the group label as its legend",
+      "description and error linked by aria-describedby"
+    ],
+    "required": [
+      "a `label` on every checkbox — an unlabelled one is unusable by anything but sight",
+      "`name` when the value is submitted with a form"
+    ]
   },
-  "composition": {},
-  "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "composition": {
+    "allowedChildren": [
+      "Checkbox"
+    ],
+    "mustNotContain": [
+      "label"
+    ],
+    "notes": "CheckboxGroup expects Checkbox children or an `options` array, not both. The component supplies its own label element."
+  },
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    }
+  },
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "orientation",
+      "description",
+      "selectAll"
+    ],
+    "forbidden": [
+      "checked",
+      "defaultChecked",
+      "value",
+      "defaultValue",
+      "name",
+      "options",
+      "required",
+      "disabled",
+      "readOnly",
+      "onChange",
+      "onCheckedChange",
+      "onValueChange",
+      "error"
+    ],
+    "rationale": "Layout is safe. The checked state is the user's answer and `options` is the question; an agent that edits either is answering on their behalf."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 19,
     "propsDescribed": 15,
     "describedPct": 79,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "operations",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

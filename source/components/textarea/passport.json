@@ -10,6 +10,7 @@
   "source": {
     "libraryVersion": "2.7.0",
     "files": [
+      "core/agent.ts",
       "core/count.ts",
       "core/index.ts",
       "core/size.ts",
@@ -19,8 +20,9 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:a586004558fc7c4059756daa252c36028f3f9b1f4cf55fcccb9b5af2ce1e21e9"
+    "sourceHash": "sha256:161bed57c97bbdede609bde754dcbae8452083825fea7749ee035ce1ace510dc"
   },
+  "purpose": "A multi-line text field that can grow with its content, with the same label, hint, error and counter wiring as Input.",
   "props": [
     {
       "name": "aria-describedby",
@@ -58,7 +60,8 @@
       "default": false,
       "origin": "derived",
       "description": "Grow and shrink with the text, between `minRows` and `maxRows`. Default false.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Grows the field to its content between `minRows` and `maxRows`. Ignored when `resize` lets the user drag."
     },
     {
       "name": "className",
@@ -369,20 +372,90 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the label is a real <label> bound to the textarea",
+      "description and error are linked by aria-describedby",
+      "aria-invalid while `error` is set",
+      "the character counter is announced as a live region when `showCount` is on"
+    ],
+    "required": [
+      "a `label`, or `aria-label` when the field is visually unlabelled",
+      "a `maxLength` that matches whatever the server enforces, so the counter does not promise room that does not exist"
+    ]
   },
-  "composition": {},
-  "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "composition": {
+    "mustNotContain": [
+      "label",
+      "textarea"
+    ],
+    "notes": "It renders its own <label> and <textarea>; wrapping it in a second label misbinds the text."
+  },
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    }
+  },
+  "intentDomains": [
+    "ActionIntent",
+    "Summarization"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placeholder",
+      "description",
+      "rows",
+      "minRows",
+      "maxRows",
+      "autoResize",
+      "resize",
+      "showCount"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "name",
+      "required",
+      "disabled",
+      "readOnly",
+      "maxLength",
+      "onValueChange",
+      "error"
+    ],
+    "rationale": "Height and hints are presentation. `maxLength` is a contract with the server, and `error` is the host's validation result."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 12,
     "propsDescribed": 10,
     "describedPct": 83,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "operations",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Accordion",
+  "purpose": "Sections that open and close, built on native <details> and <summary>, with single or multiple expansion.",
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "accessibility": {
+    "supplied": [
+      "native <details>/<summary> semantics, so it works before JavaScript loads and is findable by in-page search",
+      "Enter and Space toggle the summary, which is focusable by default",
+      "the open state is a real DOM attribute rather than a class"
+    ],
+    "required": [
+      "summary text that says what is inside, since a collapsed section is judged entirely by its heading",
+      "`multiple` where sections are independent — forcing one open at a time hides content a user was reading"
+    ]
+  },
+  "composition": {
+    "allowedChildren": [
+      "AccordionItem"
+    ],
+    "notes": "Items come from children or the `items` array, not both."
+  },
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "size",
+      "icon",
+      "iconPosition",
+      "collapsible",
+      "multiple"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "onValueChange",
+      "items",
+      "disabled"
+    ],
+    "rationale": "Appearance is safe; which section is open is state, and `items` is the content."
+  },
+  "propNotes": {
+    "collapsible": "Whether the last open section can be closed, leaving none open."
+  }
+}

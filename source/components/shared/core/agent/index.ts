@@ -44,3 +44,33 @@ export type {
   AskOutcome,
   AskPhase,
 } from "./adapter";
+
+/*
+ * The field runtime. A grid's operations are a language; a field has one verb,
+ * so the verb lives here once rather than eight times.
+ */
+export {
+  fieldOperations,
+  setValueSchema,
+  validateFieldIntent,
+  type FieldCommand,
+  type FieldContract,
+  type FieldIntent,
+  type FieldKind,
+  type FieldOperationName,
+  type FieldOption,
+} from "./field";
+export {
+  domFieldExecutors,
+  handleFieldExecutors,
+  type FieldExecutionContext,
+  type FieldHandleTarget,
+} from "./field-executors";
+export {
+  createFieldAgent,
+  type FieldAgent,
+  type FieldAgentOptions,
+  type FieldExecution,
+} from "./field-agent";
+/* Browser-only: everything above this line runs on a server too. */
+export { writable, writeChecked, writeValue } from "./write";

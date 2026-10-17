@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Card",
+  "purpose": "A surface that groups related content, with header, body and footer, plus Stat for a single figure and its trend.",
+  "intentDomains": [],
+  "accessibility": {
+    "supplied": [
+      "an interactive card is a real button or link, not a div with a click handler",
+      "the trend on Stat is given as text as well as a direction and colour",
+      "the loading state renders placeholder bars announced as loading"
+    ],
+    "required": [
+      "`href` or `interactive`, never a bare onClick on the surface — otherwise it is unreachable by keyboard",
+      "a heading that names the group, where the card is a section of a page"
+    ]
+  },
+  "composition": {
+    "mustNotContain": [
+      "Card"
+    ],
+    "notes": "An interactive card must not contain its own buttons or links: a control inside a clickable surface is a nested interactive element, and neither target is predictable."
+  },
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "padding",
+      "icon",
+      "description",
+      "help"
+    ],
+    "forbidden": [
+      "href",
+      "target",
+      "rel",
+      "interactive",
+      "value",
+      "trend",
+      "loading",
+      "actions"
+    ],
+    "rationale": "Surface styling is safe. `href` and `interactive` decide what the card *is*, and `value` and `trend` are the figure it reports."
+  },
+  "propNotes": {
+    "interactive": "Makes the whole surface a button. Do not combine with controls inside it.",
+    "trend": "Stat only. The direction is also stated in text, so it survives being read aloud."
+  }
+}

@@ -24,3 +24,27 @@ ignoredBuiltDependencies:
   - core-js
   - esbuild
   - workerd
+
+# Transitive advisories whose direct parent has not shipped a bump.
+#
+# Every target is inside the same major as what resolved on its own, so
+# these are semver upgrades rather than forks: gray-matter still gets a
+# js-yaml 3, shiki still gets a mdast-util-to-hast 13. Most are build-time
+# DoS on our own content and not reachable by a reader, but they are a
+# one-line fix and a noisy audit hides the next real one.
+#
+# pnpm 12 reads these here; the same list is in package.json under `pnpm`
+# for pnpm 10, for the reason the note above gives.
+overrides:
+  'js-yaml@3': ^3.15.2
+  browserslist: ^4.29.3
+  source-map-js: ^1.2.2
+  prismjs: ^1.30.0
+  mdast-util-to-hast: ^13.2.1
+  yaml: ^2.9.1
+  fflate: ^0.8.3
+  sharp: ^0.35.5
+  # mermaid 11.17 still pins dompurify 3.4.1, which has collected a dozen
+  # sanitiser-bypass advisories. ^3.4.17 is inside mermaid's own ^3.3.3.
+  dompurify: ^3.4.17
+  '@babel/core': ^7.29.7

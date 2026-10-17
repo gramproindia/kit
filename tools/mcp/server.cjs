@@ -161,6 +161,18 @@ function getComponent(name) {
     states: p.states || [],
     composition: p.composition || {},
     accessibility: p.accessibility || {},
+    /*
+     * The authored half of the passport. `safeMutations` is the one an agent
+     * acts on directly — it is the difference between "you may restyle this"
+     * and "you are about to answer a form on the user's behalf" — so leaving
+     * it out of the tool meant authoring it and then never telling anyone.
+     *
+     * `operations` is empty for every component that is not agent-operable
+     * yet, and an empty object is the honest answer to "what can you drive".
+     */
+    safeMutations: p.safeMutations || {},
+    intentDomains: p.intentDomains || [],
+    operations: p.operations || {},
   };
 }
 
@@ -371,7 +383,7 @@ const TOOLS = [
   {
     name: "figma_frame",
     description:
-      "BETA. Read a Figma design: from a URL (needs FIGMA_TOKEN), from a file the kit's Figma plugin saved (`designFile`, no token, and the one to use for a whole screen), or from that export pasted in (`design`). Called with just a URL it lists the frames in the file; called with `frame` it returns that screen's structure, text, the repeated regions that indicate lists and tables, and the theme variables its colours and radii map onto.",
+      "BETA. Read a Figma design. Start with a URL (`url`, needs FIGMA_TOKEN): it is one step, and it resolves the names of any component instances in the frame. A file the kit's Figma plugin saved (`designFile`) needs no token and carries every screen at once, which is what to use for a whole product or when a token is unavailable; that export pasted in (`design`) works for a small frame. Called with just a URL it lists the frames in the file; called with `frame` it returns that screen's structure, text, the repeated regions that indicate lists and tables, and the theme variables its colours and radii map onto.",
     inputSchema: {
       type: "object",
       properties: {
@@ -384,7 +396,7 @@ const TOOLS = [
         designFile: {
           type: "string",
           description:
-            "Path to a .json saved by the plugin's 'Save .json' button. Preferred over `design`: the file is read here, so the raw export never passes through the conversation.",
+            "Path to a .json saved by the plugin's 'Save .json' button, or to one screen of a folder `grampro-kit design` wrote. Preferred over `design`: the file is read here, so the raw export never passes through the conversation.",
         },
         frame: { type: "string", description: "Which frame to read, from the listing." },
         depth: { type: "number", description: "How deep to descend. Lower it if the payload is large." },

@@ -136,6 +136,10 @@ export function DateRangePicker(props: DateRangePickerProps) {
       toggle: () => picker.setOpen(!picker.open),
       focus: () => startRef.current?.focus({ preventScroll: true }),
       clear: picker.clear,
+      setValue: (next) => {
+        const range = (next ?? { start: null, end: null }) as { start?: DateInput; end?: DateInput };
+        picker.applyRange({ start: toDate(range.start ?? null), end: toDate(range.end ?? null) }, true);
+      },
       getValue: () => picker.selection,
     }),
     [picker],

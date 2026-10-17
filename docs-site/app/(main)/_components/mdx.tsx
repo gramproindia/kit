@@ -5,6 +5,7 @@ import { CopyButton } from "./CopyButton";
 import { CommandTabs } from "./CommandTabs";
 import { VideoEmbed } from "./VideoEmbed";
 import { SelfHostedVideo } from "./SelfHostedVideo";
+import { Diagram } from "./Diagram";
 import { MermaidChart } from "./demo-runtime";
 import { demoComponents } from "./generated/map";
 import { v2Config } from "../_lib/config";
@@ -193,6 +194,7 @@ export const mdxComponents = {
   FigmaPlugin,
   VideoEmbed,
   SelfHostedVideo,
+  Diagram,
   WarningBanner,
   CommandTabs,
   MermaidChart,

@@ -19,6 +19,7 @@
     ],
     "sourceHash": "sha256:71722134c43ba8dec7c9139a8c2c84ab4009247f7b8e1699308f6abbc634f278"
   },
+  "purpose": "A panel anchored to the control that opened it, in the top layer, with light dismiss, Escape, and flipping when there is no room.",
   "props": [
     {
       "name": "align",
@@ -166,7 +167,8 @@
       "default": "bottom",
       "origin": "derived",
       "description": "Side of the trigger to open on, before flipping for space. Default `bottom`.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "A preference, not a guarantee: it flips when there is no room, which is the behaviour you want."
     },
     {
       "name": "style",
@@ -227,20 +229,57 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "the trigger carries aria-expanded and aria-controls",
+      "Escape closes and focus returns to the trigger",
+      "a click outside dismisses without trapping focus, which is what makes it a popover and not a modal",
+      "the panel renders in the top layer, so no ancestor's overflow clips it"
+    ],
+    "required": [
+      "an accessible name on the trigger when it is an icon",
+      "do not put a form that must be completed in here — focus is not trapped, so a user can wander out of it. That is a Modal."
+    ]
   },
-  "composition": {},
+  "composition": {
+    "mustNotContain": [
+      "Modal",
+      "Dialog"
+    ],
+    "notes": "A popover does not trap focus. Anything that must be finished before the user moves on belongs in a Modal instead."
+  },
   "operations": {},
-  "intentDomains": [],
-  "safeMutations": {},
+  "intentDomains": [
+    "ActionIntent"
+  ],
+  "safeMutations": {
+    "allowed": [
+      "side",
+      "align",
+      "gap",
+      "scrollable",
+      "description"
+    ],
+    "forbidden": [
+      "open",
+      "defaultOpen",
+      "onOpenChange",
+      "trigger",
+      "autoFocus",
+      "children"
+    ],
+    "rationale": "Placement is presentation and the component re-flips it anyway when space runs out. `open` is the application's state."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 14,
     "propsDescribed": 12,
     "describedPct": 86,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "intentDomains",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

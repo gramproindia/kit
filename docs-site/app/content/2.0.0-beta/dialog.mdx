@@ -34,7 +34,7 @@ import "@/component-lib/gbs.css";
 
 The Dialog asks the user a short question and gives you the answer: an **alert** to acknowledge, a **confirm** to approve or cancel, or a **prompt** to type a value. Call it from any event handler and `await` the result. There is no open state to manage and no callback to wire up. Confirm handlers can be async: the dialog shows progress while your request runs, and shows the error in place if it fails. Built on the native `<dialog>` element, it traps focus and keeps the page behind it unreachable.
 
-For larger content such as forms, use the [Modal](/2.0.0-beta/modal).
+For larger content such as forms, use the [Modal](/modal).
 
 <Notice message="Set the --gbs-* variables on :root to theme every component at once, the grid included. Each component's own variables fall back to them, and then to the built-in palette, so components look identical out of the box." />
 

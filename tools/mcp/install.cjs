@@ -86,7 +86,12 @@ function installJson(file, cwd) {
     try {
       config = JSON.parse(existing);
     } catch (error) {
-      return { file, status: "failed", detail: `${file} is not valid JSON (${error.message}). Left alone.` };
+      // Naming the file is the useful part; the parse error would quote it.
+      return {
+        file,
+        status: "failed",
+        detail: `${file} is not valid JSON, so it has been left alone.`,
+      };
     }
   }
 

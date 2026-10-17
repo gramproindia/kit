@@ -1,0 +1,82 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Textarea",
+  "purpose": "A multi-line text field that can grow with its content, with the same label, hint, error and counter wiring as Input.",
+  "intentDomains": [
+    "ActionIntent",
+    "Summarization"
+  ],
+  "$operationsNote": "Mirrors shared/core/agent/field.ts, which is what the runtime dispatches on. source/components/shared/core/agent/__tests__/field-passport.test.ts fails if the two drift. No `apiMethod`: a field is written through its ref — the element for most of these, a handle for Combobox and DatePicker — and that is a normal case, not a gap.",
+  "operations": {
+    "setValue": {
+      "summary": "Write a value into the field, as though a person had entered it.",
+      "effects": [
+        "replaces the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "clear": {
+      "summary": "Empty the field.",
+      "effects": [
+        "discards the field's current value",
+        "fires the host's change handler"
+      ],
+      "reversible": true
+    },
+    "focus": {
+      "summary": "Move keyboard focus to the field.",
+      "effects": [
+        "moves focus"
+      ],
+      "reversible": false
+    }
+  },
+  "accessibility": {
+    "supplied": [
+      "the label is a real <label> bound to the textarea",
+      "description and error are linked by aria-describedby",
+      "aria-invalid while `error` is set",
+      "the character counter is announced as a live region when `showCount` is on"
+    ],
+    "required": [
+      "a `label`, or `aria-label` when the field is visually unlabelled",
+      "a `maxLength` that matches whatever the server enforces, so the counter does not promise room that does not exist"
+    ]
+  },
+  "composition": {
+    "mustNotContain": [
+      "label",
+      "textarea"
+    ],
+    "notes": "It renders its own <label> and <textarea>; wrapping it in a second label misbinds the text."
+  },
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "placeholder",
+      "description",
+      "rows",
+      "minRows",
+      "maxRows",
+      "autoResize",
+      "resize",
+      "showCount"
+    ],
+    "forbidden": [
+      "value",
+      "defaultValue",
+      "name",
+      "required",
+      "disabled",
+      "readOnly",
+      "maxLength",
+      "onValueChange",
+      "error"
+    ],
+    "rationale": "Height and hints are presentation. `maxLength` is a contract with the server, and `error` is the host's validation result."
+  },
+  "propNotes": {
+    "autoResize": "Grows the field to its content between `minRows` and `maxRows`. Ignored when `resize` lets the user drag."
+  }
+}

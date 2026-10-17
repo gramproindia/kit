@@ -24,6 +24,7 @@
     ],
     "sourceHash": "sha256:5b40d5a873d8c4bd0ea3423f5a9b0ca06f2515aa1ea45149d36be3b2b4aa63e1"
   },
+  "purpose": "A surface that groups related content, with header, body and footer, plus Stat for a single figure and its trend.",
   "props": [
     {
       "name": "actions",
@@ -134,7 +135,8 @@
       "default": false,
       "origin": "derived",
       "description": "Lifts the card on hover, for a card that is clickable by other means.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Makes the whole surface a button. Do not combine with controls inside it."
     },
     {
       "name": "label",
@@ -233,7 +235,8 @@
       "required": false,
       "origin": "derived",
       "description": "The change beside the figure: direction, a formatted label, and\nwhether down is the good outcome. Left out, no arrow is shown.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Stat only. The direction is also stated in text, so it survives being read aloud."
     },
     {
       "name": "value",
@@ -326,20 +329,54 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "an interactive card is a real button or link, not a div with a click handler",
+      "the trend on Stat is given as text as well as a direction and colour",
+      "the loading state renders placeholder bars announced as loading"
+    ],
+    "required": [
+      "`href` or `interactive`, never a bare onClick on the surface — otherwise it is unreachable by keyboard",
+      "a heading that names the group, where the card is a section of a page"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "mustNotContain": [
+      "Card"
+    ],
+    "notes": "An interactive card must not contain its own buttons or links: a control inside a clickable surface is a nested interactive element, and neither target is predictable."
+  },
   "operations": {},
   "intentDomains": [],
-  "safeMutations": {},
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "padding",
+      "icon",
+      "description",
+      "help"
+    ],
+    "forbidden": [
+      "href",
+      "target",
+      "rel",
+      "interactive",
+      "value",
+      "trend",
+      "loading",
+      "actions"
+    ],
+    "rationale": "Surface styling is safe. `href` and `interactive` decide what the card *is*, and `value` and `trend` are the figure it reports."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 16,
     "propsDescribed": 14,
     "describedPct": 88,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "purpose",
+      "safeMutations"
     ]
   }
 }

@@ -85,7 +85,7 @@ export function MermaidChart({ code }: MermaidChartProps) {
         mermaid.initialize({
           startOnLoad: false,
           theme: isDark ? "dark" : "default",
-          securityLevel: "loose",
+          securityLevel: "strict",
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
           themeVariables: {
             background: isDark ? "#0f172a" : "#f8fafc", // slate-900 / slate-50

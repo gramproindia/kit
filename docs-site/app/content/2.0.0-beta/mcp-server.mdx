@@ -11,6 +11,8 @@ frame contains, and whether the JSX the agent just wrote is valid.
 
 It is the difference between an agent recalling an API and reading one.
 
+<Diagram name="mcp-server" alt="Your coding agent — Claude Code, Codex or Cursor — talks to the grampro MCP server over stdio using JSON-RPC. The server runs as npx -y @grampro/kit mcp and offers seven tools: list_components (what exists), get_component (props, from the passport), get_example (a working usage), get_guidance (the reference notes), figma_frame (read a design), install_component (copy it into the project) and validate_usage (check the JSX just written). It answers from its own package — catalogue, passports and guidance — not from your project. figma_frame reads either from a Figma URL, which is one step but needs a token and is the place to start, or from a plugin export, which covers every screen and needs no token." caption="The server answers from its own package, so nothing has to be installed in the project you are working in. The loop that makes the output compile is read the props, write, then have the JSX checked." />
+
 <Notice message="Beta. The tools work and are tested, but their names and shapes may change before this settles." />
 
 It answers on demand, which is why it beats pasting documentation into a
@@ -28,7 +30,25 @@ what tells an agent the library exists and that it should ask; the server
 is what it asks. Install the skill and an agent reaches for
 `get_component` unprompted instead of writing from memory and hoping.
 
-<SelfHostedVideo src="https://kit-media-tutorial.imanandhu.in/Grampro_Kit_Figma_to_React_Tutorial.mp4" title="Figma to React with the GramproKit MCP server" />
+## Two routes, and when each one earns it
+
+There are two ways to get a design in, and the short answer is that you
+almost certainly want the first:
+
+- **Paste a Figma URL.** One step. The agent reads the frame, resolves the
+  names of any component instances in it, and builds the screen. This is
+  the route to reach for. [Jump to it](#from-a-figma-url-to-a-screen).
+- **Export the file with the Figma plugin.** Five steps — install, export,
+  save, split, point the agent at a folder. It earns them when you want a
+  whole product in one pass, because the theme is then derived across every
+  screen instead of guessed per frame, and when you have no Figma token or a
+  rate-limited one, because the plugin reads the file from inside Figma and
+  never calls the REST API.
+  [Jump to it](#from-a-whole-design-to-a-whole-application).
+
+The plugin used to be the only route that could tell a Button from a
+rectangle. It is not any more — the URL route resolves component names too —
+so what is left to it is scale and not needing credentials.
 
 ## Setup
 
@@ -281,6 +301,15 @@ two cases:
   throttled.
 
 If you are building one screen, use the URL.
+
+<SelfHostedVideo src="https://kit-media-tutorial.imanandhu.in/Grampro_Kit_Figma_to_React_Tutorial.mp4" title="Figma to React with the GramproKit MCP server" />
+
+The run end to end: the plugin export, `grampro-kit design` splitting it into
+a folder of screens, and an agent reading the index and building them one at
+a time. Everything after the export is the same whichever route you took, so
+it is worth watching even if you only ever paste URLs — the part where the
+agent reads a component's real props before writing it is the part that makes
+the output compile.
 
 ### 1. Export every screen
 

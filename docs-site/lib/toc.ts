@@ -27,7 +27,7 @@ export function extractTocFromMdx(source: string): TocItem[] {
 function generateId(title: string): string {
   return title
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[^\p{L}\p{N}\p{M}\s-]/gu, '')
     .replace(/\s+/g, '-')
     .trim();
 }

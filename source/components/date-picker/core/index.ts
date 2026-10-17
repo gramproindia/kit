@@ -39,3 +39,5 @@ export {
 export type { DateField, WeekdayName } from "./format";
 export { getServerToday, getToday, subscribeToToday } from "./today";
 export type * from "./types";
+// The agent contract: what a model may ask this field to do.
+export { datePickerContract, type DatePickerAgentProps } from "./agent";

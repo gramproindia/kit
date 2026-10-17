@@ -24,6 +24,20 @@ export interface ComboboxHandle<V extends OptionValue = string> {
   toggle(): void;
   focus(): void;
   clear(): void;
+  /**
+   * Replace the selection, as choosing from the list would: the change
+   * handler fires, and an uncontrolled combobox updates itself.
+   *
+   * `null` clears. A single value is accepted in either mode; a list given to
+   * a single-select combobox keeps the first entry, and one longer than `max`
+   * is truncated rather than silently rejected. Values that are not in
+   * `options` are still committed — the component does not own the option set
+   * and a `server`-mode combobox legitimately holds a value whose option is
+   * not currently loaded. Code that needs values checked against the list
+   * should go through the agent runtime, whose reference layer does exactly
+   * that.
+   */
+  setValue(next: V | readonly V[] | null): void;
   getValue(): V[];
   getSelectedOptions(): ComboboxOption<V>[];
 }

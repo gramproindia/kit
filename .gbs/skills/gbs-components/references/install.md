@@ -10,7 +10,7 @@ imported from `node_modules` at runtime, and the copied files are yours to edit.
 `bin: { "@grampro/kit": "index.cjs" }` and `files: ["index.cjs", "source",
 ".gbs"]`. There is nothing to `import "@grampro/kit"` from.
 
-Peer dependencies: `react@^19` and `react-dom@^19`. The beta components have no
+Peer dependencies: `react@^19` and `react-dom@^19`. The components have no
 other runtime dependencies.
 
 ## Commands
@@ -18,11 +18,11 @@ other runtime dependencies.
 ```bash
 npx @grampro/kit add Button                 # one component
 npx @grampro/kit add Button,Input,Modal     # several
-npx @grampro/kit -i --beta                        # interactive picker
-npx @grampro/kit -l --beta                        # list available
+npx @grampro/kit -i                         # interactive picker
+npx @grampro/kit -l                         # list available
 npx @grampro/kit add Button --force         # overwrite edited shared/ files
-npx @grampro/kit skill                           # install this skill
-npx @grampro/kit skill --for claude              # only the Claude Code copy
+npx @grampro/kit skill                      # install this skill
+npx @grampro/kit skill --for claude         # only the Claude Code copy
 ```
 
 | Flag | Alias | Meaning |
@@ -30,16 +30,19 @@ npx @grampro/kit skill --for claude              # only the Claude Code copy
 | `--add` | `-a` | Component, or comma-separated list. Case-insensitive. |
 | `--interactive` | `-i` | Pick from a menu. |
 | `--list` | `-l` | Print available components. |
-| `--beta` | — | Install the 2.0 redesigned components. `-beta` also works. |
+| `--legacy` | — | Install from the 1.x set instead. Unmaintained; see below. |
 | `--skill` | — | Install this skill at the project root. `-skill` and `-a skill` also work. |
 | `--for` | — | With `--skill`: which agents to write adapters for (`claude`, `codex`, `antigravity`, or `none`). Default: all. |
 | `--force` | — | Replace files you have edited locally in `shared/` or `.gbs/`. |
 
-**Always pass `--beta`.** Without it you get the 1.x set (`Select`, `SideBar`,
-`FormRenderer`, `MaterialInput`, `ContextMenu`, `Navbar`, `Bargraph`,
-`DarkMode`, `Toast`, `Uploader`, `UsePaginatedData`, `UseUploader` and others),
-which is a different, older API with different props. The two sets are not
-interchangeable.
+**Pass no flag.** The 2.x components are what `add` installs. `--beta` used
+to opt in to them and now does nothing but print a notice, so do not pass it.
+
+`--legacy` reaches the 1.x set (`Select`, `SideBar`, `FormRenderer`,
+`MaterialInput`, `ContextMenu`, `Navbar`, `Bargraph`, `DarkMode`, `Toast`,
+`Uploader`, `UsePaginatedData`, `UseUploader` and others). That is a different,
+older API with different props, it is no longer maintained, and the two sets
+are not interchangeable. Do not reach for it unless asked to.
 
 ## Installing this skill
 
@@ -78,7 +81,7 @@ CLI from the repo root (or move the folder afterwards and fix the imports).
 
 ```
 component-lib/
-  shared/          installed with every beta component
+  shared/          installed with every component
   button/
   data-grid/
   input/
@@ -105,7 +108,7 @@ Note the mismatch between the install name and the import name for two of them:
 - Install `Toaster`; import `toast` and `Toaster` from `component-lib/toaster`.
 - Install `Dialog`; import `dialog` and `DialogHost` from `component-lib/dialog`.
 
-## Available beta components
+## Available components
 
 `DataGrid`, `Combobox`, `DatePicker`, `Toaster`, `FileUploader`, `Dialog`,
 `Input`, `Modal`, `Textarea`, `Button`, `Breadcrumb`, `Checkbox`, `Tabs`,
@@ -132,7 +135,7 @@ project has no reason to have.
 
 ## The shared folder
 
-Every beta component imports `../../shared`. The CLI installs it alongside
+Every component imports `../../shared`. The CLI installs it alongside
 whatever you picked, and it is versioned independently (`shared/version.json`).
 
 Rules the installer enforces:

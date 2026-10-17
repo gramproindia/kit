@@ -34,7 +34,7 @@ import "@/component-lib/gbs.css";
 
 The Modal shows content above the page: forms, details, terms, or anything that needs the user's full attention. It is built on the browser's own `<dialog>` element. The browser keeps it above every other element, makes the page behind it unreachable, keeps keyboard focus inside and returns focus to where it was on close. The component adds controlled state, dismiss rules, a guard for unsaved changes, sizes, side and bottom drawers, and animation.
 
-For short questions — "Delete this?", "Rename to…" — use the [Dialog](/2.0.0-beta/dialog) instead.
+For short questions — "Delete this?", "Rename to…" — use the [Dialog](/dialog) instead.
 
 <Notice message="Set the --gbs-* variables on :root to theme every component at once, the grid included. Each component's own variables fall back to them, and then to the built-in palette, so components look identical out of the box." />
 
@@ -261,7 +261,7 @@ The component is a client component, and `"use client"` is already at the top of
 | --- | --- |
 | `isOpen` | `open` |
 | `setIsOpen` | `onOpenChange` — pass your setter: `onOpenChange={setOpen}` |
-| `onButtonClick("Action_1" \| "Action_2")` with built-in Yes/No buttons | Your own buttons in `footer`, or use the [Dialog](/2.0.0-beta/dialog): `await dialog.confirm(...)` |
+| `onButtonClick("Action_1" \| "Action_2")` with built-in Yes/No buttons | Your own buttons in `footer`, or use the [Dialog](/dialog): `await dialog.confirm(...)` |
 | `confirmBtn` / `deletBtn` | Button text in your `footer`, or `confirmLabel` / `cancelLabel` on the Dialog |
 | `title` | Same name |
 | `children` | Same; can also be a function receiving `{ close }` |

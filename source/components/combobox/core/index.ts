@@ -14,3 +14,5 @@ export {
 export { getVisibleRange, measureItems, scrollToItem } from "./virtual";
 export type { ItemSizes, ListMetrics, Range } from "./virtual";
 export type * from "./types";
+// The agent contract: what a model may ask this field to do.
+export { comboboxContract, type ComboboxAgentProps } from "./agent";

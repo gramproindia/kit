@@ -45,3 +45,9 @@ next-env.d.ts
 # these are build output rather than source -- and the highlighted sources are
 # ~2 MB that would churn on every component change.
 app/(main)/_components/generated/
+
+# diagram intermediates
+# The .webp are served, so they are committed. The .svg beside them is just
+# what sharp was handed on the way there -- scripts/build-diagrams.mjs is the
+# source, and keeping a second generated copy in git only invites editing it.
+public/diagrams/*.svg

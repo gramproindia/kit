@@ -61,6 +61,16 @@ function toMarkdown(source: string, doc: DocMeta) {
       continue;
     }
 
+    // A diagram is a raster, so it carries nothing into this copy on its own.
+    // The alt text is the diagram as far as a model or a screen reader is
+    // concerned, so it is what gets written out, with the image beside it.
+    const diagram = /^<Diagram\s+name="([^"]+)"\s+alt="([^"]*)"(?:\s+caption="([^"]*)")?\s*\/>\s*$/.exec(line);
+    if (diagram) {
+      out.push(`![${unescapeAttr(diagram[2])}](${absoluteUrl(`/diagrams/${diagram[1]}-light.webp`)})`);
+      if (diagram[3]) out.push("", `_${unescapeAttr(diagram[3])}_`);
+      continue;
+    }
+
     // A video is a link once the player is gone. Left as a tag it would
     // tell a reader of the Markdown copy nothing at all.
     const video = /^<VideoEmbed\s+id="([^"]+)"\s+title="([^"]*)"[^>]*\/>\s*$/.exec(line);
@@ -132,11 +142,11 @@ export const getLlmsTxt = cache(async () => {
     "",
     `> ${v2Config.description}`,
     "",
-    "Components are copy-in blocks: `npx @grampro/kit add <Component>` (or `pnpm dlx @grampro/kit add <Component>`) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once. These components are in beta and their APIs may change.",
+    "Components are copy-in blocks: `npx @grampro/kit add <Component>` (or `pnpm dlx @grampro/kit add <Component>`) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once.",
     "",
     "There is also a Figma plugin: https://www.figma.com/community/plugin/1692828324805361551 . It generates the whole design system inside Figma, and exports screens as JSON a coding agent can build from. `npx @grampro/kit design ./design.json` splits a whole-design export into a folder of screens with a shared theme, and `figma_frame` reads one with `designFile`.",
     "",
-    "There is an MCP server in the package: `npx @grampro/kit mcp install` configures Claude Code, Codex and Cursor. Its tools answer what components exist (`list_components`), what a component's props actually are (`get_component`), what a Figma frame contains (`figma_frame`), and whether written JSX matches the real API (`validate_usage`). See the MCP server page for the full list and a design-to-code walkthrough.",
+    "There is an MCP server in the package, still in beta: `npx @grampro/kit mcp install` configures Claude Code, Codex and Cursor. Its tools answer what components exist (`list_components`), what a component's props actually are (`get_component`), what a Figma frame contains (`figma_frame`), and whether written JSX matches the real API (`validate_usage`). The shortest path from a design to a screen is to paste a Figma frame URL and ask for it to be built: `figma_frame` reads the frame and names the component instances in it, and the other tools install and check what gets written. The plugin export above is for a whole product at once, or when no Figma token is available. See the MCP server page for the full list and a design-to-code walkthrough.",
     "",
     "Every page below is also available as plain Markdown by adding `.md` to its URL.",
     "",

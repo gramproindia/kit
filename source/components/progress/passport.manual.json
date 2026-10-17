@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../schema/passport-overlay-v1.schema.json",
+  "component": "Progress",
+  "purpose": "A bar or a ring for work with a known end, where an unknown length is a different thing from zero per cent.",
+  "intentDomains": [],
+  "accessibility": {
+    "supplied": [
+      "role=progressbar with aria-valuenow, aria-valuemin and aria-valuemax",
+      "an indeterminate progress omits aria-valuenow rather than reporting zero, which is what tells a screen reader the length is unknown",
+      "`valueText` for when a percentage is not the useful reading"
+    ],
+    "required": [
+      "a `label` saying what is in progress",
+      "leave `value` undefined for work of unknown length — zero is a claim that nothing has happened"
+    ]
+  },
+  "composition": {
+    "notes": "A bar and a ring are the same component with a different `variant`."
+  },
+  "safeMutations": {
+    "allowed": [
+      "variant",
+      "size",
+      "thickness",
+      "showValue",
+      "label"
+    ],
+    "forbidden": [
+      "value",
+      "max",
+      "valueText"
+    ],
+    "rationale": "The shape is presentation; the value is the measurement."
+  },
+  "propNotes": {
+    "value": "Undefined means indeterminate, which is announced differently from 0.",
+    "valueText": "Overrides the announced string, for units that are not percentages."
+  }
+}

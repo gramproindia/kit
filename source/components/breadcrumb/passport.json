@@ -20,6 +20,7 @@
     ],
     "sourceHash": "sha256:3b7fef8f48d1a1290c25a263d2e92ef5dcb706b1a06899ffe5a4df1cdab663e1"
   },
+  "purpose": "Where a page sits in the app: a trail that collapses in the middle when it is long, renders through your router's link, and can emit schema.org JSON-LD.",
   "props": [
     {
       "name": "aria-describedby",
@@ -163,7 +164,8 @@
       "default": false,
       "origin": "derived",
       "description": "Add schema.org `BreadcrumbList` JSON-LD for search engines. Pass\n`{ baseUrl }` so relative links become absolute, as search engines require.",
-      "descriptionOrigin": "jsdoc"
+      "descriptionOrigin": "jsdoc",
+      "note": "Emits a schema.org BreadcrumbList as JSON-LD. It must describe real, reachable URLs."
     },
     {
       "name": "style",
@@ -226,20 +228,47 @@
     }
   ],
   "accessibility": {
-    "supplied": [],
-    "required": []
+    "supplied": [
+      "a nav landmark with an accessible name",
+      "the current page is marked aria-current and is not a link",
+      "the collapsed middle is a real button that expands, not an inert ellipsis",
+      "separators are decorative and hidden from assistive technology"
+    ],
+    "required": [
+      "`renderLink` to use your router, so a breadcrumb does not full-page-reload the app",
+      "a trail that matches the page's actual position — a wrong one is worse than none"
+    ]
   },
-  "composition": {},
+  "composition": {
+    "notes": "Items come from the `items` array. The last item is the current page and is rendered as text."
+  },
   "operations": {},
   "intentDomains": [],
-  "safeMutations": {},
+  "safeMutations": {
+    "allowed": [
+      "size",
+      "separator",
+      "maxItems",
+      "itemsBeforeCollapse",
+      "itemsAfterCollapse"
+    ],
+    "forbidden": [
+      "items",
+      "renderLink",
+      "structuredData"
+    ],
+    "rationale": "Collapsing and the separator are presentation. `items` is the page's position, `renderLink` is the router binding, and `structuredData` emits markup search engines consume."
+  },
   "examples": [],
   "coverage": {
     "propsTotal": 8,
     "propsDescribed": 8,
     "describedPct": 100,
     "authoredSections": [
-      "accessibility"
+      "accessibility",
+      "composition",
+      "purpose",
+      "safeMutations"
     ]
   }
 }
