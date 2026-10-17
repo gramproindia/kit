@@ -5,6 +5,7 @@ import { CopyButton } from "./CopyButton";
 import { CommandTabs } from "./CommandTabs";
 import { MermaidChart } from "./demo-runtime";
 import { demoComponents } from "./generated/map";
+import { v2Config } from "../_lib/config";
 
 type HeadingProps = ComponentPropsWithoutRef<"h2">;
 
@@ -157,7 +158,7 @@ function FigmaPlugin({
     <p style={{ margin: "1.25rem 0" }}>
       <a
         className="v2-btn"
-        href="https://www.figma.com/community/plugin/1692828324805361551"
+        href={v2Config.figmaPlugin}
         target="_blank"
         rel="noreferrer"
       >

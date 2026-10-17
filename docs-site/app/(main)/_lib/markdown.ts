@@ -53,6 +53,16 @@ function toMarkdown(source: string, doc: DocMeta) {
       continue;
     }
 
+    // The install button, which is a link once the styling is gone.
+    // Passed through verbatim it left a dangling JSX tag where the URL
+    // should be, in every copy an LLM reads.
+    const plugin = /^<FigmaPlugin(?:\s+label="([^"]*)")?\s*\/>\s*$/.exec(line);
+    if (plugin) {
+      const label = plugin[1] ? unescapeAttr(plugin[1]) : "Get the plugin on Figma Community";
+      out.push(`[${label}](${v2Config.figmaPlugin})`);
+      continue;
+    }
+
     if (/^<(\w*Wrapper(Beta)?|DemoGrid)\s*\/>\s*$/.test(line)) {
       out.push(`_${s.mdInteractiveDemo}_ [${s.mdOpenLiveExample}](${pageUrl})`);
       continue;
@@ -106,7 +116,9 @@ export const getLlmsTxt = cache(async () => {
     "",
     `> ${v2Config.description}`,
     "",
-    "Components are copy-in blocks: `npx @grampro/kit -a <Component>` (or `pnpm dlx @grampro/kit -a <Component>`) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once. The 2.0.0 components are in beta and their APIs may change.",
+    "Components are copy-in blocks: `npx @grampro/kit add <Component>` (or `pnpm dlx @grampro/kit add <Component>`) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once. These components are in beta and their APIs may change.",
+    "",
+    "There is also a Figma plugin: https://www.figma.com/community/plugin/1692828324805361551 . It generates the whole design system inside Figma, and exports screens as JSON a coding agent can build from. `npx @grampro/kit design ./design.json` splits a whole-design export into a folder of screens with a shared theme, and `figma_frame` reads one with `designFile`.",
     "",
     "There is an MCP server in the package: `npx @grampro/kit mcp install` configures Claude Code, Codex and Cursor. Its tools answer what components exist (`list_components`), what a component's props actually are (`get_component`), what a Figma frame contains (`figma_frame`), and whether written JSX matches the real API (`validate_usage`). See the MCP server page for the full list and a design-to-code walkthrough.",
     "",

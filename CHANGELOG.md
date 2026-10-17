@@ -25,6 +25,21 @@ asks.
 The two pages now read in the order they are used — Theming, Agent skill,
 MCP server.
 
+**The text LLMs read was teaching a deprecated command.** `llms.txt` has a
+hand-written preamble, so it lagged behind the CLI: it told every model
+that reached the site to run `npx @grampro/kit -a <Component>`, a spelling
+the CLI itself marks "Deprecated. Use: add". It now says `add`, and names
+the Figma plugin, the whole-design export and `designFile`, none of which
+it mentioned.
+
+**The plugin's install link was invisible to every LLM.** It is rendered by
+a component, and the Markdown conversion passed that through verbatim — so
+`llms-full.txt` and every `.md` page carried a dangling `<FigmaPlugin />`
+tag where the URL should have been, and the plugin's address appeared
+nowhere a model could read it. The conversion emits a Markdown link now,
+and the URL lives in one place so the button and the converter cannot
+disagree about it.
+
 **Every command is listed in one place.** `list` and `passport` appeared
 in no user-facing documentation at all, and the rest were scattered across
 three pages, so there was nowhere to look to find out what the CLI does.
