@@ -1,0 +1,5 @@
+# Video lives in the R2 bucket, and docs-site/public/video/ is ignored, so
+# nothing here should normally match. This is the net for a `git add -f`:
+# if a segment is committed deliberately, it goes to LFS rather than into
+# the pack, where it would stay forever.
+docs-site/public/video/** filter=lfs diff=lfs merge=lfs -text

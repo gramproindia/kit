@@ -2,6 +2,22 @@ export const siteConfig = {
   name: "GramproKit Docs",
   description: "GramproKit: an agent-native UI runtime for React.",
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://kit.gramproindia.com",
+  /*
+   * Where the tutorial videos are served from.
+   *
+   * An R2 bucket rather than this repository: a re-encode replaces every
+   * segment at once, and git would keep all of them forever. R2 also
+   * charges nothing for egress, which is the line item that makes people
+   * nervous about self-hosting video in the first place.
+   *
+   * This must be the PUBLIC url - a custom domain, or the bucket's r2.dev
+   * development url. The S3 endpoint (<account>.r2.cloudflarestorage.com)
+   * needs signed requests and will 401 a video player.
+   *
+   * Falls back to /video, so an unconfigured checkout serves whatever is
+   * in public/video and nothing breaks.
+   */
+  videoBase: process.env.NEXT_PUBLIC_VIDEO_BASE || "/video",
   nav: [
     { label: "Docs", href: "/1.x.x-legacy/docs/getting-started" },
     { label: "Bug Report", href: "/1.x.x-legacy/bug-tracker" },

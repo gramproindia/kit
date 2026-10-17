@@ -687,6 +687,18 @@
     transform: translate(-50%, -50%) scale(1.06);
   }
 
+  .v2-video-note {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    background: rgb(0 0 0 / 70%);
+    color: #fff;
+    font-size: 0.8125rem;
+  }
+
   .v2-video-title {
     position: absolute;
     left: 1rem;

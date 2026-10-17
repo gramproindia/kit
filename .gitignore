@@ -38,3 +38,8 @@ types
 
 # Benchmark output
 eval/results/
+
+# Encoded video. `scripts/encode-video.mjs` writes here and the files go to
+# the R2 bucket from there; they are output, not source. A re-encode
+# replaces every segment at once, which git would keep forever.
+docs-site/public/video/
