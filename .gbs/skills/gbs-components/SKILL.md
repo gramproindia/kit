@@ -6,6 +6,22 @@ autoAttach: ["src/**/*.tsx", "src/**/*.jsx", "app/**/*.tsx", "components/**/*.ts
 
 # GBS components (2.0 beta)
 
+## If the MCP server is connected
+
+This file is a summary. The `grampro` MCP server answers from passports
+generated from the component source, so where the two differ it is right
+and this is stale. When its tools are available:
+
+- **`get_component <Name>`** before writing a component — every prop with
+  its type, the values a union accepts, which props are required, handler
+  signatures. Do not write a prop you have not read there.
+- **`validate_usage`** on the JSX before reporting back. It catches props
+  invented from memory, which is the one failure a passport cannot prevent.
+- **`figma_frame`** to read a design, from a `designFile` path or a Figma
+  URL, when building from one.
+
+Neither needs the other installed. Without the server this file is what
+you have, and everything below still applies.
 ## Install before you import
 
 Not an npm dependency — the CLI **copies source into the repo**:

@@ -15,10 +15,18 @@ It is the difference between an agent recalling an API and reading one.
 
 It answers on demand, which is why it beats pasting documentation into a
 prompt: the passports come to 280 KB and a page needs two or three
-components. The [agent skill](/agent-skill) is the other half - a document
-an agent reads up front, telling it the library exists and how it is meant
-to be used. Either is useful alone; together an agent knows to reach for
-the library and can ask what it actually takes.
+components.
+
+**It does not need the [agent skill](/agent-skill) installed.** The server
+carries its own copy of the guidance inside the package, so `get_guidance`
+answers in a project with no `.gbs/` folder at all. The two are
+independent, and each is useful alone.
+
+They are better together, though, and for a reason worth knowing: the
+skill is always in an agent's context and the server is not. The skill is
+what tells an agent the library exists and that it should ask; the server
+is what it asks. Install the skill and an agent reaches for
+`get_component` unprompted instead of writing from memory and hoping.
 
 ## Setup
 

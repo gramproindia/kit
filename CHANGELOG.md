@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.6.2
+
+### Changed
+
+**The agent skill now knows the MCP server exists.** It described the
+component library and never mentioned the server, so an agent holding both
+had nothing to tell it which to trust. The skill is a summary; the server
+answers from passports generated from the source, so where they differ the
+server is right and the skill is stale — and it now says so, along with
+calling `get_component` before writing a component and `validate_usage`
+before reporting back.
+
+The only previous mention of "MCP" in the skill was WebMCP, the DataGrid's
+browser-agent surface, which is a different thing entirely.
+
+**Neither needs the other, and the docs now say so.** The server carries
+its own copy of the guidance inside the package, so `get_guidance` answers
+in a project with no `.gbs/` folder at all. What they do together is the
+useful part: the skill is always in an agent's context and the server is
+not, so the skill is what tells an agent to ask and the server is what it
+asks.
+
+The two pages now read in the order they are used — Theming, Agent skill,
+MCP server.
+
 ## 2.6.1
 
 ### Changed

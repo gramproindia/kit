@@ -2,7 +2,7 @@
 title: "Agent skill"
 description: "Teach a coding agent this library's real API — imports, prop names and the traps — so it stops guessing and inventing props."
 group: "General"
-order: 28
+order: 26
 ---
 
 ## Installation
@@ -98,6 +98,12 @@ The installer records a sha256 of every file it writes — across all four locat
 The skill is a document an agent reads up front. The MCP server is the
 same catalogue answered on demand, which matters because the passports
 come to 280 KB and a page needs two or three components.
+
+Neither requires the other. The skill works with no server connected, and
+the server answers in a project with no skill installed - it carries its
+own copy of the guidance. What they do together is the useful part: the
+skill is always in an agent's context and the server is not, so the skill
+is what tells an agent to ask, and the server is what it asks.
 
 ```bash
 npx @grampro/kit mcp install

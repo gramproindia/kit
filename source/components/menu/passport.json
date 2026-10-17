@@ -16,7 +16,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.6.1",
+    "libraryVersion": "2.6.2",
     "files": [
       "core/index.ts",
       "core/navigation.ts",
