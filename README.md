@@ -80,6 +80,21 @@ Each component also has a **framework-free core** — `createDialogStore()`,
 `createGridEngine()` — with no React imports, usable on a server. That part is
 genuinely headless, and the component READMEs document it under "Headless use".
 
+## Commands
+
+| | |
+| --- | --- |
+| `add <Component>...` | Copy components into the project. `--dest` chooses where; `--legacy` reaches the 1.x set. |
+| `list` | What is available to add. |
+| `skill` | Install the agent skill. `--for claude,codex,antigravity` narrows it. |
+| `mcp` | Run the MCP server. Agents start this themselves; you rarely type it. |
+| `mcp install` | Write the server's configuration for Claude Code, Codex and Cursor. |
+| `secret set figma` | Store a Figma token in the OS credential store. Also `get`, `list`, `remove`. |
+| `design <file>` | Split a whole-design Figma export into a folder of screens. |
+| `passport --check` | Fail if a passport has drifted from its source. For CI, and after forking a component. |
+
+`npx @grampro/kit <command>`, or `grampro-kit` once it is a dev dependency.
+
 ## Documentation
 
 [kit.gramproindia.com](https://kit.gramproindia.com) — usage and props per

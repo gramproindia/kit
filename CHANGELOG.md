@@ -25,6 +25,11 @@ asks.
 The two pages now read in the order they are used — Theming, Agent skill,
 MCP server.
 
+**Every command is listed in one place.** `list` and `passport` appeared
+in no user-facing documentation at all, and the rest were scattered across
+three pages, so there was nowhere to look to find out what the CLI does.
+The README now carries the lot in a table.
+
 ## 2.6.1
 
 ### Changed
