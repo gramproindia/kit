@@ -4,25 +4,44 @@ import { useEffect, useRef, useState } from "react";
 import { siteConfig } from "@/site.config";
 
 interface SelfHostedVideoProps {
-  /** Folder under public/video, as passed to the encode script. */
-  name: string;
+  /**
+   * An adaptive ladder: the folder the encode script wrote, under the
+   * configured video base. Use this or `src`.
+   */
+  name?: string;
+  /**
+   * One file, played directly. No playlist, no hls.js, nothing to adapt
+   * between — right for a single MP4 that is already faststart.
+   */
+  src?: string;
   title: string;
-  /** Defaults to public/video/<name>/poster.jpg. */
+  /**
+   * A still to show before playback. Optional: without one the page draws
+   * a placeholder rather than fetching a frame, which would mean pulling
+   * part of the video to decorate a button nobody has pressed.
+   */
   poster?: string;
 }
 
-export function SelfHostedVideo({ name, title, poster }: SelfHostedVideoProps) {
+export function SelfHostedVideo({ name, src, title, poster }: SelfHostedVideoProps) {
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
 
   // Absolute when the bucket is configured, site-relative when it is not.
   const base = `${siteConfig.videoBase}/${name}`;
-  const image = poster ?? `${base}/poster.jpg`;
+  const image = poster ?? (name ? `${base}/poster.jpg` : undefined);
 
   useEffect(() => {
     const element = video.current;
     if (!playing || !element) return;
+
+    // One file: hand it to the browser and stay out of the way.
+    if (src) {
+      element.src = src;
+      void element.play().catch(() => {});
+      return;
+    }
 
     // Safari and iOS play HLS directly. Loading a player for them would be
     // 40 KB spent to do what the browser already does.
@@ -68,7 +87,7 @@ export function SelfHostedVideo({ name, title, poster }: SelfHostedVideoProps) {
       cancelled = true;
       hls?.destroy();
     };
-  }, [playing, base]);
+  }, [playing, base, src]);
 
   return (
     <div className="v2-video">
@@ -94,8 +113,12 @@ export function SelfHostedVideo({ name, title, poster }: SelfHostedVideoProps) {
           onClick={() => setPlaying(true)}
           aria-label={`Play: ${title}`}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt="" loading="lazy" decoding="async" />
+          {image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={image} alt="" loading="lazy" decoding="async" />
+          ) : (
+            <span className="v2-video-blank" aria-hidden />
+          )}
           <span className="v2-video-play" aria-hidden>
             <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
               <path d="M8 5v14l11-7z" />

@@ -53,6 +53,14 @@ function toMarkdown(source: string, doc: DocMeta) {
       continue;
     }
 
+    // Our own video, same reasoning as the one below: a tag in the Markdown
+    // copy tells a reader nothing, and the file plays in any browser.
+    const hosted = /^<SelfHostedVideo\s+src="([^"]+)"\s+title="([^"]*)"[^>]*\/>\s*$/.exec(line);
+    if (hosted) {
+      out.push(`[${unescapeAttr(hosted[2])} (video)](${hosted[1]})`);
+      continue;
+    }
+
     // A video is a link once the player is gone. Left as a tag it would
     // tell a reader of the Markdown copy nothing at all.
     const video = /^<VideoEmbed\s+id="([^"]+)"\s+title="([^"]*)"[^>]*\/>\s*$/.exec(line);
