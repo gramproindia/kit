@@ -145,7 +145,7 @@ function layoutOf(node) {
  * Figma wraps nearly every string in its own frame, and passing that
  * structure through verbatim buries the design in scaffolding.
  */
-function condense(node, depth) {
+function condense(node, depth, names = { components: {}, componentSets: {} }) {
   const out = { name: node.name, type: node.type };
 
   const layout = layoutOf(node);
@@ -158,8 +158,24 @@ function condense(node, depth) {
     }
   }
 
-  // An instance is a lookup, when the design was built from a library.
-  if (node.type === "INSTANCE" && node.componentId) out.instanceOf = node.componentId;
+  /*
+   * An instance is a lookup, when the design was built from a library.
+   *
+   * `components` and `componentSets` come back in the same response and
+   * name every id in it. Reporting the id alone left an agent holding
+   * `1:234`, which tells it nothing; the name is the whole point.
+   *
+   * The set's name is preferred where there is one. A variant is called
+   * `Size=md, Variant=primary` and its set is called `Button`, and Button
+   * is what the agent is going to write.
+   */
+  if (node.type === "INSTANCE" && node.componentId) {
+    const master = names.components[node.componentId];
+    const set = master && master.componentSetId && names.componentSets[master.componentSetId];
+    const resolved = (set && set.name) || (master && master.name);
+    if (resolved) out.component = resolved;
+    else out.instanceOf = node.componentId;
+  }
 
   const style = {};
   const fill = solidFill(node);
@@ -173,7 +189,7 @@ function condense(node, depth) {
 
   const kids = (node.children || []).filter((c) => c.visible !== false);
   if (kids.length && depth < MAX_DEPTH) {
-    const children = kids.map((c) => condense(c, depth + 1));
+    const children = kids.map((c) => condense(c, depth + 1, names));
     // A frame that exists only to hold one text node is noise.
     if (children.length === 1 && children[0].text && !children[0].children && !out.text) {
       out.text = children[0].text;
@@ -589,11 +605,29 @@ async function figmaFrame({ url, design, designFile, frame, depth }) {
   repeatedNames(target, names);
 
   const limit = Math.min(Number(depth) || MAX_DEPTH, MAX_DEPTH);
-  const tree = condense(target, MAX_DEPTH - limit);
+  /*
+   * Figma puts the name maps beside the nodes for a /nodes request and at
+   * the top level for a whole file, so both shapes are gathered.
+   */
+  const library = { components: {}, componentSets: {} };
+  for (const source of [file, ...Object.values(file.nodes || {})]) {
+    if (!source) continue;
+    Object.assign(library.components, source.components || {});
+    Object.assign(library.componentSets, source.componentSets || {});
+  }
 
+  const tree = condense(target, MAX_DEPTH - limit, library);
+
+  /*
+   * Only resolved names are collected. An instance whose master is not in
+   * the response keeps its id, and listing the node's own name beside real
+   * component names would read as though it were one.
+   */
   const instances = [];
+  let unresolved = 0;
   const findInstances = (n) => {
-    if (n.instanceOf) instances.push(n.name);
+    if (n.component) instances.push(n.component);
+    else if (n.instanceOf) unresolved += 1;
     for (const c of n.children || []) findInstances(c);
   };
   findInstances(tree);
@@ -609,10 +643,11 @@ async function figmaFrame({ url, design, designFile, frame, depth }) {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 20)
       .map(([name, n]) => ({ name, times: n })),
-    builtFromLibrary: instances.length > 0,
+    builtFromLibrary: instances.length > 0 || unresolved > 0,
     tree,
     howToUse: instances.length
-      ? "This design uses component instances; `instanceOf` names the master for each."
+      ? `This design is built from components: ${[...new Set(instances)].slice(0, 12).join(", ")}`
+        + ". `component` names the master on each instance — use it rather than inferring."
       : "This design was drawn without the component library, so nothing names a component directly. Use the region names and structure to decide which catalogue component each part is, then call get_component before writing it.",
   };
 }

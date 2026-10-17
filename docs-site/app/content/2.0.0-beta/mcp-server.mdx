@@ -117,98 +117,14 @@ It starts in about the time an empty Node process takes. An agent spawns the
 server once per session, so the `mcp` command is routed before the CLI's own
 dependencies load; they are no use to a JSON-RPC loop and cost around 70ms.
 
-## From a whole design to a whole application
+## From a Figma URL to a screen
 
-One frame at a time is the wrong unit for a product. Export every screen
-at once and the theme is read across all of them, which matters more than
-the convenience: a screen that is mostly white names a different
-background from one that is mostly grey, and derived per frame they
-disagree.
+Start here. Paste a link and the agent reads the frame, finds out what the
+components actually take, installs what it needs, writes the screen, and
+has its own work checked before it reports back.
 
-### 1. Export every screen
-
-<FigmaPlugin />
-
-The listing is in review, which Figma is quoting at a few weeks. Until it
-clears, clone this repository and import `figma-plugin/manifest.json`
-through **Plugins → Development → Import plugin from manifest...** in the
-Figma desktop app. The build is committed, so there is nothing to compile.
-
-In Figma: **Plugins -> Grampro Kit -> Export all screens for an agent**.
-It walks every page, takes each top-level frame, and derives one set of
-theme values from the whole design. Component sets are skipped - the
-pages the plugin generates are the library, not the product.
-
-Press **Save .json**, and put the file in your project.
-
-### 2. Split it into a folder
-
-```bash
-npx @grampro/kit design ./design.json
-```
-
-```text
-Wrote 3 screen(s) to design/
-  purchase-orders.json         Purchase orders (Product) - 22 nodes
-  suppliers.json               Suppliers (Product) - 16 nodes
-  settings.json                Settings (Admin) - 12 nodes
-  index.json                   the plan: every screen, shared theme
-```
-
-A browser cannot write a directory, and a Figma plugin is an iframe - so
-the plugin hands over one file and the CLI does the filesystem work.
-Each screen is written in the same shape a single-frame export has, so
-`figma_frame` reads one with no special case. Pass a second argument to
-put the folder somewhere other than `design/`.
-
-### 3. Have the mapping checked before anything is built
-
-`index.json` is the plan: every screen with its size, node count and the
-regions whose names repeat, plus the one shared theme. Start there.
-
-```text
-Read design/index.json. For each screen, tell me which kit component you
-would use for each repeated region, and which ones you are unsure about.
-Do not write any code yet.
-```
-
-This is the cheap place to be wrong. A design drawn without the component
-library names nothing directly, so every component is inferred - and a
-guess that `Action` is a Card rather than a Button costs one sentence
-here and five screens of rework later.
-
-### 4. Build one screen at a time
-
-```text
-Now build design/purchase-orders.json.
-
-1. figma_frame with designFile set to that path.
-2. get_component for each component before you write it.
-3. install_component for anything this project does not have.
-4. Write the screen.
-5. validate_usage on the JSX, and fix what it reports.
-
-Use the --gbs-* variables from index.json rather than hard-coded colours.
-Stop after this screen and I will check it before you start the next.
-```
-
-One screen per pass, validated each time. Building all of them in a single
-run is faster right up until an inference is wrong, at which point the
-same mistake is in every screen before you have seen any of them.
-
-### Why a file rather than a paste
-
-`designFile` takes a path; `design` takes the JSON itself. Prefer the path
-for anything but a small frame. A chat input caps at around fifty thousand
-characters and a whole screen passes that, and a pasted export sits in the
-conversation twice - once as the argument, again inside the tool call -
-where a file appears only in the answer.
-## From one Figma frame to one screen
-
-For a single screen, or to try the run before committing to a whole
-design. The agent reads the frame, finds out what the components actually
-take, installs what it needs, writes the screen, and has its own work
-checked before it reports back.
+Right-click a frame in Figma and **Copy link to selection**: the `node-id`
+in that link takes the whole read down to one API call.
 
 ### Before you start
 
@@ -348,6 +264,100 @@ call is inference - and an agent holding the catalogue and the designer's
 own names for things infers better than string matching inside a tool
 would. Anything that is not a kit component is reported as such rather
 than approximated.
+## From a whole design to a whole application
+
+The URL route above is one step. This one is five — install the plugin,
+export, save, split, point the agent at a folder — and it earns them in
+two cases:
+
+- **A whole product at once.** The theme is then read across every screen
+  rather than guessed per frame, and that matters more than the
+  convenience: a screen that is mostly white names a different background
+  from one that is mostly grey, and derived separately they disagree.
+- **No token, or a rate-limited one.** The plugin reads the file from
+  inside Figma and never calls the REST API, so it cannot be refused or
+  throttled.
+
+If you are building one screen, use the URL.
+
+### 1. Export every screen
+
+<FigmaPlugin />
+
+The listing is in review, which Figma is quoting at a few weeks. Until it
+clears, clone this repository and import `figma-plugin/manifest.json`
+through **Plugins → Development → Import plugin from manifest...** in the
+Figma desktop app. The build is committed, so there is nothing to compile.
+
+In Figma: **Plugins -> Grampro Kit -> Export all screens for an agent**.
+It walks every page, takes each top-level frame, and derives one set of
+theme values from the whole design. Component sets are skipped - the
+pages the plugin generates are the library, not the product.
+
+Press **Save .json**, and put the file in your project.
+
+### 2. Split it into a folder
+
+```bash
+npx @grampro/kit design ./design.json
+```
+
+```text
+Wrote 3 screen(s) to design/
+  purchase-orders.json         Purchase orders (Product) - 22 nodes
+  suppliers.json               Suppliers (Product) - 16 nodes
+  settings.json                Settings (Admin) - 12 nodes
+  index.json                   the plan: every screen, shared theme
+```
+
+A browser cannot write a directory, and a Figma plugin is an iframe - so
+the plugin hands over one file and the CLI does the filesystem work.
+Each screen is written in the same shape a single-frame export has, so
+`figma_frame` reads one with no special case. Pass a second argument to
+put the folder somewhere other than `design/`.
+
+### 3. Have the mapping checked before anything is built
+
+`index.json` is the plan: every screen with its size, node count and the
+regions whose names repeat, plus the one shared theme. Start there.
+
+```text
+Read design/index.json. For each screen, tell me which kit component you
+would use for each repeated region, and which ones you are unsure about.
+Do not write any code yet.
+```
+
+This is the cheap place to be wrong. A design drawn without the component
+library names nothing directly, so every component is inferred - and a
+guess that `Action` is a Card rather than a Button costs one sentence
+here and five screens of rework later.
+
+### 4. Build one screen at a time
+
+```text
+Now build design/purchase-orders.json.
+
+1. figma_frame with designFile set to that path.
+2. get_component for each component before you write it.
+3. install_component for anything this project does not have.
+4. Write the screen.
+5. validate_usage on the JSX, and fix what it reports.
+
+Use the --gbs-* variables from index.json rather than hard-coded colours.
+Stop after this screen and I will check it before you start the next.
+```
+
+One screen per pass, validated each time. Building all of them in a single
+run is faster right up until an inference is wrong, at which point the
+same mistake is in every screen before you have seen any of them.
+
+### Why a file rather than a paste
+
+`designFile` takes a path; `design` takes the JSON itself. Prefer the path
+for anything but a small frame. A chat input caps at around fifty thousand
+characters and a whole screen passes that, and a pasted export sits in the
+conversation twice - once as the argument, again inside the tool call -
+where a file appears only in the answer.
 ## Rate limits
 
 Figma charges for file reads by the size of the response, so asking for a

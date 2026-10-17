@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.7.0
+
+### Added
+
+**A design read from a URL now names its components.** An instance built
+from a library is the most valuable thing a design can contain — it says
+"this is a Button" instead of leaving an agent to infer it from a layer
+name and a fill. The URL route recorded `instanceOf: "1:234"`, an opaque
+id nothing could be done with, and discarded the maps that name it, which
+Figma sends in the same response.
+
+It resolves them now, preferring the component set's name over the
+variant's: a variant is called `Size=md, Variant=primary` and its set is
+called `Button`, and Button is what the agent is going to write. An
+instance whose master is not in the response keeps its id rather than
+guessing.
+
+### Changed
+
+**The docs lead with the URL route.** Pasting a Figma link is one step;
+the plugin route is five, and every one is a place to stop. The reason it
+was necessary for designs built from a component library is now gone, so
+the page says plainly: use the URL for a screen, and the plugin when you
+want a whole product in one pass, or have no token, or are rate limited.
+
 ## 2.6.3
 
 ### Fixed
