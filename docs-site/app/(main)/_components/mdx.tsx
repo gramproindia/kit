@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AlertTriangle, Info, Lightbulb, OctagonAlert } from "lucide-react";
 import { CopyButton } from "./CopyButton";
 import { CommandTabs } from "./CommandTabs";
+import { VideoEmbed } from "./VideoEmbed";
 import { MermaidChart } from "./demo-runtime";
 import { demoComponents } from "./generated/map";
 import { v2Config } from "../_lib/config";
@@ -189,6 +190,7 @@ export const mdxComponents = {
   Callout,
   Notice,
   FigmaPlugin,
+  VideoEmbed,
   WarningBanner,
   CommandTabs,
   MermaidChart,

@@ -622,6 +622,84 @@
     transform: translateY(1px);
   }
 
+  /* A video that is a poster until it is played. */
+  .v2-video {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    margin: 1.5rem 0;
+    border: 1px solid var(--v2-border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: var(--v2-subtle);
+  }
+
+  .v2-video-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  .v2-video-poster {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    display: block;
+    position: relative;
+  }
+
+  .v2-video-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Legible over any frame the video happens to open on. */
+  .v2-video-poster::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(0 0 0 / 55%), rgb(0 0 0 / 10%) 55%);
+  }
+
+  .v2-video-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 95%);
+    color: #18181b;
+    padding-left: 0.2rem;
+    transition: transform 0.15s;
+  }
+
+  .v2-video-poster:hover .v2-video-play {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+
+  .v2-video-title {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 0.875rem;
+    z-index: 1;
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-align: left;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 40%);
+  }
+
   .v2-card {
     display: flex;
     flex-direction: column;

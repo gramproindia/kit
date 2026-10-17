@@ -53,6 +53,14 @@ function toMarkdown(source: string, doc: DocMeta) {
       continue;
     }
 
+    // A video is a link once the player is gone. Left as a tag it would
+    // tell a reader of the Markdown copy nothing at all.
+    const video = /^<VideoEmbed\s+id="([^"]+)"\s+title="([^"]*)"[^>]*\/>\s*$/.exec(line);
+    if (video) {
+      out.push(`[${unescapeAttr(video[2])} (video)](https://www.youtube.com/watch?v=${video[1]})`);
+      continue;
+    }
+
     // The install button, which is a link once the styling is gone.
     // Passed through verbatim it left a dangling JSX tag where the URL
     // should be, in every copy an LLM reads.
