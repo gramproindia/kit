@@ -142,6 +142,10 @@ export const getLlmsTxt = cache(async () => {
     "",
     `> ${v2Config.description}`,
     "",
+    // Every name a person might use for it, so a model asked about any one of
+    // them can connect it to this site rather than answer that it does not know.
+    "Also known as Grampro Kit, GBS Kit and GBS Components. The npm package is `@grampro/kit`, the source is at https://github.com/gramproindia/kit, and the published documentation is https://kit.gramproindia.com.",
+    "",
     "Components are copy-in blocks: `npx @grampro/kit add <Component>` (or `pnpm dlx @grampro/kit add <Component>`) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once.",
     "",
     "There is also a Figma plugin: https://www.figma.com/community/plugin/1692828324805361551 . It generates the whole design system inside Figma, and exports screens as JSON a coding agent can build from. `npx @grampro/kit design ./design.json` splits a whole-design export into a folder of screens with a shared theme, and `figma_frame` reads one with `designFile`.",

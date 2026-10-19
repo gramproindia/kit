@@ -6,6 +6,8 @@ import { getDocs, getNav } from "../_lib/docs";
 import { renderDoc } from "../_lib/render";
 import { markdownHref } from "../_lib/markdown";
 import { v2Config } from "../_lib/config";
+import { BRAND, HOME_TITLE, TITLE_TEMPLATE, articleGraph } from "../_lib/seo";
+import { JsonLd } from "../_components/JsonLd";
 import {
   DEFAULT_LOCALE,
   docHref,
@@ -61,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!slug) {
     return {
-      title: { absolute: `${v2Config.name} ${v2Config.version} Docs` },
+      title: { absolute: HOME_TITLE },
       alternates: { canonical: homeHref(locale), languages },
     };
   }
@@ -85,12 +87,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages,
       types: { "text/markdown": markdownHref(doc) },
     },
+    // A page's own openGraph replaces the inherited one outright rather than
+    // merging with it, so the social image has to be restated here or every
+    // inner page unfurls without one.
     openGraph: {
-      title: `${doc.title} | ${v2Config.name} ${v2Config.version}`,
+      title: TITLE_TEMPLATE.replace("%s", doc.title),
       description: doc.description,
       type: "article",
       url: doc.href,
       locale: localeInfo(locale).htmlLang,
+      siteName: `${v2Config.name} Docs`,
+      images: [{ url: BRAND.ogImage, width: 1200, height: 630, alt: HOME_TITLE }],
     },
   };
 }
@@ -124,6 +131,9 @@ export default async function DocPage({ params }: Props) {
 
   return (
     <div className="v2-container md:grid md:grid-cols-[13.5rem_minmax(0,1fr)] md:gap-10 xl:grid-cols-[13.5rem_minmax(0,1fr)_13rem] xl:gap-12">
+      <JsonLd
+        data={articleGraph({ title: doc.title, description: doc.description, href: doc.href, locale: lang })}
+      />
       <aside className="hidden md:block" lang={lang}>
         <div className="v2-sidebar">
           <SidebarNav nav={nav} locale={locale} />

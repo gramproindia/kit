@@ -460,3 +460,59 @@ for (const { slug, draw } of DIAGRAMS) {
 }
 
 console.log(`\n${DIAGRAMS.length * 2} file(s) in public/diagrams/`);
+
+/* --------------------------------------------------------- social preview */
+
+/*
+ * The card a link unfurls into in Slack, X, LinkedIn and chat apps.
+ *
+ * PNG, not webp: several unfurlers still refuse webp, and this is the one
+ * image on the site that is fetched by something other than a browser. Dark
+ * only — a social card cannot follow the reader's theme, and the dark card
+ * reads on both a light and a dark timeline. 1200×630 is the size every one
+ * of those platforms crops to without letterboxing.
+ */
+function socialCard(p) {
+  const W = 1200;
+  const H = 630;
+  let s = "";
+
+  s += box({ x: 56, y: 56, w: 1088, h: 518, p, tone: "surface", r: 24 });
+
+  s += text({ x: 112, y: 168, s: "GramproKit", p, size: 76, weight: 700 });
+  s += text({
+    x: 112,
+    y: 238,
+    s: "Copy-paste React components",
+    p,
+    size: 40,
+    weight: 600,
+    fill: "accent",
+  });
+  s += text({ x: 112, y: 288, s: "with an MCP server for AI coding agents", p, size: 34, fill: "muted" });
+
+  const facts = ["27 components", "zero runtime dependencies", "React 19", "open source"];
+  let x = 112;
+  for (const fact of facts) {
+    const w = fact.length * 13.2 + 40;
+    s += box({ x, y: 352, w, h: 50, p, tone: "subtle", r: 25 });
+    s += text({ x: x + w / 2, y: 384, s: fact, p, size: 22, anchor: "middle", fill: "fg" });
+    x += w + 16;
+  }
+
+  s += box({ x: 112, y: 448, w: 470, h: 66, p, tone: "subtle", r: 12 });
+  s += text({ x: 140, y: 490, s: "npx @grampro/kit add Button", p, size: 24, mono: true, fill: "accent" });
+
+  s += text({ x: 1088, y: 490, s: "kit.gramproindia.com", p, size: 26, anchor: "end", fill: "faint" });
+  s += text({ x: 1088, y: 524, s: "Also known as Grampro Kit · GBS Kit", p, size: 20, anchor: "end", fill: "faint" });
+
+  return frame(W, H, p, s);
+}
+
+{
+  const png = await sharp(Buffer.from(socialCard(DARK)), { density: 72 }).png({ compressionLevel: 9 }).toBuffer();
+  const file = join(ROOT, "public", "og.png");
+  writeFileSync(file, png);
+  const { width, height } = await sharp(png).metadata();
+  console.log(`  og.png  ${width}x${height}  ${(png.length / 1024).toFixed(1)} KB  (social preview)`);
+}

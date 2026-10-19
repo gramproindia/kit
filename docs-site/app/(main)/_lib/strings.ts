@@ -73,7 +73,8 @@ const en = {
   heroTitle: "An agent-native",
   heroTitleAccent: "UI runtime for React.",
   heroBody:
-    "Copy-in components you own: React 19, no peer dependencies, keyboard support throughout, theming with plain CSS variables. Each component also publishes a contract describing what it can do — so a person, a script or an agent all reach it through the same validated boundary.",
+    "A React component library you copy into your project instead of installing: React 19, no peer dependencies, keyboard support throughout, theming with plain CSS variables. Each component also publishes a contract describing what it can do — so a person, a script or an agent all reach it through the same validated boundary.",
+  heroAka: "Also known as Grampro Kit and GBS Kit.",
   browseComponents: "Browse components",
   figmaDesign: "Figma design",
   view1xDocs: "View 1.x docs",
@@ -210,6 +211,7 @@ const ml: Strings = {
   heroTitleAccent: "ഏജന്റ്-നേറ്റീവ് UI റൺടൈം.",
   heroBody:
     "നിങ്ങൾ സ്വന്തമാക്കുന്ന കോപ്പി-ഇൻ കമ്പോണന്റുകൾ: React 19, പിയർ ഡിപൻഡൻസികളില്ല, പൂർണമായ കീബോർഡ് പിന്തുണ, സാധാരണ CSS വേരിയബിളുകൾ വഴിയുള്ള തീമിങ്. ഓരോ കമ്പോണന്റും അതിന് എന്തു ചെയ്യാനാകും എന്ന് വിവരിക്കുന്ന ഒരു കരാറും പ്രസിദ്ധീകരിക്കുന്നു — അതിനാൽ ഒരു വ്യക്തിയോ സ്ക്രിപ്റ്റോ ഏജന്റോ ആകട്ടെ, എല്ലാവരും ഒരേ പരിശോധിത അതിർത്തിയിലൂടെയാണ് കടന്നുപോകുന്നത്.",
+  heroAka: "Grampro Kit, GBS Kit എന്നീ പേരുകളിലും അറിയപ്പെടുന്നു.",
   browseComponents: "കമ്പോണന്റുകൾ കാണുക",
   figmaDesign: "Figma ഡിസൈൻ",
   view1xDocs: "1.x ഡോക്യുമെന്റേഷൻ കാണുക",

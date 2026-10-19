@@ -10,8 +10,15 @@ export const v2Config = {
   name: "GramproKit",
   /* Stamped from the library's package.json by scripts/generate-demos.mjs. */
   version: LIBRARY_VERSION,
+  /*
+   * The meta description, and the summary line of llms.txt. Kept near 160
+   * characters so a search result shows all of it, and written in the words
+   * people search with — "React component library", "copy" — rather than the
+   * project's own coinages ("copy-in", "agent-native UI runtime"), which
+   * nobody types into a search box.
+   */
   description:
-    "GramproKit: an agent-native UI runtime for React. Copy-in components you own, each publishing a machine-readable contract. Ships an MCP server so coding agents (Claude Code, Codex, Cursor) can read the real API and build from a Figma design.",
+    "GramproKit (Grampro Kit) is an open-source React component library you copy into your project, with zero runtime dependencies and an MCP server for AI coding agents.",
   legacyDocsHref: "/1.x.x-legacy/docs/getting-started",
   github: "https://github.com/gramproindia/kit",
   /** GBS SE Agent: a coding agent with skills for building with these components. */

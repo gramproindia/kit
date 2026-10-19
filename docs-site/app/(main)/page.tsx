@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { v2Config } from "./_lib/config";
+import { HOME_TITLE } from "./_lib/seo";
 import { DEFAULT_LOCALE, homeHref, LOCALE_CODES } from "./_lib/i18n";
 import { Overview } from "./_components/Overview";
 
 export const metadata: Metadata = {
-  title: { absolute: `${v2Config.name} ${v2Config.version} Docs` },
+  title: { absolute: HOME_TITLE },
   alternates: {
     canonical: homeHref(DEFAULT_LOCALE),
     languages: Object.fromEntries(LOCALE_CODES.map((code) => [code, homeHref(code)])),

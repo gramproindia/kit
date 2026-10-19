@@ -35,7 +35,10 @@ export const siteConfig = {
       template: "%s | GramproKit Docs",
       default: "GramproKit Docs",
     },
-    description: "By Research and Development Team, Grampro",
+    // The fallback for any page that sets none of its own. It used to be a
+    // byline, which told a search result nothing about what the site is.
+    description:
+      "GramproKit (Grampro Kit) is an open-source React component library you copy into your project, with zero runtime dependencies and an MCP server for AI coding agents.",
     keywords: [
       "React",
       "React 19",
@@ -55,10 +58,14 @@ export const siteConfig = {
       locale: "en_US",
       url: "https://kit.gramproindia.com",
       siteName: "GramproKit Docs",
+      // Without an image a shared link renders as a bare line of text in Slack,
+      // X, LinkedIn and most chat apps. Rendered by scripts/build-diagrams.mjs.
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: "GramproKit — copy-paste React components with an MCP server" }],
     },
     twitter: {
       card: "summary_large_image",
       creator: "@grampro",
+      images: ["/og.png"],
     },
   },
 };

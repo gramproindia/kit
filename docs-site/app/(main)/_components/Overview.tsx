@@ -86,6 +86,9 @@ export async function Overview({ locale }: { locale: Locale }) {
           <p className="mx-auto mt-6 max-w-2xl text-base text-pretty text-(--v2-muted) sm:text-lg">
             {s.heroBody}
           </p>
+          {/* The other names it goes by, in visible text: a search engine
+              matches a query to words on the page, not to what a page means. */}
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-(--v2-faint)">{s.heroAka}</p>
 
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             {firstDoc && (
