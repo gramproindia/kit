@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.0",
+    "libraryVersion": "2.7.1",
     "files": [
       "core/agent.ts",
       "core/group.ts",

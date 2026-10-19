@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.7.1
+
+### Security
+
+**get_guidance could read any .md file on disk.** It appended `.md` to a
+caller-supplied `topic` and joined it onto the references folder with no
+traversal guard, so `topic = "../../../../CHANGELOG"` returned the repo
+CHANGELOG and the same trick reached any `.md` file the server process could
+open. Found by a VAPT pass driving the tool with traversal payloads. The
+server runs with your own authority, so it is a confused-deputy hole rather
+than privilege escalation — but a tool that advertises nine fixed topics
+should not become a file-exfiltration primitive for a prompt-injected agent.
+It now refuses any `topic` that is not one of the shipped guidance names, with
+a resolved-prefix check behind the allowlist. A regression test drives the
+same payloads.
+
+**Affected: 2.4.4 through 2.7.0** — every release that has shipped the MCP
+server. Each was checked by running the same payload against its published
+tarball. 2.4.3 and earlier have no MCP server and are not affected. A project
+that installed the package locally needs `npm i -D @grampro/kit@latest`. One
+configured with `npx -y @grampro/kit mcp` may keep running a cached copy; check
+with `npx -y @grampro/kit --version`, and if it is not 2.7.1, run
+`npx -y @grampro/kit@2.7.1 mcp` once to replace it.
+
 ## 2.7.0
 
 ### Added

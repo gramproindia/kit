@@ -135,7 +135,13 @@ anything first.
 No dependencies, and it starts in about the time an empty Node process
 takes. Full walkthrough, including a prompt to paste:
 [kit.gramproindia.com/mcp-server](https://kit.gramproindia.com/mcp-server).
-Details in [`tools/mcp/README.md`](tools/mcp/README.md).
+Details in [`tools/mcp/README.md`](tools/mcp/README.md), including what a tool
+call can and cannot reach.
+
+**Use 2.7.1 or later.** From 2.4.4 through 2.7.0, a crafted `get_guidance`
+call could read any `.md` file the server could open. The
+[changelog](CHANGELOG.md#271) explains how to check which version your agent
+is running.
 
 ## Figma plugin
 

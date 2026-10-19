@@ -266,3 +266,26 @@ CLI's own dependencies, which are no use to a JSON-RPC loop and cost around
 The catalogue it serves is the one in this package, not the components
 copied into your project — so an agent can see a component before you
 install it, and `install_component` puts it in place.
+
+### What a caller can reach
+
+Every tool argument is treated as untrusted. An agent that has read a hostile
+web page or design file can be steered into calling these tools with
+anything, so the boundary has to hold no matter who wrote the arguments.
+
+- **`get_guidance`** serves only the guidance topics that ship in this
+  package. Any other topic is refused, including one containing `../`. Before
+  2.7.1 it was not refused: a crafted topic could read any `.md` file the
+  server could open. See the changelog.
+- **`get_component`, `get_example` and `install_component`** accept only names
+  in the catalogue. A name is reduced to letters and digits before anything
+  is looked up, and `install_component` runs the CLI with an argument list,
+  never through a shell.
+- **`figma_frame` with `designFile`** reads the path it is given, with your
+  user's permissions. It only returns content from a file shaped like the
+  plugin's export, and refuses anything else without quoting it. A file that
+  *is* shaped like an export gets read as one, which is the tool's purpose.
+
+The server runs as you, so none of this stops an agent that can already read
+your files directly. What it prevents is a tool that advertises one narrow
+job being turned into a general file reader.

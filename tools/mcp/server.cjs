@@ -197,7 +197,23 @@ function getGuidance(topic) {
     ? fs.readdirSync(REFERENCES).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""))
     : [];
   if (!topic) return { topics: available };
+
+  /*
+   * `topic` is caller-controlled, and `path.join(REFERENCES, topic + ".md")`
+   * followed a `../` out of the references folder: a prompt-injected agent
+   * could turn this into "read any .md file on disk". The list is already an
+   * allowlist of what actually ships, so a topic that is not one of those
+   * names is refused before any path is built. The resolved-prefix check is
+   * the belt to that braces — it also stops a name that readdir would never
+   * produce, such as one reaching through a symlink.
+   */
+  if (!available.includes(topic)) {
+    return { error: `No guidance for "${topic}".`, topics: available };
+  }
   const file = path.join(REFERENCES, `${topic}.md`);
+  if (!path.resolve(file).startsWith(path.resolve(REFERENCES) + path.sep)) {
+    return { error: `No guidance for "${topic}".`, topics: available };
+  }
   if (!fs.existsSync(file)) return { error: `No guidance for "${topic}".`, topics: available };
   return { topic, text: fs.readFileSync(file, "utf8") };
 }
