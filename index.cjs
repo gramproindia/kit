@@ -833,6 +833,45 @@ const parseSkillTargets = (value) => {
   return wanted;
 };
 
+/* ---------------------------------------------------------------- doctor */
+
+/**
+ * Report on the components installed here: what was changed since install,
+ * what this version of the kit changes, and which call sites an update would
+ * break. Read-only. See tools/doctor/index.cjs.
+ */
+const runDoctorCommand = ({ only = [], dest: requestedDest, json = false }) => {
+  const dest = resolveDestPath(requestedDest);
+  if (!fs.existsSync(dest)) {
+    console.error(
+      `No ${path.basename(dest)}/ folder here, so there is nothing to check.` +
+        `${NL}  Install a component first: npx ${CLI_NAME} add Button`,
+    );
+    process.exitCode = 1;
+    return;
+  }
+
+  const { runDoctor } = require("./tools/doctor/index.cjs");
+  const { formatReport, toJson } = require("./tools/doctor/format.cjs");
+  const report = runDoctor({
+    cwd: process.cwd(),
+    dest,
+    kitRoot: SOURCE_PATH,
+    kitVersion: PACKAGE_VERSION,
+    only,
+  });
+
+  if (report.rows.length === 0 && report.notInstalled.length === 0) {
+    console.log(`No ${CLI_NAME} components found in ${path.relative(process.cwd(), dest) || dest}/.`);
+    return;
+  }
+
+  const shown = { ...report, dest: `${(path.relative(process.cwd(), dest) || ".").split(path.sep).join("/")}/` };
+  console.log(json ? JSON.stringify(toJson(shown), null, 2) : formatReport(shown));
+  // A component someone asked about that is not here is the one failure worth an exit code.
+  if (report.notInstalled.length) process.exitCode = 1;
+};
+
 /* ------------------------------------------------------------- passports */
 
 /**
@@ -901,7 +940,7 @@ const runPassport = async ({ check: checkOnly, dest: requestedDest }) => {
     );
     if (errors.length > 0) process.exit(1);
   } catch (error) {
-    if (error.code === "ETYPESCRIPT_MISSING" || error.code === "EBADJSON") {
+    if (error.code === "ETYPESCRIPT_MISSING" || error.code === "ETYPESCRIPT_API" || error.code === "EBADJSON") {
       console.error(error.message);
       process.exit(1);
     }
@@ -932,18 +971,51 @@ const checkComponentExists = (component, destPath, current = false) => {
   return fs.existsSync(componentPath);
 };
 
-const copyComponent = async (component, destPath, current = false) => {
+/*
+ * Copy one component into the project — unless that would destroy edits.
+ *
+ * Components are copied in to be edited; that is what owning the code means.
+ * Until 2.7.2 this overwrote the folder unconditionally, so running `add` on a
+ * component that was already there — by hand, from a script, or by an agent
+ * through the MCP server's install_component — silently replaced whatever had
+ * been changed in it, and printed a success message while doing so.
+ *
+ * Now an installed component is compared with the record written when it was
+ * installed. Untouched, it is updated. Changed — or installed before there
+ * were records, and different from this version — it is left alone unless
+ * `--force` is passed, and the user is told what differs and how to see more.
+ *
+ * Returns "installed", "updated", "unchanged" or "kept".
+ */
+const copyComponent = async (component, destPath, current = false, { force = false } = {}) => {
   try {
-    const componentSrc = path.join(
-      getSourcePath(current),
-      folderFor(component, current),
-    );
-    const componentDest = path.join(destPath, folderFor(component, current));
+    const folder = folderFor(component, current);
+    const componentSrc = path.join(getSourcePath(current), folder);
+    const componentDest = path.join(destPath, folder);
 
     if (!fs.existsSync(componentSrc)) {
       throw new Error(
         `Component ${component} not found in ${current ? "" : "1.x "}source directory.`,
       );
+    }
+
+    let outcome = "installed";
+    let previous = null;
+    // The 1.x set is unmaintained and keeps its old behaviour.
+    if (current && fs.existsSync(componentDest)) {
+      const status = doctorBaseline().inspect(componentDest, {
+        folder,
+        kitDir: componentSrc,
+        kitVersion: PACKAGE_VERSION,
+      });
+      previous = status.installedVersion;
+
+      if (status.destructive && !force) {
+        reportKept(component, status);
+        process.exitCode = 1;
+        return "kept";
+      }
+      outcome = status.state === "pristine" && status.installedVersion === PACKAGE_VERSION ? "unchanged" : "updated";
     }
 
     // The whole folder travels, which includes passport.json and
@@ -953,23 +1025,65 @@ const copyComponent = async (component, destPath, current = false) => {
       overwrite: true,
       filter: (source) => !isTestPath(path.relative(componentSrc, source)),
     });
-    console.log(
-      `✓ Component ${component} installed successfully ${
-        component === "Grid"
-          ? "This Version of Grid will be deprecated soon. Please Install The New Data Grid Component"
-          : ""
-      }`,
-    );
+
+    // The record `doctor` and the next `add` compare against.
+    if (current) {
+      doctorBaseline().writeManifest(componentDest, {
+        component,
+        version: PACKAGE_VERSION,
+        sourceDir: componentSrc,
+      });
+    }
+
+    if (outcome === "updated") {
+      console.log(
+        previous && previous !== PACKAGE_VERSION
+          ? `✓ Component ${component} updated ${previous} → ${PACKAGE_VERSION}`
+          : `✓ Component ${component} replaced with ${PACKAGE_VERSION}${force ? " (--force)" : ""}`,
+      );
+    } else if (outcome === "unchanged") {
+      console.log(`✓ Component ${component} already up to date (${PACKAGE_VERSION})`);
+    } else {
+      console.log(
+        `✓ Component ${component} installed successfully ${
+          component === "Grid"
+            ? "This Version of Grid will be deprecated soon. Please Install The New Data Grid Component"
+            : ""
+        }`,
+      );
+    }
+    return outcome;
   } catch (error) {
     console.error(`Error installing component ${component}:`, error.message);
     process.exit(1);
   }
 };
 
+/* Loaded on first use, so commands that never touch components don't pay for it. */
+let baselineModule = null;
+const doctorBaseline = () => (baselineModule ??= require("./tools/doctor/baseline.cjs"));
+
+/** Why a component was left alone, and the two ways forward. */
+const reportKept = (component, status) => {
+  const list = (label, files) =>
+    files.length ? `    ${label}: ${files.slice(0, 6).join(", ")}${files.length > 6 ? `, +${files.length - 6} more` : ""}` : null;
+  console.error(
+    status.state === "unknown"
+      ? `✗ ${component} was not replaced: it was installed before 2.7.2 and differs from ${PACKAGE_VERSION}, so it may hold your changes.`
+      : `✗ ${component} was not replaced: it has changes made since it was installed.`,
+  );
+  for (const line of [list("changed", status.changed), list("deleted", status.missing)].filter(Boolean)) {
+    console.error(line);
+  }
+  console.error(`  See what you changed and what ${PACKAGE_VERSION} changes:  npx ${CLI_NAME} doctor ${component}`);
+  console.error(`  Replace it anyway, losing those changes:      npx ${CLI_NAME} add ${component} --force`);
+};
+
 const installComponentWithDependencies = async (
   component,
   destPath,
   current = false,
+  options = {},
 ) => {
   // Get dependencies for the component
   const dependencies = CONFIG.dependencies[component] || [];
@@ -991,7 +1105,7 @@ const installComponentWithDependencies = async (
 
   // Install all pending components
   for (const comp of pendingInstalls) {
-    await copyComponent(comp, destPath, current);
+    await copyComponent(comp, destPath, current, options);
   }
 
   if (dependencies.length > 0) {
@@ -1010,6 +1124,7 @@ const installMultipleComponents = async (
   components,
   destPath,
   current = false,
+  options = {},
 ) => {
   const allComponentsToInstall = new Set();
 
@@ -1038,7 +1153,7 @@ const installMultipleComponents = async (
 
   // Install all pending components
   for (const comp of pendingInstalls) {
-    await copyComponent(comp, destPath, current);
+    await copyComponent(comp, destPath, current, options);
   }
 
   // Show dependency information
@@ -1190,7 +1305,7 @@ const validateComponents = (components, current = false) => {
  * projects a week install this; breaking their scripts to tidy an argument
  * parser is not a trade worth making.
  */
-const COMMANDS = new Set(["add", "list", "skill", "passport", "mcp", "secret", "design"]);
+const COMMANDS = new Set(["add", "list", "skill", "passport", "mcp", "secret", "design", "doctor"]);
 
 /**
  * Flags that take a separate value, so the token after one is that value and
@@ -1281,7 +1396,12 @@ const main = async () => {
       type: "string",
     })
     .option("force", {
-      describe: "Replace files you have edited locally in shared/ or the skill",
+      describe: "Replace files you have edited locally: a component, shared/ or the skill",
+      type: "boolean",
+      default: false,
+    })
+    .option("json", {
+      describe: "With doctor: print the report as JSON, for agents and CI",
       type: "boolean",
       default: false,
     })
@@ -1291,6 +1411,8 @@ const main = async () => {
     .example("$0 skill", "Install the agent skill for every supported agent")
     .example("$0 skill --for claude", "Only the Claude Code copy")
     .example("$0 passport --check", "Fail if a passport is stale (CI)")
+    .example("$0 doctor", "What you changed, what upstream changed, what an update breaks")
+    .example("$0 doctor DataGrid --json", "One component, as JSON")
     .example("$0 add Select --legacy", "Install from the 1.x set")
     .example("$0 add Button --dest app/ui", "Choose where they go")
     .example("$0 mcp", "Serve the catalogue to a coding agent over MCP")
@@ -1364,6 +1486,11 @@ const main = async () => {
     return;
   }
 
+  if (parsed && parsed.command === "doctor") {
+    runDoctorCommand({ only: parsed.operands, dest: argv.dest, json: argv.json });
+    return;
+  }
+
   if (parsed) {
     if (parsed.command === "list") argv.list = true;
     if (parsed.command === "skill") argv.skill = true;
@@ -1419,7 +1546,7 @@ const main = async () => {
     await copySupportFiles(destPath, current, { force: argv.force });
 
     // Install selected components
-    await installMultipleComponents(selectedComponents, destPath, current);
+    await installMultipleComponents(selectedComponents, destPath, current, { force: argv.force });
     return;
   }
 
@@ -1470,10 +1597,10 @@ const main = async () => {
   // Install components
   if (components.length === 1) {
     // Single component installation (existing behavior)
-    await installComponentWithDependencies(components[0], destPath, current);
+    await installComponentWithDependencies(components[0], destPath, current, { force: argv.force });
   } else {
     // Multiple components installation
-    await installMultipleComponents(components, destPath, current);
+    await installMultipleComponents(components, destPath, current, { force: argv.force });
   }
 };
 

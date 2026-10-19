@@ -84,7 +84,8 @@ genuinely headless, and the component READMEs document it under "Headless use".
 
 | | |
 | --- | --- |
-| `add <Component>...` | Copy components into the project. `--dest` chooses where; `--legacy` reaches the 1.x set. |
+| `add <Component>...` | Copy components into the project, or update ones already there. A component you have edited is left alone unless you pass `--force`. `--dest` chooses where; `--legacy` reaches the 1.x set. |
+| `doctor [Component...]` | What you changed in your copies, what the new version changes, and which of your call sites an update would break. `--json` for agents and CI. |
 | `list` | What is available to add. |
 | `skill` | Install the agent skill. `--for claude,codex,antigravity` narrows it. |
 | `mcp` | Run the MCP server. Agents start this themselves; you rarely type it. |

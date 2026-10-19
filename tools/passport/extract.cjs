@@ -14,9 +14,9 @@
 
 const fs = require("fs");
 const path = require("path");
-const crypto = require("crypto");
 const { allowlistFor } = require("./policy.cjs");
 const { describable } = require("./merge.cjs");
+const { hashEntries } = require("./hash.cjs");
 
 const PASSPORT_VERSION = "1.0.0";
 
@@ -27,23 +27,56 @@ const PASSPORT_VERSION = "1.0.0";
  * the runtime dependency story. The caller's project is searched first, so a
  * consumer regenerating a forked component uses their own TypeScript.
  */
+/*
+ * TypeScript 7 is a native rewrite and its npm package does not expose the
+ * compiler API this generator is built on — `createProgram`, `JsxEmit` and the
+ * rest are simply absent. It is also what `npm i -D typescript` installs now,
+ * so a current project has a `typescript` that loads fine and then fails on
+ * the first enum it is asked for, with an error about `ReactJSX` that says
+ * nothing useful.
+ *
+ * So a candidate is only accepted if it actually has the API. After the
+ * project's own `typescript`, a TypeScript 6 installed under an alias is
+ * tried: it sits beside a TypeScript 7 build without replacing it.
+ */
+const TS6_ALIASES = ["typescript-6", "typescript6"];
+const hasCompilerApi = (ts) => Boolean(ts && typeof ts.createProgram === "function" && ts.JsxEmit);
+
 function loadTypeScript(searchFrom = []) {
   const paths = [...searchFrom, process.cwd(), __dirname].filter(Boolean);
-  try {
-    return require(require.resolve("typescript", { paths }));
-  } catch {
+  const tryLoad = (name) => {
     try {
-      return require("typescript");
+      return require(require.resolve(name, { paths }));
     } catch {
-      const error = new Error(
-        "Passport generation needs the TypeScript compiler API.\n" +
-          "  Install it as a dev dependency:  npm i -D typescript\n" +
-          "  It is only needed to generate passports, never to run a component.",
-      );
-      error.code = "ETYPESCRIPT_MISSING";
-      throw error;
+      return null;
     }
+  };
+
+  const primary = tryLoad("typescript");
+  if (hasCompilerApi(primary)) return primary;
+  for (const alias of TS6_ALIASES) {
+    const candidate = tryLoad(alias);
+    if (hasCompilerApi(candidate)) return candidate;
   }
+
+  if (primary) {
+    const error = new Error(
+      `This project's TypeScript (${primary.version || "unknown version"}) does not provide the compiler API that ` +
+        "passports are read with: TypeScript 7 is a native rewrite without it.\n" +
+        "  Install TypeScript 6 alongside it, under another name, so your build keeps using 7:\n" +
+        "    npm i -D typescript-6@npm:typescript@6\n" +
+        "  It is only used to read component contracts, never to build or run a component.",
+    );
+    error.code = "ETYPESCRIPT_API";
+    throw error;
+  }
+  const error = new Error(
+    "Passport generation needs the TypeScript compiler API.\n" +
+      "  Install it as a dev dependency:  npm i -D typescript-6@npm:typescript@6\n" +
+      "  It is only needed to read component contracts, never to run a component.",
+  );
+  error.code = "ETYPESCRIPT_MISSING";
+  throw error;
 }
 
 const posix = (p) => p.replace(/\\/g, "/");
@@ -74,14 +107,8 @@ function sourceFiles(dir) {
  * how the file was checked out.
  */
 function hashSources(files, root) {
-  const h = crypto.createHash("sha256");
-  for (const f of [...files].sort()) {
-    h.update(posix(path.relative(root, f)));
-    h.update("\0");
-    h.update(fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n"));
-    h.update("\0");
-  }
-  return `sha256:${h.digest("hex")}`;
+  // One implementation, shared with the installer: see hash.cjs for why.
+  return hashEntries(files.map((file) => ({ label: posix(path.relative(root, file)), file })));
 }
 
 /* ------------------------------------------------------------------ program */

@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.1",
+    "libraryVersion": "2.7.2",
     "files": [
       "core/agent.ts",
       "core/filter.ts",

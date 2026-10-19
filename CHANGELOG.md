@@ -1,5 +1,68 @@
 # Changelog
 
+## 2.7.2
+
+### Fixed
+
+**`add` overwrote components you had edited, and said it had succeeded.**
+Components are copied into your project so that you can change them, but
+running `add` on one that was already installed replaced the whole folder
+unconditionally. It printed "installed successfully" and the edits were gone.
+The same happened through the MCP server: `install_component` runs `add`, so an
+agent asked to "install Button" in a project with a customised Button
+discarded the customisation.
+
+Now every install records what it wrote — a hash of each file and a copy of
+the component's contract, in `.install-manifest.json` beside the component —
+and `add` checks that record first. An untouched component is updated. An
+edited one is left in place: `add` lists the files that changed, prints how to
+see more, and exits 1, while the other components in the same command still
+install. Only `--force` replaces an edited component. `shared/` has worked this
+way since it was introduced; components never did.
+
+Components installed before this release have no record. An untouched one is
+recognised from its passport's `sourceHash` — recomputed over your copy with
+the labels the kit hashed it with, which a test holds to the shipped value for
+all 27 — and is updated normally. One that differs from this version cannot be
+told apart from an older untouched copy, so it is kept, not guessed at.
+
+**`install_component` told an agent nothing when it was refused.** The
+installer explains a refusal on stderr, and the tool only returned stdout — so
+the agent got "Install failed" followed by stylesheet instructions. It now
+returns what was installed, what was kept and why, and advice not to force it.
+
+**`passport` crashed in any project on TypeScript 7.** TypeScript 7 is a
+native rewrite whose npm package does not expose the compiler API passports
+are generated with, and it is what `npm i -D typescript` installs today. The
+command failed with `Cannot read properties of undefined (reading
+'ReactJSX')`. It now checks for the API rather than for the package, falls
+back to a TypeScript 6 installed under an alias, and otherwise says exactly
+that, with the one-line fix.
+
+**`validate_usage` invented props from inside expressions.** Attribute names
+were matched anywhere in a tag, so `title={ok ? first : second}` reported
+`first` and `second` as unknown props. The tag scanner now reads names only at
+the top level, outside braces and quotes. It is shared with `doctor`, and stays
+linear on hostile input.
+
+### Added
+
+**`npx @grampro/kit doctor`** — what you changed in your copies, what the new
+version changes, and which call sites in your code an update would break.
+
+It compares three versions of each component: the one you installed, your copy
+now, and the one the CLI carries. It compares them as contracts — props,
+accepted values, handlers, exports, agent operations — because a text diff of
+`Button.tsx` shows which lines moved, not that `variant` stopped accepting
+`"ghost"`. Edits from both sides to the same value set are merged rather than
+called a conflict; a conflict is an incompatible pair, such as you removing a
+prop that upstream changed. Then it scans your source and names the call sites
+that pass something the replacement would not accept.
+
+It never writes. `--json` gives the same report to agents and CI. The agent
+skill now tells agents to run it, and never to retry `add` with `--force` on
+someone else's edits. A new docs page, *Updating components*, covers all of it.
+
 ## 2.7.1
 
 ### Security

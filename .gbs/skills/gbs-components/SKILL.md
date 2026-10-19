@@ -31,8 +31,10 @@ npx @grampro/kit add Button,Input,Modal
 ```
 
 Writes `component-lib/<folder>/` plus `component-lib/shared/`. No flag is
-needed: the 2.x components are the default. Import the barrel in your
-component:
+needed: the 2.x components are the default. A component the project has
+edited is never overwritten — if `add` says it kept one, tell the user and
+suggest `npx @grampro/kit doctor <Component>`; **never retry with `--force`**,
+which discards their work. Import the barrel in your component:
 
 ```ts
 import { Button } from "component-lib/button";

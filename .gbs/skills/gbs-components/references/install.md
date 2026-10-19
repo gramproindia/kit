@@ -20,7 +20,8 @@ npx @grampro/kit add Button                 # one component
 npx @grampro/kit add Button,Input,Modal     # several
 npx @grampro/kit -i                         # interactive picker
 npx @grampro/kit -l                         # list available
-npx @grampro/kit add Button --force         # overwrite edited shared/ files
+npx @grampro/kit doctor                     # what changed locally and upstream
+npx @grampro/kit doctor Button --json       # one component, for reading programmatically
 npx @grampro/kit skill                      # install this skill
 npx @grampro/kit skill --for claude         # only the Claude Code copy
 ```
@@ -33,7 +34,32 @@ npx @grampro/kit skill --for claude         # only the Claude Code copy
 | `--legacy` | — | Install from the 1.x set instead. Unmaintained; see below. |
 | `--skill` | — | Install this skill at the project root. `-skill` and `-a skill` also work. |
 | `--for` | — | With `--skill`: which agents to write adapters for (`claude`, `codex`, `antigravity`, or `none`). Default: all. |
-| `--force` | — | Replace files you have edited locally in `shared/` or `.gbs/`. |
+| `--force` | — | Replace a component, `shared/` or `.gbs/` even though the project has edited it. Never pass it on the user's behalf. |
+| `--json` | — | With `doctor`: print the report as JSON. |
+
+## Components the project has changed
+
+Copied components are meant to be edited, so `add` treats an edited one as
+the project's code, not the kit's:
+
+- **Untouched** — `add` updates it in place.
+- **Edited** since it was installed — `add` leaves it alone, prints which
+  files changed, and exits 1. The component is still installed and usable.
+
+When that happens, **stop and tell the user.** Do not rerun with `--force`:
+it discards their changes, and replacing their code is their decision, not
+yours. Show them `npx @grampro/kit doctor <Component>`, which reports:
+
+- which files they changed;
+- what they changed in the component's contract (props, values, handlers);
+- what the new version changes, and where the two conflict or merge;
+- the exact call sites in their code an update would break.
+
+Run `doctor` yourself before proposing an update. `doctor --json` gives the
+same report in a form you can read; it never writes anything.
+
+The MCP server's `install_component` follows the same rule and returns the
+components it kept under `kept`, with the reason.
 
 **Pass no flag.** The 2.x components are what `add` installs. `--beta` used
 to opt in to them and now does nothing but print a notice, so do not pass it.

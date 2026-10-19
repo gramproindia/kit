@@ -1,0 +1,132 @@
+---
+title: "Updating components"
+description: "Edit the components you copy in, then update them safely: add never overwrites an edited component, and doctor shows what you changed, what the new version changes, and which call sites an update would break."
+group: "General"
+order: 1
+---
+
+Components are copied into your project so that you can change them. The
+moment you do, you have a fork — and a fork needs two things a package
+manager never had to provide: a guarantee that updating will not destroy your
+changes, and a way to see what an update would actually do to your code.
+
+## What `add` does with a component that is already there
+
+```bash
+npx @grampro/kit add Button
+```
+
+- **Untouched since it was installed** — it is updated in place.
+- **Changed** — it is left alone. `add` names the files that differ, prints
+  how to see more, and exits with status 1. The component is still installed
+  and still works; nothing was removed.
+
+```
+✗ Button was not replaced: it has changes made since it was installed.
+    changed: react/Button.tsx
+  See what you changed and what 2.7.2 changes:  npx @grampro/kit doctor Button
+  Replace it anyway, losing those changes:      npx @grampro/kit add Button --force
+```
+
+Other components in the same command are still installed or updated. Only
+`--force` replaces a changed component, and it discards your changes when it
+does.
+
+<Notice message="Before 2.7.2, add replaced an already-installed component unconditionally and reported success, including when it held your edits. If you have run add on a component you had changed, check it with doctor." />
+
+## `doctor`
+
+```bash
+npx @grampro/kit doctor              # every installed component
+npx @grampro/kit doctor DatePicker   # just one
+npx @grampro/kit doctor --json       # the same report, for scripts and agents
+```
+
+It compares three versions of each component: the one you installed, your
+copy as it is now, and the one this version of the CLI carries. It compares
+them as *contracts* — props, the values a prop accepts, handlers, exports and
+agent operations — rather than as text, because a text diff shows which lines
+moved but not what breaks. Then it reads your source for the places you use
+the component.
+
+```
+Doctor · src/component-lib/ · kit 2.7.2
+
+  Button        your changes · conflict with 2.7.2
+    files       changed core/types.ts, react/Button.tsx
+    yours       ! prop size: removed
+                ! prop variant: values removed "ghost"
+                + prop tone  "info" | "warn"
+    upstream    ! prop size: values removed "xl"
+                + prop variant: values added "link"
+    conflict    prop size: you removed; upstream values removed
+    merges      prop variant → "danger" | "link" | "outline" | "primary" | "secondary"  (both edits combine)
+    would break src/App.tsx:3  <Button tone>
+    choices     keep your copy (nothing to do), or replace it with 2.7.2
+                and lose your changes: npx @grampro/kit add Button --force
+
+  Switch        untouched · 2.7.2 available, but it breaks call sites below
+    upstream    ! prop legacyColor: removed
+    would break src/Settings.tsx:3  <Switch legacyColor>
+    update      npx @grampro/kit add Switch
+
+  Up to date: DatePicker
+```
+
+It never writes anything.
+
+### Reading the report
+
+| Line | Means |
+| --- | --- |
+| `files` | Files changed, deleted or added since the component was installed. |
+| `yours` | What your edits changed in the component's contract. "No contract changes" means you changed the implementation only. |
+| `upstream` | What the newer version changes, measured from the version you installed. |
+| `conflict` | You and upstream changed the same thing incompatibly — for example, you removed a prop that upstream changed. |
+| `merges` | You both changed the same thing, but compatibly. For a set of accepted values, the combined set is shown. |
+| `would break` | Call sites in your code that pass something the replacement would not accept. |
+
+`!` is a change that can break a caller, `~` one that changes behaviour
+without breaking callers, `+` something new.
+
+`would break` covers both directions. An untouched component whose new
+version drops a prop you use is listed, and so is an edited component whose
+call sites depend on a prop you added — because replacing it with `--force`
+would take that prop away.
+
+## Components installed before 2.7.2
+
+From 2.7.2, every install records what was written: a hash of each file and a
+copy of the contract, in `.install-manifest.json` inside the component's
+folder. Commit it with the component.
+
+Components installed earlier have no such record. If one is unchanged, it is
+recognised from its passport and updated normally, and gets a record from then
+on. If it differs from the current version, there is no telling an older
+untouched copy from an edited one, so `add` keeps it and `doctor` reports it as
+*may contain your changes*, comparing it with the current version instead.
+
+## For agents and CI
+
+`doctor --json` gives the full report — every change, conflict, merge and
+affected call site, plus a verdict per component.
+
+The MCP server's `install_component` follows the same rule as `add`. When it
+keeps an edited component it returns the component under `kept`, with the
+reason, and the [agent skill](/agent-skill) tells agents not to retry with
+`--force`. An agent asked to "install Button" has not been asked to discard
+the Button you already changed.
+
+## TypeScript
+
+Comparing contracts reads your edited components with the TypeScript compiler
+API. Without TypeScript in the project, `doctor` still reports which files
+changed and what upstream changed, and says that the rest needs TypeScript.
+
+TypeScript 7 does not provide that API. If your project uses TypeScript 7,
+install TypeScript 6 alongside it under another name — your build keeps using
+7:
+
+```bash
+npm i -D typescript-6@npm:typescript@6
+```

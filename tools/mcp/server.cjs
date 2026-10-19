@@ -24,6 +24,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { figmaFrame } = require("./figma.cjs");
+const { jsxOpenings } = require("../jsx-tags.cjs");
 
 const CATALOGUE = path.join(__dirname, "..", "..", "source", "components");
 const REFERENCES = path.join(__dirname, "..", "..", ".gbs", "skills", "gbs-components", "references");
@@ -241,43 +242,10 @@ function validateUsage(code) {
 
   const issues = [];
   const used = [];
-  const opening = /<([A-Z][A-Za-z0-9]*)(?=[\s/>])/g;
-  let match;
-
-  while ((match = opening.exec(source))) {
-    const [, name] = match;
+  // Shared with `doctor`, which scans whole projects with the same rules.
+  for (const { name, attrs } of jsxOpenings(source)) {
     const entry = known.get(name);
     if (!entry) continue; // Not ours; the agent may compose with its own components.
-
-    /*
-     * Scan to the tag's own `>` rather than matching one. An attribute can
-     * hold an arrow function — `onDismiss={() => {}}` — so the first `>` is
-     * usually inside a brace, and a regex that stops there finds nothing.
-     */
-    let depth = 0;
-    let quote = null;
-    let end = -1;
-    for (let i = match.index + match[0].length; i < source.length; i += 1) {
-      const ch = source[i];
-      if (quote) {
-        if (ch === quote) quote = null;
-      } else if (ch === '"' || ch === "'" || ch === "`") {
-        quote = ch;
-      } else if (ch === "{") {
-        depth += 1;
-      } else if (ch === "}") {
-        depth -= 1;
-      } else if (ch === ">" && depth === 0) {
-        end = i;
-        break;
-      }
-    }
-    if (end === -1) continue; // Unterminated fragment; nothing reliable to say.
-
-    const rawAttrs = source.slice(match.index + match[0].length, end);
-    const attrs = [...rawAttrs.matchAll(/(?:^|\s)([a-zA-Z][a-zA-Z0-9:_-]*)(?=\s*=|\s|$)/g)].map(
-      (m) => m[1],
-    );
     used.push({ component: name, props: attrs });
 
     for (const attr of attrs) {
@@ -340,18 +308,57 @@ function installComponents(names) {
   }
 
   const cli = path.join(__dirname, "..", "..", "index.cjs");
+  let stdout = "";
+  let stderr = "";
+  let failed = false;
   try {
-    const output = execFileSync(process.execPath, [cli, "add", ...wanted], {
+    stdout = execFileSync(process.execPath, [cli, "add", ...wanted], {
       cwd: process.cwd(),
       encoding: "utf8",
       timeout: 120000,
+      // Captured, not forwarded: the installer explains a refusal on stderr,
+      // and that explanation is what the agent most needs to read.
+      stdio: ["ignore", "pipe", "pipe"],
     });
-    // The installer prints the one manual step; the agent needs to see it.
-    const importLine = (output.match(/^\s*@import .+$/gm) || []).map((l) => l.trim());
-    return { installed: wanted, stylesheet: importLine, output: output.trim().slice(-1200) };
   } catch (error) {
-    return { error: `Install failed: ${(error.stdout || error.message || "").toString().slice(-600)}` };
+    failed = true;
+    stdout = (error.stdout || "").toString();
+    stderr = (error.stderr || "").toString();
+    if (!stdout && !stderr) return { error: `Install failed: ${error.message}` };
   }
+
+  // The installer prints the one manual step; the agent needs to see it.
+  const importLine = (stdout.match(/^\s*@import .+$/gm) || []).map((l) => l.trim());
+  const done = [...stdout.matchAll(/✓ Component (\S+) /g)].map((m) => m[1]);
+
+  /*
+   * A component the project has edited is left alone by `add`, and this tool
+   * never passes --force. That is deliberate: replacing someone's edited
+   * component is their decision, and an agent asked to "install Button" has
+   * not been asked to discard the Button they already customised. So the
+   * agent is told what was kept, why, and how the user can see the changes —
+   * not handed a generic failure it might try to work around.
+   */
+  const kept = [...stderr.matchAll(/✗ (\S+) was not replaced/g)].map((m) => m[1]);
+  if (kept.length) {
+    return {
+      installed: done,
+      kept,
+      reason:
+        "These components have changes made in this project since they were installed, and " +
+        "install_component never overwrites them. They are still in place and still usable.",
+      advice:
+        "Do not try to replace them. Tell the user, and suggest " +
+        `\`npx @grampro/kit doctor ${kept.join(" ")}\`: it shows what was changed locally, what the ` +
+        "new version changes, and which call sites an update would break. Replacing them with " +
+        "--force discards the user's work, which is their decision to make.",
+      detail: stderr.trim().slice(-1500),
+      stylesheet: importLine,
+    };
+  }
+
+  if (failed) return { error: `Install failed: ${(stderr || stdout).trim().slice(-600)}` };
+  return { installed: wanted, stylesheet: importLine, output: stdout.trim().slice(-1200) };
 }
 
 const TOOLS = [
