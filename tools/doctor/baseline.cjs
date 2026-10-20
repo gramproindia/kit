@@ -21,7 +21,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const { hashEntries } = require("../passport/hash.cjs");
+const { componentHash } = require("../passport/hash.cjs");
 const { compactContract } = require("./contract.cjs");
 
 const MANIFEST = ".install-manifest.json";
@@ -100,12 +100,13 @@ function kitRelativeHash(dir, folder, passport) {
     if (typeof relative !== "string" || relative.split(/[\\/]/).includes("..")) return null;
     const file = path.join(dir, relative);
     if (!fs.existsSync(file)) return null; // a file the passport lists is gone: not pristine
-    entries.push({ label: `source/components/${folder}/${relative}`, file });
+    entries.push({ rel: relative, file });
   }
   // The generator hashes styles.css alongside the source when there is one.
   const styles = path.join(dir, "styles.css");
-  if (fs.existsSync(styles)) entries.push({ label: `source/components/${folder}/styles.css`, file: styles });
-  return hashEntries(entries);
+  if (fs.existsSync(styles)) entries.push({ rel: "styles.css", file: styles });
+  // The generator's own labelling rule, not a copy of it.
+  return componentHash(folder, entries);
 }
 
 /**

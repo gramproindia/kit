@@ -36,4 +36,21 @@ function hashEntries(entries) {
   return `sha256:${h.digest("hex")}`;
 }
 
-module.exports = { hashEntries };
+/**
+ * A component's sourceHash, labelled the same way wherever the component sits.
+ *
+ * Every file is labelled `source/components/<folder>/<path in folder>` — the
+ * path it has in this repository. In the repository that is simply where it
+ * is; in a project it is installed under `component-lib/` or `src/...`, and
+ * labelling it by that location made an untouched installed component hash
+ * differently from the passport it shipped with. One rule for both, so the
+ * generator, `passport --check` in a project, and `doctor` all agree.
+ *
+ * @param {string} folder  e.g. "date-picker"
+ * @param {{ rel: string, file: string }[]} files  path inside the folder ("/"-separated), absolute file
+ */
+function componentHash(folder, files) {
+  return hashEntries(files.map(({ rel, file }) => ({ label: `source/components/${folder}/${rel}`, file })));
+}
+
+module.exports = { hashEntries, componentHash };

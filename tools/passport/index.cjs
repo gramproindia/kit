@@ -149,6 +149,8 @@ function generate(opts) {
  */
 function check(opts) {
   const { results } = buildAll(opts);
+  // In this repository it is an npm script; in a project, the CLI.
+  const regenerate = opts.regenerate || "npm run passport";
   const report = [];
   let errors = 0;
   let warnings = 0;
@@ -161,14 +163,14 @@ function check(opts) {
     const problems = [...r.issues];
     if (actual === null) {
       problems.unshift({ level: "error", code: "missing-passport", component: r.name,
-        message: "no passport.json committed; run `npm run passport`" });
+        message: `no passport.json committed; run \`${regenerate}\`` });
     } else if (actual !== expected) {
       const reason =
         JSON.parse(actual).source?.sourceHash !== r.effective.source.sourceHash
           ? "source changed since the passport was generated"
           : "committed passport differs from generated output";
       problems.unshift({ level: "error", code: "stale-passport", component: r.name,
-        message: `passport stale — ${reason}; run \`npm run passport\`` });
+        message: `passport stale — ${reason}; run \`${regenerate}\`` });
     }
 
     errors += problems.filter((p) => p.level === "error").length;

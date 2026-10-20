@@ -119,14 +119,34 @@ the Button you already changed.
 
 ## TypeScript
 
-Comparing contracts reads your edited components with the TypeScript compiler
-API. Without TypeScript in the project, `doctor` still reports which files
-changed and what upstream changed, and says that the rest needs TypeScript.
+Nothing to set up, on any TypeScript version — or none.
 
-TypeScript 7 does not provide that API. If your project uses TypeScript 7,
-install TypeScript 6 alongside it under another name — your build keeps using
-7:
+Comparing contracts means resolving types: following `ButtonVariant` to its
+values, expanding `Omit<ButtonHTMLAttributes<…>, "onClick">` into the props it
+leaves. That needs TypeScript's compiler API. If your project's TypeScript
+provides it, that one is used. TypeScript 7 does not — it is a native rewrite
+without the JavaScript API — so in that case, or with no TypeScript at all,
+the CLI fetches the exact TypeScript version the kit is built with, once, and
+caches it per user. Your project is not touched: no `package.json` change, no
+new `node_modules`.
 
-```bash
-npm i -D typescript-6@npm:typescript@6
 ```
+Fetching TypeScript 6.0.3 once, to read component contracts (cached in …).
+```
+
+The fetch goes through your own npm, so your registry, proxy and mirror
+settings apply. It installs one pinned version with install scripts disabled,
+and checks it before using it. It is about 24 MB, and later runs take around
+a second.
+
+| Variable | Effect |
+| --- | --- |
+| `GRAMPRO_KIT_OFFLINE=1` | Never fetch. `doctor` reports file-level changes only and says why. npm's own `offline` setting has the same effect. |
+| `GRAMPRO_KIT_CACHE_DIR` | Cache somewhere other than the default (`%LOCALAPPDATA%\grampro-kit\Cache`, `~/Library/Caches/grampro-kit` or `~/.cache/grampro-kit`). |
+
+On an air-gapped machine, install it yourself beside your own TypeScript:
+`npm i -D typescript-6@npm:typescript@6.0.3`.
+
+Protection and the file-level part of the report need no TypeScript at all —
+they compare file hashes — so `add` never refuses or overwrites anything
+differently depending on what is installed.

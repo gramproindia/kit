@@ -902,10 +902,17 @@ const runPassport = async ({ check: checkOnly, dest: requestedDest }) => {
     process.exit(1);
   }
 
-  const pkgPath = path.join(process.cwd(), "package.json");
-  const libraryVersion = fs.existsSync(pkgPath)
-    ? readJson(pkgPath, {}).version || "unknown"
-    : "unknown";
+  /*
+   * Each component is stamped with the kit version it was installed from —
+   * its install record, else the passport it shipped with — not with this
+   * project's own version. Stamping the project's version made every
+   * regenerated passport differ from the shipped one, so `passport --check`
+   * failed for components nobody had touched.
+   */
+  const libraryVersion = (name, dir) =>
+    readJson(path.join(dir, ".install-manifest.json"), {})?.version ||
+    readJson(path.join(dir, "passport.json"), {})?.source?.libraryVersion ||
+    PACKAGE_VERSION;
 
   const options = {
     libRoot: dest,
@@ -913,6 +920,7 @@ const runPassport = async ({ check: checkOnly, dest: requestedDest }) => {
     libraryVersion,
     includeLocal: true,
     coverageThreshold: undefined,
+    regenerate: `npx ${CLI_NAME} passport`,
   };
 
   try {

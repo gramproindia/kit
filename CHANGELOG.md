@@ -35,9 +35,26 @@ returns what was installed, what was kept and why, and advice not to force it.
 native rewrite whose npm package does not expose the compiler API passports
 are generated with, and it is what `npm i -D typescript` installs today. The
 command failed with `Cannot read properties of undefined (reading
-'ReactJSX')`. It now checks for the API rather than for the package, falls
-back to a TypeScript 6 installed under an alias, and otherwise says exactly
-that, with the one-line fix.
+'ReactJSX')`.
+
+It now works on any TypeScript, or none, with no setup. The project's
+TypeScript is used when it has the compiler API; otherwise the exact version
+the kit is built with (6.0.3) is fetched once and cached per user. The fetch
+goes through the user's own npm, installs one pinned version with install
+scripts disabled, is verified before use, and is moved into the cache only
+once complete; nothing in the project changes. `GRAMPRO_KIT_OFFLINE=1` turns
+it off, and then `doctor` falls back to file-level changes and says why.
+Bundling TypeScript instead would have added 24 MB to every `npx` run, and a
+second, simpler extractor would have disagreed with the first.
+
+**`passport --check` failed for every component in a project, edited or not.**
+The source hash was labelled with paths as they sit in the project
+(`src/component-lib/…`) rather than as they sit in the kit, and each passport
+was stamped with the project's own version, so no regenerated passport ever
+matched the one a component shipped with. Both now use the kit's terms — the
+labels through one shared function, the version from the install record — so
+an untouched component passes, an edited one is reported, and the hint names
+`npx @grampro/kit passport` rather than this repository's npm script.
 
 **`validate_usage` invented props from inside expressions.** Attribute names
 were matched anywhere in a tag, so `title={ok ? first : second}` reported

@@ -16,7 +16,8 @@ const fs = require("fs");
 const path = require("path");
 const { allowlistFor } = require("./policy.cjs");
 const { describable } = require("./merge.cjs");
-const { hashEntries } = require("./hash.cjs");
+const { componentHash } = require("./hash.cjs");
+const { resolveTypeScript } = require("./typescript.cjs");
 
 const PASSPORT_VERSION = "1.0.0";
 
@@ -28,55 +29,16 @@ const PASSPORT_VERSION = "1.0.0";
  * consumer regenerating a forked component uses their own TypeScript.
  */
 /*
- * TypeScript 7 is a native rewrite and its npm package does not expose the
- * compiler API this generator is built on — `createProgram`, `JsxEmit` and the
- * rest are simply absent. It is also what `npm i -D typescript` installs now,
- * so a current project has a `typescript` that loads fine and then fails on
- * the first enum it is asked for, with an error about `ReactJSX` that says
- * nothing useful.
- *
- * So a candidate is only accepted if it actually has the API. After the
- * project's own `typescript`, a TypeScript 6 installed under an alias is
- * tried: it sits beside a TypeScript 7 build without replacing it.
+ * A TypeScript with the compiler API, on any project: the project's own when
+ * it has the API, otherwise the kit's pinned version, fetched once and
+ * cached. See typescript.cjs for why, and for how the fetch is kept narrow.
+ * Progress goes to stderr so `doctor --json` keeps a clean stdout.
  */
-const TS6_ALIASES = ["typescript-6", "typescript6"];
-const hasCompilerApi = (ts) => Boolean(ts && typeof ts.createProgram === "function" && ts.JsxEmit);
-
 function loadTypeScript(searchFrom = []) {
-  const paths = [...searchFrom, process.cwd(), __dirname].filter(Boolean);
-  const tryLoad = (name) => {
-    try {
-      return require(require.resolve(name, { paths }));
-    } catch {
-      return null;
-    }
-  };
-
-  const primary = tryLoad("typescript");
-  if (hasCompilerApi(primary)) return primary;
-  for (const alias of TS6_ALIASES) {
-    const candidate = tryLoad(alias);
-    if (hasCompilerApi(candidate)) return candidate;
-  }
-
-  if (primary) {
-    const error = new Error(
-      `This project's TypeScript (${primary.version || "unknown version"}) does not provide the compiler API that ` +
-        "passports are read with: TypeScript 7 is a native rewrite without it.\n" +
-        "  Install TypeScript 6 alongside it, under another name, so your build keeps using 7:\n" +
-        "    npm i -D typescript-6@npm:typescript@6\n" +
-        "  It is only used to read component contracts, never to build or run a component.",
-    );
-    error.code = "ETYPESCRIPT_API";
-    throw error;
-  }
-  const error = new Error(
-    "Passport generation needs the TypeScript compiler API.\n" +
-      "  Install it as a dev dependency:  npm i -D typescript-6@npm:typescript@6\n" +
-      "  It is only needed to read component contracts, never to run a component.",
-  );
-  error.code = "ETYPESCRIPT_MISSING";
-  throw error;
+  return resolveTypeScript({
+    searchFrom,
+    log: (message) => process.stderr.write(`${message}\n`),
+  }).ts;
 }
 
 const posix = (p) => p.replace(/\\/g, "/");
@@ -96,20 +58,6 @@ function sourceFiles(dir) {
   return out.sort();
 }
 
-/**
- * Hash of the inputs the passport is derived from. Deterministic: sorted paths,
- * file contents only, no timestamps.
- *
- * Line endings are normalised first. The same file arrives as CRLF on a
- * Windows checkout and LF on CI, so hashing the bytes verbatim made a
- * passport generated on one platform read as stale on the other — which it
- * did, for all 27 components at once. A content hash should not depend on
- * how the file was checked out.
- */
-function hashSources(files, root) {
-  // One implementation, shared with the installer: see hash.cjs for why.
-  return hashEntries(files.map((file) => ({ label: posix(path.relative(root, file)), file })));
-}
 
 /* ------------------------------------------------------------------ program */
 
@@ -476,9 +424,17 @@ function extractComponent(ts, program, checker, { name, dir, libRoot, libraryVer
       exports: componentExports.sort(),
     },
     source: {
-      libraryVersion,
+      // A project regenerating its copies stamps each with the kit version it
+      // came from, not the project's own version, so `passport --check` can
+      // compare like with like.
+      libraryVersion: typeof libraryVersion === "function" ? libraryVersion(name, dir) : libraryVersion,
       files: files.map((f) => posix(path.relative(dir, f))),
-      sourceHash: hashSources([...files, ...(fs.existsSync(path.join(dir, "styles.css")) ? [path.join(dir, "styles.css")] : [])], repoRoot),
+      sourceHash: componentHash(
+        name,
+        [...files, ...(fs.existsSync(path.join(dir, "styles.css")) ? [path.join(dir, "styles.css")] : [])].map(
+          (file) => ({ rel: posix(path.relative(dir, file)), file }),
+        ),
+      ),
     },
     props: propList,
     ...(externalBases.size
@@ -525,6 +481,5 @@ module.exports = {
   createProgram,
   extractComponent,
   sourceFiles,
-  hashSources,
   posix,
 };

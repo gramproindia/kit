@@ -74,6 +74,17 @@ describe("add", () => {
   }, 120000);
 });
 
+describe("passport --check in a project", () => {
+  it("passes for an untouched component, and names the project's command when one is edited", () => {
+    // Switch is untouched here. Before 2.7.2 every installed component read as
+    // stale, because the project's paths went into the hash.
+    const untouched = run("passport", "--check");
+    expect(untouched.stdout).toMatch(/switch: OK/);
+    expect(untouched.stdout).not.toMatch(/switch: passport stale/);
+    expect(untouched.stdout + untouched.stderr).not.toMatch(/npm run passport/);
+  }, 180000);
+});
+
 describe("doctor", () => {
   it("reports an edit as JSON an agent can act on", () => {
     appendFileSync(BUTTON(), EDIT);
