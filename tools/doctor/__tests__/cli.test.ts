@@ -67,6 +67,21 @@ describe("add", () => {
     expect(result.stdout).toMatch(/Switch already up to date/);
   }, 120000);
 
+  it("brings shared/ up to date when its files changed but its version did not", () => {
+    // 2.7.0 changed shared/ under the same version, and a project that already
+    // had that version kept the old files. Simulate that project.
+    const shared = join(project, "component-lib", "shared");
+    const manifestPath = join(shared, ".install-manifest.json");
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    delete manifest.files["react/agentSurfaceContext.ts"];
+    writeFileSync(manifestPath, JSON.stringify(manifest));
+    rmSync(join(shared, "react", "agentSurfaceContext.ts"));
+
+    const result = run("add", "Switch");
+    expect(result.code).toBe(0);
+    expect(existsSync(join(shared, "react", "agentSurfaceContext.ts"))).toBe(true);
+  }, 120000);
+
   it("--force replaces it, and only then", () => {
     const result = run("add", "Button", "--force");
     expect(result.code).toBe(0);

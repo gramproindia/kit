@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.2",
+    "libraryVersion": "2.7.3",
     "files": [
       "core/agent.ts",
       "core/count.ts",
@@ -20,7 +20,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:161bed57c97bbdede609bde754dcbae8452083825fea7749ee035ce1ace510dc"
+    "sourceHash": "sha256:32d4cdc40c633e35034d2b20b829e916b3caee74abe1af0ce3235e1348fead9e"
   },
   "purpose": "A multi-line text field that can grow with its content, with the same label, hint, error and counter wiring as Input.",
   "props": [

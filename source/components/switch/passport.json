@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.2",
+    "libraryVersion": "2.7.3",
     "files": [
       "core/agent.ts",
       "core/index.ts",
@@ -19,7 +19,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:4e168aeb5ca0aef334176cc4edb1b15c63546bf415df867085dadf871f9e24af"
+    "sourceHash": "sha256:a6a81781252ff87f408c06ac48e31dcd38c85d879d15fae37647205527630667"
   },
   "purpose": "A setting that takes effect as it is flipped, on a native checkbox with role=switch, with an optimistic pending state while the change is saved.",
   "props": [

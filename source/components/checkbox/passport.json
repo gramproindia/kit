@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.2",
+    "libraryVersion": "2.7.3",
     "files": [
       "core/agent.ts",
       "core/group.ts",
@@ -23,7 +23,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:864a782462120954cea168efe6df111474541556f8518107677c1098cceaa035"
+    "sourceHash": "sha256:3bb3c0d76ef4b8d42f6b3bc0a3cdd203a90a1662175ec62ae40eba49ce7ad423"
   },
   "purpose": "A single native checkbox, and CheckboxGroup for several that share a name, with mixed state, a select-all and group-level validation.",
   "props": [

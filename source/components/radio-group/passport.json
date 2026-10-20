@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.2",
+    "libraryVersion": "2.7.3",
     "files": [
       "core/agent.ts",
       "core/group.ts",
@@ -23,7 +23,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:8630723accbd754b823c4f2d7f5c1c0da02252d3a51f87b8abeaad117bd75064"
+    "sourceHash": "sha256:bcc1323c5e328b91461ef96c6901d41bf0eca3ec6dcf7b96c6ec45a9efa2a155"
   },
   "purpose": "One choice out of a few, on native radios: a single tab stop, arrow keys between the choices, and a card variant for richer options.",
   "props": [

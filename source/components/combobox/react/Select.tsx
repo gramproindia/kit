@@ -8,6 +8,7 @@ import { ChevronIcon, XIcon } from "./icons";
 import { Listbox } from "./Listbox";
 import { ComboboxPopover } from "./Popover";
 import { cx, type ComboboxHandle, type ComboboxSharedProps } from "./props";
+import { useComboboxSurface } from "./surface";
 import { useCombobox } from "./useCombobox";
 
 export interface SelectProps<V extends OptionValue = string> extends ComboboxSharedProps<V> {
@@ -83,6 +84,18 @@ export function Select<V extends OptionValue = string>(props: SelectProps<V>) {
   const selected = combobox.selectedOptions[0];
 
   useImperativeHandle(ref, () => combobox.handle, [combobox.handle]);
+  useComboboxSurface({
+    component: "Select",
+    label,
+    ariaLabel: props["aria-label"],
+    name,
+    required,
+    disabled,
+    options,
+    mode: props.mode,
+    max: undefined,
+    handle: combobox.handle,
+  });
 
   return (
     <div

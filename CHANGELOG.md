@@ -1,5 +1,89 @@
 # Changelog
 
+## 2.7.3
+
+### Added
+
+**`<AgentSurface>`: a page that describes itself to a browser agent.** Wrap a
+page in it and every form field and data grid inside registers itself — what
+it holds, what it accepts, which operations it supports — from its own props,
+as it is rendered now. In a browser with WebMCP one tool, `operate_page`, is
+registered: `describe` returns that live manifest, `operate` sends intents to
+one component by id. No tool definitions are written and none can drift from
+the UI, because each description is the component's own.
+
+```tsx
+<AgentSurface>
+  <Input label="Name" maxLength={80} />
+  <Select label="Team" options={teams} />
+  <DatePicker label="Due date" min="2026-01-01" max="2026-12-31" />
+  <DataGrid aria-label="Customers" data={rows} columns={columns} />
+</AgentSurface>
+```
+
+Every action goes through the targeted component's own validator, with the
+guarantees a single component already had: no repair, no retry, confirmation
+before anything irreversible, refusals named by the layer that made them. The
+surface adds addressing, not a second way in. Password, hidden and file inputs
+are never offered. `useAgentSurface()` hands the same surface to an
+application that runs its own agent loop, so it works without WebMCP too.
+
+Input, Textarea, NumberInput, Checkbox, Switch, RadioGroup, Select,
+MultiSelect, DatePicker, DateRangePicker and DataGrid join. A component outside
+a surface pays for one `useContext`; the surface itself is about 7 KB gzip, in
+an application that renders it. The browser test drives the real components
+through the tool and checks the page's own state, not the DOM.
+
+### Fixed
+
+**An agent's write to a Checkbox or Switch reported success and changed
+nothing.** The field runtime set `checked` and dispatched `change`, but React
+hears a checkbox through `click`, so a controlled box flipped in the DOM while
+the application's state — and `onCheckedChange` — never moved. Checkable
+fields are now clicked when they are not already in the asked state, which is
+what a person does. Found by the new browser test; unit tests could not see it.
+
+**A NumberInput written by an agent depended on the field's locale.** The
+number was written into the element as text, so `1.5` became `"1.5"`, which a
+`de-DE` field reads as fifteen. Inside a surface a NumberInput is now written
+as a number through its own commit path, with its `min`, `max` and snapping.
+
+**A RadioGroup could not be driven as a group.** Its ref is not a group
+element, so a field agent could reach at most one radio. Inside a surface it
+is one choice among its options.
+
+**`shared/` could stay behind after an update.** The installer compared
+versions only, and 2.7.0 changed `shared/` without changing its version, so a
+project that already had shared 1.3.0 kept the old files. It now compares the
+files as well, and `shared/` is 1.4.0.
+
+**`passport` on TypeScript 7 needed a manual step.** 2.7.2 fell back to a
+TypeScript 6 installed under an alias, and asked for one otherwise.
+It now works on any TypeScript, or none, with no setup. The project's
+TypeScript is used when it has the compiler API; otherwise the exact version
+the kit is built with (6.0.3) is fetched once and cached per user. The fetch
+goes through the user's own npm, installs one pinned version with install
+scripts disabled, is verified before use, and is moved into the cache only
+once complete; nothing in the project changes. `GRAMPRO_KIT_OFFLINE=1` turns
+it off, and then `doctor` falls back to file-level changes and says why.
+Bundling TypeScript instead would have added 24 MB to every `npx` run, and a
+second, simpler extractor would have disagreed with the first.
+
+**`passport --check` failed for every component in a project, edited or not.**
+The source hash was labelled with paths as they sit in the project
+(`src/component-lib/…`) rather than as they sit in the kit, and each passport
+was stamped with the project's own version, so no regenerated passport ever
+matched the one a component shipped with. Both now use the kit's terms — the
+labels through one shared function, the version from the install record — so
+an untouched component passes, an edited one is reported, and the hint names
+`npx @grampro/kit passport` rather than this repository's npm script.
+
+### Changed
+
+**A DataGrid builds its agent only when something will use it** — the `ai`
+prop, as before, or now an `<AgentSurface>` around it. A grid outside a
+surface and without `ai` is unchanged.
+
 ## 2.7.2
 
 ### Fixed
@@ -35,26 +119,9 @@ returns what was installed, what was kept and why, and advice not to force it.
 native rewrite whose npm package does not expose the compiler API passports
 are generated with, and it is what `npm i -D typescript` installs today. The
 command failed with `Cannot read properties of undefined (reading
-'ReactJSX')`.
-
-It now works on any TypeScript, or none, with no setup. The project's
-TypeScript is used when it has the compiler API; otherwise the exact version
-the kit is built with (6.0.3) is fetched once and cached per user. The fetch
-goes through the user's own npm, installs one pinned version with install
-scripts disabled, is verified before use, and is moved into the cache only
-once complete; nothing in the project changes. `GRAMPRO_KIT_OFFLINE=1` turns
-it off, and then `doctor` falls back to file-level changes and says why.
-Bundling TypeScript instead would have added 24 MB to every `npx` run, and a
-second, simpler extractor would have disagreed with the first.
-
-**`passport --check` failed for every component in a project, edited or not.**
-The source hash was labelled with paths as they sit in the project
-(`src/component-lib/…`) rather than as they sit in the kit, and each passport
-was stamped with the project's own version, so no regenerated passport ever
-matched the one a component shipped with. Both now use the kit's terms — the
-labels through one shared function, the version from the install record — so
-an untouched component passes, an edited one is reported, and the hint names
-`npx @grampro/kit passport` rather than this repository's npm script.
+'ReactJSX')`. It now checks for the API rather than for the package, falls
+back to a TypeScript 6 installed under an alias, and otherwise says exactly
+that, with the one-line fix.
 
 **`validate_usage` invented props from inside expressions.** Attribute names
 were matched anywhere in a tag, so `title={ok ? first : second}` reported

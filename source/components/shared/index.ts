@@ -15,3 +15,10 @@ export {
   type GramproAIProviderProps,
 } from "./react/GramproAIProvider";
 export { useAskAgent, type AskableAgent, type AskExecution, type UseAskAgent } from "./react/useAskAgent";
+export { useFieldAgent, type UseFieldAgentOptions } from "./react/useFieldAgent";
+export { AgentSurface, useAgentSurface, type AgentSurfaceProps } from "./react/AgentSurface";
+export {
+  useInAgentSurface,
+  type SurfaceFieldSource,
+  type SurfaceGridAgent,
+} from "./react/agentSurfaceContext";

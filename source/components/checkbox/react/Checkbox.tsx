@@ -14,6 +14,7 @@ import {
 } from "react";
 import { useControllableState } from "../../shared/react/useControllableState";
 import { describeField } from "../../shared/core/field";
+import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
 import type { CheckboxSize, CheckedState } from "../core/types";
 import { CheckboxGroupContext } from "./context";
 import { cx, type CheckboxSlot } from "./props";
@@ -106,6 +107,19 @@ export function Checkbox(props: CheckboxProps) {
     onChange?.(event);
     onCheckedChange?.(next);
   };
+
+  // Inside an <AgentSurface>, offered to an agent as a yes/no it can set.
+  useAgentSurfaceField(() => ({
+    contract: {
+      component: "Checkbox",
+      kind: "boolean",
+      label: labelText(label, inputProps["aria-label"], name, value),
+      disabled: disabled || group?.disabled,
+      required,
+      operations: ["setValue", "clear", "focus"],
+    },
+    target: () => inputRef.current,
+  }));
 
   const invalid = Boolean(error) || (group?.invalid ?? false);
   const describedBy = describeField(id, { extra: describedByProp, description, error });

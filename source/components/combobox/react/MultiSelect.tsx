@@ -8,6 +8,7 @@ import { Listbox } from "./Listbox";
 import { defaultComboboxText } from "./locale";
 import { ComboboxPopover } from "./Popover";
 import { cx, type ComboboxHandle, type ComboboxSharedProps } from "./props";
+import { useComboboxSurface } from "./surface";
 import { useCombobox } from "./useCombobox";
 
 export interface MultiSelectProps<V extends OptionValue = string> extends ComboboxSharedProps<V> {
@@ -89,6 +90,18 @@ export function MultiSelect<V extends OptionValue = string>(props: MultiSelectPr
   const visibleTags = hidden > 0 ? selectedOptions.slice(0, maxVisibleTags) : selectedOptions;
 
   useImperativeHandle(ref, () => combobox.handle, [combobox.handle]);
+  useComboboxSurface({
+    component: "MultiSelect",
+    label,
+    ariaLabel: props["aria-label"],
+    name,
+    required,
+    disabled,
+    options,
+    mode: props.mode,
+    max: max,
+    handle: combobox.handle,
+  });
 
   const selectableVisible = combobox.entries.filter(
     (entry) => !entry.option.disabled && !combobox.isSelected(entry.option.value),

@@ -6,7 +6,7 @@
     "TemporalInterpretation",
     "ActionIntent"
   ],
-  "$operationsNote": "Mirrors shared/core/agent/field.ts, which is what the runtime dispatches on. source/components/shared/core/agent/__tests__/field-passport.test.ts fails if the two drift. No `apiMethod`: a field is written through its ref — the element for most of these, a handle for Combobox and DatePicker — and that is a normal case, not a gap.",
+  "$operationsNote": "Mirrors shared/core/agent/field.ts, which is what the runtime dispatches on. source/components/shared/core/agent/__tests__/field-passport.test.ts fails if the two drift. No `apiMethod`: a field is written through its ref — the element for most of these, a handle for Combobox and DatePicker — and that is a normal case, not a gap. Inside an <AgentSurface> the component registers itself with these operations; NumberInput and RadioGroup are then written through their own commit path rather than the element.",
   "operations": {
     "setValue": {
       "summary": "Write a value into the field, as though a person had entered it.",

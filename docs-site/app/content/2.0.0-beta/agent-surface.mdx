@@ -1,0 +1,158 @@
+---
+title: "Agent Surface"
+description: "Wrap a page in <AgentSurface> and every form field and data grid in it describes itself to a browser agent — what it holds, what it accepts — and can be operated through its own validator, with no tool definitions to write."
+group: "General"
+order: 25
+---
+
+Browser agents operate pages today by reading pixels or the accessibility tree
+and guessing. Neither tells them what a control will accept: a date field
+reads as "textbox", not "a day in 2026". Neither stops a wrong click.
+
+The components on your page already know. A `DatePicker` knows its `min` and
+`max`, a `Select` knows which options are disabled, an `Input` knows its
+`maxLength`. `<AgentSurface>` collects that into one live description of the
+page, and sends every action an agent takes back through the component it is
+aimed at — the same checks a person's input gets.
+
+```tsx
+import { AgentSurface } from "@/component-lib/shared";
+
+<AgentSurface>
+  <Input label="Name" maxLength={80} />
+  <Select label="Team" options={teams} />
+  <DatePicker label="Due date" min="2026-01-01" max="2026-12-31" />
+  <DataGrid aria-label="Customers" data={rows} columns={columns} />
+</AgentSurface>
+```
+
+That is the whole integration. No tool definitions, no schema written by
+hand, nothing to keep in step with the UI: each component describes itself
+from its own props, as it is rendered now.
+
+## What an agent sees
+
+In a browser with [WebMCP](https://webmachinelearning.github.io/webmcp/), the
+surface registers one tool, `operate_page`, with two actions.
+
+`describe` returns every operable component on the page:
+
+```json
+{
+  "surfaceVersion": 1,
+  "members": [
+    {
+      "id": "due-date",
+      "kind": "field",
+      "component": "DatePicker",
+      "label": "Due date",
+      "constraints": { "holds": "date", "min": "2026-01-01", "max": "2026-12-31" },
+      "operations": { "setValue": { "input": { "...": "..." } }, "clear": {}, "open": {} }
+    },
+    {
+      "id": "customers",
+      "kind": "grid",
+      "component": "DataGrid",
+      "columns": [{ "id": "region", "label": "Region", "type": "string", "filterable": true, "operators": ["contains", "equals", "startsWith"] }],
+      "operations": ["search", "filter", "sort", "setPage", "export", "undo"]
+    }
+  ]
+}
+```
+
+`operate` sends intents to one of them, by id:
+
+```json
+{ "action": "operate", "target": "due-date", "intents": [{ "action": "setValue", "value": "2026-03-15" }] }
+```
+
+Ids come from the label (`"Due date"` → `due-date`), so an agent can quote
+them back and a person reading a log can tell what was touched.
+
+## What it refuses
+
+Every request is checked by the component it targets before anything
+changes. A refusal names the reason, which check made it, and the nearest
+valid value when there is one:
+
+| Request | Answer |
+| --- | --- |
+| `team` → `"Legal"`, a disabled option | refused: `option-disabled` |
+| `team` → `"enginering"` | refused, with `Did you mean "eng" (Engineering)?` |
+| `due-date` → `"2027-01-10"` | refused: after the field's `max` |
+| `tags` → three values, `max={2}` | refused: more than the field allows |
+| `password` | refused: `unknown-target` — never offered |
+
+Nothing is repaired or retried, and a refused request changes nothing. A
+grid operation that needs confirmation — a large export — returns
+`needs-confirmation` instead of running.
+
+**Password, hidden and file inputs are never offered**, and a component that
+is disabled or read-only is described as such and refuses writes.
+
+## What it writes
+
+A write reaches your application the way a person's would: your `onChange`,
+`onValueChange` or `onCheckedChange` fires, and a controlled component's state
+updates. That is what the browser test for this feature checks — not that
+the DOM changed, but that the page's own state did.
+
+Some components are written through their own logic rather than the DOM,
+because the DOM would get it wrong:
+
+- **NumberInput** takes a number, not text. Written as text, `1.5` would be
+  `"1.5"`, which a `de-DE` field reads as fifteen.
+- **Select** and **MultiSelect** are offered their option values as text, and
+  the write maps them back, so a numeric value reaches `onChange` as a number.
+- **RadioGroup** is one choice among its options, not one radio element.
+- **DatePicker**'s `isDateDisabled` cannot be described, so it is checked at
+  the write: a disabled day is refused, not chosen.
+
+## What joins
+
+| Component | Holds |
+| --- | --- |
+| Input, Textarea | text, with `maxLength` and `pattern` |
+| NumberInput | a number, with `min`, `max`, and `step` when snapping |
+| Checkbox, Switch | true or false |
+| RadioGroup, Select | one of its options |
+| MultiSelect | several of its options, up to `max` |
+| DatePicker | a day, within `min` and `max` |
+| DateRangePicker | a range, within `min` and `max` |
+| DataGrid | its columns and operations — see [Asking in Words](/datagrid-ai) |
+
+A component outside an `<AgentSurface>` is unchanged: it pays for one
+`useContext` and nothing more.
+
+## Your own agent
+
+Without WebMCP nothing is registered and nothing breaks. If your application
+runs its own agent loop, `useAgentSurface()` hands you the same surface:
+
+```tsx
+import { useAgentSurface } from "@/component-lib/shared";
+
+const surface = useAgentSurface();
+
+const manifest = surface.manifest();           // put this in front of the model
+const result = await surface.run(id, intents); // act on its answer
+```
+
+`result` is the same payload the WebMCP tool returns, refusals included.
+
+## Props
+
+| Prop | Type | Default | |
+| --- | --- | --- | --- |
+| `webmcp` | `boolean` | `true` | Register `operate_page` when the browser has WebMCP |
+| `toolName` | `string` | `"operate_page"` | One name per page: WebMCP cannot unregister a tool |
+| `onCall` | `(entry) => void` | | Observe every tool call, for a log or a test |
+
+<Notice message="WebMCP is a Draft Community Group Report, not a W3C standard, and is implemented in Chromium only, behind a flag or an origin trial. Where it is absent the surface still works through useAgentSurface()." />
+
+## Cost
+
+`<AgentSurface>` adds about 7 KB gzip, and only to an application that
+renders it. A component outside a surface pays for one `useContext`. A
+DataGrid builds its agent — which walks the data for column statistics — only
+inside a surface or with `ai`.

@@ -44,11 +44,10 @@ const WRITE = `(id, value) => {
   el.dispatchEvent(new Event("change", { bubbles: true }));
 }`;
 
+/* A checkbox is clicked, because React hears a checkbox through `click`. */
 const WRITE_CHECKED = `(id, checked) => {
   const el = document.getElementById(id);
-  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "checked").set.call(el, checked);
-  el.dispatchEvent(new Event("input", { bubbles: true }));
-  el.dispatchEvent(new Event("change", { bubbles: true }));
+  if (el.checked !== checked) el.click();
 }`;
 
 const run = (fn: string, ...args: unknown[]) =>
@@ -90,7 +89,7 @@ test("a textarea needs its own prototype, not the input's", async ({ page }) => 
   ]);
 });
 
-test("a checkbox is written through `checked`, and announces it", async ({ page }) => {
+test("a checkbox is clicked, and announces it as a person's click would", async ({ page }) => {
   await page.evaluate(run(WRITE_CHECKED, "box", true));
 
   expect(await page.isChecked("#box")).toBe(true);
@@ -98,6 +97,10 @@ test("a checkbox is written through `checked`, and announces it", async ({ page 
     "box:input",
     "box:change",
   ]);
+
+  // Already checked: asking again is a no-op, not a toggle back.
+  await page.evaluate(run(WRITE_CHECKED, "box", true));
+  expect(await page.isChecked("#box")).toBe(true);
 });
 
 test("the elements the policy layer refuses report themselves as unwritable", async ({ page }) => {

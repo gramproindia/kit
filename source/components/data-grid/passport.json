@@ -14,7 +14,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.2",
+    "libraryVersion": "2.7.3",
     "files": [
       "agent/coerce.ts",
       "agent/contract.ts",
@@ -64,7 +64,7 @@
       "react/keyboard.ts",
       "react/locale.ts"
     ],
-    "sourceHash": "sha256:66dfc75f60791c6e4397d3438ec3ad19ce47f9e5ea51677024200d1f75bd5d44"
+    "sourceHash": "sha256:1047a3723ee462533fa5b82741d89309723cecedc71ea4b1339176a50ced0545"
   },
   "purpose": "Display and operate on tabular data. Virtualized; holds its own sort, filter, search, selection, column and pagination state in an external store exposed through GridApi.",
   "props": [
@@ -93,7 +93,7 @@
       "required": false,
       "default": false,
       "origin": "derived",
-      "description": "Render a natural-language box above the grid.\r\n\r\nNeeds a `<GramproAIProvider>` above it supplying an adapter; without one\r\nthis renders nothing and the grid is unchanged. No model is bundled or\r\ndownloaded — the application brings its own.",
+      "description": "Render a natural-language box above the grid.\n\nNeeds a `<GramproAIProvider>` above it supplying an adapter; without one\nthis renders nothing and the grid is unchanged. No model is bundled or\ndownloaded — the application brings its own.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -152,7 +152,7 @@
       "typeText": "ReactNode",
       "required": false,
       "origin": "derived",
-      "description": "Shown in place of rows when there are none. Worth distinguishing \"nothing\r\nhere yet\" from \"nothing matched your filters\", which the default does not.",
+      "description": "Shown in place of rows when there are none. Worth distinguishing \"nothing\nhere yet\" from \"nothing matched your filters\", which the default does not.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -306,7 +306,7 @@
       "required": false,
       "default": false,
       "origin": "derived",
-      "description": "Show the loading treatment over the grid. The existing rows stay in place\r\nunderneath, so a refresh does not empty the screen.",
+      "description": "Show the loading treatment over the grid. The existing rows stay in place\nunderneath, so a refresh does not empty the screen.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -483,7 +483,7 @@
       "required": false,
       "default": true,
       "origin": "derived",
-      "description": "The toolbar above the grid. `true` for all of it, `false` for none, or an\r\nobject to choose parts — `{ search: true, export: false }` — and to put\r\nyour own controls at its `start` or `end`.",
+      "description": "The toolbar above the grid. `true` for all of it, `false` for none, or an\nobject to choose parts — `{ search: true, export: false }` — and to put\nyour own controls at its `start` or `end`.",
       "descriptionOrigin": "jsdoc"
     }
   ],

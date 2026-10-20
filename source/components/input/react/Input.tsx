@@ -13,6 +13,7 @@ import {
 } from "react";
 import { useControllableState } from "../../shared/react/useControllableState";
 import { describeField } from "../../shared/core/field";
+import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
 import { countCharacters } from "../core/count";
 import type { FieldSize, InputLocaleText } from "../core/types";
 import { setNativeValue } from "./dom";
@@ -94,6 +95,26 @@ export function Input(props: InputProps) {
   // Mirrors the text even when uncontrolled, for the counter and the clear button.
   const [current, setCurrent] = useControllableState(valueProp, defaultValue ?? "");
   const [revealed, setRevealed] = useState(false);
+
+  // Inside an <AgentSurface>, offered to an agent with what it accepts now.
+  // A password, a hidden or a file input never is.
+  useAgentSurfaceField(
+    () => ({
+      contract: {
+        component: "Input",
+        kind: "text",
+        label: labelText(label, inputProps["aria-label"], inputProps.name, inputProps.placeholder),
+        disabled,
+        readOnly,
+        required,
+        maxLength,
+        pattern: inputProps.pattern,
+        operations: ["setValue", "clear", "focus"],
+      },
+      target: () => inputRef.current,
+    }),
+    type !== "password" && type !== "hidden" && type !== "file",
+  );
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setCurrent(event.target.value);

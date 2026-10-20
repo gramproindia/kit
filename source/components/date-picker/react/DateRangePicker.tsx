@@ -18,6 +18,7 @@ import { CalendarIcon, XIcon } from "./icons";
 import { defaultDatePickerText } from "./locale";
 import { DatePickerPopover } from "./Popover";
 import { cx, type DatePickerHandle, type DatePickerSharedProps } from "./props";
+import { useDateSurface } from "./surface";
 import { useDatePicker, type RangeField } from "./useDatePicker";
 
 /** A range as it comes in from props: each end may be a Date, an ISO string or a timestamp. */
@@ -128,8 +129,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
   const invalid = Boolean(message);
   const hasValue = start !== null || end !== null;
 
-  useImperativeHandle(
-    ref,
+  // One handle, for the ref and for an <AgentSurface>.
+  const handle = useMemo<DatePickerHandle<DateRange>>(
     () => ({
       open: () => picker.setOpen(true),
       close: () => picker.setOpen(false),
@@ -144,6 +145,19 @@ export function DateRangePicker(props: DateRangePickerProps) {
     }),
     [picker],
   );
+  useImperativeHandle(ref, () => handle, [handle]);
+  useDateSurface({
+    component: "DateRangePicker",
+    label,
+    name,
+    required,
+    disabled,
+    readOnly,
+    min: minDate,
+    max: maxDate,
+    isDateDisabled,
+    handle,
+  });
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown" || (event.key === "Enter" && !picker.open)) {

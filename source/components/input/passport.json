@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.2",
+    "libraryVersion": "2.7.3",
     "files": [
       "core/agent.ts",
       "core/count.ts",
@@ -24,7 +24,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:6d1ef1229a82962e2bd3bf32a15de6f7d9e43c2270e65df9f7303cd74dd479d4"
+    "sourceHash": "sha256:747f35b5f70457677fbc0a0ce1b8c47404e45b4e30a37c4567871fa3b21e16f6"
   },
   "purpose": "A single-line text field with its label, hint and error wired together. OtpInput is the same field split into one box per character for a one-time code.",
   "props": [

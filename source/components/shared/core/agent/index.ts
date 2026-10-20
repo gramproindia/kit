@@ -28,6 +28,8 @@ export { parseQuantity, type ParseQuantityOptions, type Quantity } from "./numbe
 export {
   buildToolInputSchema,
   registerAgentTool,
+  runProjected,
+  toToolResult,
   webmcpAvailable,
   type ModelContext,
   type ProjectableAgent,
@@ -61,6 +63,7 @@ export {
   type FieldOption,
 } from "./field";
 export {
+  autoFieldExecutors,
   domFieldExecutors,
   handleFieldExecutors,
   type FieldExecutionContext,
@@ -72,5 +75,23 @@ export {
   type FieldAgentOptions,
   type FieldExecution,
 } from "./field-agent";
+/*
+ * A page that describes itself to an agent: every operable component, what it
+ * holds and accepts, one tool to operate them through their own validators.
+ */
+export {
+  createAgentSurface,
+  describeFieldContract,
+  projectFieldAgent,
+  registerSurfaceTool,
+  SURFACE_TOOL_NAME,
+  SURFACE_TOOL_SCHEMA,
+  SURFACE_VERSION,
+  type AgentSurfaceHandle,
+  type RegisterSurfaceToolOptions,
+  type SurfaceEntry,
+  type SurfaceManifest,
+  type SurfaceMember,
+} from "./surface";
 /* Browser-only: everything above this line runs on a server too. */
 export { writable, writeChecked, writeValue } from "./write";

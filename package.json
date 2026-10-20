@@ -1,6 +1,6 @@
 {
   "name": "@grampro/kit",
-  "version": "2.7.2",
+  "version": "2.7.3",
   "description": "GramproKit — an agent-native UI runtime for React. Copy-in components you own, each publishing a contract that software can read.",
   "type": "module",
   "files": [

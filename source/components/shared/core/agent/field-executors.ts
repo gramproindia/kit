@@ -135,3 +135,39 @@ export function handleFieldExecutors(getHandle: () => FieldHandleTarget | null):
 
   return registry;
 }
+
+/** A handle, as opposed to a DOM node. Checked by capability, not by instanceof. */
+const isHandle = (value: unknown): value is FieldHandleTarget =>
+  Boolean(value) && typeof (value as FieldHandleTarget).setValue === "function";
+
+/**
+ * Executors that decide at call time whether the target is a DOM field or a
+ * handle.
+ *
+ * It cannot be decided earlier: a ref is null on the first render, and
+ * deciding then would treat every component as a DOM field for good. Both
+ * registries are built, and the choice is made inside `execute`, by which
+ * point the target exists.
+ */
+export function autoFieldExecutors(
+  getTarget: () => unknown,
+  options: { readonly checkable?: boolean; readonly component?: string } = {},
+): Registry {
+  const dom = domFieldExecutors(() => getTarget() as HTMLInputElement | HTMLTextAreaElement | null, {
+    checkable: options.checkable,
+  });
+  const handle = handleFieldExecutors(() => getTarget() as FieldHandleTarget | null);
+
+  const registry: Registry = new Map();
+  for (const name of new Set([...dom.keys(), ...handle.keys()])) {
+    registry.set(name, {
+      operation: name,
+      execute: (input, context) => {
+        const chosen = isHandle(getTarget()) ? handle.get(name) : dom.get(name);
+        if (!chosen) throw new Error(`${options.component ?? "This field"} cannot ${name}.`);
+        return chosen.execute(input, context);
+      },
+    } as RegisteredExecutor<FieldContract>);
+  }
+  return registry;
+}

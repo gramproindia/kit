@@ -218,6 +218,10 @@ version. What is built and tested:
   application supplies. No model is bundled, downloaded or named.
 - **WebMCP** — one tool, `operate_grid`, exposing the same validated boundary to
   a browser agent. Needs no model at all.
+- **`<AgentSurface>`** — wrap a page and every field and grid in it describes
+  itself to a browser agent, from its own props, and is operated through its own
+  validator. One WebMCP tool, `operate_page`, for the whole page; no tool
+  definitions to write
 - A model evaluation harness, with the measurements that justify both
 
 Every producer — a model, a browser agent, a form — proposes. The validator
@@ -227,9 +231,10 @@ it is why no AI path gets a second route into the component.
 Nine of the 27 are agent-operable. The executor abstraction was the open
 question — a grid is driven through an imperative API, and a field is not — and
 it is settled: Combobox and DatePicker are driven through their handles,
-Input, Textarea, NumberInput, Checkbox, Switch and RadioGroup through the
-element their ref already hands back. Neither the contract, the schemas, the
-validator nor the refusals know which.
+Input, Textarea, Checkbox and Switch through the element their ref already
+hands back, and NumberInput and RadioGroup, inside an `<AgentSurface>`, through
+their own commit path — a number is not text, and a group is not one radio.
+Neither the contract, the schemas, the validator nor the refusals know which.
 
 Still open: the components whose value is in what they contain rather than what
 they hold — Menu, Tabs, Accordion, Modal, FileUploader — and the question of

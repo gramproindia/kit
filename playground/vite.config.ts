@@ -48,6 +48,8 @@ export default defineConfig({
          * only at the dev server.
          */
         webmcp: fileURLToPath(new URL("webmcp.html", import.meta.url)),
+        /* Every operable component inside one <AgentSurface>, for the e2e test. */
+        surface: fileURLToPath(new URL("surface.html", import.meta.url)),
       },
     },
   },

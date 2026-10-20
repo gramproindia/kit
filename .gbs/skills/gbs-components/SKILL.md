@@ -146,6 +146,29 @@ export function InviteButton() {
 }
 ```
 
+## Page surface (optional): `<AgentSurface>`
+
+To make a page operable by a browser agent, wrap it — do not write WebMCP tools
+by hand:
+
+```tsx
+import { AgentSurface } from "component-lib/shared";
+
+<AgentSurface>
+  <Input label="Name" maxLength={80} />
+  <Select label="Team" options={teams} />
+  <DataGrid aria-label="Customers" data={rows} columns={cols} />
+</AgentSurface>
+```
+
+Input, Textarea, NumberInput, Checkbox, Switch, RadioGroup, Select,
+MultiSelect, DatePicker, DateRangePicker and DataGrid register themselves, with
+what they accept, and one tool `operate_page` (`describe`, then `operate` by
+id) is registered when WebMCP exists. Ids come from the label, so give every
+field a text `label` (a grid an `aria-label`). Every action goes through the
+component's own validator; password, hidden and file inputs are never offered.
+`useAgentSurface()` returns the same surface for an app's own agent loop.
+
 ## Agent surface (DataGrid, optional)
 
 Entirely opt-in. Without it, nothing changes and nothing is downloaded.

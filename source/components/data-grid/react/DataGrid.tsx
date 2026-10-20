@@ -27,6 +27,7 @@ import { Popover } from "./Popover";
 import { Toolbar, type ToolbarOptions } from "./Toolbar";
 import { AskGrid } from "./AskGrid";
 import { createGridAgent, type GridAgent } from "../agent/engine";
+import { useAgentSurfaceGrid, useInAgentSurface } from "../../shared/react/agentSurfaceContext";
 import type { GridAgentPolicy, GridColumnSemantics } from "../agent/contract";
 import { GridViewport } from "./Viewport";
 
@@ -138,21 +139,22 @@ export function DataGrid<T>(props: DataGridProps<T>) {
   /*
    * The agent is built once, from the same engine the grid renders, so the
    * contract it advertises is this instance's real state rather than a copy.
-   * Only when `ai` is on: an agent walks the data to derive column stats and
-   * enum values, which a grid nobody is going to ask questions of should not
-   * pay for.
+   * Only when something will use it — `ai`, or an <AgentSurface> around the
+   * grid: an agent walks the data to derive column stats and enum values, which
+   * a grid nobody is going to ask questions of should not pay for.
+   *
+   * Imported statically. A dynamic import would not split it out anyway — the
+   * data-grid index re-exports the runtime for `createGridAgent` — and every
+   * host build would print a warning saying so.
    */
-  const [agent] = useState<GridAgent<T> | null>(() =>
-    ai
-      ? createGridAgent<T>({
-          api: engine.api,
-          options: props,
-          semantics,
-          policy: agentPolicy,
-          locale,
-        })
-      : null,
-  );
+  const inSurface = useInAgentSurface();
+  const wantsAgent = ai || inSurface;
+  const build = () =>
+    createGridAgent<T>({ api: engine.api, options: props, semantics, policy: agentPolicy, locale });
+  const [agent, setAgent] = useState<GridAgent<T> | null>(() => (wantsAgent ? build() : null));
+  // A grid that comes to need one later — moved into a surface — gets it then.
+  if (wantsAgent && !agent) setAgent(build());
+  useAgentSurfaceGrid(agent, props["aria-label"]);
 
   // Selection and UI state are deliberately not selected here: changing them
   // re-renders only the rows and cells that subscribe to them.

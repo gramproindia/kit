@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.2",
+    "libraryVersion": "2.7.3",
     "files": [
       "core/agent.ts",
       "core/calendar.ts",
@@ -28,9 +28,10 @@
       "react/icons.tsx",
       "react/locale.ts",
       "react/props.ts",
+      "react/surface.ts",
       "react/useDatePicker.ts"
     ],
-    "sourceHash": "sha256:abe15583c9bca1d5cce8aa9a3cbbcfcfd29ad44b7e63a3b66956089dc2d18f72"
+    "sourceHash": "sha256:3e136ee827a03bb66165debb1fd40926d6265f0fb017ef3b7cff60588140d741"
   },
   "purpose": "DatePicker and DateRangePicker: a text field people can type dates into, plus a calendar, both honouring the locale's order and separators.",
   "props": [

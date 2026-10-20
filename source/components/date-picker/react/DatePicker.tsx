@@ -18,6 +18,7 @@ import { CalendarIcon, XIcon } from "./icons";
 import { defaultDatePickerText } from "./locale";
 import { DatePickerPopover } from "./Popover";
 import { cx, type DatePickerHandle, type DatePickerSharedProps } from "./props";
+import { useDateSurface } from "./surface";
 import { useDatePicker } from "./useDatePicker";
 
 export interface DatePickerProps extends DatePickerSharedProps {
@@ -116,8 +117,8 @@ export function DatePicker(props: DatePickerProps) {
   const message = error ?? picker.inputError;
   const invalid = Boolean(message);
 
-  useImperativeHandle(
-    ref,
+  // One handle, for the ref and for an <AgentSurface>.
+  const handle = useMemo<DatePickerHandle<Date | null>>(
     () => ({
       open: () => picker.setOpen(true),
       close: () => picker.setOpen(false),
@@ -134,6 +135,19 @@ export function DatePicker(props: DatePickerProps) {
     }),
     [picker],
   );
+  useImperativeHandle(ref, () => handle, [handle]);
+  useDateSurface({
+    component: "DatePicker",
+    label,
+    name,
+    required,
+    disabled,
+    readOnly,
+    min: minDate,
+    max: maxDate,
+    isDateDisabled,
+    handle,
+  });
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown" || (event.key === "Enter" && !picker.open)) {

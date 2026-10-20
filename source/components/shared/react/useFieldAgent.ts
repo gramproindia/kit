@@ -25,13 +25,11 @@
 
 import { useMemo, useRef } from "react";
 import {
+  autoFieldExecutors,
   createFieldAgent,
-  domFieldExecutors,
-  handleFieldExecutors,
   type FieldAgent,
   type FieldContract,
   type FieldHandleTarget,
-  type RegisteredExecutor,
 } from "../core/agent";
 
 type Target =
@@ -45,10 +43,6 @@ export interface UseFieldAgentOptions {
   readonly target: Target;
 }
 
-/** A handle, as opposed to a DOM node. Checked by capability, not by instanceof. */
-const isHandle = (value: unknown): value is FieldHandleTarget =>
-  Boolean(value) && typeof (value as FieldHandleTarget).setValue === "function";
-
 export function useFieldAgent({ contract, target }: UseFieldAgentOptions): FieldAgent {
   // The ref object is stable; its contents are not, and the executors read
   // them at call time rather than closing over whatever was there on mount.
@@ -56,31 +50,11 @@ export function useFieldAgent({ contract, target }: UseFieldAgentOptions): Field
   latest.current = target;
 
   return useMemo(() => {
-    const read = () => latest.current.current as unknown;
-
-    /*
-     * Which kind of target this is cannot be decided here: a ref is null on
-     * the first render, and deciding then would type every component as a DOM
-     * field and never revisit it. Both registries are built, and the choice is
-     * made inside `execute`, by which point the ref is populated.
-     */
-    const dom = domFieldExecutors(() => read() as HTMLInputElement | HTMLTextAreaElement | null, {
+    // DOM element or handle is decided per call; see autoFieldExecutors.
+    const executors = autoFieldExecutors(() => latest.current.current, {
       checkable: contract.kind === "boolean",
+      component: contract.component,
     });
-    const handle = handleFieldExecutors(() => read() as FieldHandleTarget | null);
-
-    const executors = new Map<string, RegisteredExecutor<FieldContract>>();
-    for (const name of new Set([...dom.keys(), ...handle.keys()])) {
-      executors.set(name, {
-        operation: name,
-        execute: (input, context) => {
-          const chosen = isHandle(read()) ? handle.get(name) : dom.get(name);
-          if (!chosen) throw new Error(`${contract.component} cannot ${name}.`);
-          return chosen.execute(input, context);
-        },
-      } as RegisteredExecutor<FieldContract>);
-    }
-
     return createFieldAgent({ contract, executors });
     // The contract is the dependency that matters: a field that has just
     // become read-only must stop accepting writes on the very next render.

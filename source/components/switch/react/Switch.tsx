@@ -15,6 +15,7 @@ import {
   type Ref,
 } from "react";
 import { describeField } from "../../shared/core/field";
+import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
 import { adopt, idleToggle, request, settle } from "../core/toggle";
 import type { SwitchLabelPosition, SwitchLocaleText, SwitchSize } from "../core/types";
 import { defaultSwitchText } from "./locale";
@@ -163,6 +164,21 @@ export function Switch(props: SwitchProps) {
     const next = event.key === on;
     if (next !== checked) change(next);
   };
+
+  // Inside an <AgentSurface>, offered to an agent as a setting it can turn on
+  // or off. A switch still saving refuses, as it does a click.
+  useAgentSurfaceField(() => ({
+    contract: {
+      component: "Switch",
+      kind: "boolean",
+      label: labelText(label, inputProps["aria-label"], name, value),
+      disabled,
+      readOnly: readOnly || saving,
+      required,
+      operations: ["setValue", "clear", "focus"],
+    },
+    target: () => inputRef.current,
+  }));
 
   const invalid = Boolean(error);
   const describedBy = describeField(id, { extra: describedByProp, description, error });

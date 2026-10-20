@@ -16,6 +16,7 @@ import {
 } from "react";
 import { useControllableState } from "../../shared/react/useControllableState";
 import { describeField } from "../../shared/core/field";
+import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
 import { countCharacters } from "../core/count";
 import { fitHeight } from "../core/size";
 import type { FieldSize, TextareaLocaleText, TextareaResize } from "../core/types";
@@ -99,6 +100,21 @@ export function Textarea(props: TextareaProps) {
 
   // Mirrors the text even when uncontrolled, for the counter and auto-resize.
   const [current, setCurrent] = useControllableState(valueProp, defaultValue ?? "");
+
+  // Inside an <AgentSurface>, offered to an agent with what it accepts now.
+  useAgentSurfaceField(() => ({
+    contract: {
+      component: "Textarea",
+      kind: "text",
+      label: labelText(label, textareaProps["aria-label"], textareaProps.name, textareaProps.placeholder),
+      disabled,
+      readOnly,
+      required,
+      maxLength,
+      operations: ["setValue", "clear", "focus"],
+    },
+    target: () => textareaRef.current,
+  }));
   const floor = Math.max(1, minRows ?? rows ?? 3);
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {

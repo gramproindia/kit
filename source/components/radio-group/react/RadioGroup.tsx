@@ -3,6 +3,7 @@
 import { useCallback, useId, useMemo, type CSSProperties, type ReactNode } from "react";
 import { useControllableState } from "../../shared/react/useControllableState";
 import { describeField } from "../../shared/core/field";
+import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
 import { hasEnabledOption, normalizeOptions, resolveValue } from "../core/group";
 import type {
   RadioGroupLocaleText,
@@ -108,6 +109,38 @@ export function RadioGroup(props: RadioGroupProps) {
     },
     [setCurrent, onValueChange],
   );
+
+  // Inside an <AgentSurface>, offered to an agent as one choice among the
+  // options. Written through `commit`, as a click is: a radio element would be
+  // only one of the choices.
+  useAgentSurfaceField(() => ({
+    contract: {
+      component: "RadioGroup",
+      kind: "choice",
+      label: labelText(label, nameProp),
+      disabled,
+      required,
+      ...(items
+        ? {
+            options: items.map((option) => ({
+              value: option.value,
+              label: labelText(option.label) ?? option.value,
+              ...(option.disabled ? { disabled: true } : {}),
+            })),
+          }
+        : {}),
+      operations: ["setValue", "clear", "focus"],
+    },
+    target: () => ({
+      setValue: (next) => commit(next === null || next === undefined ? null : String(next)),
+      clear: () => commit(null),
+      focus: () => {
+        const group = document.getElementById(id);
+        const radio = group?.querySelector<HTMLInputElement>("input:checked") ?? group?.querySelector("input");
+        radio?.focus();
+      },
+    }),
+  }));
 
   const context = useMemo<RadioGroupContextValue>(
     () => ({

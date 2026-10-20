@@ -184,17 +184,118 @@ export function buildToolInputSchema(
 }
 
 /**
- * Registers one tool, if the browser has WebMCP.
- *
- * `execute` runs the production pipeline and nothing else:
+ * The production pipeline for one batch of intents, independent of how the
+ * request arrived.
  *
  *   validate  → a refusal is returned as the validator wrote it
  *   confirm   → anything irreversible stops here and asks, rather than running
  *   execute   → only after validation passed
  *
- * There is no repair, no retry, and no path that exists only for WebMCP. An
- * agent sending something the component cannot do gets the same refusal, with
- * the same code and layer, that a form would have got.
+ * There is no repair, no retry, and no path that exists only for one caller.
+ * A WebMCP tool for one component, the page-wide AgentSurface tool, and an
+ * app's own assistant all go through this, so an agent sending something a
+ * component cannot do gets the same refusal, with the same code and layer,
+ * whichever door it used — and the same refusal a form would have got.
+ */
+export async function runProjected(
+  agent: ProjectableAgent,
+  intents: unknown,
+  options: { summarise?: () => Record<string, unknown> } = {},
+): Promise<ToolResultPayload> {
+  if (!Array.isArray(intents) || intents.length === 0) {
+    return {
+      ok: false,
+      status: "rejected",
+      code: "missing-intents",
+      message: '"intents" must be a non-empty array of operations.',
+    };
+  }
+
+  /* Layer one of the real pipeline. Nothing has touched the component yet. */
+  let checked: ProjectedOutcome;
+  try {
+    checked = agent.validate(intents);
+  } catch (error) {
+    return {
+      ok: false,
+      status: "rejected",
+      code: "validator-threw",
+      message: error instanceof Error ? error.message : String(error),
+    };
+  }
+
+  if (checked.status === "rejected") {
+    return {
+      ok: false,
+      status: "rejected",
+      code: checked.code,
+      layer: checked.layer,
+      suggestion: checked.suggestion,
+      message: checked.reason,
+    };
+  }
+  if (checked.status === "clarify") {
+    return { ok: false, status: "clarify", message: checked.question, options: checked.options };
+  }
+  if (checked.status === "declined") {
+    return { ok: false, status: "declined", message: checked.reason };
+  }
+  if (checked.status === "needs-confirmation") {
+    /*
+     * An agent does not get to skip a confirmation a person would see. The
+     * component is left untouched and the request is handed back.
+     */
+    return {
+      ok: false,
+      status: "needs-confirmation",
+      code: checked.confirm.code,
+      message: checked.confirm.message,
+      explain: checked.commands.map((command) => command.explain.summary),
+    };
+  }
+
+  let run: ProjectedOutcome;
+  try {
+    run = await agent.execute(intents);
+  } catch (error) {
+    return {
+      ok: false,
+      status: "failed",
+      code: "executor-threw",
+      message: error instanceof Error ? error.message : String(error),
+    };
+  }
+
+  if (run.status !== "done") {
+    return {
+      ok: false,
+      status: run.status,
+      message: "reason" in run ? run.reason : "question" in run ? run.question : run.status,
+    };
+  }
+
+  return {
+    ok: true,
+    status: "done",
+    message: run.commands.map((command) => command.explain.summary).join("; "),
+    applied: run.commands.map((command) => command.intent),
+    warnings: run.warnings.map((warning) => `${warning.code}: ${warning.message}`),
+    ...(options.summarise?.() ?? {}),
+  };
+}
+
+/** A payload in MCP's tool-result shape: text for a reader, structure for code. */
+export function toToolResult(payload: ToolResultPayload) {
+  return {
+    content: [{ type: "text", text: payload.message }],
+    structuredContent: payload,
+    isError: payload.ok === false,
+  };
+}
+
+/**
+ * Registers one tool for one component's agent, if the browser has WebMCP.
+ * Every call runs `runProjected`; see there for what that guarantees.
  */
 export function registerAgentTool<TAgent extends ProjectableAgent>(
   agent: TAgent,
@@ -213,114 +314,17 @@ export function registerAgentTool<TAgent extends ProjectableAgent>(
     name: options.name,
     description: options.describe(agent),
     inputSchema,
-
     async execute(rawInput: unknown) {
       const intents = (rawInput as { intents?: unknown } | null | undefined)?.intents;
-
-      const reply = (payload: ToolResultPayload) => {
-        try {
-          options.onCall?.({ input: rawInput, result: payload });
-        } catch {
-          /* A broken observer must not turn a good command into an error. */
-        }
-        return {
-          // MCP's content shape, so an agent reading text gets something useful…
-          content: [{ type: "text", text: payload.message }],
-          // …and the structured result for anything that wants to inspect it.
-          structuredContent: payload,
-          isError: payload.ok === false,
-        };
-      };
-
-      if (!Array.isArray(intents) || intents.length === 0) {
-        return reply({
-          ok: false,
-          status: "rejected",
-          code: "missing-intents",
-          message: '"intents" must be a non-empty array of operations.',
-        });
-      }
-
-      /* Layer one of the real pipeline. Nothing has touched the component yet. */
-      let checked: ProjectedOutcome;
-      try {
-        checked = agent.validate(intents);
-      } catch (error) {
-        return reply({
-          ok: false,
-          status: "rejected",
-          code: "validator-threw",
-          message: error instanceof Error ? error.message : String(error),
-        });
-      }
-
-      if (checked.status === "rejected") {
-        return reply({
-          ok: false,
-          status: "rejected",
-          code: checked.code,
-          layer: checked.layer,
-          suggestion: checked.suggestion,
-          message: checked.reason,
-        });
-      }
-
-      if (checked.status === "clarify") {
-        return reply({
-          ok: false,
-          status: "clarify",
-          message: checked.question,
-          options: checked.options,
-        });
-      }
-
-      if (checked.status === "declined") {
-        return reply({ ok: false, status: "declined", message: checked.reason });
-      }
-
-      if (checked.status === "needs-confirmation") {
-        /*
-         * An agent does not get to skip a confirmation a person would see. The
-         * component is left untouched and the request is handed back.
-         */
-        return reply({
-          ok: false,
-          status: "needs-confirmation",
-          code: checked.confirm.code,
-          message: checked.confirm.message,
-          explain: checked.commands.map((command) => command.explain.summary),
-        });
-      }
-
-      let run: ProjectedOutcome;
-      try {
-        run = await agent.execute(intents);
-      } catch (error) {
-        return reply({
-          ok: false,
-          status: "failed",
-          code: "executor-threw",
-          message: error instanceof Error ? error.message : String(error),
-        });
-      }
-
-      if (run.status !== "done") {
-        return reply({
-          ok: false,
-          status: run.status,
-          message:
-            "reason" in run ? run.reason : "question" in run ? run.question : run.status,
-        });
-      }
-
-      return reply({
-        ok: true,
-        status: "done",
-        message: run.commands.map((command) => command.explain.summary).join("; "),
-        applied: run.commands.map((command) => command.intent),
-        warnings: run.warnings.map((warning) => `${warning.code}: ${warning.message}`),
-        ...(options.summarise?.(agent) ?? {}),
+      const payload = await runProjected(agent, intents, {
+        summarise: options.summarise ? () => options.summarise!(agent) : undefined,
       });
+      try {
+        options.onCall?.({ input: rawInput, result: payload });
+      } catch {
+        /* A broken observer must not turn a good command into an error. */
+      }
+      return toToolResult(payload);
     },
   });
 

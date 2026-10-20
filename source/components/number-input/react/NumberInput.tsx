@@ -16,6 +16,7 @@ import {
   type Ref,
 } from "react";
 import { describeField } from "../../shared/core/field";
+import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
 import { formatNumber } from "../core/format";
 import { parseNumber, toEditText } from "../core/parse";
 import { clamp, round, snapToStep, stepBy } from "../core/step";
@@ -194,6 +195,35 @@ export function NumberInput(props: NumberInputProps) {
     },
     [decimals, snap, step, min, max, clampBehavior],
   );
+
+  // Inside an <AgentSurface>, offered to an agent as a number with its bounds.
+  // Written as a number through `commit`, not as text into the element: text
+  // would be read in this field's locale, where "1.5" may mean fifteen.
+  useAgentSurfaceField(() => ({
+    contract: {
+      component: "NumberInput",
+      kind: "number",
+      label: labelText(label, inputProps["aria-label"], inputProps.name, placeholder),
+      disabled,
+      readOnly,
+      required,
+      min,
+      max,
+      ...(snap ? { step } : {}),
+      operations: ["setValue", "clear", "focus"],
+    },
+    target: () => ({
+      setValue: (next) => {
+        setDraft(null);
+        commit(next === null || next === undefined ? null : settle(Number(next)));
+      },
+      clear: () => {
+        setDraft(null);
+        commit(null);
+      },
+      focus: () => inputRef.current?.focus(),
+    }),
+  }));
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const typed = event.target.value;

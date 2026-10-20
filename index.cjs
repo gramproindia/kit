@@ -478,7 +478,13 @@ const installShared = async (destPath, { force = false } = {}) => {
       process.exit(1);
     }
 
-    if (order === 0) {
+    // The same version is only "already installed" when it is the same files:
+    // a release that changed shared/ without bumping it must still reach the
+    // project, or the components it brings import files that are not there.
+    const sameFiles = listFiles(src).every(
+      (file) => manifest.files[file] === sha256(path.join(src, file)),
+    );
+    if (order === 0 && sameFiles) {
       console.log(
         edited.length > 0
           ? `✓ shared v${installedVersion} is already installed (keeping your ${edited.length} edited file(s))`
