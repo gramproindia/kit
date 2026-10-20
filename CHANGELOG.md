@@ -80,6 +80,18 @@ an untouched component passes, an edited one is reported, and the hint names
 
 ### Changed
 
+**The interactive picker fits any terminal, and no longer jumps.** It cleared
+the screen on every key and printed all 27 components, so it needed a
+full-screen terminal and flickered as you moved. It now redraws only its own
+lines, shows a scrolling window that fits the terminal, and clips every line to
+its width. Type to search — by name, group or purpose — space to select,
+ctrl+a for everything shown, enter to install, esc or ctrl+c to cancel, which
+the old one ignored. Each row shows the component's group and whether it is
+already installed; the line below shows what the component is for, from its
+passport. `npx @grampro/kit add` with no names now opens it in a terminal, as
+`-i` does. The install log is in colour when it goes to a terminal, and plain
+when piped or when `NO_COLOR` is set.
+
 **A DataGrid builds its agent only when something will use it** — the `ai`
 prop, as before, or now an `<AgentSurface>` around it. A grid outside a
 surface and without `ai` is unchanged.

@@ -14,6 +14,9 @@ Figma design.
 npx @grampro/kit add DataGrid
 ```
 
+Or `npx @grampro/kit add` with no names, to pick from the list: type to search,
+space to select, enter to install.
+
 The source lands in `component-lib/`, or `src/component-lib/` in a project
 with a `src/` folder; `--dest` puts it anywhere you like, and later installs
 follow the first. There is no runtime package to depend on, and nothing to

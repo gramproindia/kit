@@ -24,7 +24,7 @@ const path = require("path");
 const crypto = require("crypto");
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
-const readline = require("readline");
+const ui = require("./tools/ui.cjs");
 
 // Configuration
 const CONFIG = {
@@ -391,7 +391,7 @@ const copyCommonFiles = async (destPath) => {
     const src = path.join(LEGACY_SOURCE_PATH, ...file.src);
     const dest = path.join(destPath, file.dest);
     await fs.copy(src, dest, { overwrite: true });
-    console.log(`✓ ${file.dest} copied successfully`);
+    console.log(`${ui.check()} ${file.dest} copied successfully`);
   }
 };
 
@@ -467,7 +467,7 @@ const installShared = async (destPath, { force = false } = {}) => {
 
     if (order > 0) {
       console.error(
-        `\n✗ This project has shared v${installedVersion}, newer than the v${srcVersion} in this installer.`,
+        `\n${ui.cross()} This project has shared v${installedVersion}, newer than the v${srcVersion} in this installer.`,
       );
       console.error(
         "  Installing it would downgrade the folder and break the components already here.",
@@ -487,8 +487,8 @@ const installShared = async (destPath, { force = false } = {}) => {
     if (order === 0 && sameFiles) {
       console.log(
         edited.length > 0
-          ? `✓ shared v${installedVersion} is already installed (keeping your ${edited.length} edited file(s))`
-          : `✓ shared v${installedVersion} is already installed`,
+          ? `${ui.check()} shared v${installedVersion} is already installed (keeping your ${edited.length} edited file(s))`
+          : `${ui.check()} shared v${installedVersion} is already installed`,
       );
       return;
     }
@@ -496,7 +496,7 @@ const installShared = async (destPath, { force = false } = {}) => {
 
   if (edited.length > 0 && !force) {
     console.error(
-      `\n✗ These files in component-lib/${SHARED_DIR} have local changes:`,
+      `\n${ui.cross()} These files in component-lib/${SHARED_DIR} have local changes:`,
     );
     edited.forEach((file) => console.error(`  - ${file}`));
     console.error(
@@ -547,8 +547,8 @@ const installShared = async (destPath, { force = false } = {}) => {
 
   console.log(
     installedVersion
-      ? `✓ shared updated ${installedVersion} → ${srcVersion}`
-      : `✓ shared v${srcVersion} installed`,
+      ? `${ui.check()} shared updated ${installedVersion} → ${srcVersion}`
+      : `${ui.check()} shared v${srcVersion} installed`,
   );
 };
 
@@ -733,7 +733,7 @@ const installSkill = async (
   const edited = locallyEdited(destRoot, manifest);
 
   if (edited.length > 0 && !force) {
-    console.error(`${NL}✗ These skill files have local changes:`);
+    console.error(`${NL}${ui.cross()} These skill files have local changes:`);
     edited.forEach((file) => console.error(`  - ${file}`));
     console.error(
       NL +
@@ -799,8 +799,8 @@ const installSkill = async (
 
   console.log(
     installedVersion
-      ? `✓ skill updated ${installedVersion} → ${PACKAGE_VERSION}`
-      : `✓ skill v${PACKAGE_VERSION} installed`,
+      ? `${ui.check()} skill updated ${installedVersion} → ${PACKAGE_VERSION}`
+      : `${ui.check()} skill v${PACKAGE_VERSION} installed`,
   );
   console.log(`  ${SKILL_DEST_DIR}/ (canonical, ${listFiles(src).length} files)`);
   if (targets.includes("claude")) {
@@ -938,7 +938,7 @@ const runPassport = async ({ check: checkOnly, dest: requestedDest }) => {
           continue;
         }
         for (const issue of row.problems) {
-          console.log(`  ${issue.level === "error" ? "✗" : "!"} ${issue.component}: ${issue.message}`);
+          console.log(`  ${issue.level === "error" ? ui.cross(process.stdout) : ui.c.yellow("!")} ${issue.component}: ${issue.message}`);
         }
       }
       console.log(`${NL}${report.length} component(s) · ${errors} error(s) · ${warnings} warning(s)`);
@@ -948,9 +948,9 @@ const runPassport = async ({ check: checkOnly, dest: requestedDest }) => {
 
     const { results, written } = passport.generate(options);
     const errors = results.flatMap((r) => r.issues.filter((i) => i.level === "error"));
-    for (const issue of errors) console.error(`  ✗ ${issue.component}: ${issue.message}`);
+    for (const issue of errors) console.error(`  ${ui.cross()} ${issue.component}: ${issue.message}`);
     console.log(
-      `${NL}✓ ${results.length} passport(s) regenerated · ${written.length} changed`,
+      `${NL}${ui.check()} ${results.length} passport(s) regenerated · ${written.length} changed`,
     );
     if (errors.length > 0) process.exit(1);
   } catch (error) {
@@ -1052,14 +1052,14 @@ const copyComponent = async (component, destPath, current = false, { force = fal
     if (outcome === "updated") {
       console.log(
         previous && previous !== PACKAGE_VERSION
-          ? `✓ Component ${component} updated ${previous} → ${PACKAGE_VERSION}`
-          : `✓ Component ${component} replaced with ${PACKAGE_VERSION}${force ? " (--force)" : ""}`,
+          ? `${ui.check()} Component ${component} updated ${previous} → ${PACKAGE_VERSION}`
+          : `${ui.check()} Component ${component} replaced with ${PACKAGE_VERSION}${force ? " (--force)" : ""}`,
       );
     } else if (outcome === "unchanged") {
-      console.log(`✓ Component ${component} already up to date (${PACKAGE_VERSION})`);
+      console.log(`${ui.check()} Component ${component} already up to date (${PACKAGE_VERSION})`);
     } else {
       console.log(
-        `✓ Component ${component} installed successfully ${
+        `${ui.check()} Component ${component} installed successfully ${
           component === "Grid"
             ? "This Version of Grid will be deprecated soon. Please Install The New Data Grid Component"
             : ""
@@ -1083,8 +1083,8 @@ const reportKept = (component, status) => {
     files.length ? `    ${label}: ${files.slice(0, 6).join(", ")}${files.length > 6 ? `, +${files.length - 6} more` : ""}` : null;
   console.error(
     status.state === "unknown"
-      ? `✗ ${component} was not replaced: it was installed before 2.7.2 and differs from ${PACKAGE_VERSION}, so it may hold your changes.`
-      : `✗ ${component} was not replaced: it has changes made since it was installed.`,
+      ? `${ui.cross()} ${component} was not replaced: it was installed before 2.7.2 and differs from ${PACKAGE_VERSION}, so it may hold your changes.`
+      : `${ui.cross()} ${component} was not replaced: it has changes made since it was installed.`,
   );
   for (const line of [list("changed", status.changed), list("deleted", status.missing)].filter(Boolean)) {
     console.error(line);
@@ -1112,7 +1112,7 @@ const installComponentWithDependencies = async (
 
   if (pendingInstalls.length === 0) {
     console.log(
-      `✓ ${component} and all its dependencies are already installed.`,
+      `${ui.check()} ${component} and all its dependencies are already installed.`,
     );
     return;
   }
@@ -1158,7 +1158,7 @@ const installMultipleComponents = async (
 
   if (pendingInstalls.length === 0) {
     console.log(
-      "✓ All selected components and their dependencies are already installed.",
+      `${ui.check()} All selected components and their dependencies are already installed.`,
     );
     return;
   }
@@ -1189,95 +1189,44 @@ const installMultipleComponents = async (
   console.log(`\nFor documentation visit: ${CONFIG.docs}`);
 };
 
-const interactiveComponentSelector = async (current = false) => {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
+/*
+ * Where each component sits in the docs' navigation, shown beside it in the
+ * picker and searchable: typing "overlay" narrows the list to the overlays.
+ */
+const GROUPS = {
+  Inputs: ["Button", "Checkbox", "Combobox", "DatePicker", "FileUploader", "Input", "NumberInput", "RadioGroup", "Switch", "Textarea"],
+  Data: ["DataGrid"],
+  Overlays: ["Dialog", "Menu", "Modal", "Popover", "Tooltip"],
+  Feedback: ["Alert", "Progress", "Skeleton", "Spinner", "Toaster"],
+  Display: ["Accordion", "Avatar", "Badge", "Card"],
+  Navigation: ["Breadcrumb", "Tabs"],
+};
+const groupOf = (component) =>
+  Object.keys(GROUPS).find((group) => GROUPS[group].includes(component)) || "";
+
+/** The one-line purpose a component's passport gives, for the picker's hint line. */
+const purposeOf = (component, current) => {
+  if (!current) return "";
+  const passport = readJson(path.join(SOURCE_PATH, folderFor(component, true), "passport.json"));
+  return (passport && passport.purpose) || "";
+};
+
+const interactiveComponentSelector = async (current = false, destPath) => {
+  const { multiselect } = require("./tools/prompt.cjs");
+  const options = getAvailableComponents(current)
+    .map((component) => ({
+      value: component,
+      tag: current ? groupOf(component) : "",
+      hint: purposeOf(component, current),
+      note: destPath && checkComponentExists(component, destPath, current) ? "installed" : "",
+    }))
+    // The docs' order of groups, alphabetical within each.
+    .sort((a, b) => {
+      const order = Object.keys(GROUPS);
+      return order.indexOf(a.tag) - order.indexOf(b.tag) || a.value.localeCompare(b.value);
     });
-
-    let selectedComponents = new Set();
-    let currentIndex = 0;
-
-    const renderMenu = () => {
-      console.clear();
-      console.log("🚀 Component Installer - Interactive Mode");
-      console.log(
-        "Use ↑/↓ arrow keys to navigate, SPACE to select/deselect, ENTER to install\n",
-      );
-
-      const availableComponents = getAvailableComponents(current);
-
-      availableComponents.forEach((component, index) => {
-        const isSelected = selectedComponents.has(component);
-        const isCurrentIndex = index === currentIndex;
-        const deps = CONFIG.dependencies[component]
-          ? ` (requires: ${CONFIG.dependencies[component].join(", ")})`
-          : "";
-
-        const prefix = isCurrentIndex ? ">" : " ";
-        const checkbox = isSelected ? "☑" : "☐";
-        const line = `${prefix} ${checkbox} ${component}${deps}`;
-
-        if (isCurrentIndex) {
-          console.log(`\x1b[36m${line}\x1b[0m`); // Cyan highlight
-        } else {
-          console.log(line);
-        }
-      });
-
-      console.log(`\nSelected: ${selectedComponents.size} components`);
-      console.log("Press ENTER to install selected components, or 'q' to quit");
-    };
-
-    const handleKeyPress = (key) => {
-      switch (key) {
-        case "[A": // Up arrow
-          currentIndex = Math.max(0, currentIndex - 1);
-          renderMenu();
-          break;
-        case "[B": // Down arrow
-          currentIndex = Math.min(
-            getAvailableComponents(current).length - 1,
-            currentIndex + 1,
-          );
-          renderMenu();
-          break;
-        case " ": // Space bar
-          const component = getAvailableComponents(current)[currentIndex];
-          if (selectedComponents.has(component)) {
-            selectedComponents.delete(component);
-          } else {
-            selectedComponents.add(component);
-          }
-          renderMenu();
-          break;
-        case "\r": // Enter
-          if (selectedComponents.size > 0) {
-            rl.close();
-            resolve(Array.from(selectedComponents));
-          }
-          break;
-        case "q":
-          rl.close();
-          resolve([]);
-          break;
-      }
-    };
-
-    // Enable raw mode to capture arrow keys
-    process.stdin.setRawMode(true);
-    process.stdin.resume();
-    process.stdin.setEncoding("utf8");
-    process.stdin.on("data", handleKeyPress);
-
-    renderMenu();
-
-    rl.on("close", () => {
-      process.stdin.setRawMode(false);
-      process.stdin.pause();
-    });
-  });
+  const picked = await multiselect({ message: "Which components?", options });
+  return picked || [];
 };
 
 const parseMultipleComponents = (componentString) => {
@@ -1434,7 +1383,7 @@ const main = async () => {
     .example("$0 mcp install --for codex", "Only write the Codex config")
     .example("$0 secret set figma", "Store a Figma token in the OS credential store")
     .example("$0 design ./design.json", "Split a whole-file Figma export into design/")
-    .example("$0 -i", "Interactive selection")
+    .example("$0 add", "Pick components interactively (same as -i)")
     .help().argv;
 
   /*
@@ -1511,10 +1460,15 @@ const main = async () => {
     if (parsed.command === "passport") argv.passport = true;
     if (parsed.command === "add") {
       if (parsed.operands.length === 0) {
-        console.log(`Which component? Try: ${CLI_NAME} add Button    (or: ${CLI_NAME} list)`);
-        return;
+        // In a terminal, a bare `add` opens the picker; in a script it says what to type.
+        if (process.stdin.isTTY && process.stdout.isTTY) argv.interactive = true;
+        else {
+          console.log(`Which component? Try: ${CLI_NAME} add Button    (or: ${CLI_NAME} list)`);
+          return;
+        }
+      } else {
+        argv.add = parsed.operands.join(",");
       }
-      argv.add = parsed.operands.join(",");
     }
   } else if (argv.add || argv.list || argv.skill || argv.passport) {
     console.log(`Tip: the shorter form is \`${CLI_NAME} add <Component>\`.`);
@@ -1546,21 +1500,38 @@ const main = async () => {
 
   // Interactive mode
   if (argv.interactive) {
-    console.log("Starting interactive component selector...\n");
-    const selectedComponents = await interactiveComponentSelector(current);
-
-    if (selectedComponents.length === 0) {
-      console.log("No components selected. Exiting...");
+    const destPath = resolveDestPath(argv.dest);
+    const where = path.relative(process.cwd(), destPath) || ".";
+    ui.intro(`GramproKit ${PACKAGE_VERSION}`);
+    let selectedComponents;
+    try {
+      selectedComponents = await interactiveComponentSelector(current, destPath);
+    } catch (error) {
+      ui.outro(ui.c.red(error.message));
+      process.exitCode = 1;
       return;
     }
 
-    const destPath = resolveDestPath(argv.dest);
+    if (selectedComponents.length === 0) {
+      ui.outro(ui.c.dim("Nothing installed."));
+      return;
+    }
+    console.log(ui.c.gray(ui.s.bar));
+    console.log(`${ui.c.gray(ui.s.bar)}  ${ui.c.dim(`Installing into ${where}/`)}`);
+    console.log("");
+
     await fs.ensureDir(destPath);
 
     await copySupportFiles(destPath, current, { force: argv.force });
 
     // Install selected components
     await installMultipleComponents(selectedComponents, destPath, current, { force: argv.force });
+    console.log("");
+    ui.outro(
+      process.exitCode
+        ? ui.c.yellow("Done, with the warnings above.")
+        : `${ui.c.green("Done.")} Import them from ${ui.c.cyan(`${where}/`)}`,
+    );
     return;
   }
 
