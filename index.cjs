@@ -662,7 +662,7 @@ const writeAntigravityRule = async (root) => {
 
 /**
  * Codex: a pointer in AGENTS.md rather than the skill itself, because that file
- * is always in context and the skill is 5 KB. Everything outside our markers is
+ * is always in context and the skill is about 10 KB. Everything outside our markers is
  * left exactly as it was.
  */
 const writeAgentsPointer = async (root) => {

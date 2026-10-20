@@ -282,6 +282,11 @@ contract and the validation layers already meet.
 It runs the same pipeline. An agent that sends something the grid cannot do gets the
 same refusal, with the same code and layer, that a form would have got.
 
+**On a page with forms as well, use [`<AgentSurface>`](/agent-surface) instead.** A grid
+inside one builds its agent and joins the page's single tool, `operate_page`, by itself —
+no `createGridAgent`, no `registerGridTool` — next to every field on the page. Give it an
+`aria-label`: that becomes its id. `semantics` and `agentPolicy` apply exactly as here.
+
 <Notice message="WebMCP is a Draft Community Group Report, not a W3C standard, and is implemented in Chromium only — behind --enable-features=WebMCPTesting, the chrome://flags/#enable-webmcp-testing flag, or an origin-trial token. registerGridTool returns rather than throws when the surface is absent, so the grid renders normally either way." />
 
 ## Why it is built this way

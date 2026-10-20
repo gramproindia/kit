@@ -114,3 +114,12 @@ use `print()` for those.
 
 Set `mode="server"`, pass the current page as `data` and the total as
 `rowCount`, and fetch in `onQueryChange`.
+
+## Inside an AgentSurface
+
+A DataGrid inside `<AgentSurface>` builds its agent and joins the page's one
+WebMCP tool (`operate_page`) by itself, with its columns and operations; there
+is no need to call `createGridAgent` or `registerGridTool`. Give it an
+`aria-label` — it becomes the grid's id there. `semantics` and `agentPolicy`
+apply exactly as with `ai`. Outside a surface and without `ai`, no agent is
+built.

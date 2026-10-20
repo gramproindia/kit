@@ -99,7 +99,8 @@ MenuSeparator, MenuSub; Tooltip (`content`); `toast` + Toaster.
 **Data** — DataGrid (`data`, `columns`) + createColumnHelper: virtualized;
 sort, filter, edit, CSV/Excel/PDF export. Optional agent surface: `ai` renders a
 natural-language box, and `registerGridTool` exposes the grid to a browser agent
-over WebMCP (see "Agent surface").
+over WebMCP (see "Agent surface"). Inside an `<AgentSurface>` the grid joins the
+page's one tool instead (see "Page surface").
 
 **Display** — Tabs/TabList/Tab (`value`)/TabPanel (`value`); Accordion +
 AccordionItem (`value`); Card/CardHeader/CardBody/CardFooter/Stat; Alert; Badge

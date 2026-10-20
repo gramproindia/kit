@@ -90,7 +90,13 @@ the old one ignored. Each row shows the component's group and whether it is
 already installed; the line below shows what the component is for, from its
 passport. `npx @grampro/kit add` with no names now opens it in a terminal, as
 `-i` does. The install log is in colour when it goes to a terminal, and plain
-when piped or when `NO_COLOR` is set.
+when piped or when `NO_COLOR` is set. The MCP server's `install_component`,
+which reads that log, runs it with colour off and strips any escape codes, so a
+host that sets `FORCE_COLOR` cannot hide a refused install from the agent.
+
+**The skill, `get_guidance` and llms.txt know about `<AgentSurface>`**: the
+forms and data-grid references say when to use it, and the install reference
+says an agent must always name components rather than open the picker.
 
 **A DataGrid builds its agent only when something will use it** — the `ai`
 prop, as before, or now an `<AgentSurface>` around it. A grid outside a

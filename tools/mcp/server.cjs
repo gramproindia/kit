@@ -308,6 +308,11 @@ function installComponents(names) {
   }
 
   const cli = path.join(__dirname, "..", "..", "index.cjs");
+  const withoutColour = (env) => {
+    const copy = { ...env };
+    delete copy.FORCE_COLOR;
+    return copy;
+  };
   let stdout = "";
   let stderr = "";
   let failed = false;
@@ -319,6 +324,9 @@ function installComponents(names) {
       // Captured, not forwarded: the installer explains a refusal on stderr,
       // and that explanation is what the agent most needs to read.
       stdio: ["ignore", "pipe", "pipe"],
+      // The output below is read by pattern. Colour would break the match, and
+      // a host that sets FORCE_COLOR for its own reasons would turn it on.
+      env: { ...withoutColour(process.env), NO_COLOR: "1" },
     });
   } catch (error) {
     failed = true;
@@ -326,6 +334,10 @@ function installComponents(names) {
     stderr = (error.stderr || "").toString();
     if (!stdout && !stderr) return { error: `Install failed: ${error.message}` };
   }
+  // Belt and braces: whatever reached the output, match it without escapes.
+  const ansi = /\x1b\[[0-9;?]*[A-Za-z]/g;
+  stdout = stdout.replace(ansi, "");
+  stderr = stderr.replace(ansi, "");
 
   // The installer prints the one manual step; the agent needs to see it.
   const importLine = (stdout.match(/^\s*@import .+$/gm) || []).map((l) => l.trim());
@@ -395,7 +407,7 @@ const TOOLS = [
   {
     name: "get_guidance",
     description:
-      "Authored guidance on a topic: forms, overlays, data-grid, pickers, styling, accessibility, data-display, toaster, install. Omit the topic to list them.",
+      "Authored guidance on a topic: forms (including making a page operable by a browser agent with <AgentSurface>), overlays, data-grid, pickers, styling, accessibility, data-display, toaster, install. Omit the topic to list them.",
     inputSchema: {
       type: "object",
       properties: { topic: { type: "string" } },

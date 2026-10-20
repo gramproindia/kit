@@ -201,7 +201,7 @@ function agentSkill(p) {
   s += text({ x: 364, y: 132, s: ".gbs/skills/gbs-components/", p, size: 10, mono: true, fill: "muted" });
   s += text({ x: 364, y: 150, s: "SKILL.md", p, size: 12.5, mono: true, weight: 700 });
   s += text({ x: 364, y: 166, s: "always in the agent's context", p, size: 10.5, fill: "accent" });
-  s += pill({ x: 540, y: 136, s: "~5 KB", p, tone: "accent" });
+  s += pill({ x: 540, y: 136, s: "~10 KB", p, tone: "accent" });
 
   s += box({ x: 350, y: 194, w: 268, h: 96, p, tone: "subtle" });
   s += text({ x: 364, y: 208, s: "references/", p, size: 11.5, mono: true, weight: 600 });

@@ -200,3 +200,15 @@ There is no form library here. Compute the message yourself and pass it as
 `error`; the component handles `aria-invalid`, `aria-describedby` and the
 styling. With React Hook Form or similar, wire `value` and the component's own
 handler name, and pass `error={errors.field?.message}`.
+
+## Operable by a browser agent
+
+Wrap the form in `<AgentSurface>` (from `shared`) and every field in it joins
+one WebMCP tool, `operate_page`, describing what it accepts from its own props:
+`maxLength`, `min`/`max`, options and which are disabled. Nothing else to
+write. Give each field a text `label`: the label becomes its id
+(`"Due date"` → `due-date`), and a field labelled only by a ReactNode falls
+back to `aria-label`, then `name`, then `placeholder`. Password, hidden and file inputs are never
+offered. Writes fire the same handlers a person's input does, so controlled
+state updates as usual. Without WebMCP, `useAgentSurface()` returns the same
+surface for the app's own agent loop.

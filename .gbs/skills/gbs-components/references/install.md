@@ -18,7 +18,7 @@ other runtime dependencies.
 ```bash
 npx @grampro/kit add Button                 # one component
 npx @grampro/kit add Button,Input,Modal     # several
-npx @grampro/kit -i                         # interactive picker
+npx @grampro/kit add                        # interactive picker (a person at a terminal)
 npx @grampro/kit -l                         # list available
 npx @grampro/kit doctor                     # what changed locally and upstream
 npx @grampro/kit doctor Button --json       # one component, for reading programmatically
@@ -29,13 +29,18 @@ npx @grampro/kit skill --for claude         # only the Claude Code copy
 | Flag | Alias | Meaning |
 | --- | --- | --- |
 | `--add` | `-a` | Component, or comma-separated list. Case-insensitive. |
-| `--interactive` | `-i` | Pick from a menu. |
+| `--interactive` | `-i` | Pick from a menu; same as `add` with no names. Needs a terminal. |
 | `--list` | `-l` | Print available components. |
 | `--legacy` | — | Install from the 1.x set instead. Unmaintained; see below. |
 | `--skill` | — | Install this skill at the project root. `-skill` and `-a skill` also work. |
 | `--for` | — | With `--skill`: which agents to write adapters for (`claude`, `codex`, `antigravity`, or `none`). Default: all. |
 | `--force` | — | Replace a component, `shared/` or `.gbs/` even though the project has edited it. Never pass it on the user's behalf. |
 | `--json` | — | With `doctor`: print the report as JSON. |
+
+**An agent always names the components.** The picker needs a real terminal:
+run without one, `add` with no names only prints a hint and `-i` exits with an
+error, so neither installs anything. Output is in colour only on a terminal,
+and never with `NO_COLOR` set — read it piped and it is plain text.
 
 ## Components the project has changed
 
@@ -168,6 +173,10 @@ Rules the installer enforces:
 
 - `shared/` only moves forward. If the project has a newer version than the CLI
   carries, the install aborts rather than downgrading it.
+- The same version is updated anyway when its files differ from the CLI's, so a
+  release that changed `shared/` without a version bump still reaches the
+  project. (2.7.0 did; projects that had shared 1.3.0 kept the old files until
+  2.7.3, which is shared 1.4.0.)
 - A file you edited since the CLI wrote it is never replaced without `--force`.
   It tracks this with sha256 hashes in `component-lib/shared/.install-manifest.json`.
 
@@ -176,7 +185,9 @@ is replaced on update. Put your changes in your own module instead.
 
 `shared` exports `cx`, `countCharacters`, `describeField`,
 `useControllableState`, `AnchoredPopover`, `placePopover`, `icons` and
-`sharedVersion`.
+`sharedVersion`; the agent runtime (`createFieldAgent`, `useFieldAgent`,
+`GramproAIProvider`); and `AgentSurface` with `useAgentSurface`, which make a
+page operable by a browser agent (see SKILL.md, "Page surface").
 
 ## Importing
 
