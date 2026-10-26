@@ -1,0 +1,68 @@
+---
+title: "Architecture overview"
+description: "The four layers inside the extension, what each one owns, how a request flows through them, and where each mechanism lives in the source."
+group: "Architecture"
+order: 1
+---
+GBS SE Agent follows the same design as the best-known coding agents: one
+tool-calling loop over an append-only conversation, a small set of precise
+tools, subagents for research that would flood the context, and a UI that
+shows every step. It is a VS Code extension written in TypeScript with no
+runtime dependencies.
+
+<Diagram name="se-agent-layers" alt="Four layers inside the extension, each talking only to its neighbour. The chat panel, a sandboxed webview that holds no state and renders what it is sent, sends your messages and clicks to the session controller and receives updates to draw. The session controller owns the chat: history, approvals, queued messages and saving. It runs a turn in the agent loop and receives progress and tool rows. The agent loop owns one turn: model calls, tool scheduling, checks and compaction, with the permission gate inside it. Below it are tools, ten built in plus MCP tools, and providers for Ollama and OpenAI-compatible servers. Outside the extension, shown dashed: your workspace (files and terminal) and MCP servers, reached through tools, and the model, on your machine, a company server or a cloud API, reached through providers." caption="Nothing skips a layer. The chat panel never touches files or the network; every action that changes anything happens in the extension host, behind the permission gate." />
+
+## The layers
+
+| Layer | Owns | Never does |
+| --- | --- | --- |
+| **Chat panel** (`media/chat.js`) | Drawing the transcript, cards, approvals and composer | Touch files, the network, or any state that must survive a reload |
+| **Session controller** (`src/session/controller.ts`) | The active chat: history, queued messages, approvals, usage, the per-turn file summary, saving | Talk to a model directly |
+| **Agent loop** (`src/agent/agent.ts`) | One turn: calling the model, scheduling tools, the permission gate, diagnostics, compaction | Know which model server is on the other end |
+| **Tools and providers** | The actions (`src/agent/tools/*`, `src/mcp/*`) and the wire formats (`src/llm/*`) | Decide what to do next |
+
+The webview is sandboxed with a strict content security policy. It sends
+intents (`send`, `stop`, `approve`, `openDiff`, …) and receives a full `init`
+followed by small `patch` messages, batched every 40 ms so streaming stays
+smooth.
+
+## A request, end to end
+
+1. You send a message. The controller adds the open file and any `@`
+   mentions, and loads the skills and MCP tools for this run.
+2. It starts a turn: the agent loop calls the model with the system prompt,
+   the tool schemas and the conversation.
+3. Every tool call the model asks for passes the permission gate, then runs.
+   Read-only calls run in parallel; anything that changes files runs in order.
+4. After edits, the loop collects language-server errors for the changed files
+   and adds them to the results.
+5. Results are appended and the model is called again, until it answers
+   without asking for a tool or the step budget runs out.
+6. The controller writes the turn summary: time, tokens, every changed file,
+   with diff and undo.
+
+[One turn, start to finish](/se-agent/agent-loop) follows the loop in detail.
+
+## Where to look in the source
+
+| File | What lives there |
+| --- | --- |
+| `src/agent/agent.ts` | The loop, parallel tool batches, approvals, repeat detection, diagnostics, continuation after a cut-off answer |
+| `src/agent/prompts.ts` | System prompts and the cached environment block (OS, shell, project profile, git branch, `AGENTS.md`) |
+| `src/agent/compaction.ts` | Token estimates, eliding old tool output, summarising, repairing interrupted tool calls |
+| `src/agent/permissions.ts` | Permission modes, the safe-command list, sensitive paths, "always allow" rules |
+| `src/agent/tools/*` | The built-in tools |
+| `src/agent/workspace.ts` | Workspace containment, editor-aware reads and writes, version tokens |
+| `src/agent/snapshots.ts` | Pre-edit file contents for the diff view and undo |
+| `src/skills/*` | Skill discovery, front matter, the catalogue line per skill |
+| `src/mcp/*` | MCP config, the stdio client, server lifecycle, the tool adapter |
+| `src/llm/*` | Ollama and OpenAI-compatible providers, retries, the text tool protocol |
+| `src/session/controller.ts` | Turns, queued messages, UI batching, consent prompts |
+| `src/ui/chatViewProvider.ts` | The webview host and its content security policy |
+
+The code is at [gramproindia/GBS-SE-Agent](https://github.com/gramproindia/GBS-SE-Agent).
+The rest of this section covers [the loop and tools](/se-agent/agent-loop),
+[context and cost](/se-agent/context-and-cost),
+[permissions and security](/se-agent/permissions-and-security),
+[skills and MCP internals](/se-agent/extensions-internals) and
+[providers](/se-agent/providers).

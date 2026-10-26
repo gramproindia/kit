@@ -1,0 +1,89 @@
+---
+title: "Local models"
+description: "Run the agent on Ollama, LM Studio, llama.cpp or vLLM, so your code never leaves your machine. Which models work, and how much memory they need."
+group: "Guides"
+order: 1
+---
+A local model is the only setup with no usage caps and no data leaving your
+machine. It is also the one most coding agents do not make easy, and the
+reason this one exists.
+
+## Ollama
+
+Ollama is the built-in default.
+
+1. Install [Ollama](https://ollama.com/download). It runs in the background at
+   `http://localhost:11434`. If it is not running, start it with `ollama serve`.
+2. Pull a model that supports **tool calling**:
+
+```bash
+ollama pull qwen3-coder:30b      # strong; needs a capable GPU (~20 GB)
+ollama pull qwen2.5-coder:14b    # a good balance for mid-range GPUs
+ollama pull qwen2.5-coder:7b     # runs on most laptops; also a good subagent model
+```
+
+3. In the chat panel, open the model chip and choose:
+   - **Provider:** Ollama.
+   - **Model:** the model you pulled. The list is read from Ollama.
+   - **Subagent model** (optional): a smaller model for exploring the
+     codebase, which saves time and memory.
+
+<Callout type="warning" title="Cloud models in Ollama">
+The default model is `deepseek-v4-flash:cloud`. Models whose names end in
+`:cloud` or `-cloud` run on Ollama's servers, not yours. Pick a local model to
+keep everything on your machine. The model chip shows a **cloud** badge
+whenever a remote model is selected.
+</Callout>
+
+### Memory
+
+The agent asks Ollama for a 32,768-token context window
+(`gbsAgent.contextWindow`). If a model runs out of memory or is very slow, set
+it to `16384`. With plenty of VRAM, raise it for large tasks.
+
+## LM Studio, llama.cpp and vLLM
+
+Any local server with an OpenAI-compatible `/v1/chat/completions` endpoint
+works, and `localhost` servers need no API key.
+
+| Server | How to start it | Base URL |
+| --- | --- | --- |
+| [LM Studio](https://lmstudio.ai) | Load a model, then start the server in the **Developer** tab | `http://localhost:1234/v1` |
+| llama.cpp | `llama-server -m model.gguf --jinja -c 32768` (`--jinja` turns on tool calling) | `http://localhost:8080/v1` |
+| vLLM | `vllm serve <model> --enable-auto-tool-choice --tool-call-parser <parser>` (`hermes` for Qwen) | `http://localhost:8000/v1` |
+
+Then:
+
+1. Open **Settings** (<kbd>Ctrl</kbd>+<kbd>,</kbd>), search for
+   `gbsAgent.openai.baseUrl`, and enter the server's base URL in your **User**
+   settings.
+2. In the model chip, choose **OpenAI-compatible** and pick the model.
+3. Set `gbsAgent.contextWindow` to the context length the server was started
+   with, so the agent compacts the conversation before it overflows.
+
+## Which models work
+
+The agent depends on the model calling tools: reading files, editing, running
+commands.
+
+- **Best:** models trained for tool use, such as Qwen2.5 and Qwen3 Coder,
+  Devstral, gpt-oss and Llama 3.1 or later.
+- **Others:** if a model rejects tool definitions, the agent switches to a
+  text-based tool format by itself. It works, but less reliably.
+- **Size matters:** models under about 7B parameters often struggle with
+  multi-step tasks.
+
+## Running a shared server for a team
+
+A server the whole team shares gives everyone a bigger model without sending
+code outside the company. Two settings make the biggest difference:
+
+- **Turn on prefix caching** in the serving software (vLLM and SGLang both
+  support it). The agent sends the same long opening on every step, and a
+  cached prefix makes every step after the first much faster.
+- **Plan memory per user, not per model.** Each conversation the server holds
+  takes GPU memory in proportion to its context length. A mid-size model with
+  a very large context can use 30–40 GB per active user.
+
+[What every request carries](/se-agent/context-and-cost) explains why the
+opening stays identical between steps.

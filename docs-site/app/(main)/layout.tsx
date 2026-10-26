@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Sans_Malayalam } from "next/font/google";
 import { getNav, type NavGroup } from "./_lib/docs";
+import { getAgentNav } from "./_lib/agent-docs";
 import { v2Config } from "./_lib/config";
 import { getPublishedVersion } from "./_lib/version";
 import { LOCALE_CODES, type Locale } from "./_lib/i18n";
@@ -50,18 +51,19 @@ export const metadata: Metadata = {
 export default async function V2Layout({ children }: { children: React.ReactNode }) {
   // The header sits above the locale segment, so it gets every locale's nav and
   // picks one from the path.
-  const [navs, version] = await Promise.all([
+  const [navs, version, agentNav] = await Promise.all([
     Object.fromEntries(
       await Promise.all(LOCALE_CODES.map(async (locale) => [locale, await getNav(locale)] as const)),
     ) as Record<Locale, NavGroup[]>,
     getPublishedVersion(),
+    getAgentNav(),
   ]);
 
   return (
     <div className={`v2 ${sans.variable} ${mono.variable} ${malayalam.variable}`}>
       <JsonLd data={siteGraph()} />
       <SkipLink />
-      <SiteHeader navs={navs} version={version} />
+      <SiteHeader navs={navs} version={version} agentNav={agentNav} />
       {children}
       <SiteFooter />
     </div>

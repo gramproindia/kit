@@ -29,6 +29,15 @@ function heading(Tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6") {
 }
 
 function Anchor({ href = "", children, ...props }: ComponentPropsWithoutRef<"a">) {
+  // A file such as a PDF is a download, not a page: the client router would
+  // try to fetch it as a route.
+  if (href.startsWith("/") && /\.(pdf|zip)$/i.test(href)) {
+    return (
+      <a href={href} download {...props}>
+        {children}
+      </a>
+    );
+  }
   if (href.startsWith("/")) {
     return (
       <Link href={href} {...props}>

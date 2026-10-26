@@ -21,8 +21,9 @@ export const v2Config = {
     "GramproKit (Grampro Kit) is an open-source React component library you copy into your project, with zero runtime dependencies and an MCP server for AI coding agents.",
   legacyDocsHref: "/1.x.x-legacy/docs/getting-started",
   github: "https://github.com/gramproindia/kit",
-  /** GBS SE Agent: a coding agent with skills for building with these components. */
-  seAgent: "https://anandhuremanan.github.io/gb-codex/",
+  /** GBS SE Agent: a coding agent with skills for building with these components.
+   * Its pages live on this site, under app/content/se-agent/. */
+  seAgent: "/se-agent",
   /** The published plugin. Read by the install button and by the Markdown
    * conversion, so the two cannot disagree about where it lives. */
   figmaPlugin: "https://www.figma.com/community/plugin/1692828324805361551",

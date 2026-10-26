@@ -6,10 +6,21 @@ import { Menu, X } from "lucide-react";
 import type { NavGroup } from "../_lib/docs";
 import type { Locale } from "../_lib/i18n";
 import { t } from "../_lib/strings";
+import type { AgentNavGroup } from "../_lib/agent-config";
 import { SidebarNav } from "./SidebarNav";
+import { AgentSidebarNav } from "./AgentSidebarNav";
 import { Logo } from "./Logo";
 
-export function MobileNav({ nav, locale }: { nav: NavGroup[]; locale: Locale }) {
+export function MobileNav({
+  nav,
+  locale,
+  agentNav,
+}: {
+  nav: NavGroup[];
+  locale: Locale;
+  /** Set on SE Agent pages, whose drawer lists the agent's pages instead. */
+  agentNav?: AgentNavGroup[];
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
   const pathname = usePathname();
   const close = () => dialog.current?.close();
@@ -42,7 +53,11 @@ export function MobileNav({ nav, locale }: { nav: NavGroup[]; locale: Locale }) 
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-6">
-            <SidebarNav nav={nav} locale={locale} onNavigate={close} />
+            {agentNav ? (
+              <AgentSidebarNav nav={agentNav} onNavigate={close} />
+            ) : (
+              <SidebarNav nav={nav} locale={locale} onNavigate={close} />
+            )}
           </div>
         </div>
       </dialog>

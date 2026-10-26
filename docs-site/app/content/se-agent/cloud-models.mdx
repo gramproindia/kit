@@ -1,0 +1,130 @@
+---
+title: "Cloud models"
+description: "Use Hugging Face, Groq, Google AI Studio or any OpenAI-compatible endpoint. Storing the key safely, choosing a tool-calling model, and why free tiers run out sooner than they look."
+group: "Guides"
+order: 2
+---
+Every cloud provider below speaks the OpenAI-compatible API, so setup is
+always the same three things: a base URL, a key, and a model that supports
+tool calling.
+
+<Callout type="warning" title="Check the data policy first">
+A cloud endpoint receives every file the agent reads. Free tiers often carry
+weaker guarantees than paid ones, and some providers may train on requests.
+For client code, a [local model](/se-agent/local-models) avoids the question.
+</Callout>
+
+## Hugging Face
+
+The Inference Providers router puts hundreds of open models behind one
+endpoint, billed through one token. It is the extension's default cloud
+endpoint.
+
+### Create a token
+
+1. Open [Access Tokens → New token](https://huggingface.co/settings/tokens/new?ownUserPermissions=inference.serverless.write&tokenType=fineGrained).
+   That link pre-selects the right options.
+2. Tick **Make calls to Inference Providers**. That is the only permission the
+   agent needs; leave repository access off.
+3. Create the token and copy it (it starts with `hf_`). Hugging Face shows it
+   once.
+
+### Store it in VS Code
+
+Run **GBS Agent: Set API Key** from the Command Palette
+(<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) and paste it.
+
+The key goes into VS Code's secret storage, never into `settings.json` or the
+repository. It is bound to the endpoint it was saved for: point the extension
+at a different host and it asks before sending the key there.
+
+If no key is stored, the agent falls back to the `HF_TOKEN` or
+`OPENAI_API_KEY` environment variables, which suits a shared build machine
+where you do not want a key stored at all.
+
+### Point the extension at the router
+
+| Setting | Value |
+| --- | --- |
+| `gbsAgent.provider` | `openai` |
+| `gbsAgent.openai.baseUrl` | `https://router.huggingface.co/v1` (the default) |
+
+Or open the model chip and choose **OpenAI-compatible**.
+
+### Choose a model
+
+With a key saved, the model chip lists what the router is serving. You can
+also type an id, such as `openai/gpt-oss-120b`. The model must support tool
+calling.
+
+A suffix on the id controls routing:
+
+| Suffix | Effect |
+| --- | --- |
+| *(none)* or `:fastest` | The provider with the highest throughput (default) |
+| `:cheapest` | The lowest price per output token |
+| `:preferred` | Your order from [Inference Provider settings](https://hf.co/settings/inference-providers) |
+| `:groq`, `:together`, `:fireworks-ai`, … | One specific provider |
+
+There is a free tier with monthly credits, and provider rates carry no markup.
+The context meter counts tokens, not money; check spend on the Hugging Face
+billing page.
+
+## Groq
+
+Groq serves open models very fast and has the most usable free tier for agent
+work.
+
+1. Create a key at [console.groq.com/keys](https://console.groq.com/keys).
+2. Set `gbsAgent.openai.baseUrl` to `https://api.groq.com/openai/v1`.
+3. Run **GBS Agent: Set API Key** and paste the key.
+4. Pick a tool-calling model in the chip. `openai/gpt-oss-120b` is a good
+   default.
+
+## Google AI Studio (Gemini)
+
+Gemini's Flash models are strong at tool calling and have the largest context
+of the free options.
+
+1. Create a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
+2. Set `gbsAgent.openai.baseUrl` to
+   `https://generativelanguage.googleapis.com/v1beta/openai/`.
+3. Run **GBS Agent: Set API Key** and paste the key.
+4. Pick a Flash-class model, for example `gemini-2.5-flash`.
+
+## Any other endpoint
+
+OpenRouter, Together, Cerebras, Azure OpenAI and company gateways all work the
+same way: set `gbsAgent.openai.baseUrl` to the provider's `/v1` URL, run
+**GBS Agent: Set API Key**, and pick a tool-calling model.
+
+## How free tiers run out
+
+Free tiers are advertised in tokens, but an agent runs out of **requests**
+first. One instruction becomes many model calls: three to eight for a small
+edit, twenty to sixty for a refactor that uses subagents.
+
+| Endpoint | Requests per minute | Requests per day | Roughly |
+| --- | --- | --- | --- |
+| Groq | ~30 | ~1,000 | 30–100 tasks a day |
+| Google AI Studio | ~10–15 | ~250 | 10–30 tasks a day |
+| Hugging Face router | varies by provider | credit-based | until the credits run out |
+| Ollama cloud models | account limits | account limits | |
+| Local models | unlimited | unlimited | |
+
+Limits change; these were correct when written. A per-minute cap below about
+ten makes the agent feel stalled rather than slow.
+
+A busy endpoint does not end the turn. A `429` or a gateway `5xx` is retried
+three times with growing waits, honouring the server's `Retry-After` up to a
+minute, and the status line shows the wait (<kbd>Esc</kbd> cancels it).
+
+## Consent
+
+The first time the agent would send code to a remote endpoint, it asks for
+confirmation, once per destination. From then on the model chip carries a
+**cloud** badge.
+
+After changing `gbsAgent.openai.baseUrl`, run **GBS Agent: Set API Key**
+again: the saved key is bound to the old endpoint and will not be sent to the
+new one.

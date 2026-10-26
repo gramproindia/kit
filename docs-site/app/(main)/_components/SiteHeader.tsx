@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { NavGroup } from "../_lib/docs";
+import { isAgentPath, type AgentNavGroup } from "../_lib/agent-config";
 import { v2Config } from "../_lib/config";
 import { Palette, Sparkles } from "lucide-react";
 import { localeInfo, parsePath, sectionHref, type Locale } from "../_lib/i18n";
@@ -21,21 +22,26 @@ import { GitHubIcon } from "./GitHubIcon";
 export function SiteHeader({
   navs,
   version,
+  agentNav,
 }: {
   navs: Record<Locale, NavGroup[]>;
   /** What the registry is serving, resolved on the server. */
   version: string;
+  /** The SE Agent section's sidebar, shown in the drawer on its pages. */
+  agentNav: AgentNavGroup[];
 }) {
   const pathname = usePathname();
   const { locale } = parsePath(pathname);
   const s = t(locale);
   const nav = navs[locale] ?? [];
   const firstDoc = nav[0]?.items[0];
+  // The agent pages are English only, so they offer no language switch.
+  const onAgentPage = isAgentPath(pathname);
 
   return (
     <header className="v2-header" lang={localeInfo(locale).htmlLang}>
       <div className="v2-container flex h-14 items-center gap-2 sm:gap-4">
-        <MobileNav nav={nav} locale={locale} />
+        <MobileNav nav={nav} locale={locale} agentNav={onAgentPage ? agentNav : undefined} />
         <Logo locale={locale} />
         <span className="v2-pill">{version}</span>
 
@@ -48,15 +54,14 @@ export function SiteHeader({
           <Link href={sectionHref("playground", locale)} className="v2-top-link">
             {s.playground}
           </Link>
-          <a
+          <Link
             href={v2Config.seAgent}
-            target="_blank"
-            rel="noopener noreferrer"
+            aria-current={onAgentPage ? "page" : undefined}
             className="v2-top-link inline-flex items-center gap-1.5"
           >
             <Sparkles className="size-3.5 text-(--v2-accent)" aria-hidden />
             {s.seAgent}
-          </a>
+          </Link>
           <Link href={v2Config.legacyDocsHref} className="v2-top-link hidden xl:inline-block">
             {s.legacyDocs}
           </Link>
@@ -75,7 +80,7 @@ export function SiteHeader({
           >
             <Palette className="size-4" aria-hidden />
           </Link>
-          <LanguageSwitcher locale={locale} />
+          {!onAgentPage && <LanguageSwitcher locale={locale} />}
           <a
             href={v2Config.github}
             target="_blank"

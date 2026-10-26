@@ -1,0 +1,67 @@
+---
+title: "Getting started"
+description: "Install the extension, connect a model, and run your first task in about five minutes."
+group: "Start"
+order: 2
+---
+## 1. Install the extension
+
+You need VS Code 1.120 or later.
+
+- Open the **Extensions** view (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd>),
+  search for **GBS SE Agent**, and click **Install**.
+- Or run:
+
+```bash
+code --install-extension gbs-internal-toolchain.gbs-software-agent
+```
+
+## 2. Connect a model
+
+The agent is the hands; a model is the brain. Pick one:
+
+- **A local model** keeps your code on your machine and has no usage limits.
+  Install [Ollama](https://ollama.com/download) and pull a model that supports
+  tool calling:
+
+```bash
+ollama pull qwen2.5-coder:7b
+```
+
+  [Local models](/se-agent/local-models) covers which model fits your hardware,
+  and how to use LM Studio, llama.cpp or vLLM instead.
+- **A cloud model** needs no GPU. Hugging Face is the default cloud endpoint,
+  and Groq and Google AI Studio have free tiers. See
+  [Cloud models](/se-agent/cloud-models).
+
+## 3. Open a project and start
+
+1. Open your project folder (**File → Open Folder…**) and trust it when VS Code
+   asks. The agent stays off in Restricted Mode.
+2. Click the **GBS Agent** robot icon in the activity bar.
+3. Click the model chip under the chat input, then choose the provider and the
+   model.
+4. Describe a task and press <kbd>Enter</kbd>.
+
+A good first task is one you can check quickly:
+
+> Give me an overview of this codebase and how it's structured.
+
+Then try one that changes something:
+
+> Add input validation to the signup form and run the tests.
+
+<Callout type="tip" title="Brief it like a colleague">
+Say what should change and how you will know it worked. "Make sure the auth
+tests still pass" gives the agent a way to check its own work.
+</Callout>
+
+## What happens next
+
+You will see a row for every action (reading a file, searching, running a
+command). Commands wait for your approval. When the turn ends, a summary lists
+every changed file with a diff button and an undo button.
+
+[Working with the agent](/se-agent/using-the-agent) explains each part of the
+panel, and [Approving actions](/se-agent/using-the-agent#approving-actions)
+explains the permission modes.

@@ -1,0 +1,72 @@
+---
+title: "Context and cost"
+description: "What every request carries, why the opening never changes between steps, and the order in which the conversation is trimmed when it outgrows the model's context window."
+group: "Architecture"
+order: 3
+---
+Every model call carries the whole conversation. Keeping that small and
+stable is most of what makes an agent fast and cheap, especially on a local
+model with a modest context window.
+
+<Diagram name="se-agent-context" alt="A request is a bar of segments: the system prompt with rules and the tool list, the environment block with OS and AGENTS.md, and the skills and MCP catalogue lines. Those three are byte-identical on every step, so the server can cache them. Then the conversation, your requests and tool results, which grows every step, and finally space reserved for the answer, up to maxOutputTokens. Compaction starts at about 85 percent of the space left after the reserve. When the conversation outgrows the budget, the cheapest thing goes first: one, each new request turns big tool output from earlier requests into short notes, which is free; two, when over budget, the six newest tool results stay and older ones are dropped, also free; three, summarise, where a model call condenses older history, costing one request, which /compact also triggers. In normal numbers, the default window is 32,768 tokens, about 24,000 words, and with an 8,192-token answer reserve compaction starts near 20,900 tokens." caption="Growth happens at the end and cuts come from the middle. The opening is never touched, because changing it would throw away the server's cache." />
+
+## A stable opening
+
+The system prompt, the tool schemas and the environment block are
+byte-identical on every step of a session; the environment block is computed
+once and cached. The conversation is append-only. That lets Ollama's KV cache
+and cloud providers' prompt caches reuse everything up to the newest message,
+so each step after the first only pays for what is new.
+
+This is also why skills and MCP tools are fixed when a run starts: adding one
+mid-run would change the opening and lose the cache.
+
+The fixed overhead is about 2,600 tokens for the main agent and about 1,200
+for an explore subagent.
+
+## Keeping tool output bounded
+
+- Reads are ranged (1,000 lines by default), and searches are capped.
+- Command output keeps the first 6,000 and last 14,000 characters, where
+  errors usually are.
+- Every result is trimmed to `gbsAgent.maxToolOutputChars` (20,000 by default)
+  before the model sees it.
+- Broad searches happen in [subagents](/se-agent/agent-loop#subagents), whose
+  output never enters the main conversation.
+
+## The compaction ladder
+
+Trimming happens in a fixed order, cheapest first:
+
+1. **Earlier requests' output.** Each time you send a new request, tool results
+   over 1,500 characters from earlier requests become a short note saying what
+   the call was. The agent can read the file again if it needs to. Free.
+2. **Old tool output in this request.** The budget is the context window minus
+   the answer reserve (the smaller of `gbsAgent.maxOutputTokens` and a quarter
+   of the window), times 0.85. When the estimated prompt passes it, all but the
+   six most recent tool results over 600 characters become notes. Free.
+3. **A summary.** If that is still not enough, one model call condenses the
+   older part of the conversation into a summary, cutting only at a point that
+   does not separate a tool call from its result. `/compact` does this on
+   demand.
+
+## In normal numbers
+
+The default window is 32,768 tokens, about 24,000 words or 50 pages. A bigger
+window is not automatically better: models get noticeably worse at finding
+things in the middle of a very full context, which is why the agent trims even
+when there is room.
+
+| Setting | Default | Raise it when |
+| --- | --- | --- |
+| `gbsAgent.contextWindow` | 32,768 | Your model and hardware support more; set it to the real value |
+| `gbsAgent.maxOutputTokens` | 8,192 | Long files get cut off mid-write |
+| `gbsAgent.maxSteps` | 60 | Big tasks stop to check in too early |
+| `gbsAgent.maxToolOutputChars` | 20,000 | Test failures get trimmed right where it matters |
+
+## Counting requests, not tokens
+
+One instruction becomes many model calls: three to eight for a small edit,
+twenty to sixty for a refactor with subagents. Request limits, not token
+allowances, are what run out first on a hosted model. See
+[How free tiers run out](/se-agent/cloud-models#how-free-tiers-run-out).

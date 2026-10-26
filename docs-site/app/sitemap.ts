@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { getDocsStructure } from "@/lib/docs";
 import { getDocs as getMainDocs } from "@/app/(main)/_lib/docs";
+import { getAgentDocs } from "@/app/(main)/_lib/agent-docs";
 import { docHref, homeHref, sectionHref, DEFAULT_LOCALE, LOCALE_CODES } from "@/app/(main)/_lib/i18n";
 import { siteConfig } from "@/site.config";
 
@@ -38,6 +39,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  // The SE Agent pages: English only, so no alternates.
+  const agent: MetadataRoute.Sitemap = (await getAgentDocs()).map((doc) => ({
+    url: url(doc.href),
+    lastModified,
+    changeFrequency: "weekly" as const,
+    priority: doc.slug === "index" ? 0.8 : 0.7,
+  }));
+
   // The 1.x docs stay listed, at a lower priority.
   const { categories, uncategorized } = await getDocsStructure();
   const legacy: MetadataRoute.Sitemap = [...categories.flatMap((c) => c.items), ...uncategorized].map((doc) => ({
@@ -47,5 +56,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.3,
   }));
 
-  return [...main, ...legacy];
+  return [...main, ...agent, ...legacy];
 }

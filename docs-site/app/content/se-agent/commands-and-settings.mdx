@@ -1,0 +1,83 @@
+---
+title: "Commands and settings"
+description: "Every command, chat shortcut and setting, with defaults, and which settings a repository is not allowed to change."
+group: "Reference"
+order: 1
+---
+## Chat commands
+
+| Type | What it does |
+| --- | --- |
+| `/new` | Start a new chat |
+| `/compact` | Summarise the conversation to free context |
+| `/skills` | List skills, their source and what they cost per request |
+| `/mcp` | List MCP servers, their state and their tools |
+| `/help` | Show the commands |
+| `@` | Attach a file or folder to the message |
+| <kbd>Esc</kbd> | Stop the running agent |
+
+## Command Palette
+
+Open it with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>.
+
+| Command | What it does |
+| --- | --- |
+| **GBS Agent: New Chat** | Starts a fresh conversation |
+| **GBS Agent: Stop Agent** | Stops the running agent |
+| **GBS Agent: Set API Key** | Stores a key in secret storage, bound to the current endpoint |
+| **GBS Agent: Clear Chat History** | Deletes all stored chats for this workspace |
+| **GBS Agent: New Skill** | Scaffolds a skill folder and opens it |
+| **GBS Agent: Open Skills Folder** | Opens your personal skills folder |
+| **GBS Agent: Reload Skills** | Re-reads skills and asks again about repository skills |
+| **GBS Agent: Show MCP Servers** | Lists MCP servers, their state and their tools |
+| **GBS Agent: Reload MCP Servers** | Restarts MCP servers and asks again about repository servers |
+| **GBS Agent: Show Logs** | Opens the log: requests, token usage, tool calls, errors |
+
+## Settings
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `gbsAgent.provider` | `ollama` | `ollama` or `openai` (any OpenAI-compatible server) |
+| `gbsAgent.model` | `deepseek-v4-flash:cloud` | The main agent's model |
+| `gbsAgent.subagentModel` | *(empty)* | A smaller model for exploration subagents |
+| `gbsAgent.permissionMode` | `acceptEdits` | `ask`, `acceptEdits` (Auto-edit) or `auto` (Full auto) |
+| `gbsAgent.ollama.baseUrl` | `http://localhost:11434` | The Ollama server |
+| `gbsAgent.openai.baseUrl` | `https://router.huggingface.co/v1` | The OpenAI-compatible server, local or cloud |
+| `gbsAgent.contextWindow` | `32768` | The model's context size; sent to Ollama as `num_ctx` and used to decide when to compact |
+| `gbsAgent.maxOutputTokens` | `8192` | Maximum tokens per response |
+| `gbsAgent.temperature` | `0.2` | Sampling temperature |
+| `gbsAgent.maxSteps` | `60` | Model calls per request before the agent pauses |
+| `gbsAgent.commandTimeoutSeconds` | `120` | Default timeout for shell commands and MCP tool calls |
+| `gbsAgent.maxToolOutputChars` | `20000` | Tool results longer than this are trimmed before the model sees them |
+| `gbsAgent.shell` | *(empty)* | Shell for commands (default: cmd.exe on Windows, `$SHELL` elsewhere) |
+| `gbsAgent.skills.enabled` | `true` | Use skills at all |
+| `gbsAgent.skillsPath` | *(empty)* | Your personal skills folder (default: the extension's own folder) |
+| `gbsAgent.mcp.enabled` | `true` | Start MCP servers and give their tools to the agent |
+| `gbsAgent.mcpServers` | `{}` | MCP servers for every project, in `.mcp.json` format |
+
+### Settings a repository cannot change
+
+The provider, model, subagent model, endpoints, API key settings, permission
+mode, shell, skills path and MCP servers are read from your **User** settings
+only. A project's `.vscode/settings.json` cannot redirect your code to another
+server, run a different shell, or switch off approvals.
+
+API keys belong in secret storage, through **GBS Agent: Set API Key**. The
+older `gbsAgent.openai.apiKey` and `gbsAgent.huggingfaceToken` settings still
+work but are deprecated, because they store the key as plain text.
+
+## Fixed limits
+
+Some limits are part of the code rather than settings, because the right value
+does not depend on your model:
+
+| Limit | Value |
+| --- | --- |
+| Lines read from a file at once | 1,000 (the model can ask for a range) |
+| Subagents running at the same time | 4 |
+| Subagents per request | 12 |
+| Command output kept | the first 6,000 and last 14,000 characters |
+| A stream that sends nothing | aborted after 5 minutes |
+| Retries on 429 or a gateway 5xx | 3, honouring `Retry-After` up to a minute |
+| Skills listed in the prompt | 12 |
+| A skill's instructions / one reference file | 6,000 / 12,000 characters |

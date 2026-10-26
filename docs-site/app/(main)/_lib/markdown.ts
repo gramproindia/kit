@@ -2,6 +2,7 @@ import { cache } from "react";
 import matter from "gray-matter";
 import { siteConfig } from "@/site.config";
 import { getDocs, readSourceWithFallback, type DocMeta } from "./docs";
+import { agentConfig, getAgentDocs, readAgentSource } from "./agent-docs";
 import { v2Config } from "./config";
 import { DEFAULT_LOCALE, homeHref, LOCALE_CODES, localeInfo, type Locale } from "./i18n";
 import { t } from "./strings";
@@ -25,8 +26,26 @@ const unescapeAttr = (value: string) =>
 
 function toMarkdown(source: string, doc: DocMeta) {
   const s = t(doc.locale);
-  const { content } = matter(source);
   const pageUrl = absoluteUrl(doc.href);
+  const header = [
+    `# ${doc.title}`,
+    "",
+    `> ${doc.description}`,
+    "",
+    `GramproKit ${v2Config.version} · ${doc.group} · ${s.mdBetaLine} · ${s.mdSource}: ${pageUrl}`,
+    "",
+  ];
+  return finish(header, convertBody(source, doc.locale, pageUrl));
+}
+
+function finish(header: string[], body: string[]) {
+  return [...header, ...body].join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+}
+
+/** The MDX body as plain Markdown: components become what they show. */
+function convertBody(source: string, locale: Locale, pageUrl: string) {
+  const s = t(locale);
+  const { content } = matter(source);
   const out: string[] = [];
   let fence: string | null = null;
   let quoting = false;
@@ -110,16 +129,7 @@ function toMarkdown(source: string, doc: DocMeta) {
     const text = line.replace(/\]\((\/[^)\s]*)\)/g, (_, path: string) => `](${absoluteUrl(path)})`);
     out.push(quoting ? `> ${text.trim()}`.trimEnd() : text);
   }
-
-  const header = [
-    `# ${doc.title}`,
-    "",
-    `> ${doc.description}`,
-    "",
-    `GramproKit ${v2Config.version} · ${doc.group} · ${s.mdBetaLine} · ${s.mdSource}: ${pageUrl}`,
-    "",
-  ];
-  return [...header, ...out].join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+  return out;
 }
 
 export const getDocMarkdown = cache(async (slug: string, locale: Locale = DEFAULT_LOCALE) => {
@@ -127,6 +137,37 @@ export const getDocMarkdown = cache(async (slug: string, locale: Locale = DEFAUL
   const found = doc && (await readSourceWithFallback(slug, locale));
   return doc && found ? toMarkdown(found.source, doc) : null;
 });
+
+export const getAgentMarkdown = cache(async (slug: string) => {
+  const doc = (await getAgentDocs()).find((d) => d.slug === slug);
+  const source = doc && (await readAgentSource(slug));
+  if (!doc || !source) return null;
+  const pageUrl = absoluteUrl(doc.href);
+  const header = [
+    `# ${doc.title}`,
+    "",
+    `> ${doc.description}`,
+    "",
+    `${agentConfig.name} · ${doc.group} · Source: ${pageUrl} · Code: ${agentConfig.repo}`,
+    "",
+  ];
+  return finish(header, convertBody(source, DEFAULT_LOCALE, pageUrl));
+});
+
+/** The SE Agent section of llms.txt. */
+async function agentLlmsLines() {
+  const lines = [
+    `## ${agentConfig.name}`,
+    "",
+    `${agentConfig.description} Source: ${agentConfig.repo}. It can use this library through the agent skill and the MCP server.`,
+    "",
+  ];
+  for (const doc of await getAgentDocs()) {
+    lines.push(`- [${doc.title}](${absoluteUrl(markdownHref(doc))}): ${doc.description}`);
+  }
+  lines.push("");
+  return lines;
+}
 
 export const getLlmsTxt = cache(async () => {
   const docs = await getDocs(DEFAULT_LOCALE);
@@ -175,10 +216,12 @@ export const getLlmsTxt = cache(async () => {
     lines.push("");
   }
 
+  lines.push(...(await agentLlmsLines()));
+
   lines.push(
     "## Optional",
     "",
-    `- [All ${v2Config.version} docs in one file](${absoluteUrl("/llms-full.txt")}): Every English component page above, concatenated.`,
+    `- [All ${v2Config.version} docs in one file](${absoluteUrl("/llms-full.txt")}): Every English component page above, then the ${agentConfig.name} pages, concatenated.`,
     `- [${v2Config.version} overview](${absoluteUrl(homeHref(DEFAULT_LOCALE))}): Landing page with the component list and migration notes.`,
     `- [1.x documentation](${absoluteUrl(v2Config.legacyDocsHref)}): Docs for the previous major version.`,
     "",
@@ -189,6 +232,7 @@ export const getLlmsTxt = cache(async () => {
 export const getLlmsFullTxt = cache(async () => {
   const docs = await getDocs(DEFAULT_LOCALE);
   const pages = await Promise.all(docs.map((doc) => getDocMarkdown(doc.slug, DEFAULT_LOCALE)));
+  const agentPages = await Promise.all((await getAgentDocs()).map((doc) => getAgentMarkdown(doc.slug)));
   return [
     `# ${v2Config.name} ${v2Config.version} documentation`,
     "",
@@ -199,5 +243,7 @@ export const getLlmsFullTxt = cache(async () => {
       .join(", ")}`,
     "",
     ...pages.map((p) => `---\n\n${p}`),
+    `---\n\n# ${agentConfig.name} documentation\n\n> ${agentConfig.description}\n`,
+    ...agentPages.map((p) => `---\n\n${p}`),
   ].join("\n");
 });

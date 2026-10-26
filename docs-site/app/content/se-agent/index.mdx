@@ -1,0 +1,54 @@
+---
+title: "GBS SE Agent"
+description: "An open-source coding agent for VS Code. Describe a task and it explores your codebase, edits files and runs commands, showing every step. Runs on local models, so your code can stay on your machine."
+group: "Start"
+order: 1
+---
+GBS SE Agent is a coding agent that lives in the VS Code sidebar. You describe
+the work, and it does it the way a careful colleague would: it searches and
+reads before it changes anything, asks before anything risky, and shows you
+every file it touched when it finishes.
+
+Point it at a model running on your own machine (Ollama, LM Studio,
+llama.cpp or vLLM) and no code leaves the laptop. Cloud endpoints work too,
+and the agent asks before it sends anything to one.
+
+<Diagram name="se-agent-plain" alt="Six steps in a row: you describe the job in your own words; it looks, searching and reading the files; it asks before anything risky; it changes the code; it checks, running the tests and reading errors; and it shows you every file it changed. An arrow runs from the checking step back to the looking step: if a check fails, it goes back and fixes it, as many times as it takes." caption="One instruction becomes a loop of small steps. The loop back from checking is what makes it an agent rather than a chatbot." />
+
+## What it does well
+
+- **Runs on local models.** Ollama is the built-in default. Any server with an
+  OpenAI-compatible API works, local or cloud.
+- **Shows its work.** Every search, read, edit and command appears as it
+  happens, with live command output and a diff for every change.
+- **Asks first.** Shell commands, and edits to files that run code or
+  configure tooling, wait for your approval. A repository cannot change where
+  your code is sent or switch the approvals off.
+- **Learns your stack.** [Skills](/se-agent/skills) teach it your component
+  library and project rules, loaded only when a task needs them.
+  [MCP servers](/se-agent/mcp-servers) give it tools, such as the GramproKit
+  catalogue.
+- **Lets you take it back.** Each turn ends with a summary of every changed
+  file and an **Undo this turn** button.
+
+## Start here
+
+| If you want to | Read |
+| --- | --- |
+| Install it and run a first task | [Getting started](/se-agent/getting-started) |
+| Keep code on your machine | [Local models](/se-agent/local-models) |
+| Use a cloud model or a free tier | [Cloud models](/se-agent/cloud-models) |
+| Get the most out of a session | [Working with the agent](/se-agent/using-the-agent) |
+| Build UI with GramproKit components | [Using it with GramproKit](/se-agent/with-gramprokit) |
+| Understand how it works inside | [Architecture](/se-agent/architecture) |
+| Explain it to someone non-technical | [In plain English](/se-agent/plain-english) |
+
+## At a glance
+
+| | |
+| --- | --- |
+| Runs in | VS Code 1.120 or later, in trusted workspaces |
+| Models | Ollama, LM Studio, llama.cpp, vLLM, Hugging Face, Groq, Google AI Studio, any OpenAI-compatible endpoint |
+| Built-in tools | read, edit and write files; search; list folders; run commands; a task checklist; subagents; skills |
+| Extensions | Skills (`SKILL.md` folders) and MCP servers |
+| Source | [gramproindia/GBS-SE-Agent](https://github.com/gramproindia/GBS-SE-Agent), MIT licensed, no runtime dependencies |

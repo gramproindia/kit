@@ -1,0 +1,78 @@
+---
+title: "Using it with GramproKit"
+description: "Build screens with GramproKit components: install the agent skill and the MCP server, then ask for a page and let the agent check its own JSX against the real API."
+group: "Guides"
+order: 6
+---
+GBS SE Agent and GramproKit are built to work together. The
+[agent skill](/agent-skill) tells the agent the library exists and how to use
+it; the [MCP server](/mcp-server) answers its questions about each component's
+real props and checks the JSX it writes. Either helps alone. Together, the
+agent reaches for the tools without being told.
+
+## 1. Add the skill
+
+In your project:
+
+```bash
+npx @grampro/kit skill
+```
+
+That writes `.gbs/skills/gbs-components/`, which this agent reads with no other
+setup. The first time you send a request, it asks once whether to use skills
+from the repository; choose **Use them**.
+
+## 2. Add the MCP server
+
+```bash
+npx @grampro/kit mcp install
+```
+
+That writes `.mcp.json` at the project root, which this agent reads too. On
+your next request it asks whether to start the server, showing the command it
+will run; choose **Start them**.
+
+Check it is running with `/mcp`. You should see `grampro` with seven tools:
+`list_components`, `get_component`, `get_example`, `get_guidance`,
+`figma_frame`, `install_component` and `validate_usage`.
+
+<Callout type="info">
+MCP support ships in the release after 0.0.13. Until then, the skill alone
+already steers the agent to the right components and import paths.
+</Callout>
+
+## 3. Ask for a screen
+
+> Build a customers page with a DataGrid of name, email and plan, a search
+> input above it, and a dialog to add a customer. Use GramproKit components and
+> check the JSX with validate_usage before you finish.
+
+A typical turn:
+
+1. The agent loads the `gbs-components` skill (a **Skill** row).
+2. It calls `get_component` for DataGrid, Input and Dialog to read their props,
+   approving each call or using **Always allow** for that tool.
+3. It installs the components it needs with `install_component`. The files are
+   copied into your project; review them with git, since an MCP tool's writes
+   are not in the turn's undo.
+4. It writes the page, then calls `validate_usage` on its own JSX and fixes
+   anything it invented.
+
+## From a Figma design
+
+Paste a Figma frame URL into the request:
+
+> Build this screen with GramproKit: https://www.figma.com/design/…?node-id=…
+
+`figma_frame` reads the frame's structure, text and theme variables, and the
+agent maps the regions to components. It needs a Figma token; see the
+[MCP server page](/mcp-server) for storing one and for the plugin route that
+needs no token.
+
+## Tips
+
+- Set the permission mode to **Auto-edit** and use **Always allow** for the
+  read-only tools (`get_component`, `get_example`, `get_guidance`,
+  `validate_usage`), so only installs and commands ask.
+- If you use a small local model, mention the components by name in the
+  request. Fewer choices means fewer wrong turns.

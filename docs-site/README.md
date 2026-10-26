@@ -15,11 +15,13 @@ pnpm check:anchors   # every in-page #fragment resolves
 | Path | What it holds |
 | --- | --- |
 | `app/content/2.0.0-beta/` | Every 2.x page, as MDX. `ml/` is the Malayalam translation. |
+| `app/content/se-agent/` | The GBS SE Agent pages, served under `/se-agent` with their own sidebar (`_lib/agent-docs.ts`). English only. |
 | `app/(main)/_components/` | The MDX component map, the live-demo runtime, the video and diagram components. |
 | `app/(main)/_lib/` | Frontmatter loading, heading slugs, and the Markdown conversion behind `llms.txt`. |
 | `scripts/generate-demos.mjs` | Builds the live examples from the library source. Runs before `dev` and `build`. |
-| `scripts/build-diagrams.mjs` | Renders the architecture diagrams to webp, light and dark. |
+| `scripts/build-diagrams.mjs` | Renders the architecture diagrams to webp, light and dark. `--only=se-agent` renders just the agent's. |
 | `public/diagrams/` | Generated — edit the script, not these files. |
+| `scripts/se-agent-guide.html`, `scripts/build-se-agent-guide.mjs` | The agent's plain-English guide, printed with headless Chrome to `public/se-agent/GBS-SE-Agent-Explained.pdf`. |
 
 The library itself is imported from `../source/components`, not copied, which
 is why `next.config.ts` sets the Turbopack root to the repository rather than

@@ -1,0 +1,68 @@
+---
+title: "Providers and resilience"
+description: "How the agent talks to Ollama and OpenAI-compatible servers, falls back to a text tool format for models without tool calling, and survives rate limits and busy endpoints."
+group: "Architecture"
+order: 6
+---
+Providers own the wire format, so the agent loop never deals with HTTP.
+Switching model servers changes nothing above them.
+
+## Two providers
+
+| Provider | Talks to | Notes |
+| --- | --- | --- |
+| Ollama (`src/llm/ollama.ts`) | `/api/chat` | Native tool calls, thinking output, usage from `prompt_eval_count` and `eval_count`, and the context size sent as `num_ctx` |
+| OpenAI-compatible (`src/llm/openai.ts`) | `/v1/chat/completions` | Server-sent events, tool-call arguments assembled from fragments, usage through `stream_options` |
+
+Both stream, so text appears as the model writes it, and both list available
+models for the model chip.
+
+## Models without tool calling
+
+`src/llm/adaptiveProvider.ts` starts with native tool calling. If a server
+answers that the model does not support tools, it switches that model to a
+text protocol (`src/llm/textToolCalls.ts`): the tool list goes into the
+prompt, the model writes a `<tool_call>` block, and the provider parses it.
+
+Two rules keep that safe and tidy:
+
+- Tool calls are parsed only from a trailing block, never from prose or code
+  fences, so a file the agent reads cannot smuggle in a call by containing
+  tool-call markup.
+- A stream filter hides the markup from the chat, so you see the answer, not
+  the protocol.
+
+The same parser also recovers `<tool_call>` text from models that support
+native tools but sometimes write calls inline.
+
+## Surviving a busy endpoint
+
+Rate limits and overload are the normal failure mode of hosted models,
+especially on free tiers, so they are handled in the transport rather than
+ending the turn:
+
+- **Retried:** 408, 425, 429, 500, 502, 503 and 504. Everything else (401, 404,
+  a malformed request) fails at once, because retrying cannot help.
+- **Three retries**, with exponential backoff and jitter (about 1, 2 and 4
+  seconds), so many clients do not retry in lockstep.
+- **`Retry-After` wins** when the server sends one, up to 60 seconds; a longer
+  wait is reported as a failure instead of silently stalling.
+- **Cancellable:** the wait listens to the stop signal, so <kbd>Esc</kbd> is
+  immediate.
+- **Visible:** each retry updates the status line ("retrying in 4s (1/3)") and
+  writes a log line, and the final error says how many retries were spent.
+
+## Limits on a response
+
+- A stream that sends nothing for 5 minutes is aborted with a clear message.
+- A single response is capped in size, so a misbehaving server cannot fill
+  memory.
+- Answers cut off at `gbsAgent.maxOutputTokens` are continued automatically,
+  up to two times.
+
+## Keys and consent
+
+API keys live in VS Code's secret storage, bound to the origin they were saved
+for, and authenticated requests refuse redirects. The first request to any
+remote destination asks for consent once. A local server on `localhost` needs
+neither a key nor consent.

@@ -48,13 +48,15 @@ const prettyCodeOptions = {
   keepBackground: false,
 };
 
-export const renderDoc = cache(async (slug: string, locale: Locale = DEFAULT_LOCALE) => {
-  const found = await readSourceWithFallback(slug, locale);
-  if (!found) return null;
-
+/**
+ * One MDX source to rendered content and its table of contents. Shared by the
+ * component docs and the SE Agent pages, so both get the same components,
+ * code highlighting and heading ids.
+ */
+export async function compileSource(source: string) {
   const toc: Heading[] = [];
   const { content, frontmatter } = await compileMDX<Record<string, unknown>>({
-    source: found.source,
+    source,
     components: mdxComponents,
     options: {
       parseFrontmatter: true,
@@ -64,6 +66,11 @@ export const renderDoc = cache(async (slug: string, locale: Locale = DEFAULT_LOC
       },
     },
   });
+  return { content, frontmatter, toc };
+}
 
-  return { content, frontmatter, toc, translated: found.translated };
+export const renderDoc = cache(async (slug: string, locale: Locale = DEFAULT_LOCALE) => {
+  const found = await readSourceWithFallback(slug, locale);
+  if (!found) return null;
+  return { ...(await compileSource(found.source)), translated: found.translated };
 });

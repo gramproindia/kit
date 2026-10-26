@@ -1,5 +1,6 @@
 import { getDocs, getHeadings } from "../_lib/docs";
-import { LOCALE_CODES, type Locale } from "../_lib/i18n";
+import { agentConfig, getAgentDocs, getAgentHeadings } from "../_lib/agent-docs";
+import { DEFAULT_LOCALE, LOCALE_CODES, type Locale } from "../_lib/i18n";
 
 export const dynamic = "force-static";
 
@@ -37,6 +38,23 @@ export async function GET() {
           locale,
         });
       }
+    }
+  }
+
+  // The SE Agent pages, English only, grouped under the agent's name.
+  for (const doc of await getAgentDocs()) {
+    const group = `${agentConfig.name} · ${doc.group}`;
+    entries.push({ type: "page", title: doc.title, page: doc.title, group, href: doc.href, locale: DEFAULT_LOCALE });
+    for (const heading of await getAgentHeadings(doc.slug)) {
+      if (heading.level > 3) continue;
+      entries.push({
+        type: "section",
+        title: heading.title,
+        page: doc.title,
+        group,
+        href: `${doc.href}#${heading.id}`,
+        locale: DEFAULT_LOCALE,
+      });
     }
   }
 

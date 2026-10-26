@@ -1,0 +1,73 @@
+---
+title: "Source and contributing"
+description: "Where the code lives, how to build and test it, how changes are reviewed, and how releases are made."
+group: "Project"
+order: 2
+---
+The agent, its tools and its permission model all live in one repository:
+[gramproindia/GBS-SE-Agent](https://github.com/gramproindia/GBS-SE-Agent). It
+is MIT licensed, written in TypeScript, and has no runtime dependencies.
+
+## Build it
+
+You need Node.js 22, VS Code 1.120 or later, and Git.
+
+```bash
+git clone https://github.com/gramproindia/GBS-SE-Agent.git
+cd GBS-SE-Agent
+npm install
+code .
+```
+
+- Press <kbd>F5</kbd> to start an Extension Development Host with the extension
+  loaded. The watch task rebuilds on save.
+- Run **GBS Agent: Show Logs** in that window to see requests, tool calls and
+  errors.
+
+## Checks
+
+| Command | What it does |
+| --- | --- |
+| `npm run check-types` | TypeScript, strict mode |
+| `npm run lint` | ESLint |
+| `npm test` | Compiles, lints and runs the integration tests in a real VS Code instance |
+| `npx vsce package` | Builds the `.vsix` the way a release does |
+
+The tests run against real VS Code APIs and a throwaway workspace. They cover
+the tools, workspace containment, the edit guard, diagnostics, retries, undo,
+`@` mentions, MCP servers, and complete agent turns against a mock Ollama
+server. CI runs them on Windows, macOS and Linux for every pull request.
+
+## Making a change
+
+1. Open an issue first for anything bigger than a small fix.
+2. Branch from `main` and keep the change focused.
+3. Add or update tests; a bug fix gets a test that fails without it.
+4. Update the docs the change affects and add a line under **Unreleased** in
+   `CHANGELOG.md`.
+5. Open a pull request. Anything that can run a command, write a file, start a
+   process or send data off the machine needs a maintainer review.
+
+The full guide is
+[CONTRIBUTING.md](https://github.com/gramproindia/GBS-SE-Agent/blob/main/CONTRIBUTING.md).
+Security problems go through
+[private reporting](https://github.com/gramproindia/GBS-SE-Agent/security/advisories/new),
+never a public issue.
+
+## Releases
+
+Pushing a tag such as `v0.1.0` runs the tests, builds the `.vsix`, and
+publishes it as a GitHub release with a checksum. The tag must match the
+version in `package.json`.
+
+## These docs
+
+These pages live in the GramproKit documentation site, under
+`docs-site/app/content/se-agent/` in
+[gramproindia/kit](https://github.com/gramproindia/kit). The diagrams are drawn
+in code by `docs-site/scripts/build-diagrams.mjs` in the site's own light and
+dark palettes:
+
+```bash
+node scripts/build-diagrams.mjs --only=se-agent
+```

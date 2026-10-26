@@ -1,0 +1,112 @@
+---
+title: "Working with the agent"
+description: "Asking for work, pointing at files, steering mid-task, approving actions, reviewing and undoing changes, and keeping the context window under control."
+group: "Guides"
+order: 3
+---
+## Asking for work
+
+Type what you want and press <kbd>Enter</kbd> (<kbd>Shift</kbd>+<kbd>Enter</kbd>
+for a new line). Say what should change and how you will know it worked:
+
+> Add rate limiting to the login endpoint, 5 attempts per minute per IP, and
+> make sure the auth tests still pass.
+
+- **The open file is attached automatically**, with any selected code. The chip
+  above the input shows what will be sent; click × to leave it out.
+- **Point at anything else with `@`.** Type `@` and a few letters to pick a
+  file or folder; its contents go with the message, so the agent starts where
+  you meant instead of searching. Attachments are capped at twice
+  `gbsAgent.maxToolOutputChars` in total.
+- **Paste a screenshot** to send it with the message (up to four). It only
+  helps with models that accept images. Screenshots are kept in the live chat
+  only and are gone after a window reload.
+- **Keep typing while it works.** Your message reaches the agent at its next
+  step, so you can redirect it without stopping: *"actually, put it in
+  middleware instead"*.
+- **Stop any time** with <kbd>Esc</kbd> or the stop button. Finished edits
+  stay.
+
+## Watching it work
+
+- **Tool rows:** one line per action, such as `Read src/auth.ts`,
+  `Search "login"` or `Run npm test`. Click a row for the full result, and a
+  file name to open it.
+- **Agent cards:** for broad exploration, the agent delegates to subagents that
+  search in their own context and report back. The card shows their progress
+  and report; their bulky output never enters the main conversation.
+- **Live output:** long-running commands stream into their row.
+- **Task checklist:** for multi-step work the agent keeps a plan above the
+  input and ticks items off. If it stops early, the list is marked
+  *not finished*.
+- **Thinking:** models that expose their reasoning get a collapsed
+  *Thought process* section.
+
+## Approving actions
+
+Shell commands, and edits to files that run code or configure tooling, pause
+for your approval. The card shows the full command, or a preview of the edit,
+with warnings when a command chains several programs, contacts the network,
+redirects output, or contains invisible characters.
+
+- **Run / Allow:** this once.
+- **Always allow `npm test`:** for the rest of the session. Not offered for
+  risky or sensitive cases.
+- **Deny:** the agent is told and tries another way instead of retrying.
+
+The permission chip under the input sets the mode:
+
+| Mode | Edits | Commands |
+| --- | --- | --- |
+| **Ask first** | ask | ask |
+| **Auto-edit** (default) | apply, except sensitive files | ask, except a few read-only ones |
+| **Full auto** | apply | run |
+
+Sensitive files (editor, git and CI config, `package.json`, scripts, linter
+and build configs, `.mcp.json`) always ask unless the mode is Full auto.
+[The permission gate](/se-agent/permissions-and-security) has the full rules.
+
+## Reviewing changes
+
+- Each turn ends with a summary: how long it took, the tokens used, and every
+  changed file with `+`/`−` counts.
+- **Undo this turn** puts every file back the way it was before the turn:
+  edited files are restored and created files are deleted. You see the list
+  first, and files you have changed yourself since are flagged before they are
+  overwritten. Originals are held in memory, so undo is not available after a
+  window reload.
+- The diff icon opens VS Code's diff view against the file's state before the
+  turn.
+- Files open in the editor are edited through the editor buffer, so
+  <kbd>Ctrl</kbd>+<kbd>Z</kbd> works as usual.
+- `path:line` references in the chat are clickable, and code blocks have a copy
+  button.
+
+<Callout type="info">
+Changes made by an MCP tool, such as a component installer, do not go through
+the agent's edit tools, so they are not in the turn summary or undo. Use git
+to review those.
+</Callout>
+
+## Managing context and cost
+
+The meter next to the send button shows how full the model's context window
+is; hover for the session's token totals.
+
+- **`/compact`** summarises the conversation so far to free space. Use it when
+  the meter turns orange.
+- **`/new`** starts a fresh chat, which is cheaper than compacting when you
+  switch to something unrelated.
+- **Past chats** are under the chat title. **GBS Agent: Clear Chat History**
+  deletes them all.
+- Set `gbsAgent.subagentModel` to a smaller model so exploration runs cheaply.
+
+## Giving it project knowledge
+
+- **`AGENTS.md`** (or `CLAUDE.md`) at the project root is read on every
+  request. Keep it short: build and test commands, conventions, things that are
+  always true.
+- **Skills** hold bigger knowledge that only matters sometimes. See
+  [Skills](/se-agent/skills).
+- **MCP servers** give it tools that answer questions, such as a component
+  catalogue. See [MCP servers](/se-agent/mcp-servers).

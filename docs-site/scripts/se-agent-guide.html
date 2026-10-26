@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GBS SE Agent — Explained in Plain English</title>
+<style>
+  @page { size: A4; margin: 18mm 17mm 18mm 17mm; }
+  :root {
+    --fg: #09090b; --muted: #52525b; --faint: #71717a; --border: #e4e4e7;
+    --surface: #fafafa; --subtle: #f4f4f5; --accent: #0284c7; --accent-soft: #e0f2fe;
+    --tip: #059669; --tip-soft: #ecfdf5; --warning: #b45309; --warning-soft: #fffbeb;
+    --danger: #dc2626; --danger-soft: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; color: var(--fg); font: 10.5pt/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .page { break-after: page; }
+  .page:last-child { break-after: auto; }
+  h1 { font-size: 30pt; line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 12pt; }
+  h2 { font-size: 19pt; line-height: 1.2; letter-spacing: -0.01em; margin: 2pt 0 4pt; }
+  h3 { font-size: 12pt; margin: 14pt 0 3pt; }
+  p { margin: 0 0 7pt; }
+  .part { color: var(--accent); font-size: 8.5pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  .lede { color: var(--muted); font-size: 11.5pt; margin-bottom: 12pt; }
+  .remember { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 8pt 11pt; border-radius: 0 6pt 6pt 0; margin: 10pt 0; }
+  .box { border: 1px solid var(--border); background: var(--surface); border-radius: 8pt; padding: 10pt 12pt; margin: 10pt 0; }
+  .box.tip { border-color: var(--tip); background: var(--tip-soft); }
+  .box.warn { border-color: var(--warning); background: var(--warning-soft); }
+  .label { font-size: 8pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-bottom: 3pt; }
+  .tip .label { color: var(--tip); } .warn .label { color: var(--warning); }
+  figure { margin: 10pt 0; }
+  figure svg { width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8pt; display: block; }
+  figcaption { color: var(--muted); font-size: 9pt; margin-top: 4pt; }
+  table { width: 100%; border-collapse: collapse; margin: 8pt 0; font-size: 9.5pt; }
+  th, td { text-align: left; vertical-align: top; padding: 5pt 7pt; border-bottom: 1px solid var(--border); }
+  th { font-size: 8pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); }
+  .yes { color: var(--tip); font-weight: 600; } .no { color: var(--danger); font-weight: 600; } .soon { color: var(--warning); font-weight: 600; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8pt; margin: 10pt 0; }
+  .grid3 .box { margin: 0; }
+  .grid3 h3 { margin-top: 0; }
+  .small { font-size: 9pt; color: var(--muted); }
+  .cover { display: flex; flex-direction: column; min-height: 250mm; }
+  .cover .meta { margin-top: auto; border-top: 1px solid var(--border); padding-top: 12pt; display: grid; grid-template-columns: 30mm 1fr; gap: 4pt 10pt; font-size: 10pt; }
+  .cover .meta dt { color: var(--faint); }
+  .cover .meta dd { margin: 0; }
+  .desk { display: flex; height: 22pt; border-radius: 5pt; overflow: hidden; border: 1px solid var(--border); margin: 3pt 0 9pt; font-size: 8pt; }
+  .desk span { display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 4pt; }
+  .d-rules { background: var(--accent-soft); } .d-ask { background: #fde68a55; } .d-files { background: var(--subtle); }
+  .d-empty { background: #fff; color: var(--faint); } .d-full { background: var(--danger-soft); color: var(--danger); } .d-summary { background: var(--tip-soft); }
+  ol.steps { padding-left: 16pt; } ol.steps li { margin-bottom: 4pt; }
+  dl.glossary { display: grid; grid-template-columns: 34mm 1fr; gap: 4pt 10pt; font-size: 9.5pt; }
+  dl.glossary dt { font-weight: 700; } dl.glossary dd { margin: 0; color: var(--muted); }
+  .footer { margin-top: 14pt; border-top: 1px solid var(--border); padding-top: 8pt; font-size: 8.5pt; color: var(--faint); }
+</style>
+</head>
+<body>
+
+<section class="page cover">
+  <div class="part">GBS SE Agent</div>
+  <h1>GBS SE Agent,<br>explained in plain English</h1>
+  <p class="lede">What it is, how it works, where its limits are, how it compares to the big names, and what comes next. No jargon, everyday examples, pictures.</p>
+  <div class="remember"><strong>If you remember one thing:</strong> it is a very fast, very literal junior assistant who works inside the code, shows you everything it does, and can run entirely on our own computers.</div>
+  <dl class="meta">
+    <dt>Written for</dt><dd>Anyone who has to understand or decide about this, technical or not</dd>
+    <dt>About</dt><dd>GBS SE Agent 0.0.13, plus MCP support from the next release</dd>
+    <dt>Date</dt><dd>26 October 2026</dd>
+    <dt>Online</dt><dd>kit.gramproindia.com/se-agent · github.com/gramproindia/GBS-SE-Agent</dd>
+  </dl>
+</section>
+
+<section class="page">
+  <div class="part">Part one</div>
+  <h2>What is this thing, really?</h2>
+  <p class="lede">A helper that works inside the code, not a chatbot that talks about it.</p>
+  <p>Imagine hiring someone on their first day. They don't know where anything is. But they are quick, they never get bored, and they have three good habits:</p>
+  <p><strong>They look before they touch.</strong> They don't guess where the login code lives; they go and find it. The agent is not even allowed to change a file it hasn't read, and if the file changed since it looked, the change is refused.</p>
+  <p><strong>They ask before anything risky.</strong> Running commands, changing settings, opening a file that looks like it holds a password: they stop and check with you first, showing exactly what they are about to do.</p>
+  <p><strong>They show their receipts.</strong> When they're done, they list every file they touched, with a side-by-side comparison and a single button that puts everything back.</p>
+  <p>That is the whole product. Everything technical exists to force those three habits onto a computer program that would otherwise happily guess.</p>
+  <div class="box"><div class="label">The one-sentence version</div>A helper that reads and changes our code on its own, shows every step, asks permission before anything it can't undo, and can run entirely on our own computers so client code never leaves the building.</div>
+  <h3>What it is not</h3>
+  <p>It is not a chatbot that answers questions. A chatbot talks; this one acts: it opens files, edits them, runs the tests, reads the errors and tries again. And it is not a replacement for a developer. It is very good at the boring, repetitive half of the job and genuinely unreliable at deciding what should be built.</p>
+  <table>
+    <tr><th>It is good at</th><th>A person is still needed for</th></tr>
+    <tr><td>Explaining a codebase nobody on the team wrote</td><td>Deciding what should be built at all</td></tr>
+    <tr><td>Repetitive changes across many files</td><td>Judging whether the result is actually right</td></tr>
+    <tr><td>Writing the first version of tests</td><td>Anything where being confidently wrong is expensive</td></tr>
+    <tr><td>Narrowing down where a bug lives</td><td>Context nobody wrote down</td></tr>
+    <tr><td>Following conventions it was taught once</td><td>The last review before it ships</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <div class="part">Part two</div>
+  <h2>How it works, step by step</h2>
+  <p class="lede">One instruction from you turns into a loop of small steps. The loop is the whole trick.</p>
+  <figure>{{diagram:se-agent-plain}}</figure>
+  <p>Steps two to five repeat until the work is actually done. That is what makes it an "agent" rather than something that gives you an answer and stops.</p>
+  <p>While it works you see every step as a line in the chat: "Read src/auth.ts", "Search login", "Run npm test". You can keep typing to steer it ("actually, put it in the middleware"), and the Esc key stops it at any time.</p>
+  <div class="box warn"><div class="label">Why this matters for cost and speed</div>Every one of those steps is a separate question to the AI. A simple edit is three to eight steps; a big change can be twenty to sixty. So when a free plan "allows 1,000 requests a day", that is not 1,000 tasks; it is more like 30 to 100. This is the single most misunderstood number in the whole subject.</div>
+  <h3>Helpers for big searches</h3>
+  <p>For a big search, the agent sends a junior helper who reads a hundred files in its own room and comes back with a six-line answer. The hundred files never land on the main desk (see Part three). Up to four helpers can work at once, which is why it copes with a large codebase on a small model.</p>
+</section>
+
+<section class="page">
+  <div class="part">Part three</div>
+  <h2>Three words you'll keep hearing</h2>
+  <p class="lede">Model, tokens, context window. Everything else is detail.</p>
+  <h3>The model is the brain</h3>
+  <p>The agent itself has no intelligence. It is the hands, the eyes and the rulebook. The thinking is done by a separate thing called a model, and we can plug in different brains: one running on your own laptop, one on a company server, or one rented over the internet. Same agent, different brain, very different speed and cost.</p>
+  <h3>Tokens are pieces of words</h3>
+  <p>Models read tokens: chunks of about four characters. A rough rule: 750 words is about 1,000 tokens. You pay for tokens, and the brain can only hold so many at once.</p>
+  <h3>The context window is the desk</h3>
+  <p>Picture a desk that fits a fixed number of pages. Everything the assistant is thinking about has to be on it: the house rules, your request, every file it has read, every test result. When the desk fills up, something has to go.</p>
+  <div class="label">At the start: plenty of room</div>
+  <div class="desk"><span class="d-rules" style="flex:2">house rules</span><span class="d-ask" style="flex:1">your ask</span><span class="d-empty" style="flex:7">empty space</span></div>
+  <div class="label">After twenty steps: nearly full</div>
+  <div class="desk"><span class="d-rules" style="flex:2">rules</span><span class="d-ask" style="flex:1">ask</span><span class="d-files" style="flex:2">files read</span><span class="d-files" style="flex:2">test output</span><span class="d-files" style="flex:2">more files</span><span class="d-full" style="flex:1">full</span></div>
+  <div class="label">What our agent does: tidies the desk</div>
+  <div class="desk"><span class="d-rules" style="flex:2">rules</span><span class="d-ask" style="flex:1">ask</span><span class="d-summary" style="flex:3">short notes on older work</span><span class="d-files" style="flex:2">recent work</span><span class="d-empty" style="flex:2">room to keep going</span></div>
+  <p>It clears space in a fixed order: first old tool output becomes a one-line note, then, only if needed, it asks the AI to write a summary. The house rules never move, because keeping them identical is what lets the server answer faster on every step after the first.</p>
+  <div class="box"><div class="label">In normal numbers</div>Our default desk is 32,768 tokens: roughly 24,000 words, or about 50 pages. A big model on a good server can have a desk four times that size. But bigger is not automatically better: models get noticeably worse at finding things in the middle of a very full desk, which is why we tidy it even when there is room.</div>
+</section>
+
+<section class="page">
+  <div class="part">Part four</div>
+  <h2>What's inside our agent</h2>
+  <p class="lede">Four layers, each with one job. Nothing skips a layer, which is why it's safe.</p>
+  <figure>{{diagram:se-agent-layers}}</figure>
+  <p>The chat panel is deliberately powerless: it can only show things and pass on what you type. Anything that touches a real file goes through the safety guard first.</p>
+  <h3>Three ways to teach it</h3>
+  <p><strong>A rules file.</strong> Short, always-true facts ("run tests with npm test", "we use tabs") go in a file called AGENTS.md that it reads every time.</p>
+  <p><strong>Skills.</strong> A folder where we write down bigger house rules: "always use our DataGrid, never a plain table". The assistant only reads them when the job actually involves that topic, so they cost almost nothing the rest of the time. Like a recipe book on the shelf rather than read aloud at every meal.</p>
+  <p><strong>Plugs (MCP servers).</strong> Small programs that give it new abilities, such as asking our component library what a component's real options are. Part eight explains them.</p>
+</section>
+
+<section class="page">
+  <div class="part">Part five</div>
+  <h2>Where the brain lives, and what that costs</h2>
+  <p class="lede">Three options. They trade privacy, speed and money against each other.</p>
+  <div class="grid3">
+    <div class="box"><h3>1. On your laptop</h3><p class="small">Like cooking at home.</p><p><span class="yes">+</span> Free, works on a plane, nothing ever leaves.</p><p><span class="no">−</span> Slower, and the brain must fit your machine.</p></div>
+    <div class="box"><h3>2. On a company server</h3><p class="small">Like a staff canteen.</p><p><span class="yes">+</span> A big brain, fast, shared, code stays with us.</p><p><span class="no">−</span> Costs money up front and needs setup.</p></div>
+    <div class="box"><h3>3. Rented online</h3><p class="small">Like a takeaway.</p><p><span class="yes">+</span> Strongest brains, no hardware, free tiers to try.</p><p><span class="no">−</span> Our code goes to someone else's computer.</p></div>
+  </div>
+  <p>The agent works with all three, and you switch with two clicks. Option 1 is the one nobody else makes easy, and our distinguishing feature. Before anything is sent to an outside service the first time, the agent asks, and a "cloud" badge stays on screen from then on.</p>
+  <h3>Why the rented one sometimes says "server overload"</h3>
+  <p>When you rent, you share. A free plan is a busy shop at lunchtime: sometimes the answer is "too many people right now, come back in a minute". That is the "429" error. It is a queue, not a bug. The agent waits a second and tries again, then two seconds, then four, and tells you it is waiting instead of looking frozen.</p>
+  <h3>If we run our own server</h3>
+  <p>This is buying the pizza oven instead of ordering delivery. It makes sense at volume, and the sums are about memory on the graphics card, not speed. Each conversation the brain is holding takes memory, and a bigger desk takes proportionally more: a mid-size brain with a very large desk can use 30–40 GB of card memory per person using it at that moment.</p>
+  <div class="box tip"><div class="label">The one free win</div>Our agent sends the same house rules at the start of every step. Server software can be told to remember that repeated opening (it's called prefix caching), and it makes every step after the first much faster for the price of one setting. Turn it on from day one.</div>
+</section>
+
+<section class="page">
+  <div class="part">Part six</div>
+  <h2>How it keeps you in control</h2>
+  <p class="lede">The safety guard, the receipts, and the dials.</p>
+  <h3>The safety guard</h3>
+  <p>There are three settings, chosen with one click: <strong>Ask first</strong> (it asks about everything), <strong>Auto-edit</strong> (the default: ordinary edits go ahead, commands ask) and <strong>Full auto</strong> (it never asks; for trusted work only). Whatever the setting, outside Full auto it always asks before it changes files that control tools, scripts or settings, opens a file that looks like it holds a password, or runs a command that chains several programs together.</p>
+  <p>"Always allow" is a narrow yes: it remembers "npm test" for the rest of the session, not "run anything".</p>
+  <h3>The receipts</h3>
+  <p>Every task ends with a list of changed files, a side-by-side comparison for each one, and an <strong>Undo</strong> button that puts every file back the way it was before the task started. It warns you first if you have edited one of those files yourself since.</p>
+  <h3>The dials</h3>
+  <p>Safety caps stop a runaway task burning money, one giant file flooding the desk, or an endless loop. They were set for small brains; with a better brain, some should go up.</p>
+  <table>
+    <tr><th>The limit</th><th>Today</th><th>Adjustable?</th><th>With a better brain</th></tr>
+    <tr><td>Desk size</td><td>32,768 tokens</td><td class="yes">Yes</td><td>Raise it to what the model supports</td></tr>
+    <tr><td>Steps per task</td><td>60</td><td class="yes">Yes</td><td>120 or more for big jobs</td></tr>
+    <tr><td>Answer length</td><td>8,192 tokens</td><td class="yes">Yes</td><td>Double it so long files are not cut off</td></tr>
+    <tr><td>Tool output kept</td><td>20,000 characters</td><td class="yes">Yes</td><td>Raise it so test failures are not trimmed</td></tr>
+    <tr><td>Command time limit</td><td>120 seconds</td><td class="yes">Yes</td><td>Depends on the project's test suite</td></tr>
+    <tr><td>Lines read at once</td><td>1,000</td><td class="no">No</td><td>A big brain could read whole files</td></tr>
+    <tr><td>Helpers at once</td><td>4</td><td class="no">No</td><td>Our own server could run more</td></tr>
+    <tr><td>Patience with a silent server</td><td>5 minutes</td><td class="no">No</td><td>A large model waking up can take longer</td></tr>
+  </table>
+  <p class="small">The rule we follow: if the right value depends on which brain you use, it becomes a setting. If it is an internal balancing act nobody can reason about, it stays ours to tune.</p>
+</section>
+
+<section class="page">
+  <div class="part">Part seven</div>
+  <h2>How we compare to the big names</h2>
+  <p class="lede">We win on privacy and control. The gaps we listed a month ago are mostly closed.</p>
+  <table>
+    <tr><th>Can it…</th><th>Ours</th><th>Claude Code / Codex / Cursor</th><th>What it means day to day</th></tr>
+    <tr><td>Work fully offline, for free</td><td class="yes">Yes</td><td>Partly or no</td><td>Client code never leaves the building: our biggest advantage</td></tr>
+    <tr><td>Ask before risky actions</td><td class="yes">Yes, strictly</td><td>Yes</td><td>Ours is stricter than most, which suits regulated clients</td></tr>
+    <tr><td>Learn our house rules</td><td class="yes">Yes (skills)</td><td>Yes</td><td>Level with the leaders, and it reads the same skill folders</td></tr>
+    <tr><td>Undo everything it did</td><td class="yes">Yes</td><td>Yes</td><td>New: one button restores every file the task changed</td></tr>
+    <tr><td>Point at a file: "use @this"</td><td class="yes">Yes</td><td>Yes</td><td>New: attach any file or folder by typing @</td></tr>
+    <tr><td>Understand a screenshot</td><td class="yes">Yes</td><td>Yes</td><td>New: paste a picture of a broken screen, with models that see images</td></tr>
+    <tr><td>Plug into other tools (MCP)</td><td class="soon">Next release</td><td>Yes</td><td>New: reads the same configuration file Claude Code does</td></tr>
+    <tr><td>Run commands in a sandbox</td><td class="no">Not yet</td><td>Yes</td><td>Today the guard is the approval prompt; see Part nine</td></tr>
+    <tr><td>Finish your line as you type</td><td class="no">No</td><td>Cursor, Copilot</td><td>A different product; we are the "do the task" tool</td></tr>
+  </table>
+  <h3>The honest gap: the brain</h3>
+  <p>Most of what makes Claude Code and Codex feel so capable is the brain behind them, trained specifically for this kind of work. On a small local model our agent is less capable on hard tasks, however good the rest of it is. That is why moving to our own, larger self-hosted model matters more than any feature.</p>
+  <div class="box"><div class="label">The fair summary</div>For a company that cannot send client code to the cloud, ours is a genuinely good answer and the others are not. For a developer who just wants the strongest results and doesn't mind where the code goes, the others are still ahead on hard tasks. A stronger self-hosted model is what closes that gap.</div>
+</section>
+
+<section class="page">
+  <div class="part">Part eight</div>
+  <h2>The universal plug is built</h2>
+  <p class="lede">MCP is a standard socket. Build it once, and the assistant can talk to anything that has the matching plug.</p>
+  <p>Before, the assistant could do exactly ten things, all about files and commands. Reading a design from Figma would have meant Figma-specific code, then Jira-specific code, then database-specific code, forever. MCP is the agreed shape of the plug, the USB of AI tools. We have now built the socket, and every future connection is a line of configuration instead of a development project.</p>
+  <figure>{{diagram:se-agent-mcp}}</figure>
+  <h3>What it gives us today</h3>
+  <p>Our own component library, GramproKit, ships a plug. With it, the assistant asks the library what a component's real options are instead of guessing, installs the pieces it needs, and then has its own code checked against the real definitions. Combined with our house rules (skills), you get code that matches both the design and our standards, something none of the big names offer a Grampro client out of the box.</p>
+  <h3>Why it is safe</h3>
+  <p>A plug defined by a project we open is, in effect, permission to run a program on our machine. So the agent asks once, clearly, showing the exact command, and asks again if that command ever changes. Each time a plug is used, it asks again unless you said "always allow" for that one action.</p>
+</section>
+
+<section class="page">
+  <div class="part">Part nine</div>
+  <h2>What comes next</h2>
+  <p class="lede">The list from a month ago is done. This is the new one, in order.</p>
+  <p class="small">Last month's plan: adjustable limits (partly done), one-click undo (done), "use @this file" (done), the universal plug (done, in the next release). The repository has also moved to the company's GitHub, with automatic tests on Windows, macOS and Linux and a proper release process.</p>
+  <table>
+    <tr><th>Order</th><th>What</th><th>Rough size</th><th>Why now</th></tr>
+    <tr><td>1</td><td>Move to our own larger model</td><td>Depends on the model work</td><td>The brain is the biggest gap to the big names (Part seven)</td></tr>
+    <tr><td>2</td><td>A test set of real tasks from our own projects</td><td>About a week</td><td>So we can prove a new model or change is better before anyone switches</td></tr>
+    <tr><td>3</td><td>A sandbox for commands</td><td>Weeks</td><td>Limit what a command can touch, so safety does not rest on approvals alone</td></tr>
+    <tr><td>4</td><td>Read Claude Code and Codex settings</td><td>Days</td><td>People switching to us keep their setup on day one</td></tr>
+    <tr><td>5</td><td>Opt-in usage numbers</td><td>Days</td><td>Know where it struggles, without ever collecting code</td></tr>
+  </table>
+  <h3>A glossary, if someone quotes jargon at you</h3>
+  <dl class="glossary">
+    <dt>Model</dt><dd>The brain. We rent one or run our own; the agent is the body around it.</dd>
+    <dt>Token</dt><dd>A chunk of about four characters. 750 words is roughly 1,000 tokens.</dd>
+    <dt>Context window</dt><dd>The desk. How much the brain can hold at once.</dd>
+    <dt>Tool calling</dt><dd>The brain being able to say "read this file" instead of only talking.</dd>
+    <dt>Skill</dt><dd>A folder of house rules the agent reads only when the task needs it.</dd>
+    <dt>MCP</dt><dd>The standard plug shape that lets the agent use other programs as tools.</dd>
+    <dt>Subagent</dt><dd>A helper that does a big search in its own room and reports back briefly.</dd>
+    <dt>Rate limit / 429</dt><dd>"Too many people right now, try again shortly."</dd>
+    <dt>Local model</dt><dd>A brain running on our own hardware. Nothing leaves the building.</dd>
+    <dt>Prefix caching</dt><dd>The server remembering the repeated opening of each request, so it is faster.</dd>
+  </dl>
+  <div class="footer">GBS SE Agent 0.0.13 plus MCP support from the next release · 45 automated tests on Windows, macOS and Linux · runs on Ollama, LM Studio, llama.cpp, vLLM, Hugging Face, Groq, Google AI Studio or any OpenAI-compatible endpoint. Written 26 October 2026. Full documentation: kit.gramproindia.com/se-agent.</div>
+</section>
+
+</body>
+</html>

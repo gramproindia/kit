@@ -1,0 +1,59 @@
+---
+title: "In plain English"
+description: "What the agent is, how it works and where its limits are, without jargon. With a downloadable guide for anyone who has to understand or decide about it."
+group: "Project"
+order: 1
+---
+<Callout type="tip" title="Download the guide">
+[GBS SE Agent, explained in plain English (PDF)](/se-agent/GBS-SE-Agent-Explained.pdf)
+covers everything on this page in more depth: everyday comparisons, pictures,
+where the brain can live and what that costs, how it compares to the
+better-known tools, and what comes next.
+</Callout>
+
+## What it is
+
+Imagine someone on their first day. They do not know where anything is, but
+they are quick, never get bored, and have three good habits:
+
+- **They look before they touch.** They do not guess where the login code
+  lives; they go and find it.
+- **They ask before anything risky.** Running commands, changing settings,
+  opening a file that looks like it holds a password: they stop and check
+  first.
+- **They show their receipts.** When they finish, they tell you exactly which
+  files they touched, so you can look before anything goes out.
+
+That is the whole product. Everything technical in these docs exists to force
+those three habits onto software that would otherwise happily guess.
+
+<Diagram name="se-agent-plain" alt="Six steps in a row: you describe the job in your own words; it looks, searching and reading the files; it asks before anything risky; it changes the code; it checks, running the tests and reading errors; and it shows you every file it changed. An arrow runs from the checking step back to the looking step: if a check fails, it goes back and fixes it, as many times as it takes." caption="Steps two to five repeat until the work is actually done. That loop is what makes it an agent rather than something that answers and stops." />
+
+## Three words you will keep hearing
+
+- **The model is the brain.** The agent has no intelligence of its own; it is
+  the hands, the eyes and the rulebook. The thinking is done by a model, which
+  can run on your laptop, on a company server, or be rented over the internet.
+- **Tokens are pieces of words**, about four characters each. 750 words is
+  roughly 1,000 tokens. You pay for tokens, and a model can only hold so many
+  at once.
+- **The context window is the desk.** Everything the agent is thinking about
+  has to fit on it: the house rules, your request, every file it read, every
+  test result. When the desk fills up, the agent tidies it, throwing away old
+  output first and summarising only as a last resort.
+
+## Where it helps, and where a person is still needed
+
+| It is good at | A person is still needed for |
+| --- | --- |
+| Explaining a codebase nobody on the team wrote | Deciding what should be built at all |
+| Repetitive changes across many files | Judging whether the result is actually right |
+| Writing the first version of tests | Anything where being confidently wrong is expensive |
+| Narrowing down where a bug lives | Context nobody wrote down |
+| Following conventions it was taught once | The last review before it ships |
+
+## The one-sentence version
+
+An assistant that can read and change a codebase on its own, shows you every
+step it takes, asks permission before anything it cannot undo, and can run
+entirely on your own hardware so client code never leaves the building.

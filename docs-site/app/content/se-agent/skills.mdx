@@ -1,0 +1,77 @@
+---
+title: "Skills"
+description: "Teach the agent your component library, conventions and domain rules with a SKILL.md folder. Only the description is always in the prompt; the instructions load when a task needs them."
+group: "Guides"
+order: 4
+---
+A skill is a folder with a `SKILL.md` that teaches the agent something specific
+to your team or project: how to use your component library, the conventions of
+one service, the rules of a domain.
+
+Skills stay cheap because only their name and description are always in the
+prompt, about 45 tokens each. The instructions load when the agent decides they
+apply, and bundled reference files load only if the task needs them.
+
+<Diagram name="se-agent-skills" alt="Skills come from three places: this project's .gbs/skills folder, a package that lists gbsSkills in its package.json, and your own folder set by gbsAgent.skillsPath. Project and package skills ask once before use. A registry merges them by name, project first, then package, then yours, and keeps the list fixed for the run. Level 1, always in the prompt, is the name and description, one line each, about 45 tokens. Level 2, the skill tool with a name, loads the SKILL.md instructions once the task matches, up to 6,000 characters. Level 3, the skill tool with a resource, loads one bundled reference file if needed, up to 12,000 characters." caption="A skill the agent never needs costs one line. Up to 12 are listed, those matching the open file first." />
+
+## Writing one
+
+Run **GBS Agent: New Skill**, or create the folder yourself:
+
+```text
+.gbs/skills/component-library/
+├── SKILL.md            # when to use it, and the rules that matter
+└── references/
+    └── forms.md        # detail, loaded only when the task needs it
+```
+
+```markdown
+---
+name: component-library
+description: Builds UI with the GBS component library. Use when adding or changing UI in apps that import @gbs/ui.
+autoAttach: ["src/**/*.tsx"]
+---
+
+# Component library
+- Tables: `DataGrid`, never a raw `<table>`.
+- Forms: wrap every input in `FormField`.
+- Import from `@gbs/ui`, never from `@gbs/ui/dist/*`.
+
+Details: see references/forms.md
+```
+
+- Keep `SKILL.md` under 500 lines and move the rest into files beside it, so a
+  small task never loads the whole guide.
+- Write the `description` so it says **what it covers and when to use it**.
+  That one line is how the agent decides to load it.
+- `autoAttach` globs mark the skill as relevant for matching files, which helps
+  small local models pick the right one.
+
+## Where skills can live
+
+| Location | Use it for | Shared with |
+| --- | --- | --- |
+| `.gbs/skills/` (or `.claude/skills/`) in the project | The project's domain, conventions and requirements | Everyone who clones the repo |
+| A package that lists `"gbsSkills": ["skills/<name>"]` in its `package.json` | A library shipping its own usage guide, versioned with the code | Everyone who installs the package |
+| Your own folder (**GBS Agent: Open Skills Folder**, or `gbsAgent.skillsPath`) | Habits, and company-wide skills for every project | Just you, unless the folder is a shared repo |
+
+If the same name appears twice, the project wins over a package, and a package
+wins over your folder.
+
+## Using them
+
+- The agent loads a skill by itself when the description matches the task;
+  you will see a **Skill** row in the transcript.
+- **`/skills`** lists what is available, where each came from, and what the
+  catalogue costs per request.
+- Skills from a repository or a package are instructions the agent will follow,
+  so the first time a workspace offers them you are asked once.
+  **GBS Agent: Reload Skills** asks again.
+- A skill missing its `name` or `description` is listed as invalid and never
+  sent to the model.
+
+<Callout type="tip" title="GramproKit ships a skill">
+`npx @grampro/kit skill` writes the component library's skill into
+`.gbs/skills/`, where this agent finds it with no other setup. See
+[Using it with GramproKit](/se-agent/with-gramprokit).
+</Callout>

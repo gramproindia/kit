@@ -1,0 +1,66 @@
+---
+title: "Troubleshooting"
+description: "Fixes for the common problems: model servers that cannot be reached, 401s and 402s from cloud providers, models that will not call tools, skills that are not used, and too many approval prompts."
+group: "Guides"
+order: 7
+---
+For anything not covered here, **GBS Agent: Show Logs** records every request,
+tool call, retry and error, with timings.
+
+## Models and endpoints
+
+- **"Could not reach Ollama"**: start Ollama (`ollama serve`) or check
+  `gbsAgent.ollama.baseUrl`.
+- **Model not found (HTTP 404)**: run `ollama pull <model>`, or pick a model
+  from the model chip.
+- **Hugging Face returns 401**: the token lacks the **Make calls to Inference
+  Providers** permission, or it was saved for a different endpoint. Run
+  **GBS Agent: Set API Key** again after changing `gbsAgent.openai.baseUrl`.
+- **Hugging Face returns 402, or mentions credits**: the monthly credits are
+  spent. Add a payment method, wait for the reset, or switch back to a local
+  model.
+- **A Hugging Face model id returns 404**: no provider is serving it right now.
+  Check the model's page on the Hub, or pin a provider with a suffix such as
+  `:groq`.
+- **The model list is empty for OpenAI-compatible**: the endpoint could not be
+  listed, usually because no key is saved yet or the base URL is missing its
+  `/v1`. Type the model id meanwhile.
+- **"Server overload" or 429 that keeps coming back**: the agent already retries
+  three times. A free tier's per-minute cap may be too low for agent work; see
+  [How free tiers run out](/se-agent/cloud-models#how-free-tiers-run-out).
+- **Asked to send a saved API key to a local server**: choose **Cancel**. Local
+  servers do not need the key.
+
+## The agent's behaviour
+
+- **It does not use tools, or stops early**: switch to a model trained for tool
+  calling (see [Which models work](/se-agent/local-models#which-models-work)).
+  For llama.cpp add `--jinja`; for vLLM add
+  `--enable-auto-tool-choice --tool-call-parser <parser>`.
+- **Slow, or out of memory**: use a smaller model, or set
+  `gbsAgent.contextWindow` to `16384`.
+- **It stops with a step-limit message on a big task**: raise
+  `gbsAgent.maxSteps`, or split the task.
+- **The context meter is high**: run `/compact`, or `/new` if you are switching
+  tasks.
+- **Too many approval prompts**: use **Always allow** for commands you repeat,
+  and keep the mode on **Auto-edit**. Sensitive files always ask.
+
+## Skills and MCP servers
+
+- **A skill is not being used**: check `/skills`. It may be invalid or not
+  allowed for this workspace (**GBS Agent: Reload Skills** asks again).
+  Otherwise make the `description` name the words you actually use, or add an
+  `autoAttach` glob.
+- **Skill edits are not picked up**: skills are read once per request. Run
+  **GBS Agent: Reload Skills**.
+- **An MCP server failed to start**: see
+  [MCP servers → Troubleshooting](/se-agent/mcp-servers#troubleshooting).
+
+## The workspace
+
+- **The robot icon does nothing, or the panel says the agent is disabled**: the
+  folder is in Restricted Mode. Trust it from the notification or with
+  **Workspaces: Manage Workspace Trust**.
+- **Undo is not offered**: the window was reloaded since the turn. Originals
+  are kept in memory only; use the diff view or git.

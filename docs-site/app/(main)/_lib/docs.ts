@@ -142,8 +142,12 @@ function stripInlineMarkdown(text: string) {
  */
 export const getHeadings = cache(async (slug: string, locale: Locale = DEFAULT_LOCALE): Promise<Heading[]> => {
   const found = await readSourceWithFallback(slug, locale);
-  if (!found) return [];
-  const { content } = matter(found.source);
+  return found ? headingsOf(found.source) : [];
+});
+
+/** The headings of one MDX source. Also used for the SE Agent pages. */
+export function headingsOf(source: string): Heading[] {
+  const { content } = matter(source);
   const slugger = createSlugger();
   const headings: Heading[] = [];
   let inFence = false;
@@ -157,4 +161,4 @@ export const getHeadings = cache(async (slug: string, locale: Locale = DEFAULT_L
     headings.push({ id: slugger(title), title, level: match[1].length });
   }
   return headings;
-});
+}
