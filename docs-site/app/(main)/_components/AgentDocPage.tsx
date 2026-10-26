@@ -92,7 +92,7 @@ export async function AgentDocPage({ slug }: { slug: string }) {
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-(--v2-muted)">
             <a href={agentConfig.repo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-(--v2-fg)">
               <GitHubIcon className="size-3.5" />
-              gramproindia/GBS-SE-Agent
+              gramproindia/agent
             </a>
             <a href={agentConfig.pdf} download className="inline-flex items-center gap-1.5 hover:text-(--v2-fg)">
               <Download className="size-3.5" aria-hidden />

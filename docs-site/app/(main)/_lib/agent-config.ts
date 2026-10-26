@@ -13,7 +13,7 @@ export const agentConfig = {
   name: "GBS SE Agent",
   description:
     "GBS SE Agent is an open-source coding agent for VS Code that runs on local models (Ollama, LM Studio, llama.cpp, vLLM) or any OpenAI-compatible endpoint, with skills and MCP support.",
-  repo: "https://github.com/gramproindia/GBS-SE-Agent",
+  repo: "https://github.com/gramproindia/agent",
   marketplace: "https://marketplace.visualstudio.com/items?itemName=gbs-internal-toolchain.gbs-software-agent",
   pdf: "/se-agent/GBS-SE-Agent-Explained.pdf",
 };
