@@ -117,8 +117,8 @@ export async function Overview({ locale }: { locale: Locale }) {
 
           <div className="mx-auto mt-10 max-w-md text-left">
             <CommandTabs
-              npm="npx @grampro/kit -i"
-              pnpm="pnpm dlx @grampro/kit -i"
+              npm="npx @grampro/kit add"
+              pnpm="pnpm dlx @grampro/kit add"
             />
           </div>
         </div>
