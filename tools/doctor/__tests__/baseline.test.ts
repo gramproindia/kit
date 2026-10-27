@@ -34,10 +34,16 @@ afterEach(() => {
 });
 
 describe("kitRelativeHash", () => {
-  it.each(folders)("reproduces %s's shipped sourceHash from an installed copy", (folder) => {
-    const passport = JSON.parse(readFileSync(join(KIT, folder, "passport.json"), "utf8"));
-    expect(kitRelativeHash(install(folder), folder, passport)).toBe(passport.source.sourceHash);
-  });
+  // Copying and hashing data-grid, the largest folder, can pass the default
+  // 5 s while every other test file runs alongside — as under prepublishOnly.
+  it.each(folders)(
+    "reproduces %s's shipped sourceHash from an installed copy",
+    (folder) => {
+      const passport = JSON.parse(readFileSync(join(KIT, folder, "passport.json"), "utf8"));
+      expect(kitRelativeHash(install(folder), folder, passport)).toBe(passport.source.sourceHash);
+    },
+    30_000,
+  );
 
   it("refuses a file list that climbs out of the folder", () => {
     const dir = install("button");

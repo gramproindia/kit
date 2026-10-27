@@ -71,5 +71,12 @@ export default defineConfig({
        */
       "./src/**/__tests__/**/*.test.ts",
     ],
+    /*
+     * Several tests spawn the CLI or build passports with the type checker,
+     * and take 3–9 s while the rest of the suite runs alongside. The default
+     * 5 s failed one of them under `npm publish`'s prepublishOnly; a hang is
+     * still caught, just not a busy machine.
+     */
+    testTimeout: 30_000,
   },
 });
