@@ -147,6 +147,24 @@ a second.
 On an air-gapped machine, install it yourself beside your own TypeScript:
 `npm i -D typescript-6@npm:typescript@6.0.3`.
 
+### React's type definitions
+
+Inherited props — the `disabled`, `form` and `aria-*` a Button takes from
+`ButtonHTMLAttributes` — come from `@types/react`. A project without it (a
+JavaScript project, say) gets the exact `@types/react` and `@types/react-dom`
+the kit generates its passports with, fetched and cached the same way, so a
+regenerated passport matches the shipped one byte for byte.
+
+When they cannot be had — offline, with nothing cached:
+
+- `passport --check` still catches a changed component, because the source
+  hash needs no types. An unchanged one is reported as *not verified*, not as
+  stale.
+- `passport` writes nothing, rather than replace complete passports with ones
+  missing every inherited prop.
+
+Installing them yourself works too: `npm i -D @types/react @types/react-dom`.
+
 Protection and the file-level part of the report need no TypeScript at all —
 they compare file hashes — so `add` never refuses or overwrites anything
 differently depending on what is installed.

@@ -2,6 +2,7 @@ import { expect, type Page } from "@playwright/test";
 
 /** The demo app's tabs, by their visible label. */
 export const TABS = {
+  agent: "Agent · WebMCP",
   grid: "Client · 100k rows",
   server: "Server mode",
   select: "Select & MultiSelect",
@@ -21,6 +22,14 @@ export async function openTab(page: Page, tab: keyof typeof TABS) {
   const button = page.getByRole("tab", { name: TABS[tab] });
   await button.click();
   await expect(button).toHaveAttribute("aria-selected", "true");
+  // Each demo is lazy-loaded behind a skeleton. Wait for the demo itself, or a
+  // test queries — and axe audits — the placeholder instead.
+  // The demo's own panel: the one wrapping the demo card. Some demos (Controls)
+  // contain tabs of their own, whose panels must not be mistaken for it.
+  const panel = page.locator("[role='tabpanel']:not([hidden]):has(> section.v2-card)");
+  await expect(panel).toHaveCount(1);
+  await expect(panel.locator(".v2-skeleton")).toHaveCount(0, { timeout: 15_000 });
+  await expect(panel.locator(".v2-stage > *").first()).toBeVisible();
 }
 
 /** The computed value of one CSS property, as the browser resolves it. */

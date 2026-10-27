@@ -1,6 +1,8 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 
 import { Tab, TabList, TabPanel, Tabs } from "@/components/tabs";
+/* Stamped from the library itself, so the shell never names a stale release. */
+import { version } from "../../package.json";
 
 const DOCS = "https://kit.gramproindia.com";
 const REPO = "https://github.com/gramproindia/kit";
@@ -269,7 +271,7 @@ function App() {
             Developer Demo
           </a>
 
-          <span className="v2-pill">2.0.0-beta</span>
+          <span className="v2-pill">{version}</span>
 
           <nav
             aria-label="Main"
@@ -358,7 +360,7 @@ function App() {
 
         <footer className="v2-footer flex flex-wrap items-center gap-x-5 gap-y-2">
           <span>
-            GramproKit 2.0.0-beta · zero-dependency components for React 19
+            GramproKit {version} · zero-dependency components for React 19
           </span>
 
           <nav

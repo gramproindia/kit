@@ -325,6 +325,37 @@ describe("determinism and drift", () => {
     }
   }, 180_000);
 
+  it("without React's types: warns instead of calling it stale, refuses to write, still catches a real edit", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "passport-notypes-"));
+    try {
+      const lib = join(tmp, "beta");
+      cpSync(join(LIB, "button"), join(lib, "button"), { recursive: true });
+      cpSync(join(LIB, "shared"), join(lib, "shared"), { recursive: true });
+      const withTypes = { libRoot: lib, repoRoot: REPO, libraryVersion: "test" };
+      generate(withTypes);
+      const good = readFileSync(join(lib, "button", "passport.json"), "utf8");
+      const without = { ...withTypes, reactTypes: null };
+
+      // Untouched source: not stale, but said to be unverified.
+      const unchanged = check(without);
+      expect(unchanged.errors).toBe(0);
+      expect(unchanged.report[0].problems.map((p: any) => p.code)).toContain("react-types-unresolved");
+
+      // Regenerating would hollow the passport out, so nothing is written.
+      expect(() => generate(without)).toThrow(expect.objectContaining({ code: "EREACT_TYPES" }));
+      expect(readFileSync(join(lib, "button", "passport.json"), "utf8")).toBe(good);
+
+      // A real edit needs no types to detect.
+      const propsFile = join(lib, "button", "react", "Button.tsx");
+      writeFileSync(propsFile, `${readFileSync(propsFile, "utf8")}\n// edited\n`);
+      const edited = check(without);
+      expect(edited.errors).toBeGreaterThan(0);
+      expect(edited.report[0].problems.map((p: any) => p.code)).toContain("stale-passport");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  }, 180_000);
+
   it("reports a missing passport as an error", () => {
     const tmp = mkdtempSync(join(tmpdir(), "passport-missing-"));
     try {

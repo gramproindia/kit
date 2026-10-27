@@ -12,6 +12,7 @@ const {
   PASSPORT_VERSION, loadTypeScript, createProgram, extractComponent, posix,
 } = require("./extract.cjs");
 const { mergePassport } = require("./merge.cjs");
+const { resolveReactTypes } = require("./typescript.cjs");
 const {
   validateStructure, validateReferences, coverageIssues, textIssues,
 } = require("./validate.cjs");
@@ -82,7 +83,15 @@ function buildAll(opts) {
   const { libRoot, repoRoot, libraryVersion, includeLocal = false, coverageThreshold } = opts;
   const ts = loadTypeScript([repoRoot, path.join(repoRoot, "playground")]);
   const components = listComponents(libRoot);
-  const reactTypes = findReactTypes(repoRoot) || findReactTypes(__dirname);
+  // The project's own React types, else the pinned copy the kit generates with.
+  // `opts.reactTypes: null` stands in for a project without them, in tests.
+  let reactTypes = opts.reactTypes === null ? null : findReactTypes(repoRoot) || findReactTypes(__dirname);
+  let reactTypesMissing = opts.reactTypes === null ? "@types/react is not installed." : null;
+  if (!reactTypes && opts.reactTypes !== null) {
+    const resolved = resolveReactTypes({ log: (message) => process.stderr.write(`${message}\n`) });
+    reactTypes = resolved.dir;
+    reactTypesMissing = resolved.dir ? null : resolved.reason;
+  }
   const program = createProgram(ts, libRoot, components, reactTypes);
   const checker = program.getTypeChecker();
 
@@ -108,28 +117,45 @@ function buildAll(opts) {
 
     const issues = [
       ...validateStructure(effective, name),
-      ...(unresolvedInherits
+      // Every component, inherits or not: none of their React types resolved,
+      // so none of their contracts could be fully verified.
+      ...(!reactTypes
         ? [{
             level: "warn",
             code: "react-types-unresolved",
             component: name,
             message:
-              "React type definitions were not found, so inherited props could not be " +
-              "resolved. Install @types/react to get the full prop surface.",
+              `contract not verified — ${reactTypesMissing || "React type definitions were not found."} ` +
+              "Run once while online, or `npm i -D @types/react @types/react-dom`.",
           }]
-        : validateReferences(effective, { manual, local, component: name, api })),
+        : []),
+      ...(unresolvedInherits ? [] : validateReferences(effective, { manual, local, component: name, api })),
       ...textIssues(effective, name),
       ...coverageIssues(effective, name, coverageThreshold),
     ];
 
     results.push({ name, dir, derived, manual, local, effective, issues, stats, api });
   }
-  return { results, reactTypes, components };
+  return { results, reactTypes, reactTypesMissing, components };
 }
 
 /** Write passport.json for each component. Returns the paths written. */
 function generate(opts) {
-  const { results } = buildAll(opts);
+  const { results, reactTypes, reactTypesMissing } = buildAll(opts);
+  /*
+   * Without React's types every inherited prop is missing from what was just
+   * built. Writing it would replace complete passports with hollow ones, so
+   * nothing is written; the caller says why and how to fix it.
+   */
+  if (!reactTypes) {
+    const error = new Error(
+      `Passports not written: ${reactTypesMissing || "React type definitions were not found."} ` +
+        "Without them every inherited prop would be dropped from the passports. " +
+        "Run this once while online, or install them: npm i -D @types/react @types/react-dom",
+    );
+    error.code = "EREACT_TYPES";
+    throw error;
+  }
   const written = [];
   for (const r of results) {
     const file = path.join(r.dir, PASSPORT_FILE);
@@ -148,7 +174,7 @@ function generate(opts) {
  * Never writes.
  */
 function check(opts) {
-  const { results } = buildAll(opts);
+  const { results, reactTypes } = buildAll(opts);
   // In this repository it is an npm script; in a project, the CLI.
   const regenerate = opts.regenerate || "npm run passport";
   const report = [];
@@ -165,12 +191,22 @@ function check(opts) {
       problems.unshift({ level: "error", code: "missing-passport", component: r.name,
         message: `no passport.json committed; run \`${regenerate}\`` });
     } else if (actual !== expected) {
-      const reason =
-        JSON.parse(actual).source?.sourceHash !== r.effective.source.sourceHash
-          ? "source changed since the passport was generated"
-          : "committed passport differs from generated output";
-      problems.unshift({ level: "error", code: "stale-passport", component: r.name,
-        message: `passport stale — ${reason}; run \`${regenerate}\`` });
+      const sourceChanged = JSON.parse(actual).source?.sourceHash !== r.effective.source.sourceHash;
+      if (sourceChanged) {
+        // The source hash needs no types: a changed source is known for certain.
+        problems.unshift({ level: "error", code: "stale-passport", component: r.name,
+          message: `passport stale — source changed since the passport was generated; run \`${regenerate}\`` });
+      } else if (!reactTypes) {
+        /*
+         * Same source, different output: the difference is the missing React
+         * types, not the passport. Calling it stale sent people to regenerate,
+         * which would have made the passport worse. The source is verified;
+         * the contract is not, and the react-types warning says why.
+         */
+      } else {
+        problems.unshift({ level: "error", code: "stale-passport", component: r.name,
+          message: `passport stale — committed passport differs from generated output; run \`${regenerate}\`` });
+      }
     }
 
     errors += problems.filter((p) => p.level === "error").length;

@@ -5,6 +5,8 @@ const baseURL = `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  // Compiles every demo once before the parallel run; see the file for why.
+  globalSetup: "./tests/e2e/warm-up.ts",
   timeout: 30_000,
   expect: { timeout: 5_000 },
   fullyParallel: true,

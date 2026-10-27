@@ -1,5 +1,33 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+**`passport --check` called every component stale in a project without
+`@types/react`.** Without React's type definitions the inherited props —
+`disabled`, `form`, `aria-*` — cannot be resolved, so the passport built in the
+project lacked them and never matched the one the component shipped with. The
+message then said to regenerate, and regenerating would have replaced complete
+passports with hollow ones. `doctor` read the same hollow contracts.
+
+A project without them now gets the exact `@types/react` and `@types/react-dom`
+the kit generates with, fetched once and cached like TypeScript, so a
+regenerated passport is byte-for-byte the shipped one. When they cannot be had
+(offline, nothing cached), `--check` still fails on a changed component — the
+source hash needs no types — and reports an unchanged one as not verified
+rather than stale, and `passport` refuses to write.
+
+### Playground
+
+The demo shell's accent text — the version pill and the "Developer demo"
+eyebrow — was 4.1:1 on white and 3.6:1 on the pill, below WCAG AA; it is now
+5.9:1 and 5.2:1. The pill and footer said "2.0.0-beta"; they show the
+library's version. The end-to-end tests waited for a tab, not for the
+lazy-loaded demo inside it, so they could check — and axe could audit — the
+loading skeleton; they now wait for the demo, and a warm-up pass compiles every
+demo before the parallel run, which on a cold dev server stalled for a minute.
+
 ## 2.7.3
 
 ### Added

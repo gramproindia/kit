@@ -116,6 +116,55 @@ describe("resolveTypeScript", () => {
   });
 });
 
+/** A fake @types package in a cache install. */
+function fakeTypes(root: string, name: string, version: string, withIndex = true) {
+  const pkg = join(root, "node_modules", "@types", name);
+  mkdirSync(pkg, { recursive: true });
+  writeFileSync(join(pkg, "package.json"), JSON.stringify({ name: `@types/${name}`, version }));
+  if (withIndex) writeFileSync(join(pkg, "index.d.ts"), "export {};\n");
+}
+
+describe("resolveReactTypes", () => {
+  it("pins the @types/react and @types/react-dom the passports are generated with", () => {
+    for (const name of ["react", "react-dom"]) {
+      const installed = JSON.parse(
+        readFileSync(
+          fileURLToPath(new URL(`../../../playground/node_modules/@types/${name}/package.json`, import.meta.url)),
+          "utf8",
+        ),
+      ).version;
+      expect(ts.PINNED_REACT_TYPES).toBe(installed);
+    }
+  });
+
+  it("uses the cached copy without going to the network", () => {
+    const cache = dir();
+    const install = join(cache, `types-react-${ts.PINNED_REACT_TYPES}`);
+    fakeTypes(install, "react", ts.PINNED_REACT_TYPES);
+    fakeTypes(install, "react-dom", ts.PINNED_REACT_TYPES);
+    const result = ts.resolveReactTypes({ env: offlineIn(cache) });
+    expect(result.source).toBe("cache");
+    expect(result.dir.replace(/\\/g, "/")).toMatch(/node_modules\/@types\/react$/);
+  });
+
+  it("does not trust a cache of the wrong version, or one missing react-dom", () => {
+    const wrong = dir();
+    fakeTypes(join(wrong, `types-react-${ts.PINNED_REACT_TYPES}`), "react", "18.3.0");
+    fakeTypes(join(wrong, `types-react-${ts.PINNED_REACT_TYPES}`), "react-dom", ts.PINNED_REACT_TYPES);
+    expect(ts.resolveReactTypes({ env: offlineIn(wrong) }).dir).toBeNull();
+
+    const partial = dir();
+    fakeTypes(join(partial, `types-react-${ts.PINNED_REACT_TYPES}`), "react", ts.PINNED_REACT_TYPES);
+    expect(ts.resolveReactTypes({ env: offlineIn(partial) }).dir).toBeNull();
+  });
+
+  it("returns a reason rather than throwing when offline", () => {
+    const result = ts.resolveReactTypes({ env: offlineIn(dir()) });
+    expect(result.dir).toBeNull();
+    expect(result.reason).toMatch(/offline/);
+  });
+});
+
 describe("cacheRoot", () => {
   it("follows each platform's convention", () => {
     expect(ts.cacheRoot({ LOCALAPPDATA: "C:\\Users\\a\\AppData\\Local" }, "win32", "C:\\Users\\a")).toMatch(/grampro-kit.Cache$/);

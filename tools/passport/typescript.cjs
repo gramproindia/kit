@@ -97,33 +97,35 @@ function findNpmCli(env = process.env, execPath = process.execPath) {
 const offline = (env) =>
   env.GRAMPRO_KIT_OFFLINE === "1" || String(env.npm_config_offline).toLowerCase() === "true";
 
-/** Fetch the pinned version into the cache. Returns the loaded module, or throws. */
-function download({ env = process.env, log = () => {} } = {}) {
+/**
+ * Install one exact package version into a cache folder, under the rules at
+ * the top of this file: the user's own npm, no scripts, staged, verified, then
+ * moved into place. `verify(folder)` returns what to hand back, or null when
+ * the install is not to be trusted. Throws with `code`.
+ */
+function fetchIntoCache({ spec, label, dir, verify, code, env = process.env, log = () => {} }) {
+  const specs = Array.isArray(spec) ? spec : [spec];
   const npmCli = findNpmCli(env);
   if (!npmCli) {
-    const error = new Error("npm was not found next to node, so TypeScript could not be fetched.");
-    error.code = "ETYPESCRIPT_FETCH";
+    const error = new Error(`npm was not found next to node, so ${label} could not be fetched.`);
+    error.code = code;
     throw error;
   }
 
-  const dir = cacheDirFor(PINNED_VERSION, env);
   const staging = `${dir}.partial-${process.pid}`;
   fs.rmSync(staging, { recursive: true, force: true });
   fs.mkdirSync(staging, { recursive: true });
   // A minimal manifest so npm treats the folder as its own project, not the user's.
   fs.writeFileSync(path.join(staging, "package.json"), '{"name":"grampro-kit-cache","private":true}\n');
 
-  log(
-    `Fetching TypeScript ${PINNED_VERSION} once, to read component contracts ` +
-      `(cached in ${path.dirname(dir)}).`,
-  );
+  log(`Fetching ${label} once, to read component contracts (cached in ${path.dirname(dir)}).`);
   try {
     execFileSync(
       process.execPath,
       [
         npmCli,
         "install",
-        `typescript@${PINNED_VERSION}`,
+        ...specs,
         "--prefix",
         staging,
         "--no-save",
@@ -138,17 +140,17 @@ function download({ env = process.env, log = () => {} } = {}) {
   } catch (cause) {
     fs.rmSync(staging, { recursive: true, force: true });
     const detail = String(cause.stderr || cause.message || "").trim().split("\n").slice(-2).join(" ");
-    const error = new Error(`Could not fetch TypeScript ${PINNED_VERSION}: ${detail || "npm failed"}`);
-    error.code = "ETYPESCRIPT_FETCH";
+    const error = new Error(`Could not fetch ${label}: ${detail || "npm failed"}`);
+    error.code = code;
     throw error;
   }
 
   // Verified before it is trusted, then moved into place in one step.
-  const fetched = fromCache(staging);
+  const fetched = verify(staging);
   if (!fetched) {
     fs.rmSync(staging, { recursive: true, force: true });
-    const error = new Error(`The fetched TypeScript was not version ${PINNED_VERSION} with the compiler API.`);
-    error.code = "ETYPESCRIPT_FETCH";
+    const error = new Error(`The fetched ${label} did not pass verification.`);
+    error.code = code;
     throw error;
   }
   try {
@@ -159,7 +161,89 @@ function download({ env = process.env, log = () => {} } = {}) {
     // verified staging copy is still fine to use for this run.
     return fetched;
   }
-  return fromCache(dir) || fetched;
+  return verify(dir) || fetched;
+}
+
+/** Fetch the pinned TypeScript into the cache. Returns the loaded module, or throws. */
+function download({ env = process.env, log = () => {} } = {}) {
+  return fetchIntoCache({
+    spec: `typescript@${PINNED_VERSION}`,
+    label: `TypeScript ${PINNED_VERSION}`,
+    dir: cacheDirFor(PINNED_VERSION, env),
+    verify: fromCache,
+    code: "ETYPESCRIPT_FETCH",
+    env,
+    log,
+  });
+}
+
+/* ------------------------------------------------------------ React's types */
+
+/*
+ * The type checker needs React's type definitions to see what a component
+ * inherits — `ButtonHTMLAttributes` and the props it brings. Without them the
+ * inherited props silently vanish, and a passport generated that way differs
+ * from the one the component shipped with for no reason in the source: `check`
+ * called every component stale, `doctor` saw contract changes nobody made, and
+ * plain `passport` would have overwritten good passports with the hollow ones.
+ *
+ * So a project without @types/react gets the exact version the kit's passports
+ * are generated with, by the same route as TypeScript. Pinned, so that a
+ * passport regenerated here is byte-for-byte the one the kit shipped.
+ */
+const PINNED_REACT_TYPES = "19.3.0";
+
+const reactTypesCacheDir = (env = process.env) =>
+  path.join(cacheRoot(env), `types-react-${PINNED_REACT_TYPES}`);
+
+/**
+ * The folder holding @types/react inside a cache install, if both it and
+ * @types/react-dom beside it are the pinned version. (Toaster imports
+ * react-dom; the program maps it to the sibling folder.)
+ */
+function reactTypesFromCache(dir) {
+  const pinned = (name) => {
+    const folder = path.join(dir, "node_modules", "@types", name);
+    try {
+      const pkg = JSON.parse(fs.readFileSync(path.join(folder, "package.json"), "utf8"));
+      return pkg.name === `@types/${name}` && pkg.version === PINNED_REACT_TYPES &&
+        fs.existsSync(path.join(folder, "index.d.ts"))
+        ? folder
+        : null;
+    } catch {
+      return null;
+    }
+  };
+  const react = pinned("react");
+  return react && pinned("react-dom") ? react : null;
+}
+
+/**
+ * React's types for a project that has none: cached, or fetched once.
+ * Never throws — without them the caller degrades and says so.
+ *
+ * @returns {{ dir: string | null, source?: "cache" | "downloaded", reason?: string }}
+ */
+function resolveReactTypes({ env = process.env, allowDownload = true, log = () => {} } = {}) {
+  const cached = reactTypesFromCache(reactTypesCacheDir(env));
+  if (cached) return { dir: cached, source: "cache" };
+  if (!allowDownload || offline(env)) {
+    return { dir: null, reason: "@types/react is not installed, and fetching it is turned off (offline)." };
+  }
+  try {
+    const dir = fetchIntoCache({
+      spec: [`@types/react@${PINNED_REACT_TYPES}`, `@types/react-dom@${PINNED_REACT_TYPES}`],
+      label: `React's type definitions (@types/react ${PINNED_REACT_TYPES})`,
+      dir: reactTypesCacheDir(env),
+      verify: reactTypesFromCache,
+      code: "EREACT_TYPES_FETCH",
+      env,
+      log,
+    });
+    return { dir, source: "downloaded" };
+  } catch (error) {
+    return { dir: null, reason: `@types/react is not installed, and ${error.message.replace(/^Could not/, "could not")}` };
+  }
 }
 
 /**
@@ -212,7 +296,10 @@ function resolveTypeScript({ searchFrom = [], env = process.env, allowDownload =
 
 module.exports = {
   PINNED_VERSION,
+  PINNED_REACT_TYPES,
   resolveTypeScript,
+  resolveReactTypes,
+  reactTypesCacheDir,
   hasCompilerApi,
   cacheRoot,
   cacheDirFor,

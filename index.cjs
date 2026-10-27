@@ -954,7 +954,7 @@ const runPassport = async ({ check: checkOnly, dest: requestedDest }) => {
     );
     if (errors.length > 0) process.exit(1);
   } catch (error) {
-    if (error.code === "ETYPESCRIPT_MISSING" || error.code === "ETYPESCRIPT_API" || error.code === "EBADJSON") {
+    if (["ETYPESCRIPT_MISSING", "ETYPESCRIPT_API", "EBADJSON", "EREACT_TYPES"].includes(error.code)) {
       console.error(error.message);
       process.exit(1);
     }

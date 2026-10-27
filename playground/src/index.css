@@ -27,6 +27,12 @@
   --v2-subtle: light-dark(#f4f4f5, #18181b);
   --v2-accent: light-dark(#0284c7, #38bdf8);
   --v2-accent-soft: light-dark(#e0f2fe, #38bdf81f);
+  /*
+   * The accent as text. #0284c7 is fine for borders and underlines, but small
+   * text in it is 4.1:1 on white and 3.6:1 on the pill: below WCAG AA's 4.5:1.
+   * #0369a1 is 5.9:1 on white and 5.2:1 on --v2-accent-soft.
+   */
+  --v2-accent-text: light-dark(#0369a1, #38bdf8);
   --v2-header: light-dark(#ffffffeb, #09090be6);
   --v2-shadow: light-dark(
     0 1px 2px #0000000a,
@@ -115,7 +121,7 @@ body {
     border: 1px solid color-mix(in srgb, var(--v2-accent) 30%, transparent);
     border-radius: 999px;
     background: var(--v2-accent-soft);
-    color: var(--v2-accent);
+    color: var(--v2-accent-text);
     font-size: 0.6875rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -156,7 +162,7 @@ body {
   }
 
   .v2-eyebrow {
-    color: var(--v2-accent);
+    color: var(--v2-accent-text);
     font-size: 0.8125rem;
     font-weight: 600;
   }

@@ -43,10 +43,14 @@ test("an open modal traps the accessibility tree", async ({ page }) => {
 
 test("toasts are announced through a live region", async ({ page }) => {
   await openTab(page, "toasts");
-  const region = page.getByRole("region", { name: /Notifications/ });
-  await expect(region).toBeAttached();
-  await expect(region.locator("ol")).toHaveAttribute("aria-live", "polite");
+  // The tab renders the four documented examples, each with its own Toaster,
+  // so there is one region per example. Every one must be a polite live region.
+  const regions = page.getByRole("region", { name: /Notifications/ });
+  await expect(regions).toHaveCount(4);
+  for (const region of await regions.all()) {
+    await expect(region.locator("ol")).toHaveAttribute("aria-live", "polite");
+  }
 
   await page.getByRole("button", { name: "Success" }).first().click();
-  await expect(region.getByText("Settings saved")).toBeVisible();
+  await expect(regions.getByText("Settings saved")).toBeVisible();
 });
