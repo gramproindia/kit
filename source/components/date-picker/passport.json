@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/agent.ts",
       "core/calendar.ts",
@@ -298,7 +298,7 @@
         "md",
         "sm"
       ],
-      "typeText": "DatePickerSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",

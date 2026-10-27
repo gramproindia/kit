@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.7.4
 
 ### Fixed
 
@@ -17,6 +17,15 @@ regenerated passport is byte-for-byte the shipped one. When they cannot be had
 (offline, nothing cached), `--check` still fails on a changed component — the
 source hash needs no types — and reports an unchanged one as not verified
 rather than stale, and `passport` refuses to write.
+
+**`passport --check` could also call a component stale over the order of a
+union.** An enum's `typeText` was TypeScript's own, which lists a union's
+members in the order the checker happened to create them — and that depends on
+what else is in the program. A project with three components installed printed
+`'single' | 'multiple'` where the kit, with all 27, printed `'multiple' |
+'single'`. `typeText` is now written from the sorted values, and `--check`
+compares in that form, so passports shipped before 2.7.4 do not read as stale
+either. Each of the 27 components, installed alone, now checks clean.
 
 ### Playground
 

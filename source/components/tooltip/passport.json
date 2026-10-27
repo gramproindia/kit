@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/index.ts",
       "core/types.ts",
@@ -29,7 +29,7 @@
         "end",
         "start"
       ],
-      "typeText": "TooltipAlign | undefined",
+      "typeText": "'center' | 'end' | 'start' | undefined",
       "required": false,
       "default": "center",
       "origin": "derived",
@@ -122,7 +122,7 @@
         "right",
         "top"
       ],
-      "typeText": "TooltipSide | undefined",
+      "typeText": "'bottom' | 'left' | 'right' | 'top' | undefined",
       "required": false,
       "default": "top",
       "origin": "derived",

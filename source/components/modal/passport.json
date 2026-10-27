@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/dismiss.ts",
       "core/index.ts",
@@ -183,7 +183,7 @@
         "right",
         "top"
       ],
-      "typeText": "ModalPlacement | undefined",
+      "typeText": "'bottom' | 'center' | 'left' | 'right' | 'top' | undefined",
       "required": false,
       "default": "center",
       "origin": "derived",
@@ -207,7 +207,7 @@
         "sm",
         "xl"
       ],
-      "typeText": "ModalSize | undefined",
+      "typeText": "'full' | 'lg' | 'md' | 'sm' | 'xl' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",

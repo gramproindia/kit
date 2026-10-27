@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/index.ts",
       "core/trail.ts",
@@ -149,7 +149,7 @@
         "md",
         "sm"
       ],
-      "typeText": "'sm' | 'md' | 'lg' | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",

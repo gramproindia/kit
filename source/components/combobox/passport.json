@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/agent.ts",
       "core/filter.ts",
@@ -351,7 +351,7 @@
         "md",
         "sm"
       ],
-      "typeText": "ComboboxSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",

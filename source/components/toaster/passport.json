@@ -11,7 +11,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/api.ts",
       "core/index.ts",
@@ -62,7 +62,7 @@
         "ltr",
         "rtl"
       ],
-      "typeText": "'ltr' | 'rtl' | 'auto' | undefined",
+      "typeText": "'auto' | 'ltr' | 'rtl' | undefined",
       "required": false,
       "origin": "derived",
       "description": "Writing direction, which decides which corner `position` means.\nDefault `auto`, taken from the document.",
@@ -124,7 +124,7 @@
         "top-left",
         "top-right"
       ],
-      "typeText": "ToastPosition | undefined",
+      "typeText": "'bottom-center' | 'bottom-left' | 'bottom-right' | 'top-center' | 'top-left' | 'top-right' | undefined",
       "required": false,
       "default": "top-right",
       "origin": "derived",

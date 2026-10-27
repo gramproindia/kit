@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/count.ts",
       "core/index.ts",
@@ -32,7 +32,7 @@
         "soft",
         "solid"
       ],
-      "typeText": "BadgeAppearance | undefined",
+      "typeText": "'outline' | 'soft' | 'solid' | undefined",
       "required": false,
       "default": "soft",
       "origin": "derived",
@@ -207,7 +207,7 @@
         "md",
         "sm"
       ],
-      "typeText": "BadgeSize | undefined",
+      "typeText": "'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",
@@ -246,7 +246,7 @@
         "success",
         "warning"
       ],
-      "typeText": "BadgeVariant | undefined",
+      "typeText": "'accent' | 'danger' | 'info' | 'neutral' | 'success' | 'warning' | undefined",
       "required": false,
       "default": "neutral",
       "origin": "derived",

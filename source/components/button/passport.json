@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/index.ts",
       "core/state.ts",
@@ -195,7 +195,7 @@
         "md",
         "sm"
       ],
-      "typeText": "ButtonSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",
@@ -240,7 +240,7 @@
         "reset",
         "submit"
       ],
-      "typeText": "'button' | 'submit' | 'reset' | undefined",
+      "typeText": "'button' | 'reset' | 'submit' | undefined",
       "required": false,
       "origin": "inherited"
     },
@@ -262,7 +262,7 @@
         "primary",
         "secondary"
       ],
-      "typeText": "ButtonVariant | undefined",
+      "typeText": "'danger' | 'ghost' | 'link' | 'outline' | 'primary' | 'secondary' | undefined",
       "required": false,
       "default": "primary",
       "origin": "derived",

@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/index.ts",
       "core/lines.ts",
@@ -40,7 +40,7 @@
         "pulse",
         "wave"
       ],
-      "typeText": "SkeletonAnimation | undefined",
+      "typeText": "'none' | 'pulse' | 'wave' | undefined",
       "required": false,
       "default": "pulse",
       "origin": "derived",
@@ -141,7 +141,7 @@
         "md",
         "sm"
       ],
-      "typeText": "'sm' | 'md' | 'lg' | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",
@@ -172,7 +172,7 @@
         "rect",
         "text"
       ],
-      "typeText": "SkeletonVariant | undefined",
+      "typeText": "'circle' | 'rect' | 'text' | undefined",
       "required": false,
       "default": "text",
       "origin": "derived",

@@ -16,7 +16,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/index.ts",
       "core/navigation.ts",
@@ -40,7 +40,7 @@
         "end",
         "start"
       ],
-      "typeText": "MenuAlign | undefined",
+      "typeText": "'end' | 'start' | undefined",
       "required": false,
       "default": "start",
       "origin": "derived",
@@ -230,7 +230,7 @@
         "right",
         "top"
       ],
-      "typeText": "MenuSide | undefined",
+      "typeText": "'bottom' | 'left' | 'right' | 'top' | undefined",
       "required": false,
       "default": "bottom",
       "origin": "derived",

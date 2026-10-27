@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/api.ts",
       "core/dialog.ts",
@@ -122,7 +122,7 @@
         "text",
         "url"
       ],
-      "typeText": "'number' | 'email' | 'tel' | 'text' | 'url' | 'password' | undefined",
+      "typeText": "'email' | 'number' | 'password' | 'tel' | 'text' | 'url' | undefined",
       "required": false,
       "default": "text",
       "origin": "derived",
@@ -139,7 +139,7 @@
         "success",
         "warning"
       ],
-      "typeText": "DialogIntent | undefined",
+      "typeText": "'danger' | 'default' | 'info' | 'success' | 'warning' | undefined",
       "required": false,
       "default": "default",
       "origin": "derived",
@@ -154,7 +154,7 @@
         "confirm",
         "prompt"
       ],
-      "typeText": "DialogKind | undefined",
+      "typeText": "'alert' | 'confirm' | 'prompt' | undefined",
       "required": false,
       "default": "confirm",
       "origin": "derived",
@@ -227,7 +227,7 @@
         "md",
         "sm"
       ],
-      "typeText": "DialogSize | undefined",
+      "typeText": "'md' | 'sm' | undefined",
       "required": false,
       "default": "sm",
       "origin": "derived",

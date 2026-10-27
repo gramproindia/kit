@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/index.ts",
       "core/progress.ts",
@@ -131,7 +131,7 @@
         "md",
         "sm"
       ],
-      "typeText": "ProgressSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",
@@ -199,7 +199,7 @@
         "success",
         "warning"
       ],
-      "typeText": "ProgressVariant | undefined",
+      "typeText": "'accent' | 'danger' | 'success' | 'warning' | undefined",
       "required": false,
       "default": "accent",
       "origin": "derived",

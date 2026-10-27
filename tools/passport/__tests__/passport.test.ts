@@ -356,6 +356,43 @@ describe("determinism and drift", () => {
     }
   }, 180_000);
 
+  it("does not call a passport stale over the order of a union's members", () => {
+    // Before 2.7.4 an enum's typeText was TypeScript's, in creation order,
+    // which differs between the kit and a project. Shipped passports still
+    // carry that order; a newer CLI must not read them as stale.
+    const tmp = mkdtempSync(join(tmpdir(), "passport-order-"));
+    try {
+      const lib = join(tmp, "beta");
+      cpSync(join(LIB, "data-grid"), join(lib, "data-grid"), { recursive: true });
+      cpSync(join(LIB, "shared"), join(lib, "shared"), { recursive: true });
+      const local = { libRoot: lib, repoRoot: REPO, libraryVersion: "test" };
+      generate(local);
+
+      const file = join(lib, "data-grid", "passport.json");
+      const shuffled = readFileSync(file, "utf8").replace("'multiple' | 'single'", "'single' | 'multiple'");
+      expect(shuffled).not.toBe(readFileSync(file, "utf8"));
+      writeFileSync(file, shuffled);
+      expect(check(local).errors).toBe(0);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  }, 180_000);
+
+  it("writes an enum's typeText from its sorted values", () => {
+    for (const r of results) {
+      const walk = (node: any): void => {
+        if (Array.isArray(node)) return node.forEach(walk);
+        if (!node || typeof node !== "object") return;
+        if (node.type === "enum" && node.typeText) {
+          const members = node.typeText.split(" | ").filter((m: string) => m !== "undefined");
+          expect(members).toEqual([...members].sort());
+        }
+        Object.values(node).forEach(walk);
+      };
+      walk(r.effective);
+    }
+  });
+
   it("reports a missing passport as an error", () => {
     const tmp = mkdtempSync(join(tmpdir(), "passport-missing-"));
     try {

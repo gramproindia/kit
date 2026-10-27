@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/agent.ts",
       "core/count.ts",
@@ -233,7 +233,7 @@
         "none",
         "vertical"
       ],
-      "typeText": "TextareaResize | undefined",
+      "typeText": "'both' | 'horizontal' | 'none' | 'vertical' | undefined",
       "required": false,
       "origin": "derived",
       "description": "Which way people can drag to resize. Default `vertical`, or `none` with `autoResize`.",
@@ -271,7 +271,7 @@
         "md",
         "sm"
       ],
-      "typeText": "FieldSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",

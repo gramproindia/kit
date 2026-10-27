@@ -126,7 +126,20 @@ function describeType(ts, checker, type, node) {
     );
     // A pure union of string literals is an enum worth enumerating.
     if (literals.length >= 2 && nonLiteral.length === 0) {
-      return { type: "enum", values: literals.map((t) => t.value).sort(), typeText: text };
+      /*
+       * Written from the sorted values, not taken from the checker. TypeScript
+       * prints a union in the order it created the member types, which depends
+       * on everything else in the program: a project with three components
+       * installed printed 'single' | 'multiple' where the kit, with all of
+       * them, printed 'multiple' | 'single', and --check called it stale.
+       */
+      const values = literals.map((t) => t.value).sort();
+      const optional = parts.some((t) => t.flags & ts.TypeFlags.Undefined);
+      const typeText = [
+        ...values.map((value) => `'${value.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`),
+        ...(optional ? ["undefined"] : []),
+      ].join(" | ");
+      return { type: "enum", values, typeText };
     }
     const boolish = parts.every(
       (t) => t.flags & (ts.TypeFlags.BooleanLike | ts.TypeFlags.Undefined),

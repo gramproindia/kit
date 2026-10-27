@@ -12,7 +12,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/index.ts",
       "core/navigation.ts",
@@ -32,7 +32,7 @@
         "automatic",
         "manual"
       ],
-      "typeText": "TabsActivation | undefined",
+      "typeText": "'automatic' | 'manual' | undefined",
       "required": false,
       "default": "automatic",
       "origin": "derived",
@@ -171,7 +171,7 @@
         "horizontal",
         "vertical"
       ],
-      "typeText": "TabsOrientation | undefined",
+      "typeText": "'horizontal' | 'vertical' | undefined",
       "required": false,
       "default": "horizontal",
       "origin": "derived",
@@ -193,7 +193,7 @@
         "md",
         "sm"
       ],
-      "typeText": "TabsSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",
@@ -236,7 +236,7 @@
         "line",
         "pills"
       ],
-      "typeText": "TabsVariant | undefined",
+      "typeText": "'enclosed' | 'line' | 'pills' | undefined",
       "required": false,
       "default": "line",
       "origin": "derived",

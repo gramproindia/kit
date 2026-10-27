@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/agent.ts",
       "core/count.ts",
@@ -178,7 +178,7 @@
         "text",
         "url"
       ],
-      "typeText": "'none' | 'search' | 'email' | 'tel' | 'text' | 'url' | 'numeric' | 'decimal' | undefined",
+      "typeText": "'decimal' | 'email' | 'none' | 'numeric' | 'search' | 'tel' | 'text' | 'url' | undefined",
       "required": false,
       "origin": "inherited"
     },
@@ -265,7 +265,7 @@
         "alphanumeric",
         "numeric"
       ],
-      "typeText": "OtpMode | undefined",
+      "typeText": "'alphabetic' | 'alphanumeric' | 'numeric' | undefined",
       "required": false,
       "default": "numeric",
       "origin": "derived",
@@ -369,7 +369,7 @@
         "md",
         "sm"
       ],
-      "typeText": "FieldSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",

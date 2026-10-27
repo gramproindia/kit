@@ -12,7 +12,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/index.ts",
       "core/trend.ts",
@@ -166,7 +166,7 @@
         "none",
         "sm"
       ],
-      "typeText": "CardPadding | undefined",
+      "typeText": "'lg' | 'md' | 'none' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",
@@ -253,7 +253,7 @@
         "outlined",
         "plain"
       ],
-      "typeText": "CardVariant | undefined",
+      "typeText": "'elevated' | 'outlined' | 'plain' | undefined",
       "required": false,
       "default": "outlined",
       "origin": "derived",

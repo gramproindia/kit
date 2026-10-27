@@ -170,6 +170,32 @@ function generate(opts) {
 }
 
 /**
+ * A passport with every enum's `typeText` rewritten from its sorted values.
+ *
+ * Until 2.7.4 that text was TypeScript's own, whose union order depends on
+ * what else is in the program, so the same component printed differently in
+ * the kit and in a project. 2.7.4 writes it sorted; comparing in this form
+ * keeps a passport shipped before then from reading as stale under a newer CLI.
+ */
+function canonical(text) {
+  const passport = JSON.parse(text);
+  const walk = (node) => {
+    if (Array.isArray(node)) return node.forEach(walk);
+    if (!node || typeof node !== "object") return undefined;
+    if (node.type === "enum" && Array.isArray(node.values) && typeof node.typeText === "string") {
+      const optional = /(^|\|)\s*undefined\s*($|\|)/.test(node.typeText);
+      node.typeText = [
+        ...[...node.values].sort().map((value) => `'${String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`),
+        ...(optional ? ["undefined"] : []),
+      ].join(" | ");
+    }
+    return Object.values(node).forEach(walk);
+  };
+  walk(passport);
+  return serialise(passport);
+}
+
+/**
  * CI gate. Regenerates in memory and compares with what is committed.
  * Never writes.
  */
@@ -190,7 +216,7 @@ function check(opts) {
     if (actual === null) {
       problems.unshift({ level: "error", code: "missing-passport", component: r.name,
         message: `no passport.json committed; run \`${regenerate}\`` });
-    } else if (actual !== expected) {
+    } else if (actual !== expected && canonical(actual) !== canonical(expected)) {
       const sourceChanged = JSON.parse(actual).source?.sourceHash !== r.effective.source.sourceHash;
       if (sourceChanged) {
         // The source hash needs no types: a changed source is known for certain.

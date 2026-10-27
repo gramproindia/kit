@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/agent.ts",
       "core/group.ts",
@@ -181,7 +181,7 @@
         "text",
         "url"
       ],
-      "typeText": "'none' | 'search' | 'email' | 'tel' | 'text' | 'url' | 'numeric' | 'decimal' | undefined",
+      "typeText": "'decimal' | 'email' | 'none' | 'numeric' | 'search' | 'tel' | 'text' | 'url' | undefined",
       "required": false,
       "origin": "inherited"
     },
@@ -281,7 +281,7 @@
         "horizontal",
         "vertical"
       ],
-      "typeText": "RadioOrientation | undefined",
+      "typeText": "'horizontal' | 'vertical' | undefined",
       "required": false,
       "default": "vertical",
       "origin": "derived",
@@ -341,7 +341,7 @@
         "md",
         "sm"
       ],
-      "typeText": "RadioSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "origin": "derived",
       "description": "Default `md`, or the size of the RadioGroup it sits in.",
@@ -391,7 +391,7 @@
         "card",
         "default"
       ],
-      "typeText": "RadioVariant | undefined",
+      "typeText": "'card' | 'default' | undefined",
       "required": false,
       "default": "default",
       "origin": "derived",

@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/index.ts",
       "core/open.ts",
@@ -99,7 +99,7 @@
         "end",
         "start"
       ],
-      "typeText": "AccordionIconPosition | undefined",
+      "typeText": "'end' | 'start' | undefined",
       "required": false,
       "default": "end",
       "origin": "derived",
@@ -158,7 +158,7 @@
         "md",
         "sm"
       ],
-      "typeText": "AccordionSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",
@@ -196,7 +196,7 @@
         "plain",
         "separated"
       ],
-      "typeText": "AccordionVariant | undefined",
+      "typeText": "'contained' | 'plain' | 'separated' | undefined",
       "required": false,
       "default": "separated",
       "origin": "derived",

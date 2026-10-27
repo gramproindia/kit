@@ -13,7 +13,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/format.ts",
       "core/index.ts",
@@ -224,7 +224,7 @@
         "POST",
         "PUT"
       ],
-      "typeText": "'POST' | 'PUT' | 'PATCH' | undefined",
+      "typeText": "'PATCH' | 'POST' | 'PUT' | undefined",
       "required": false,
       "origin": "derived",
       "description": "HTTP method for each chunk. Default `POST`.",
@@ -391,7 +391,7 @@
         "md",
         "sm"
       ],
-      "typeText": "UploaderSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",

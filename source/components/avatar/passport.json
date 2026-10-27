@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/identity.ts",
       "core/index.ts",
@@ -159,7 +159,7 @@
         "circle",
         "square"
       ],
-      "typeText": "AvatarShape | undefined",
+      "typeText": "'circle' | 'square' | undefined",
       "required": false,
       "default": "circle",
       "origin": "derived",
@@ -176,7 +176,7 @@
         "xl",
         "xs"
       ],
-      "typeText": "AvatarSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | 'xl' | 'xs' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",
@@ -201,7 +201,7 @@
         "offline",
         "online"
       ],
-      "typeText": "AvatarStatus | undefined",
+      "typeText": "'away' | 'busy' | 'offline' | 'online' | undefined",
       "required": false,
       "origin": "derived",
       "description": "A presence dot in the corner.",

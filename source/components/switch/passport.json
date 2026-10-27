@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.7.3",
+    "libraryVersion": "2.7.4",
     "files": [
       "core/agent.ts",
       "core/index.ts",
@@ -157,7 +157,7 @@
         "text",
         "url"
       ],
-      "typeText": "'none' | 'search' | 'email' | 'tel' | 'text' | 'url' | 'numeric' | 'decimal' | undefined",
+      "typeText": "'decimal' | 'email' | 'none' | 'numeric' | 'search' | 'tel' | 'text' | 'url' | undefined",
       "required": false,
       "origin": "inherited"
     },
@@ -177,7 +177,7 @@
         "end",
         "start"
       ],
-      "typeText": "SwitchLabelPosition | undefined",
+      "typeText": "'end' | 'start' | undefined",
       "required": false,
       "default": "end",
       "origin": "derived",
@@ -300,7 +300,7 @@
         "md",
         "sm"
       ],
-      "typeText": "SwitchSize | undefined",
+      "typeText": "'lg' | 'md' | 'sm' | undefined",
       "required": false,
       "default": "md",
       "origin": "derived",
