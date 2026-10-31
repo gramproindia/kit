@@ -20,17 +20,19 @@ export interface DatePickerAgentProps {
   disabled?: boolean;
   readOnly?: boolean;
   required?: boolean;
-  /** ISO yyyy-mm-dd. */
+  /** ISO yyyy-mm-dd, or yyyy-mm-ddTHH:mm with `time`. */
   min?: string;
-  /** ISO yyyy-mm-dd. */
+  /** ISO yyyy-mm-dd, or yyyy-mm-ddTHH:mm with `time`. */
   max?: string;
   range?: boolean;
+  /** DateTimePicker: min and max are then local yyyy-mm-ddTHH:mm. */
+  time?: boolean;
 }
 
 export function datePickerContract(props: DatePickerAgentProps = {}): FieldContract {
   return {
-    component: props.range ? "DateRangePicker" : "DatePicker",
-    kind: props.range ? "dateRange" : "date",
+    component: props.range ? "DateRangePicker" : props.time ? "DateTimePicker" : "DatePicker",
+    kind: props.range ? "dateRange" : props.time ? "dateTime" : "date",
     operations: ["setValue", "clear", "focus", "open", "close"],
     label: props.label,
     disabled: props.disabled,

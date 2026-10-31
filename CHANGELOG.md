@@ -1,5 +1,45 @@
 # Changelog
 
+## 2.8.0
+
+### Added
+
+**`DateTimePicker`: a date and a time of day in one field.** The calendar picks
+the day; a time row under it sets the hour, the minute and, with
+`showSeconds`, the second. Each is a spin button the arrow keys step, typing
+works, and on a 12-hour clock there is an AM/PM switch. The clock follows the
+locale — 2:30 PM in `en-US`, 14:30 in `en-GB` — unless `hourCycle` says
+otherwise. `minuteStep` sets how far the minute moves, `defaultTime` the time a
+picked day receives, and a Now button sets the current moment.
+
+```tsx
+<DateTimePicker label="Meeting" value={at} onChange={setAt}
+  min="2026-03-15T09:00" minuteStep={15} defaultTime="09:00" />
+```
+
+The value is wall-clock time: `onChange` gives a `Date` in local time, nothing
+chooses or converts a time zone, and `name` posts `yyyy-mm-ddTHH:mm`, the shape a
+native `datetime-local` input posts. `min` and `max` are moments rather than
+days. Typed entry reads the locale's date order followed by a time —
+`15/03/2026 14:30`, `Mar 15, 2026, 2:30 PM` — and ISO everywhere. It lives in
+the `date-picker` folder beside DatePicker and DateRangePicker, on the same
+engine and stylesheet; the new time helpers (`parseDateTime`, `formatDateTime`,
+`toISODateTime` and the rest) are exported from its `core`.
+
+Inside an `<AgentSurface>` it registers as a new field kind, `dateTime`: an
+agent sends local `yyyy-mm-ddTHH:mm`, bounds are checked to the minute, and a
+value with a zone or offset is refused rather than converted. `shared/` is
+1.5.0.
+
+### Fixed
+
+**`add` accepts any name a component exports.** `npx @grampro/kit add
+DateRangePicker`, `add Select` and `add MultiSelect` failed, because the
+installer only knew folder names (DatePicker, Combobox). It now reads the
+passports' exports, as the MCP server always has — which also means
+`install_component` no longer fails when an agent asks for a component by the
+name it actually wants.
+
 ## 2.7.4
 
 ### Fixed

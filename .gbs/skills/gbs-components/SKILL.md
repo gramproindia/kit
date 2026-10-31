@@ -67,7 +67,8 @@ Folder = lowercased name, except `data-grid`, `date-picker`, `file-uploader`,
 1. **Change handlers are named per component.** `onValueChange`: Input,
    OtpInput, Textarea, NumberInput, CheckboxGroup, RadioGroup, Tabs, Accordion,
    MenuRadioGroup. `onCheckedChange`: Checkbox, Switch, MenuCheckboxItem.
-   `onChange`: Select, MultiSelect, DatePicker, DateRangePicker, FileUploader.
+   `onChange`: Select, MultiSelect, DatePicker, DateRangePicker, DateTimePicker,
+   FileUploader.
    `onOpenChange`: Modal, Popover, Menu.
 2. **Never hand-roll `<label>`, hint or error markup.** Fields take `label`,
    `description` and `error`; `error` also marks the control invalid and wires
@@ -85,8 +86,8 @@ Folder = lowercased name, except `data-grid`, `date-picker`, `file-uploader`,
 
 **Forms** — Input, Textarea, NumberInput (locale-aware), OtpInput; Checkbox +
 CheckboxGroup; Radio (`value`) + RadioGroup; Switch (applies immediately);
-Select and MultiSelect (`options`; searchable, client or server); DatePicker and
-DateRangePicker; FileUploader (chunked).
+Select and MultiSelect (`options`; searchable, client or server); DatePicker,
+DateRangePicker and DateTimePicker (date + time); FileUploader (chunked).
 
 **Actions** — Button: variants, sizes, icons, auto-loading from a returned
 promise; `render` draws a router link.
@@ -163,7 +164,8 @@ import { AgentSurface } from "component-lib/shared";
 ```
 
 Input, Textarea, NumberInput, Checkbox, Switch, RadioGroup, Select,
-MultiSelect, DatePicker, DateRangePicker and DataGrid register themselves, with
+MultiSelect, DatePicker, DateRangePicker, DateTimePicker and DataGrid register
+themselves, with
 what they accept, and one tool `operate_page` (`describe`, then `operate` by
 id) is registered when WebMCP exists. Ids come from the label, so give every
 field a text `label` (a grid an `aria-label`). Every action goes through the

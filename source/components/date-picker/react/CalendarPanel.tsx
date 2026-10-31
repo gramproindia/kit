@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { DateInput, DatePickerLocaleText } from "../core/types";
 import { Calendar } from "./Calendar";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "./icons";
@@ -23,6 +24,8 @@ interface CalendarPanelProps {
   classNames?: Partial<Record<DatePickerSlot, string>>;
   presets?: readonly DatePreset[];
   onPreset?(preset: DatePreset): void;
+  /** Below the day grid, above the footer: DateTimePicker's time fields. */
+  children?: ReactNode;
 }
 
 /** The popover body: navigation, one of the three views, and the footer. */
@@ -37,6 +40,7 @@ export function CalendarPanel({
   classNames,
   presets,
   onPreset,
+  children,
 }: CalendarPanelProps) {
   const { view } = picker;
 
@@ -149,6 +153,8 @@ export function CalendarPanel({
             onSelect={picker.selectYear}
           />
         )}
+
+        {view === "days" && children}
 
         {(showToday || (clearable && hasValue)) && (
           <div className={cx("dp-footer", classNames?.footer)}>

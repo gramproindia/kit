@@ -9,7 +9,7 @@ import { Switch } from "@/components/switch";
 import { NumberInput } from "@/components/number-input";
 import { RadioGroup } from "@/components/radio-group";
 import { MultiSelect, Select } from "@/components/combobox";
-import { DatePicker, DateRangePicker } from "@/components/date-picker";
+import { DatePicker, DateRangePicker, DateTimePicker, toISODateTime } from "@/components/date-picker";
 import { DataGrid } from "@/components/data-grid";
 import fixture from "../../../eval/grid/v0/fixture.json";
 
@@ -46,6 +46,7 @@ export function SurfaceFixture() {
   const [tags, setTags] = useState<string[]>([]);
   const [due, setDue] = useState<Date | null>(null);
   const [trip, setTrip] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
+  const [call, setCall] = useState<Date | null>(null);
 
   const day = (date: Date | null) =>
     date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : null;
@@ -62,6 +63,7 @@ export function SurfaceFixture() {
     tags,
     due: day(due),
     trip: { start: day(trip.start), end: day(trip.end) },
+    call: call ? toISODateTime(call) : null,
   };
 
   return (
@@ -80,6 +82,14 @@ export function SurfaceFixture() {
         <MultiSelect label="Tags" value={tags} onChange={(next) => setTags(next)} options={TAGS} max={2} />
         <DatePicker label="Due date" value={due} onChange={setDue} min="2026-01-01" max="2026-12-31" />
         <DateRangePicker label="Trip" value={trip} onChange={(range) => setTrip(range)} />
+        <DateTimePicker
+          label="Call"
+          value={call}
+          onChange={setCall}
+          min="2026-06-01T09:00"
+          max="2026-06-30T17:30"
+          hourCycle={24}
+        />
         <DataGrid<Row>
           aria-label="Customers"
           data={fixture.rows as Row[]}

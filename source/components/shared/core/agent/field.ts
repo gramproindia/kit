@@ -45,6 +45,7 @@ export type FieldKind =
   | "number"
   | "boolean"
   | "date"
+  | "dateTime"
   | "dateRange"
   | "choice"
   | "multiChoice";
@@ -78,7 +79,10 @@ export interface FieldContract {
   /** text: a pattern the value must match, as a RegExp source. */
   readonly pattern?: string;
 
-  /** number, date, dateRange: inclusive bounds. Dates are ISO yyyy-mm-dd. */
+  /**
+   * number, date, dateTime, dateRange: inclusive bounds. Dates are ISO
+   * yyyy-mm-dd; date-times are local ISO yyyy-mm-ddTHH:mm, seconds optional.
+   */
   readonly min?: number | string;
   readonly max?: number | string;
   /** number: the increment the field snaps to. */
@@ -130,6 +134,21 @@ export function setValueSchema(contract: FieldContract): JsonSchema {
       additionalProperties: false,
       properties: {
         value: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$", description: "ISO yyyy-mm-dd" },
+      },
+    };
+  }
+
+  if (kind === "dateTime") {
+    return {
+      type: "object",
+      required: ["value"],
+      additionalProperties: false,
+      properties: {
+        value: {
+          type: "string",
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2})?$",
+          description: "Local date and time, ISO yyyy-mm-ddTHH:mm (seconds optional), no time zone",
+        },
       },
     };
   }
@@ -246,6 +265,22 @@ function isRealDay(text: string): boolean {
   return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
 }
 
+const DATE_TIME = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?$/;
+
+/**
+ * A real local date-time, in the one form bounds are compared in:
+ * yyyy-mm-ddTHH:mm:ss. Null when it is not one. A zone or offset is not
+ * accepted — the field holds wall-clock time, and silently converting would
+ * move the appointment.
+ */
+export function canonicalDateTime(text: string): string | null {
+  const match = DATE_TIME.exec(text.trim());
+  if (!match) return null;
+  const [, day, hh, mm, ss = "00"] = match;
+  if (!isRealDay(day) || Number(hh) > 23 || Number(mm) > 59 || Number(ss) > 59) return null;
+  return `${day}T${hh}:${mm}:${ss}`;
+}
+
 /**
  * Read what the producer sent as the type this field holds.
  *
@@ -298,6 +333,19 @@ function coerce(
         );
       }
       return { ok: true, value };
+    }
+
+    case "dateTime": {
+      if (typeof value !== "string") return bad("A date and time must be a string, as yyyy-mm-ddTHH:mm.");
+      const canonical = canonicalDateTime(value);
+      if (!canonical) {
+        return bad(
+          `${JSON.stringify(value)} is not a date and time this field can hold.`,
+          "Send local time as yyyy-mm-ddTHH:mm, with no time zone. Resolve anything relative before sending it.",
+        );
+      }
+      if (/ /.test(value)) note('read the space between date and time as "T"');
+      return { ok: true, value: canonical };
     }
 
     case "dateRange": {
@@ -538,6 +586,30 @@ export function validateFieldIntent(
           path: "/value",
         });
       }
+    }
+  }
+
+  // Compared in one canonical form, so a bound given without seconds still
+  // admits the minute it names.
+  if (contract.kind === "dateTime" && (contract.min || contract.max)) {
+    const at = value as string;
+    const earliest = typeof contract.min === "string" ? canonicalDateTime(contract.min) : null;
+    const latest = typeof contract.max === "string" ? canonicalDateTime(contract.max) : null;
+    if (earliest && at < earliest) {
+      return fail({
+        layer: "policy",
+        code: "before-earliest",
+        message: `${contract.label ?? contract.component} does not accept times before ${contract.min}.`,
+        path: "/value",
+      });
+    }
+    if (latest && at > latest) {
+      return fail({
+        layer: "policy",
+        code: "after-latest",
+        message: `${contract.label ?? contract.component} does not accept times after ${contract.max}.`,
+        path: "/value",
+      });
     }
   }
 

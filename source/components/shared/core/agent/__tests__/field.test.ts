@@ -175,6 +175,47 @@ describe("policy layer", () => {
     expect(validateFieldIntent({ action: "setValue", value: "2025-07-04" }, contract).ok).toBe(true);
   });
 
+  it("reads a date-time as local wall-clock time, and bounds it to the minute", () => {
+    const contract: FieldContract = {
+      component: "DateTimePicker",
+      kind: "dateTime",
+      operations: ["setValue"],
+      min: "2026-03-15T09:00",
+      max: "2026-03-15T17:30:00",
+    };
+    const set = (value: unknown) => validateFieldIntent({ action: "setValue", value }, contract);
+
+    const accepted = set("2026-03-15T14:30");
+    expect(accepted.ok).toBe(true);
+    expect(accepted.command?.value).toBe("2026-03-15T14:30:00");
+
+    // The minute a bound names is inside it; one second outside is not.
+    expect(set("2026-03-15T09:00").ok).toBe(true);
+    expect(set("2026-03-15T08:59:59")).toMatchObject({ ok: false, code: "before-earliest", layer: "policy" });
+    expect(set("2026-03-15T17:30:01")).toMatchObject({ ok: false, code: "after-latest" });
+
+    // A space for the T is read, and said so.
+    const spaced = set("2026-03-15 10:15");
+    expect(spaced.ok).toBe(true);
+    expect(spaced.warnings.map((w) => w.code)).toContain("coerced");
+  });
+
+  it("refuses a date-time with a zone, an impossible time, or only a date", () => {
+    const contract: FieldContract = { component: "DateTimePicker", kind: "dateTime", operations: ["setValue"] };
+    for (const value of ["2026-03-15T14:30Z", "2026-03-15T14:30+05:30", "2026-03-15T24:00", "2026-02-30T10:00", "2026-03-15", 1773580200000]) {
+      const result = validateFieldIntent({ action: "setValue", value }, contract);
+      expect(result).toMatchObject({ ok: false, layer: "coercion" });
+    }
+  });
+
+  it("gives a date-time field a schema a decoder can follow", () => {
+    const schema = setValueSchema({ component: "DateTimePicker", kind: "dateTime", operations: ["setValue"] }) as any;
+    const pattern = new RegExp(schema.properties.value.pattern);
+    expect(pattern.test("2026-03-15T14:30")).toBe(true);
+    expect(pattern.test("2026-03-15T14:30:05")).toBe(true);
+    expect(pattern.test("2026-03-15T14:30Z")).toBe(false);
+  });
+
   it("enforces a text length limit, as policy rather than as a shape error", () => {
     const result = validateFieldIntent({ action: "setValue", value: "abcdef" }, text({ maxLength: 3 }));
     expect(result.ok).toBe(false);

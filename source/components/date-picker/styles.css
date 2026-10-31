@@ -443,3 +443,82 @@
     forced-color-adjust: none;
   }
 }
+
+/* ---------------------------------------------------------- time (DateTimePicker) */
+
+.dp-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--dp-border);
+}
+.dp-time-label {
+  color: var(--dp-muted);
+  font-weight: 500;
+}
+.dp-time-fields {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  border: 1px solid var(--dp-border);
+  border-radius: calc(var(--dp-radius) - 2px);
+  background: var(--dp-input-bg);
+}
+.dp-time-fields:focus-within {
+  outline: 2px solid var(--dp-focus);
+  outline-offset: -1px;
+}
+.dp-time-segment {
+  width: 2.4ch;
+  padding: 3px 1px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  outline: none;
+}
+.dp-time-segment:focus {
+  background: var(--dp-accent-soft);
+  color: var(--dp-accent-strong);
+}
+.dp-time-segment:disabled {
+  opacity: 0.5;
+}
+.dp-time-colon {
+  color: var(--dp-muted);
+}
+.dp-time-period {
+  margin-inline-start: 4px;
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--dp-hover);
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.dp-time-period:focus-visible {
+  outline: 2px solid var(--dp-focus);
+  outline-offset: -2px;
+}
+.dp-time-period:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dp-time-now {
+  margin-inline-start: auto;
+}
+
+@media (forced-colors: active) {
+  .dp-time-segment:focus {
+    background: Highlight;
+    color: HighlightText;
+  }
+}

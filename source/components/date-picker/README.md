@@ -1,19 +1,20 @@
-# DatePicker and DateRangePicker
+# DatePicker, DateRangePicker and DateTimePicker
 
-Two date fields built on one engine and styled to match the DataGrid and the
+Three date fields built on one engine and styled to match the DataGrid and the
 Combobox. No runtime dependencies besides React 19.
 
 - **`<DatePicker>`** — one date.
 - **`<DateRangePicker>`** — a start and an end, with a live preview between them.
+- **`<DateTimePicker>`** — one date and a time of day.
 
-Both support typed entry in the user's own date order, min/max limits, blocked
+All three support typed entry in the user's own date order, min/max limits, blocked
 days, month and year panels, week numbers, forms, full keyboard control, dark
 mode and right-to-left layouts.
 
 ## Setup
 
 ```ts
-import { DatePicker, DateRangePicker } from "@/components/date-picker";
+import { DatePicker, DateRangePicker, DateTimePicker } from "@/components/date-picker";
 import "@/components/date-picker/styles.css";
 ```
 
@@ -39,9 +40,44 @@ Both are controlled with `value` + `onChange`, or uncontrolled with
 local midnight. The range picker's `onChange` also receives a `complete` flag,
 which is `false` after the first of the two clicks.
 
+## Date and time
+
+```tsx
+const [meeting, setMeeting] = useState<Date | null>(null);
+
+<DateTimePicker
+  label="Meeting"
+  value={meeting}
+  onChange={setMeeting}
+  min="2026-03-15T09:00"
+  minuteStep={15}
+  defaultTime="09:00"
+/>;
+```
+
+The calendar picks the day; a time row under it sets the hour, minute and,
+with `showSeconds`, the second. On a 12-hour clock there is an AM/PM switch.
+`onChange` gives a `Date` in local time. Values are wall-clock time — no time
+zone is chosen or converted — and `name` posts `yyyy-mm-ddTHH:mm`, the shape a
+native `datetime-local` input posts.
+
+`min` and `max` are moments, not days: earlier days cannot be picked, and on the
+first allowed day an earlier time is moved up to `min`. Typing works in the
+locale's order followed by a time — `15/03/2026 14:30`, `Mar 15, 2026, 2:30 PM` —
+and an ISO `2026-03-15T14:30` everywhere.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `hourCycle` | `12 \| 24` | the locale's clock | 12 adds the AM/PM switch. |
+| `showSeconds` | `boolean` | `false` | A seconds field as well. |
+| `minuteStep` | `number` | `1` | How far the minute moves per arrow press. |
+| `defaultTime` | `string` | `"00:00"` | The time a day receives when it is picked before any time is set. |
+| `showNow` | `boolean` | `true` | A "Now" button beside the time. |
+| `closeOnSelect` | `boolean` | `false` | Close once a day is picked. Off by default: the time usually comes next. |
+
 ## Props
 
-Shared by both components:
+Shared by all three:
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -67,7 +103,8 @@ Shared by both components:
 | `ref` | `Ref<DatePickerHandle<T>>` | — | `open()`, `close()`, `toggle()`, `focus()`, `clear()`, `getValue()`. |
 
 `DatePicker` adds `value` / `defaultValue` (`Date \| null`) and `closeOnSelect`
-(default `true`). `DateRangePicker` adds `value` / `defaultValue`
+(default `true`). `DateTimePicker` takes the same `value`, with the time kept,
+and the props in "Date and time" above. `DateRangePicker` adds `value` / `defaultValue`
 (`{ start, end }`), `presets` and `closeOnSelect` (closes once both ends are set).
 
 ## Typed entry
@@ -104,6 +141,9 @@ message when the field loses focus and leaves the value untouched.
 | **Shift + Page Up/Down** | Previous / next year. |
 | **Enter**, **Space** | Choose the focused day. |
 | **Escape** | Close and return focus to the calendar button. |
+| **↑** / **↓** (time) | Step the hour, minute or second; the minute by `minuteStep`. |
+| **Page Up** / **Page Down** (time) | Five steps at once. |
+| **Enter** (time) | Done: close the calendar. |
 
 Each month is a `role="grid"` where only the focused day is tabbable, which is
 the WAI-ARIA pattern for a date picker. The calendar renders in the top layer
@@ -128,12 +168,14 @@ State attributes for styling: `data-state="open"`, `data-size`, `data-invalid`,
 `useDatePicker()` holds the whole engine (selection, visible months, typed
 input, keyboard movement, popover state) and is exported if you want a different
 UI on top. The framework-free helpers — `buildMonth`, `buildMonths`, `parseDate`,
-`formatDate`, `moveByKey`, `normalizeRange`, `isInRange`, `toISODate` — are
+`formatDate`, `moveByKey`, `normalizeRange`, `isInRange`, `toISODate`, and for
+time `parseDateTime`, `formatDateTime`, `parseTime`, `toISODateTime` — are
 exported from `@/components/date-picker/core` and also run on a server.
 
 ## Known limits
 
-- Dates only: no time-of-day or time zone selection. Values are local midnight.
+- `DatePicker` and `DateRangePicker` hold days at local midnight; `DateTimePicker`
+  holds wall-clock time. None of them chooses or converts a time zone.
 - One range per field; multiple disjoint ranges aren't supported.
 - Only the Gregorian calendar is handled, though month and weekday names,
   field order and the first day of the week all follow the locale.

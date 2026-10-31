@@ -29,14 +29,14 @@ test.beforeEach(async ({ page }) => {
   // The grid's agent loads lazily; wait until it has joined.
   await expect
     .poll(async () => (await call(page, { action: "describe" })).structuredContent.manifest.members.length)
-    .toBe(11);
+    .toBe(12);
 });
 
 test("describes every operable component, and never the password", async ({ page }) => {
   const described = await call(page, { action: "describe" });
   const members = described.structuredContent.manifest.members as Array<Record<string, any>>;
   expect(members.map((m) => m.id).sort()).toEqual(
-    ["accept-terms", "customers", "due-date", "email-alerts", "name", "notes", "plan", "seats", "tags", "team", "trip"],
+    ["accept-terms", "call", "customers", "due-date", "email-alerts", "name", "notes", "plan", "seats", "tags", "team", "trip"],
   );
   expect(members.find((m) => m.label === "Password")).toBeUndefined();
 
@@ -85,6 +85,26 @@ test("sets a date and a range", async ({ page }) => {
     due: "2026-03-15",
     trip: { start: "2026-05-01", end: "2026-05-09" },
   });
+});
+
+test("sets a date and time, and holds it to its bounds to the minute", async ({ page }) => {
+  const members = (await call(page, { action: "describe" })).structuredContent.manifest.members as Array<
+    Record<string, any>
+  >;
+  expect(members.find((m) => m.id === "call")!.constraints).toMatchObject({
+    holds: "dateTime",
+    min: "2026-06-01T09:00:00",
+    max: "2026-06-30T17:30:00",
+  });
+
+  expect((await operate(page, "call", { action: "setValue", value: "2026-06-12T14:30" })).isError).toBe(false);
+  await expect.poll(() => state(page)).toMatchObject({ call: "2026-06-12T14:30" });
+
+  const early = await operate(page, "call", { action: "setValue", value: "2026-06-01T08:59" });
+  expect(early.structuredContent).toMatchObject({ ok: false, code: "before-earliest" });
+  const zoned = await operate(page, "call", { action: "setValue", value: "2026-06-12T14:30Z" });
+  expect(zoned.structuredContent).toMatchObject({ ok: false, layer: "coercion" });
+  expect((await state(page)).call).toBe("2026-06-12T14:30");
 });
 
 test("refuses what a component would refuse, and changes nothing", async ({ page }) => {

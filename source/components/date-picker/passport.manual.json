@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schema/passport-overlay-v1.schema.json",
   "component": "DatePicker",
-  "purpose": "DatePicker and DateRangePicker: a text field people can type dates into, plus a calendar, both honouring the locale's order and separators.",
+  "purpose": "DatePicker, DateRangePicker and DateTimePicker: a text field people can type dates (and, for DateTimePicker, times) into, plus a calendar, all honouring the locale's order, separators and clock.",
   "intentDomains": [
     "TemporalInterpretation",
     "ActionIntent"
@@ -51,11 +51,14 @@
       "the calendar is a grid with arrow keys between days, PageUp/PageDown between months, Home and End within a week",
       "the selected and focused days are distinguished for assistive technology, not only by colour",
       "the field accepts typing, so the calendar is never the only way in",
-      "Escape closes the calendar and returns focus to the field"
+      "Escape closes the calendar and returns focus to the field",
+      "DateTimePicker's hour, minute and second are spin buttons: arrow keys step them, PageUp and PageDown move further, and a screen reader announces each by name and value",
+      "on a 12-hour clock the AM/PM switch is a labelled button, toggled by click or by the arrow keys"
     ],
     "required": [
       "a `label`, or `aria-label` when the field is visually unlabelled",
-      "a `locale` matching the user's, since 03/04 is two different days in two places"
+      "a `locale` matching the user's, since 03/04 is two different days in two places",
+      "an `hourCycle` only when the clock should differ from the locale's own; by default 2:30 PM and 14:30 follow `locale`"
     ]
   },
   "composition": {
@@ -73,7 +76,10 @@
       "presets",
       "clearable",
       "closeOnSelect",
-      "allowInput"
+      "allowInput",
+      "showSeconds",
+      "showNow",
+      "minuteStep"
     ],
     "forbidden": [
       "value",
@@ -89,12 +95,17 @@
       "disabled",
       "readOnly",
       "onChange",
-      "error"
+      "error",
+      "hourCycle",
+      "defaultTime"
     ],
-    "rationale": "Calendar chrome is presentation. `min`, `max` and `isDateDisabled` are the rules about which dates are legal, and `format` and `locale` decide how a typed string is read — changing either can reinterpret a date the user already entered."
+    "rationale": "Calendar chrome is presentation. `min`, `max` and `isDateDisabled` are the rules about which dates are legal, and `format` and `locale` decide how a typed string is read — changing either can reinterpret a date the user already entered. For DateTimePicker, `hourCycle` decides how a typed time is read (2:30 against 14:30), and `defaultTime` is the time a picked day receives — both change values, not looks."
   },
   "propNotes": {
     "format": "How a typed string is parsed as well as displayed. Changing it can turn a valid entry into a different day.",
-    "presets": "Labelled shortcuts such as last quarter. They write the same value the calendar does."
+    "presets": "Labelled shortcuts such as last quarter. They write the same value the calendar does.",
+    "hourCycle": "12 or 24. Changes how a typed time is read as well as shown; defaults to the locale's clock.",
+    "minuteStep": "How far the minute moves per arrow press. Typed minutes are not snapped to it.",
+    "min": "For DateTimePicker a moment, not a day: earlier days cannot be picked, and on the day itself an earlier time is moved up to it."
   }
 }

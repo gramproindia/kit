@@ -82,6 +82,15 @@ describe("add", () => {
     expect(existsSync(join(shared, "react", "agentSurfaceContext.ts"))).toBe(true);
   }, 120000);
 
+  it("installs a component by any name its folder exports", () => {
+    // DateTimePicker lives in date-picker, Select in combobox; an agent asks
+    // for the thing, not the folder.
+    const result = run("add", "DateTimePicker", "Select");
+    expect(result.code).toBe(0);
+    expect(existsSync(join(project, "component-lib", "date-picker", "react", "DateTimePicker.tsx"))).toBe(true);
+    expect(existsSync(join(project, "component-lib", "combobox", "react", "Select.tsx"))).toBe(true);
+  }, 120000);
+
   it("--force replaces it, and only then", () => {
     const result = run("add", "Button", "--force");
     expect(result.code).toBe(0);

@@ -215,10 +215,31 @@ const TESTS_DIR = "__tests__";
 
 const isTestPath = (filePath) => filePath.split(/[\\/]/).includes(TESTS_DIR);
 
+/*
+ * A component by any name its folder exports, read from the passports: `add
+ * DateTimePicker` installs DatePicker, `add Select` installs Combobox. People,
+ * and agents through the MCP server, use the name of the thing they want, not
+ * the folder it happens to live in.
+ */
+let exportIndex = null;
+const componentForExport = (name) => {
+  if (!exportIndex) {
+    exportIndex = new Map();
+    for (const component of CONFIG.components) {
+      const passport = readJson(path.join(SOURCE_PATH, folderFor(component, true), "passport.json"));
+      for (const exported of passport?.identity?.exports || []) {
+        if (/^[A-Z][A-Za-z]+$/.test(exported)) exportIndex.set(exported.toLowerCase(), component);
+      }
+    }
+  }
+  return exportIndex.get(String(name).toLowerCase()) || null;
+};
+
 const normalizeComponent = (component, availableComponents) =>
   availableComponents.find(
     (available) => available.toLowerCase() === component.toLowerCase(),
-  );
+  ) ||
+  (availableComponents === CONFIG.components ? componentForExport(component) : undefined);
 
 const getAvailableComponents = (current = false) =>
   current ? CONFIG.components : CONFIG.legacyComponents;

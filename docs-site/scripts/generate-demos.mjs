@@ -43,6 +43,7 @@ const SLUG_OVERRIDES = {
   MultiSelectWrapper: "combobox",
   CheckboxGroupWrapper: "checkbox",
   DateRangePickerWrapper: "datepicker",
+  DateTimePickerWrapper: "datepicker",
   DataGridWrapper: "datagrid",
   AskGridWrapper: "datagrid-ai",
   SelectOptionsWrapper: "combobox",

@@ -14,6 +14,7 @@ import DatePickerVariants from "@/examples/DatePickerVariantsWrapper";
 import DatePickerLimits from "@/examples/DatePickerLimitsWrapper";
 import DateRangePickerVariants from "@/examples/DateRangePickerVariantsWrapper";
 import DatePickerForm from "@/examples/DatePickerFormWrapper";
+import DateTimePickerExample from "@/examples/DateTimePickerWrapper";
 
 const card =
   "rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950";
@@ -22,6 +23,7 @@ const cardTitle = "mb-3 text-sm font-semibold";
 const PANELS = [
   { title: "Basic", Panel: DatePickerVariants },
   { title: "Limits and blocked days", Panel: DatePickerLimits },
+  { title: "Date and time", Panel: DateTimePickerExample },
   { title: "Range", Panel: DateRangePickerVariants },
   { title: "In a form", Panel: DatePickerForm },
 ];

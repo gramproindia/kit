@@ -1,6 +1,6 @@
 ---
 title: "Date Picker"
-description: "DatePicker and DateRangePicker — a text field people can type into, plus a calendar that works from the keyboard."
+description: "DatePicker, DateRangePicker and DateTimePicker — a text field people can type a date or a date and time into, plus a calendar that works from the keyboard."
 group: "Inputs"
 order: 7
 ---
@@ -32,7 +32,7 @@ or in your root layout / entry file:
 import "@/component-lib/gbs.css";
 ```
 
-`DatePicker` selects one date and `DateRangePicker` selects a start and an end. Both are a text field plus a calendar: people can type a date in their own date order or pick one, and the whole calendar works from the keyboard. They share one engine, one stylesheet and one set of keyboard rules. The calendar renders in the browser's top layer, so it is never clipped by a scrolling parent — including inside a DataGrid cell.
+`DatePicker` selects one date, `DateRangePicker` a start and an end, and `DateTimePicker` a date with a time of day. Each is a text field plus a calendar: people can type a date in their own date order or pick one, and the whole calendar works from the keyboard. They share one engine, one stylesheet and one set of keyboard rules. The calendar renders in the browser's top layer, so it is never clipped by a scrolling parent — including inside a DataGrid cell.
 
 <Notice message="Set the --gbs-* variables on :root to theme every component at once, the grid included. Each component's own variables fall back to them, and then to the built-in palette, so components look identical out of the box." />
 
@@ -159,6 +159,23 @@ Store values with `toISODate(date)` (from the same package) rather than `toISOSt
 | `presets`       | `DatePreset[]`                                  | —       | Shortcuts beside the calendar. See [Range Presets](#range-presets). |
 | `closeOnSelect` | `boolean`                                       | `true`  | Close once both ends are chosen.                                    |
 
+### DateTimePicker
+
+Takes the shared props, with `min` / `max` as moments, plus:
+
+| Prop            | Type                           | Default            | Description                                                                 |
+| --------------- | ------------------------------ | ------------------ | --------------------------------------------------------------------------- |
+| `value`         | `DateInput` \| `null`          | —                  | Selected date and time (controlled). An ISO `yyyy-mm-ddTHH:mm` string works. |
+| `defaultValue`  | `DateInput` \| `null`          | `null`             | Starting value (uncontrolled).                                              |
+| `onChange`      | `(date: Date \| null) => void` | —                  | Fires on a day, a time change, clear (`null`) and while typed text parses.  |
+| `hourCycle`     | `12` \| `24`                   | the locale's clock | 12 adds the AM/PM switch.                                                   |
+| `showSeconds`   | `boolean`                      | `false`            | A seconds field as well.                                                    |
+| `minuteStep`    | `number`                       | `1`                | How far the minute moves per arrow press.                                   |
+| `defaultTime`   | `string`                       | `"00:00"`          | The time a day receives when picked before any time is set.                 |
+| `showNow`       | `boolean`                      | `true`             | A "Now" button beside the time.                                             |
+| `closeOnSelect` | `boolean`                      | `false`            | Close once a day is picked.                                                 |
+| `name`          | `string`                       | —                  | Posts `yyyy-mm-ddTHH:mm` (`:ss` with `showSeconds`).                        |
+
 ## Typed Entry
 
 People can type instead of picking, and the calendar follows along as they type.
@@ -191,6 +208,32 @@ Type a date or pick one. Field order, month names and the first day of the week 
 A bookable window with weekends blocked, week numbers on and the week starting on Sunday.
 
 <DatePickerLimitsWrapper />
+
+## Date and Time
+
+```tsx
+const [meeting, setMeeting] = useState<Date | null>(null);
+
+<DateTimePicker
+  label="Meeting"
+  value={meeting}
+  onChange={setMeeting}
+  min="2026-03-15T09:00"
+  minuteStep={15}
+  defaultTime="09:00"
+/>;
+```
+
+`DateTimePicker` adds a time row under the calendar: the hour, the minute and, with `showSeconds`, the second, each a spin button the arrow keys step. On a 12-hour clock there is an AM/PM switch. The clock follows `locale` — 2:30 PM in `en-US`, 14:30 in `en-GB` — unless `hourCycle` says otherwise.
+
+- **The value is wall-clock time.** `onChange` gives a `Date` in local time; no time zone is chosen or converted. `name` posts `yyyy-mm-ddTHH:mm`, the shape a native `datetime-local` input posts.
+- **`min` and `max` are moments, not days.** Earlier days cannot be picked, and on the first allowed day an earlier time is moved up to `min`.
+- **Picking a day keeps the time already chosen.** Before any time is set, a picked day takes `defaultTime` (`00:00` unless given). The calendar stays open after a day is picked, since the time usually comes next; Enter in the time row, or Escape, closes it.
+- **Typing works too**: a date in the locale's order followed by a time — `15/03/2026 14:30`, `Mar 15, 2026, 2:30 PM` — and ISO `2026-03-15T14:30` everywhere.
+
+A meeting scheduler with 15-minute steps and a bounded window, and a 24-hour field with seconds.
+
+<DateTimePickerWrapper />
 
 ## Range Presets
 
@@ -278,6 +321,9 @@ picker.current?.open();
 | **Enter**, **Space**            | Choose the focused day.                                |
 | **Escape**                      | Close and return focus to the calendar button.         |
 | **Tab**                         | Leave the calendar; it closes.                         |
+| **↑** / **↓** in the time row   | Step the hour, minute or second; the minute by `minuteStep`. |
+| **Page Up** / **Page Down** in the time row | Five steps at once.                        |
+| **Enter** in the time row       | Done: close the calendar.                              |
 
 Accessibility: each month is a `table role="grid"` where only the focused day is tabbable, which is the WAI-ARIA pattern for a date picker. Days carry a full spoken label ("Thursday, 12 March 2026"), today is `aria-current="date"`, selected days are `aria-selected`, and the calendar is a `role="dialog"` labelled by `calendarLabel`. Changes are announced through a status region.
 
@@ -364,6 +410,10 @@ Colors follow the page's `color-scheme`. To force a scheme, put `class="dark"` o
 | `presets`                            | `"Shortcuts"`                                  |
 | `selectedDate`                       | `(date) => "Selected: {date}"`                 |
 | `selectedRange`                      | `(start, end) => "Selected: {start} to {end}"` |
+| `time`                               | `"Time"`                                       |
+| `hours` / `minutes` / `seconds`      | `"Hours"` / `"Minutes"` / `"Seconds"`          |
+| `dayPeriod`                          | `"AM or PM"`                                   |
+| `now`                                | `"Now"`                                        |
 
 Month names, weekday names, the typing order and the first day of the week come from `locale`, not from `localeText`.
 
@@ -409,6 +459,9 @@ The framework-free helpers are exported from `@/component-lib/date-picker/core` 
 | `toISODate` / `parseISODate` / `toDate`                                             | Local-day conversion, never shifted to UTC.                                                                                     |
 | `addDays` / `addMonths` / `startOfMonth` / `clampDate` / `compareDay` / `isSameDay` | Day arithmetic and comparison.                                                                                                  |
 | `getISOWeek` / `resolveWeekStart` / `yearPage`                                      | Week numbers, the locale's first weekday, year paging.                                                                          |
+| `parseDateTime(text, locale?, reference?)` / `parseTime(text)`                      | Reads a typed date and time, or a time alone (`14:30`, `2:30 pm`). Returns `null` when it isn't one.                              |
+| `formatDateTime(date, locale, options)` / `hourCycleOf(locale?)`                    | The field's display, and whether a locale uses a 12- or 24-hour clock.                                                         |
+| `toISODateTime` / `parseISODateTime` / `toDateTime` / `withTime` / `clampDateTime`  | Local date-time conversion and bounds, to the second. A zone or offset is never read.                                          |
 | `subscribeToToday` / `getToday` / `getServerToday`                                  | The shared current day, for a `useSyncExternalStore` of your own. It rolls over at midnight, and the server snapshot is `null`. |
 
 ## Next.js

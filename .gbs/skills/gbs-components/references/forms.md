@@ -7,8 +7,8 @@ markup yourself.
 ## The shared field contract
 
 All of Input, Textarea, NumberInput, OtpInput, Checkbox, CheckboxGroup, Radio,
-RadioGroup, Switch, Select, MultiSelect, DatePicker, DateRangePicker and
-FileUploader accept:
+RadioGroup, Switch, Select, MultiSelect, DatePicker, DateRangePicker,
+DateTimePicker and FileUploader accept:
 
 - `label` (`ReactNode`) — the field's accessible name.
 - `description` (`ReactNode`) — hint below the control, linked with `aria-describedby`.

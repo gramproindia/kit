@@ -65,4 +65,13 @@ export interface DatePickerLocaleText {
   presets: string;
   selectedDate(date: string): string;
   selectedRange(start: string, end: string): string;
+  /** DateTimePicker: the group holding the hour, minute and second fields. */
+  time: string;
+  hours: string;
+  minutes: string;
+  seconds: string;
+  /** The AM/PM switch on a 12-hour clock. */
+  dayPeriod: string;
+  /** Sets the current date and time. */
+  now: string;
 }

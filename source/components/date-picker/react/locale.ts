@@ -20,4 +20,10 @@ export const defaultDatePickerText: DatePickerLocaleText = {
   presets: "Shortcuts",
   selectedDate: (date) => `Selected: ${date}`,
   selectedRange: (start, end) => `Selected: ${start} to ${end}`,
+  time: "Time",
+  hours: "Hours",
+  minutes: "Minutes",
+  seconds: "Seconds",
+  dayPeriod: "AM or PM",
+  now: "Now",
 };

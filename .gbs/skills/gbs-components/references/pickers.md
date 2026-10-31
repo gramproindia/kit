@@ -1,6 +1,6 @@
 # Pickers
 
-Select, MultiSelect, DatePicker, DateRangePicker and FileUploader. They share the
+Select, MultiSelect, DatePicker, DateRangePicker, DateTimePicker and FileUploader. They share the
 field contract in `forms.md` (`label`, `description`, `error`, `size`,
 `classNames`, `localeText`) but all four use **`onChange`**, not `onValueChange`.
 
@@ -46,7 +46,7 @@ handle `onSearchChange` (fires once on open, then debounced) and `onLoadMore`.
 There is no async "load option by value" — pass options that already include the
 selected values.
 
-## DatePicker and DateRangePicker
+## DatePicker, DateRangePicker and DateTimePicker
 
 `value`, `defaultValue`, `min` and `max` accept a `Date`, an ISO `yyyy-mm-dd`
 string or a timestamp. `onChange` always gives `Date` objects at local midnight.
@@ -61,6 +61,24 @@ Shared props: `min`, `max`, `isDateDisabled`, `locale`, `weekStartsOn`,
 ```tsx
 <DatePicker label="Start date" value={date} onChange={setDate} />
 <DateRangePicker label="Period" value={range} onChange={setRange} />
+```
+
+**DateTimePicker** is a date and a time of day in one field: the calendar picks
+the day, a time row under it the hour and minute (`showSeconds` adds seconds),
+with an AM/PM switch on a 12-hour clock. Reach for it whenever a value needs a
+time — do not pair a DatePicker with a separate time input.
+
+- `onChange` gives a `Date` in local wall-clock time; no zone is chosen or
+  converted. `name` posts `yyyy-mm-ddTHH:mm`.
+- `value`, `min` and `max` also take an ISO `yyyy-mm-ddTHH:mm` string. `min` and
+  `max` are moments, not days.
+- `hourCycle` (12 | 24, default the locale's), `minuteStep` (1), `defaultTime`
+  (`"00:00"`, the time a picked day gets), `showNow` (true), `closeOnSelect`
+  (false: the time usually comes next).
+
+```tsx
+<DateTimePicker label="Meeting" value={at} onChange={setAt}
+  min="2026-03-15T09:00" minuteStep={15} defaultTime="09:00" />
 ```
 
 ## FileUploader

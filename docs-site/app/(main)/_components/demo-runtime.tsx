@@ -67,6 +67,7 @@ const HEIGHTS: Record<string, number> = {
   DatePickerLimitsWrapper: 170,
   DateRangePickerVariantsWrapper: 170,
   DatePickerFormWrapper: 260,
+  DateTimePickerWrapper: 300,
   FileUploaderChunkedWrapper: 420,
   FileUploaderValidationWrapper: 340,
   FileUploaderEditWrapper: 340,
