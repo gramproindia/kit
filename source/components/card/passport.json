@@ -17,12 +17,15 @@
       "core/index.ts",
       "core/trend.ts",
       "core/types.ts",
+      "index.native.ts",
       "index.ts",
+      "native/Card.tsx",
+      "native/Stat.tsx",
       "react/Card.tsx",
       "react/Stat.tsx",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:5b40d5a873d8c4bd0ea3423f5a9b0ca06f2515aa1ea45149d36be3b2b4aa63e1"
+    "sourceHash": "sha256:87eecc03e4fa89321c5f80c08674708d7d6cf1a292c5bb3ccadeb6f685cd48e3"
   },
   "purpose": "A surface that groups related content, with header, body and footer, plus Stat for a single figure and its trend.",
   "props": [

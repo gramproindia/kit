@@ -17,10 +17,22 @@
       "core/calendar.ts",
       "core/format.ts",
       "core/index.ts",
+      "core/locale.ts",
       "core/time.ts",
       "core/today.ts",
       "core/types.ts",
+      "core/week.ts",
+      "index.native.ts",
       "index.ts",
+      "native/CalendarView.tsx",
+      "native/DatePicker.tsx",
+      "native/DateRangePicker.tsx",
+      "native/DateTimePicker.tsx",
+      "native/Field.tsx",
+      "native/TimeRow.tsx",
+      "native/props.ts",
+      "native/useCalendar.ts",
+      "native/useOpen.ts",
       "react/Calendar.tsx",
       "react/CalendarPanel.tsx",
       "react/DatePicker.tsx",
@@ -35,7 +47,7 @@
       "react/surface.ts",
       "react/useDatePicker.ts"
     ],
-    "sourceHash": "sha256:830c6a20d2469757df326b629ba56d73eca49d1ecd036a1cf5075b15e31bb020"
+    "sourceHash": "sha256:b9d7ba18813dec569d264d7c89c7749cecc3a1ebd497a2478337acafaed4dc98"
   },
   "purpose": "DatePicker, DateRangePicker and DateTimePicker: a text field people can type dates (and, for DateTimePicker, times) into, plus a calendar, all honouring the locale's order, separators and clock.",
   "props": [

@@ -8,4 +8,5 @@ export {
   TYPEAHEAD_RESET_MS,
 } from "./navigation";
 export type { NavigableItem } from "./navigation";
+export { defaultMenuText } from "./locale";
 export type * from "./types";

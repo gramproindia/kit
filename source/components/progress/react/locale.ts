@@ -1,7 +1,2 @@
-import type { ProgressLocaleText } from "../core/types";
-
-export const defaultProgressText: ProgressLocaleText = {
-  label: "Progress",
-  valueText: (percent: number) => `${percent}%`,
-  working: "Working\u2026",
-};
+// The strings live in core so the native progress shares them.
+export { defaultProgressText } from "../core/locale";

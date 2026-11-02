@@ -14,6 +14,7 @@ import { AnchoredPopover } from "../../shared/react/Popover";
 | --- | --- | --- |
 | `cx(...names)` | `core/cx` | Joins class names, dropping anything falsy. |
 | `countCharacters(value)` | `core/text` | Grapheme-accurate length for character counters. |
+| `graphemes(value)` | `core/text` | Splits text into user-perceived characters; close fallback where `Intl.Segmenter` is missing (Hermes, React Native). |
 | `describeField(id, parts)` | `core/field` | The `aria-describedby` for a control, from its hint, description and error. |
 | `useControllableState(value, default)` | `react/useControllableState` | One value that may be controlled or owned by the component. |
 | `AnchoredPopover` | `react/Popover` | Anchored popover on the native Popover API: top layer, light dismiss, flipping. |

@@ -11,14 +11,17 @@
     "libraryVersion": "2.8.0",
     "files": [
       "core/index.ts",
+      "core/locale.ts",
       "core/trail.ts",
       "core/types.ts",
+      "index.native.ts",
       "index.ts",
+      "native/Breadcrumb.tsx",
       "react/Breadcrumb.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:3b7fef8f48d1a1290c25a263d2e92ef5dcb706b1a06899ffe5a4df1cdab663e1"
+    "sourceHash": "sha256:649606e299f95a2bd93b49a1a507b97f4b096b79f5b77b83c404619fc0269d77"
   },
   "purpose": "Where a page sits in the app: a trail that collapses in the middle when it is long, renders through your router's link, and can emit schema.org JSON-LD.",
   "props": [

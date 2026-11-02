@@ -1,7 +1,2 @@
-import type { NumberInputLocaleText } from "../core/types";
-
-export const defaultNumberInputText: NumberInputLocaleText = {
-  increment: "Increase",
-  decrement: "Decrease",
-  clear: "Clear",
-};
+// The strings live in core so the native field shares them.
+export { defaultNumberInputText } from "../core/locale";

@@ -11,4 +11,5 @@ export {
 } from "./store";
 export type { ToastPatch, ToastStore, ToastStoreConfig } from "./store";
 export { toast, toastStore } from "./toast";
+export { defaultToasterText } from "./locale";
 export type * from "./types";

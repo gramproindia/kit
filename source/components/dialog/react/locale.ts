@@ -1,8 +1,2 @@
-import type { DialogLocaleText } from "../core/types";
-
-export const defaultDialogText: DialogLocaleText = {
-  ok: "OK",
-  confirm: "Confirm",
-  cancel: "Cancel",
-  required: "Please fill in this field",
-};
+// The strings live in core so the native component shares them.
+export { defaultDialogText } from "../core/locale";

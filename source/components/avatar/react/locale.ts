@@ -1,11 +1,2 @@
-import type { AvatarLocaleText } from "../core/types";
-
-export const defaultAvatarText: AvatarLocaleText = {
-  more: (count: number) => `${count} more`,
-  status: {
-    online: "Online",
-    away: "Away",
-    busy: "Busy",
-    offline: "Offline",
-  },
-};
+// The strings live in core so the native component shares them.
+export { defaultAvatarText } from "../core/locale";

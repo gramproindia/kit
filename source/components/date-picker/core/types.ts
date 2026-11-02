@@ -74,4 +74,6 @@ export interface DatePickerLocaleText {
   dayPeriod: string;
   /** Sets the current date and time. */
   now: string;
+  /** Native DateTimePicker: commits the draft and closes. */
+  done: string;
 }

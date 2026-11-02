@@ -24,6 +24,8 @@ export interface MenuLocaleText {
   label: string;
   /** Announced on a submenu trigger. */
   submenu(label: string): string;
+  /** The row that leaves a submenu, where a submenu replaces its parent (native sheets). */
+  back: string;
 }
 
 /** A shortcut shown beside an item. Purely a hint: the menu does not bind keys. */

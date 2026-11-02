@@ -1,5 +1,2 @@
-import type { SpinnerLocaleText } from "../core/types";
-
-export const defaultSpinnerText: SpinnerLocaleText = {
-  loading: "Loading",
-};
+// The strings live in core so the native spinner shares them.
+export { defaultSpinnerText } from "../core/locale";

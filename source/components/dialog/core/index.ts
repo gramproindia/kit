@@ -4,4 +4,5 @@ export type { DialogApi } from "./api";
 export { createDialogStore, resultFor } from "./store";
 export type { DialogStore } from "./store";
 export { dialog, dialogStore } from "./dialog";
+export { defaultDialogText } from "./locale";
 export type * from "./types";

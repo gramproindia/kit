@@ -1,6 +1,2 @@
-import type { MenuLocaleText } from "../core/types";
-
-export const defaultMenuText: MenuLocaleText = {
-  label: "Menu",
-  submenu: (label) => `${label} submenu`,
-};
+// The strings live in core so the native menu shares them.
+export { defaultMenuText } from "../core/locale";

@@ -1,6 +1,2 @@
-import type { ToasterLocaleText } from "../core/types";
-
-export const defaultToasterText: ToasterLocaleText = {
-  regionLabel: (hotkey) => `Notifications (${hotkey})`,
-  close: "Close notification",
-};
+// The strings live in core so the native component shares them.
+export { defaultToasterText } from "../core/locale";

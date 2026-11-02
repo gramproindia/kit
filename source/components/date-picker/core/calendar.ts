@@ -6,6 +6,7 @@ import type {
   DateLimits,
   DateRange,
 } from "./types";
+import { weekStartFromTag } from "./week";
 
 /**
  * Every date in this package is a local-time Date at midnight. Keeping one
@@ -110,15 +111,17 @@ interface WeekInfoLocale {
  */
 export function resolveWeekStart(locale?: string, explicit?: number): number {
   if (explicit !== undefined) return ((explicit % 7) + 7) % 7;
+  let tag = locale;
   try {
-    const tag = locale ?? new Intl.DateTimeFormat().resolvedOptions().locale;
+    tag ??= new Intl.DateTimeFormat().resolvedOptions().locale;
     const info = new Intl.Locale(tag) as unknown as WeekInfoLocale;
     const firstDay = info.getWeekInfo?.().firstDay ?? info.weekInfo?.firstDay;
     if (typeof firstDay === "number") return firstDay % 7;
   } catch {
-    // Locale data is unavailable in this runtime; fall through to the ISO default.
+    // No Intl.Locale here (Hermes); the tag alone still says enough.
   }
-  return 1;
+  // No week info (Hermes, Firefox): read it from the tag, Monday if unknown.
+  return tag ? weekStartFromTag(tag) : 1;
 }
 
 /** ISO 8601 week number: week 1 is the one holding the first Thursday of the year. */

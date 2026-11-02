@@ -6,6 +6,7 @@
  * notice from an English-speaking desk — which is why they are here, pure and
  * under test, rather than inline in the component.
  */
+import { graphemes } from "../../shared/core/text";
 
 /**
  * Names are split on whitespace — `\s` covers the no-break space a copied name
@@ -57,18 +58,10 @@ function firstCharacter(part: string): string {
   return upper.length > character.length ? character : upper;
 }
 
-let segmenter: Intl.Segmenter | null | undefined;
-
+// `graphemes` falls back to a close approximation where Intl.Segmenter is
+// missing (Hermes on Android), so a ZWJ emoji family stays one character there.
 function segmentFirst(text: string): string {
-  if (segmenter === undefined) {
-    segmenter = typeof Intl !== "undefined" && "Segmenter" in Intl ? new Intl.Segmenter() : null;
-  }
-  if (segmenter) {
-    for (const { segment } of segmenter.segment(text)) return segment;
-    return "";
-  }
-  // Without Segmenter, code points at least keep surrogate pairs whole.
-  return Array.from(text)[0] ?? "";
+  return graphemes(text)[0] ?? "";
 }
 
 /**

@@ -52,11 +52,21 @@ export class UploadHttpError extends Error {
   }
 }
 
-export const abortError = () => new DOMException("Upload aborted", "AbortError");
+/**
+ * The error an aborted upload rejects with. A `DOMException` where the runtime
+ * has one; React Native's Hermes may not, so an `Error` named the same there.
+ */
+export const abortError = (): Error =>
+  typeof DOMException === "function"
+    ? new DOMException("Upload aborted", "AbortError")
+    : Object.assign(new Error("Upload aborted"), { name: "AbortError" });
+
+const isAbort = (error: unknown) =>
+  typeof error === "object" && error !== null && (error as { name?: unknown }).name === "AbortError";
 
 /** Network failures, timeouts, rate limits and server errors are worth another try; 4xx is not. */
 export function isRetryable(error: unknown): boolean {
-  if (error instanceof DOMException && error.name === "AbortError") return false;
+  if (isAbort(error)) return false;
   if (error instanceof UploadHttpError) {
     return error.status >= 500 || error.status === 408 || error.status === 429;
   }

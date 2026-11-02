@@ -1,5 +1,2 @@
-import type { BadgeLocaleText } from "../core/types";
-
-export const defaultBadgeText: BadgeLocaleText = {
-  remove: (label: string) => `Remove ${label}`,
-};
+// The strings live in core so the native component shares them.
+export { defaultBadgeText } from "../core/locale";

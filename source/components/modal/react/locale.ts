@@ -1,5 +1,2 @@
-import type { ModalLocaleText } from "../core/types";
-
-export const defaultModalText: ModalLocaleText = {
-  close: "Close",
-};
+// The strings live in core so the native component shares them.
+export { defaultModalText } from "../core/locale";

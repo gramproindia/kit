@@ -11,14 +11,17 @@
     "libraryVersion": "2.8.0",
     "files": [
       "core/index.ts",
+      "core/locale.ts",
       "core/state.ts",
       "core/types.ts",
+      "index.native.ts",
       "index.ts",
+      "native/Button.tsx",
       "react/Button.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:8d6f65f9bdb461e0ce0c6e7fc4850141ca641f9c01e81be60fe826a62ee24669"
+    "sourceHash": "sha256:918a3cc2562b7ccded91c53607f66c0bb4c3299c0cfdfd82e62d30e77abc57f1"
   },
   "purpose": "Trigger an action. Not for navigation unless `render` supplies a link element.",
   "props": [

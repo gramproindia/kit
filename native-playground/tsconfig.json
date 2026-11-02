@@ -1,0 +1,18 @@
+﻿{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    // Metro resolves `.native` files first; so must the type checker.
+    "moduleSuffixes": [".native", ""],
+    // Kit's source lives outside this app (../source), next to a repo-root
+    // node_modules without React Native. Resolve these from the app instead,
+    // as metro.config.js does at runtime.
+    "paths": {
+      "react": ["./node_modules/@types/react"],
+      "react/*": ["./node_modules/@types/react/*"],
+      "react-native": ["./node_modules/react-native/types_generated/index.d.ts"]
+    }
+  },
+  "exclude": ["node_modules", "spikes/**/expected.ts"]
+}
+

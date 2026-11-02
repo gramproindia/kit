@@ -23,4 +23,5 @@ export type { ChunkFieldNames, HttpTransportOptions, UploadParams } from "./tran
 export { fileKey, matchesAccept, partitionFiles } from "./validate";
 export type { Partitioned, ValidationRules } from "./validate";
 export { fileKind, formatBytes, readFileId } from "./format";
+export { defaultUploaderText } from "./locale";
 export type * from "./types";

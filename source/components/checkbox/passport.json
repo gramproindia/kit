@@ -15,15 +15,20 @@
       "core/agent.ts",
       "core/group.ts",
       "core/index.ts",
+      "core/locale.ts",
       "core/types.ts",
+      "index.native.ts",
       "index.ts",
+      "native/Checkbox.tsx",
+      "native/CheckboxGroup.tsx",
+      "native/context.ts",
       "react/Checkbox.tsx",
       "react/CheckboxGroup.tsx",
       "react/context.ts",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:3bb3c0d76ef4b8d42f6b3bc0a3cdd203a90a1662175ec62ae40eba49ce7ad423"
+    "sourceHash": "sha256:cf7a689cd30973dc71d4f0fca2d12e7947b0bd2959bcfefc467a8d5aa6fbfba5"
   },
   "purpose": "A single native checkbox, and CheckboxGroup for several that share a name, with mixed state, a select-all and group-level validation.",
   "props": [

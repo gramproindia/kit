@@ -9,4 +9,10 @@ export const toastStore = createToastStore();
  * code outside React. On a server nobody can see a toast, so calls do nothing
  * there — which also keeps one request's toasts from leaking into another's.
  */
-export const toast = createToastApi(toastStore, () => typeof document !== "undefined");
+export const toast = createToastApi(
+  toastStore,
+  // A screen exists: a browser document, or a React Native app.
+  () =>
+    typeof document !== "undefined" ||
+    (globalThis as { navigator?: { product?: string } }).navigator?.product === "ReactNative",
+);

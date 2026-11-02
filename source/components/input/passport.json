@@ -14,9 +14,14 @@
       "core/agent.ts",
       "core/count.ts",
       "core/index.ts",
+      "core/locale.ts",
       "core/otp.ts",
       "core/types.ts",
+      "index.native.ts",
       "index.ts",
+      "native/Input.tsx",
+      "native/OtpInput.tsx",
+      "native/icons.tsx",
       "react/Input.tsx",
       "react/OtpInput.tsx",
       "react/dom.ts",
@@ -24,7 +29,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:747f35b5f70457677fbc0a0ce1b8c47404e45b4e30a37c4567871fa3b21e16f6"
+    "sourceHash": "sha256:a65ab8a814cd94987d3e04268664ff7fa3bb6dedf362bb8f8fee7a4002a3acad"
   },
   "purpose": "A single-line text field with its label, hint and error wired together. OtpInput is the same field split into one box per character for a one-time code.",
   "props": [

@@ -1,5 +1,2 @@
-import type { TextareaLocaleText } from "../core/types";
-
-export const defaultTextareaText: TextareaLocaleText = {
-  characterCount: (count, max) => (max === undefined ? count : `${count} / ${max}`),
-};
+// The strings live in core so the native component shares them.
+export { defaultTextareaText } from "../core/locale";

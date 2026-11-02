@@ -40,6 +40,8 @@ export interface ComboboxLocaleText {
   clear: string;
   clearAll: string;
   selectAll: string;
+  /** Closes the native MultiSelect sheet. Unused on the web. */
+  done: string;
   createOption(label: string): string;
   selectedCount(count: string): string;
   moreCount(count: string): string;

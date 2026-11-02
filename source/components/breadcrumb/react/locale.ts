@@ -1,6 +1,2 @@
-import type { BreadcrumbLocaleText } from "../core/types";
-
-export const defaultBreadcrumbText: BreadcrumbLocaleText = {
-  label: "Breadcrumb",
-  showMore: (count) => `Show ${count} more`,
-};
+// The strings live in core so the native breadcrumb shares them.
+export { defaultBreadcrumbText } from "../core/locale";

@@ -13,14 +13,18 @@
     "files": [
       "core/identity.ts",
       "core/index.ts",
+      "core/locale.ts",
       "core/types.ts",
+      "index.native.ts",
       "index.ts",
+      "native/Avatar.tsx",
+      "native/hue.ts",
       "react/Avatar.tsx",
       "react/AvatarGroup.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:541aa6ca5c99e64fba414881c07cc3c29244e03c09b665a4934690d633cc20e1"
+    "sourceHash": "sha256:ec744bcf1a5a11759b03685d5c01ecd79eda970209843393f7c5d3783e9fd4af"
   },
   "purpose": "A person as a picture or their initials, on a colour derived from their name, with a presence dot and an overflow count for groups.",
   "props": [

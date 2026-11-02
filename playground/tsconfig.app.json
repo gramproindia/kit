@@ -50,5 +50,7 @@
     "../source/components/tabs",
     "../source/components/breadcrumb",
     "docs/wrappers"
-  ]
+  ],
+  /* React Native files are type-checked by native-playground, against RN types. */
+  "exclude": ["../source/components/**/native", "../source/components/**/index.native.ts"]
 }

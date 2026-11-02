@@ -26,6 +26,7 @@ export {
   yearPage,
 } from "./calendar";
 export type { BuildMonthOptions, MoveOptions } from "./calendar";
+export { weekStartFromTag } from "./week";
 export {
   DEFAULT_DATE_FORMAT,
   fieldOrder,
@@ -55,5 +56,6 @@ export {
 } from "./time";
 export type { HourCycle, TimeOfDay } from "./time";
 export type * from "./types";
+export { defaultDatePickerText } from "./locale";
 // The agent contract: what a model may ask this field to do.
 export { datePickerContract, type DatePickerAgentProps } from "./agent";

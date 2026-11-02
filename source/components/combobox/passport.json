@@ -14,9 +14,16 @@
       "core/agent.ts",
       "core/filter.ts",
       "core/index.ts",
+      "core/locale.ts",
       "core/types.ts",
       "core/virtual.ts",
+      "index.native.ts",
       "index.ts",
+      "native/MultiSelect.tsx",
+      "native/Select.tsx",
+      "native/parts.tsx",
+      "native/props.ts",
+      "native/useCombobox.ts",
       "react/Listbox.tsx",
       "react/MultiSelect.tsx",
       "react/Popover.tsx",
@@ -27,7 +34,7 @@
       "react/surface.ts",
       "react/useCombobox.ts"
     ],
-    "sourceHash": "sha256:c8001ea7c65beeed1b50d9f35cb0fcc447d01cea88128dda3d8b3584bd542496"
+    "sourceHash": "sha256:7d3b255d23a8e38b690567eea03c4e81937cefacd6f490edfba841c2d6dd8333"
   },
   "purpose": "Select and MultiSelect: a searchable combobox for one or many values, with options in the browser's top layer, optional virtualisation and create-on-type.",
   "props": [

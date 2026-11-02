@@ -15,10 +15,15 @@
     "files": [
       "core/api.ts",
       "core/index.ts",
+      "core/locale.ts",
       "core/store.ts",
       "core/toast.ts",
       "core/types.ts",
+      "hooks/useToasts.ts",
+      "index.native.ts",
       "index.ts",
+      "native/ToastItem.tsx",
+      "native/Toaster.tsx",
       "react/ToastItem.tsx",
       "react/Toaster.tsx",
       "react/icons.tsx",
@@ -26,7 +31,7 @@
       "react/props.ts",
       "react/useToasts.ts"
     ],
-    "sourceHash": "sha256:976553d5d606c12b441caba76badad73812eea6dde400b51eb3ee17d05db7871"
+    "sourceHash": "sha256:46196d7b63f42f8929bc3cf1bde4029cb12afb448f7b132e6dcabaaf6deb2ade"
   },
   "purpose": "Short notifications you mount once and call from anywhere, with no hook, context or provider. For things that happened, not things that must be decided.",
   "props": [

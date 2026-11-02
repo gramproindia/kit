@@ -12,14 +12,17 @@
     "files": [
       "core/dismiss.ts",
       "core/index.ts",
+      "core/locale.ts",
       "core/types.ts",
+      "index.native.ts",
       "index.ts",
+      "native/Modal.tsx",
       "react/Modal.tsx",
       "react/icons.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:078ceea5f6cf953d95a999fd958a6b2ed8a61e3c9060665eeca4efd53fb70413"
+    "sourceHash": "sha256:2a84e018f3d39401c73c4905d991a59c0aa227fd245bf68f911e66e99974bbe8"
   },
   "purpose": "Forms, details and drawers above the page, on the native <dialog> element, with focus trapped inside and the rest of the page inert.",
   "props": [

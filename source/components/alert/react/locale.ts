@@ -1,5 +1,2 @@
-import type { AlertLocaleText } from "../core/types";
-
-export const defaultAlertText: AlertLocaleText = {
-  dismiss: "Dismiss",
-};
+// The strings live in core so the native component shares them.
+export { defaultAlertText } from "../core/locale";

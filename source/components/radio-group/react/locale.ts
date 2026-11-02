@@ -1,5 +1,2 @@
-import type { RadioGroupLocaleText } from "../core/types";
-
-export const defaultRadioGroupText: RadioGroupLocaleText = {
-  clear: "Clear",
-};
+// The strings live in core so the native component shares them.
+export { defaultRadioGroupText } from "../core/locale";

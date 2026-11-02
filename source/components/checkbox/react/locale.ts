@@ -1,5 +1,2 @@
-import type { CheckboxLocaleText } from "../core/types";
-
-export const defaultCheckboxText: CheckboxLocaleText = {
-  selectAll: "Select all",
-};
+// The strings live in core so the native component shares them.
+export { defaultCheckboxText } from "../core/locale";

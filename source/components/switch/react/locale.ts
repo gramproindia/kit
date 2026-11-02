@@ -1,5 +1,2 @@
-import type { SwitchLocaleText } from "../core/types";
-
-export const defaultSwitchText: SwitchLocaleText = {
-  saving: "Saving\u2026",
-};
+// The strings live in core so the native switch shares them.
+export { defaultSwitchText } from "../core/locale";

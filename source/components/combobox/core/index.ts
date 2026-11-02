@@ -11,6 +11,7 @@ export {
   splitTerms,
   toggleValue,
 } from "./filter";
+export { defaultComboboxText } from "./locale";
 export { getVisibleRange, measureItems, scrollToItem } from "./virtual";
 export type { ItemSizes, ListMetrics, Range } from "./virtual";
 export type * from "./types";

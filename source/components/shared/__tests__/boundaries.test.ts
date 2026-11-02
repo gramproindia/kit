@@ -15,7 +15,7 @@ const LIB = resolve(import.meta.dirname, "..", "..");
 const SHARED = "shared";
 
 /** Bare specifiers a component may import. The library ships no dependencies. */
-const ALLOWED_PACKAGES = new Set(["react", "react-dom", "react-dom/client", "vitest"]);
+const ALLOWED_PACKAGES = new Set(["react", "react-dom", "react-dom/client", "react-native", "vitest"]);
 
 function packages(): string[] {
   return readdirSync(LIB)
@@ -95,6 +95,104 @@ describe("shared", () => {
           .filter((specifier) => specifier.includes(SHARED))
           .filter((specifier) => !specifier.startsWith("../../shared/"))
           .map((specifier) => `${relative(LIB, file)} -> ${specifier}`),
+      );
+    expect(offenders).toEqual([]);
+  });
+});
+
+/*
+ * Platform rules. A web install copies core/ + react/, a native install copies
+ * core/ + native/ (see docs/react-native.md), so each layer may only reach what
+ * is copied with it.
+ */
+
+type Layer = "core" | "react" | "native" | "other";
+
+function layerOf(file: string): Layer {
+  const parts = relative(LIB, file).split(sep);
+  if (parts.includes("__tests__")) return "other";
+  if (parts[1] === "core") return "core";
+  if (parts[1] === "react") return "react";
+  if (parts[1] === "native" || parts[parts.length - 1] === "index.native.ts") return "native";
+  return "other";
+}
+
+const allFiles = () => packages().flatMap((pkg) => sourceFiles(join(LIB, pkg)));
+
+/** Where a relative import lands, as path segments from the library root. */
+function targetPath(file: string, specifier: string): string[] {
+  return relative(LIB, resolve(file, "..", specifier)).split(sep);
+}
+
+/**
+ * `react-native` exports that react-native-web also implements, so the docs can
+ * render the real native components in a browser. Type-only imports are free.
+ */
+const WEB_SAFE_RN = new Set([
+  "AccessibilityInfo", "ActivityIndicator", "Animated", "Dimensions", "Easing", "FlatList",
+  "I18nManager", "Image", "Keyboard", "Modal", "PanResponder", "Platform", "Pressable",
+  "ScrollView", "SectionList", "StatusBar", "StyleSheet", "Text", "TextInput", "View", "useColorScheme",
+  "useWindowDimensions",
+]);
+
+function reactNativeValueImports(file: string): string[] {
+  const source = withoutComments(readFileSync(file, "utf8"));
+  return [...source.matchAll(/import\s+(type\s+)?\{([^}]*)\}\s+from\s+"react-native"/g)]
+    .filter((match) => !match[1])
+    .flatMap((match) => match[2].split(","))
+    .map((name) => name.trim())
+    .filter((name) => name && !name.startsWith("type "))
+    .map((name) => name.split(/\s+as\s+/)[0]);
+}
+
+describe("platform layers", () => {
+  it("core imports neither react-dom nor react-native", () => {
+    const offenders = allFiles()
+      .filter((file) => layerOf(file) === "core")
+      .flatMap((file) =>
+        specifiers(file)
+          .filter((s) => s.startsWith("react-dom") || s === "react-native")
+          .map((s) => `${relative(LIB, file)} -> ${s}`),
+      );
+    expect(offenders).toEqual([]);
+  });
+
+  it("web code never imports react-native", () => {
+    const offenders = allFiles()
+      .filter((file) => layerOf(file) === "react")
+      .flatMap((file) =>
+        specifiers(file)
+          .filter((s) => s === "react-native")
+          .map((s) => `${relative(LIB, file)} -> ${s}`),
+      );
+    expect(offenders).toEqual([]);
+  });
+
+  it("native code never imports react-dom or a react/ folder", () => {
+    // DOM-free hooks in shared/react that native may use.
+    const allowed = new Set(["shared/react/useControllableState"]);
+    const offenders = allFiles()
+      .filter((file) => layerOf(file) === "native")
+      .flatMap((file) =>
+        specifiers(file)
+          .filter((s) => {
+            if (s.startsWith("react-dom")) return true;
+            if (!s.startsWith(".")) return false;
+            const path = targetPath(file, s);
+            return path[1] === "react" && !allowed.has(path.join("/"));
+          })
+          .map((s) => `${relative(LIB, file)} -> ${s}`),
+      );
+    expect(offenders).toEqual([]);
+  });
+
+  it("native code uses only react-native APIs that react-native-web supports", () => {
+    const offenders = allFiles()
+      .filter((file) => layerOf(file) === "native")
+      .flatMap((file) =>
+        reactNativeValueImports(file)
+          .filter((name) => !WEB_SAFE_RN.has(name))
+          .map((name) => `${relative(LIB, file)} -> ${name}`),
       );
     expect(offenders).toEqual([]);
   });

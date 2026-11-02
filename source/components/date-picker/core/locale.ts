@@ -1,0 +1,31 @@
+import type { DatePickerLocaleText } from "./types";
+
+/** Built-in strings, shared by the web and native pickers so they never drift. */
+export const defaultDatePickerText: DatePickerLocaleText = {
+  calendarLabel: "Choose a date",
+  openCalendar: "Open calendar",
+  clear: "Clear",
+  today: "Today",
+  previousMonth: "Previous month",
+  nextMonth: "Next month",
+  previousYears: "Previous years",
+  nextYears: "Next years",
+  chooseMonthYear: "Choose month and year",
+  monthPanelLabel: "Choose a month",
+  yearPanelLabel: "Choose a year",
+  weekNumber: "Week",
+  startDate: "Start date",
+  endDate: "End date",
+  invalidDate: "Enter a valid date",
+  outOfRange: "That date is outside the allowed range",
+  presets: "Shortcuts",
+  selectedDate: (date) => `Selected: ${date}`,
+  selectedRange: (start, end) => `Selected: ${start} to ${end}`,
+  time: "Time",
+  hours: "Hours",
+  minutes: "Minutes",
+  seconds: "Seconds",
+  dayPeriod: "AM or PM",
+  now: "Now",
+  done: "Done",
+};
