@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.9.0
 
 ### Added
 
@@ -18,7 +18,7 @@ Android as well as the web, from the same source.
 - **Theming.** `shared/native` adds `KitProvider` (theme, light and dark,
   safe-area insets, an overlay host) and tokens that mirror `--gbs-*`.
 - **Not on native yet:** DataGrid.
-- **Releases:** prereleases go out on the `native` npm tag.
+- **Releases:** the `native` npm tag points at the same release as `latest`, so `npx @grampro/kit@native` and `npx @grampro/kit` install the same version. The native edition stays beta inside it.
 
 **`add` installs for React Native.**
 

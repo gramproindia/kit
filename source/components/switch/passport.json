@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.8.0",
+    "libraryVersion": "2.9.0",
     "files": [
       "core/agent.ts",
       "core/index.ts",

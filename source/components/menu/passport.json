@@ -16,7 +16,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.8.0",
+    "libraryVersion": "2.9.0",
     "files": [
       "core/index.ts",
       "core/locale.ts",

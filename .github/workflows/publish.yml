@@ -12,27 +12,51 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: "https://registry.npmjs.org/"
-
-      - name: Install dependencies
-        run: npm install
+          # Two commits, so the version check below can diff HEAD^..HEAD.
+          fetch-depth: 2
 
       - name: Check if version has changed
         id: check_version
         run: |
-          if git diff --name-only HEAD^ HEAD | grep -q 'package.json'; then
+          if git diff --name-only HEAD^ HEAD | grep -qx 'package.json'; then
             echo "changed=true" >> $GITHUB_ENV
           else
             echo "changed=false" >> $GITHUB_ENV
           fi
 
+      # The tests run from playground/ (Vitest, pnpm). prepublishOnly runs them,
+      # so they need pnpm and the playground's dependencies installed first.
+      - name: Setup pnpm
+        if: env.changed == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: playground/package.json
+
+      - name: Setup Node.js
+        if: env.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org/"
+
+      - name: Install dependencies
+        if: env.changed == 'true'
+        run: |
+          npm install
+          pnpm -C playground install --frozen-lockfile
+
+      # prepublishOnly runs the tests and the passport check before this uploads.
       - name: Publish to NPM
         if: env.changed == 'true'
         run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # The React Native edition is installed as `@grampro/kit@native`; while it
+      # is in beta that tag follows the same release as `latest`.
+      - name: Point the native tag at this release
+        if: env.changed == 'true'
+        run: npm dist-tag add "@grampro/kit@$(node -p "require('./package.json').version")" native
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
