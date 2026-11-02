@@ -165,4 +165,9 @@ export function useThemedStyles<T>(styles: (tokens: KitTokens) => T): T {
 // flexGrow, not flex: 1. At the app root it still fills the screen; nested
 // around one section (scoped theming) it takes its content's height instead
 // of collapsing to zero inside a ScrollView.
-const styles = StyleSheet.create({ root: { flexGrow: 1 } });
+// Grow and shrink, from the content's size. At the app root that fills the
+// screen and no more, so a ScrollView inside can scroll (grow-only stretched to
+// the full content height and nothing scrolled). Nested inside scroll content,
+// where there is no height to fill, it is just as tall as what it wraps (flex: 1
+// collapsed it to zero there).
+const styles = StyleSheet.create({ root: { flexGrow: 1, flexShrink: 1 } });
