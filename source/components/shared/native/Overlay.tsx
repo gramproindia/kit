@@ -56,13 +56,22 @@ export function Overlay({
       easing: open ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
       useNativeDriver: true,
     });
-    animation.start(({ finished }) => {
-      if (finished && !open) {
-        setMounted(false);
-        onClosed?.();
-      }
-    });
-    return () => animation.stop();
+    // Start a frame later. Under StrictMode, React mounts, unmounts and remounts
+    // in development; an animation started on the first mount drives a view the
+    // simulated unmount detaches, and the sheet stays off screen. Deferring means
+    // only the final mount's animation ever starts.
+    const frame = requestAnimationFrame(() =>
+      animation.start(({ finished }) => {
+        if (finished && !open) {
+          setMounted(false);
+          onClosed?.();
+        }
+      }),
+    );
+    return () => {
+      cancelAnimationFrame(frame);
+      animation.stop();
+    };
     // onClosed is a notification; re-running the animation for a new callback would restart it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, mounted, progress, time]);

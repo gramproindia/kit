@@ -17,17 +17,14 @@
       "core/locale.ts",
       "core/store.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Dialog.tsx",
-      "native/DialogHost.tsx",
       "react/Dialog.tsx",
       "react/DialogHost.tsx",
       "react/icons.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:ceb586e5340cbdbb6e0fcc585ce6fcdd6bbad80bbcb75ed7263d5ed94b61a31e"
+    "sourceHash": "sha256:ee8f5344c1f687718f868ce017a2da182dfa366d281d3cdd4c027055c2d61076"
   },
   "purpose": "Alert, confirm and prompt dialogs you call from an event handler and await, so there is no open state to hold. For short questions; a form belongs in Modal.",
   "props": [

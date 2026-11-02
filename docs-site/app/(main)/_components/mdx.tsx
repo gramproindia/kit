@@ -8,6 +8,7 @@ import { SelfHostedVideo } from "./SelfHostedVideo";
 import { Diagram } from "./Diagram";
 import { MermaidChart } from "./demo-runtime";
 import { demoComponents } from "./generated/map";
+import { NativePreview } from "./native/NativePreview";
 import { v2Config } from "../_lib/config";
 
 type HeadingProps = ComponentPropsWithoutRef<"h2">;
@@ -207,6 +208,8 @@ export const mdxComponents = {
   WarningBanner,
   CommandTabs,
   MermaidChart,
+  // React Native demos in a phone frame (the /native docs).
+  NativePreview,
   // Every live demo, generated from the wrapper files on disk.
   ...demoComponents,
 };

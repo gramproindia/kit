@@ -76,12 +76,14 @@ const readJson = (file) => {
  * kit copied, so the record describes what the kit wrote, whatever happened
  * to the copy between the copy and this call.
  */
-function writeManifest(destDir, { component, version, sourceDir }) {
+function writeManifest(destDir, { component, version, sourceDir, platform }) {
   const files = listFiles(sourceDir);
   const manifest = {
     manifestVersion: MANIFEST_VERSION,
     component,
     version,
+    // Absent means web: every install before the native edition was one.
+    ...(platform && platform !== "web" ? { platform } : {}),
     installedAt: new Date().toISOString(),
     files: Object.fromEntries(files.map((file) => [file, hashFile(path.join(sourceDir, file))])),
     contract: compactContract(readJson(path.join(sourceDir, PASSPORT))),

@@ -43,18 +43,26 @@ function loadTypeScript(searchFrom = []) {
 
 const posix = (p) => p.replace(/\\/g, "/");
 
-/** Every .ts/.tsx under a directory, excluding tests. */
+/**
+ * Every .ts/.tsx under a directory, excluding tests and the React Native view.
+ *
+ * A passport v1 describes the web contract. The native view (`native/`,
+ * `*.native.ts`) is not part of it, and a web install does not copy it, so
+ * hashing it would make every web project's copy look stale.
+ */
 function sourceFiles(dir) {
   const out = [];
-  const walk = (d) => {
+  const walk = (d, top) => {
     for (const e of fs.readdirSync(d, { withFileTypes: true })) {
       if (e.name === "__tests__") continue;
+      if (top && e.isDirectory() && e.name === "native") continue;
+      if (/\.native\.tsx?$/.test(e.name)) continue;
       const p = path.join(d, e.name);
-      if (e.isDirectory()) walk(p);
+      if (e.isDirectory()) walk(p, false);
       else if (/\.tsx?$/.test(e.name)) out.push(p);
     }
   };
-  walk(dir);
+  walk(dir, true);
   return out.sort();
 }
 

@@ -10,6 +10,13 @@ const PAGES: [string, (page: PageNode) => Promise<void>][] = [
   ["Components · Status & identity", buildDisplay],
 ];
 
+/** The React Native kit (BETA): its own command, so the web file is untouched. */
+const MOBILE_PAGES: [string, (page: PageNode) => Promise<void>][] = [
+  ["Mobile · Foundations", buildMobileFoundations],
+  ["Mobile · Components", buildMobileComponents],
+  ["Mobile · Screens", buildMobileScreens],
+];
+
 /**
  * Creates a fresh page. A page left by an earlier run is renamed, not deleted,
  * so nothing a designer added to it is lost; delete it once you've checked.
@@ -50,11 +57,42 @@ async function run() {
   figma.closePlugin(`Grampro Kit ready: ${COLOR_TOKENS.length + NUMBER_TOKENS.length} variables (${darkNote}), ${TYPE_TOKENS.length} text styles, ${components} component sets.`);
 }
 
+async function runMobile() {
+  await figma.loadAllPagesAsync();
+  figma.notify("Grampro Kit Mobile: creating variables and text styles…");
+  KIT = await buildKit();
+  const notes = await buildMobileKit();
+
+  const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+  let first: PageNode | null = null;
+  for (const [name, build] of MOBILE_PAGES) {
+    figma.notify(`Grampro Kit Mobile: building ${name}…`);
+    const page = await preparePage(name, stamp);
+    await build(page);
+    stackPage(page);
+    first ??= page;
+  }
+  if (first) {
+    await figma.setCurrentPageAsync(first);
+    figma.viewport.scrollAndZoomIntoView(first.children);
+  }
+  const sets = figma.root.children
+    .filter((page) => MOBILE_PAGES.some(([name]) => name === page.name))
+    .reduce((count, page) => count + page.findAllWithCriteria({ types: ["COMPONENT_SET"] }).length, 0);
+  const darkNote = KIT.darkMode ? "Light + Dark" : "Light only (one mode on this plan)";
+  const extra = notes.length ? ` Note: ${notes.join("; ")}.` : "";
+  figma.closePlugin(`Grampro Kit mobile ready (BETA): ${sets} component sets, ${MOBILE_TYPE.length} mobile text styles, ${MOBILE_COLOR_TOKENS.length + MOBILE_NUMBER_TOKENS.length} mobile variables, ${darkNote}.${extra}`);
+}
+
 const command = figma.command || "generate";
 
 if (command === "export-all") {
   exportAllScreens().catch((error: unknown) => {
     figma.closePlugin(error instanceof Error ? error.message : String(error));
+  });
+} else if (command === "generate-mobile") {
+  runMobile().catch((error: unknown) => {
+    figma.closePlugin(`Grampro Kit mobile failed: ${error instanceof Error ? error.message : String(error)}`);
   });
 } else if (command === "export") {
   exportSelection().catch((error: unknown) => {

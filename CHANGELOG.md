@@ -1,5 +1,69 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+**React Native edition (beta, may break).** The components now run on iOS and
+Android as well as the web, from the same source.
+
+- **Layout.** Each cross-platform component keeps a `native/` view beside its
+  web `react/` one. Both share `core/`, so a fix there is a fix on both.
+- **Mobile-only components** live in `source/native/`: AppBar,
+  BottomNavigation, Fab and SpeedDial, BottomSheet, List and ListItem,
+  SearchBar, SegmentedControl.
+- **Pure JavaScript**, with no native modules and no dependencies. It runs in
+  Expo Go, in development builds and in bare React Native (New Architecture,
+  RN 0.83 or later).
+- **Theming.** `shared/native` adds `KitProvider` (theme, light and dark,
+  safe-area insets, an overlay host) and tokens that mirror `--gbs-*`.
+- **Not on native yet:** DataGrid.
+- **Releases:** prereleases go out on the `native` npm tag.
+
+**`add` installs for React Native.**
+
+- **Detection.** `npx @grampro/kit@native add Button` detects React Native from
+  `react-native` or `expo` in `package.json`. `--platform native|web`
+  overrides it.
+- **What a native install copies:** `core/`, `native/` and `hooks/`, with the
+  native entry written as `index.ts`, and a native subset of `shared/`. It
+  never copies `react/`, `styles.css` or the rest of `shared/react`.
+- **Theme file.** It writes `gbs.theme.ts` in place of `gbs.css`.
+- **Unchanged protections.** Edit protection, `doctor` and the install
+  manifests work as before. The manifests now record the platform.
+- **Mixing is refused.** A folder keeps to one platform; `--force` switches it.
+- **`list`** shows where each component runs.
+- **MCP.** Every component tool takes an optional `platform`.
+  - `get_guidance` serves the native skill's references.
+  - `get_example` returns native usage from them.
+  - `validate_usage` flags web-only props (`className`, `classNames`,
+    `onClick`, …) on native components.
+- **`skill` installs the React Native skill (`gbs-native`)** in a React Native
+  project. `--platform` overrides that, and `--platform both` installs both
+  skills for a monorepo. Each skill has its own `AGENTS.md` block, and
+  installing one never touches the other.
+
+**`shared` 1.6.0: `graphemes(text)`**, which splits text into the characters a
+person sees.
+
+### Fixed
+
+**Weeks start on the right day without `Intl.Locale` week data.** That covers
+Hermes (React Native) and Firefox. Before, both started every calendar on
+Monday, which is wrong for India and the US (Sunday) and Egypt (Saturday).
+`weekStartFromTag()` reads the CLDR 46 first-day table and is checked against
+`Intl.Locale` for every region.
+
+**Character counts and avatar initials are right without `Intl.Segmenter`.**
+Hermes on Android lacks it. A close fallback keeps emoji families, flags,
+combining accents and Indic conjuncts as one character each.
+
+### Changed
+
+**A web install no longer copies a component's `native/` view or
+`shared/native`.** Those files import `react-native`, which a web project does
+not have.
+
 ## 2.8.0
 
 ### Added

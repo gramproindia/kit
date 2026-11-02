@@ -17,15 +17,13 @@
       "core/parse.ts",
       "core/step.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/NumberInput.tsx",
       "react/NumberInput.tsx",
       "react/icons.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:30278f52eed912029f4dfff5fbe59ff551fb8afeedea90e2ecc40d917ff3e9d2"
+    "sourceHash": "sha256:04132ce3c541ab69381cc8619c663d1461d094075b2d7de1cb0b4596d2aab2c8"
   },
   "purpose": "A numeric field that reads and writes numbers the way the locale does, with a stepper, clamping and currency formatting.",
   "props": [

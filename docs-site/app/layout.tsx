@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { siteConfig } from "@/site.config";
-import { Toaster } from "@/components/toaster";
+import { SiteToaster } from "./components/SiteToaster";
 
 export const metadata: Metadata = {
   title: siteConfig.metadata.title,
@@ -46,7 +46,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <ThemeProvider>{children}</ThemeProvider>
-        <Toaster />
+        <SiteToaster />
       </body>
     </html>
   );

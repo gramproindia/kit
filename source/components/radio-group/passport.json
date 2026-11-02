@@ -17,18 +17,14 @@
       "core/index.ts",
       "core/locale.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Radio.tsx",
-      "native/RadioGroup.tsx",
-      "native/context.ts",
       "react/Radio.tsx",
       "react/RadioGroup.tsx",
       "react/context.ts",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:fdb4e730cc75471a704b8f959b26b33b64dfcbe1377999ad7503964d002d06b0"
+    "sourceHash": "sha256:c852ca33c7d19159436ffb48cbc6f3ab04b08bb07ca91d01111bb1b4b8a9851e"
   },
   "purpose": "One choice out of a few, on native radios: a single tab stop, arrow keys between the choices, and a card variant for richer options.",
   "props": [

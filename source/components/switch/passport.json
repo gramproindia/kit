@@ -15,14 +15,12 @@
       "core/locale.ts",
       "core/toggle.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Switch.tsx",
       "react/Switch.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:d9149a005aebc6400b5940c92043ac8cbf9d1e2b663b2014e12df6cea96e07bc"
+    "sourceHash": "sha256:b5404765a82728f9bba1d512f59a4be9f9fa5052abbf18fe9a3265553e4ee521"
   },
   "purpose": "A setting that takes effect as it is flipped, on a native checkbox with role=switch, with an optimistic pending state while the change is saved.",
   "props": [

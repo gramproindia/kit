@@ -16,14 +16,12 @@
       "core/locale.ts",
       "core/size.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Textarea.tsx",
       "react/Textarea.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:13fc6efc1733a41516ead01bee7da885707698b47b55781d36b593bc6c70556b"
+    "sourceHash": "sha256:f2941d16ef58b5bc0eaa2c86e82adbc617f0c17890fdb9f3b21001a3a6c762a1"
   },
   "purpose": "A multi-line text field that can grow with its content, with the same label, hint, error and counter wiring as Input.",
   "props": [

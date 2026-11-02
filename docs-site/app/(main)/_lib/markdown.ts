@@ -3,6 +3,7 @@ import matter from "gray-matter";
 import { siteConfig } from "@/site.config";
 import { getDocs, readSourceWithFallback, type DocMeta } from "./docs";
 import { agentConfig, getAgentDocs, readAgentSource } from "./agent-docs";
+import { getNativeDocs, nativeConfig, readNativeSource, NATIVE_BASE } from "./native-docs";
 import { v2Config } from "./config";
 import { DEFAULT_LOCALE, homeHref, LOCALE_CODES, localeInfo, type Locale } from "./i18n";
 import { t } from "./strings";
@@ -108,6 +109,12 @@ function convertBody(source: string, locale: Locale, pageUrl: string) {
       continue;
     }
 
+    // A React Native preview runs in a phone frame on the page only.
+    if (/^<NativePreview\s[^>]*\/>\s*$/.test(line)) {
+      out.push(`_${s.mdInteractiveDemo}_ [${s.mdOpenLiveExample}](${pageUrl})`);
+      continue;
+    }
+
     if (/^<(\w*Wrapper(Beta)?|DemoGrid)\s*\/>\s*$/.test(line)) {
       out.push(`_${s.mdInteractiveDemo}_ [${s.mdOpenLiveExample}](${pageUrl})`);
       continue;
@@ -169,6 +176,39 @@ async function agentLlmsLines() {
   return lines;
 }
 
+export const getNativeMarkdown = cache(async (slug: string) => {
+  const doc = (await getNativeDocs()).find((d) => d.slug === slug);
+  const source = doc && (await readNativeSource(slug));
+  if (!doc || !source) return null;
+  const pageUrl = absoluteUrl(doc.href);
+  const header = [
+    `# ${doc.title}${doc.kind === "component" ? " (React Native)" : ""}`,
+    "",
+    `> ${doc.description}`,
+    "",
+    `${nativeConfig.name} · ${doc.group} · Beta · Source: ${pageUrl}`,
+    "",
+    `> **Beta:** ${nativeConfig.beta}`,
+    "",
+  ];
+  return finish(header, convertBody(source, DEFAULT_LOCALE, pageUrl));
+});
+
+/** The React Native section of llms.txt. */
+async function nativeLlmsLines() {
+  const lines = [
+    `## ${nativeConfig.name} (beta)`,
+    "",
+    `${nativeConfig.description} Install with \`${nativeConfig.install}\` (npm tag \`${nativeConfig.npmTag}\`). Overview: ${absoluteUrl(NATIVE_BASE)}.`,
+    "",
+  ];
+  for (const doc of await getNativeDocs()) {
+    lines.push(`- [${doc.title}](${absoluteUrl(markdownHref(doc))}): ${doc.description}`);
+  }
+  lines.push("");
+  return lines;
+}
+
 export const getLlmsTxt = cache(async () => {
   const docs = await getDocs(DEFAULT_LOCALE);
   const groups = new Map<string, DocMeta[]>();
@@ -216,12 +256,13 @@ export const getLlmsTxt = cache(async () => {
     lines.push("");
   }
 
+  lines.push(...(await nativeLlmsLines()));
   lines.push(...(await agentLlmsLines()));
 
   lines.push(
     "## Optional",
     "",
-    `- [All ${v2Config.version} docs in one file](${absoluteUrl("/llms-full.txt")}): Every English component page above, then the ${agentConfig.name} pages, concatenated.`,
+    `- [All ${v2Config.version} docs in one file](${absoluteUrl("/llms-full.txt")}): Every English component page above, then the ${nativeConfig.name} and ${agentConfig.name} pages, concatenated.`,
     `- [${v2Config.version} overview](${absoluteUrl(homeHref(DEFAULT_LOCALE))}): Landing page with the component list and migration notes.`,
     `- [1.x documentation](${absoluteUrl(v2Config.legacyDocsHref)}): Docs for the previous major version.`,
     "",
@@ -233,6 +274,7 @@ export const getLlmsFullTxt = cache(async () => {
   const docs = await getDocs(DEFAULT_LOCALE);
   const pages = await Promise.all(docs.map((doc) => getDocMarkdown(doc.slug, DEFAULT_LOCALE)));
   const agentPages = await Promise.all((await getAgentDocs()).map((doc) => getAgentMarkdown(doc.slug)));
+  const nativePages = await Promise.all((await getNativeDocs()).map((doc) => getNativeMarkdown(doc.slug)));
   return [
     `# ${v2Config.name} ${v2Config.version} documentation`,
     "",
@@ -243,6 +285,8 @@ export const getLlmsFullTxt = cache(async () => {
       .join(", ")}`,
     "",
     ...pages.map((p) => `---\n\n${p}`),
+    `---\n\n# ${nativeConfig.name} documentation (beta)\n\n> ${nativeConfig.description}\n`,
+    ...nativePages.map((p) => `---\n\n${p}`),
     `---\n\n# ${agentConfig.name} documentation\n\n> ${agentConfig.description}\n`,
     ...agentPages.map((p) => `---\n\n${p}`),
   ].join("\n");

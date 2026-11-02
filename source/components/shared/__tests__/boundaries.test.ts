@@ -197,3 +197,59 @@ describe("platform layers", () => {
     expect(offenders).toEqual([]);
   });
 });
+
+/*
+ * Mobile-only components in source/native/<folder>/ (see source/native/README.md).
+ * They are copied into a project next to shared/, with `../../../components/shared/`
+ * rewritten to `../../shared/` by the CLI.
+ */
+const NATIVE_ONLY = resolve(LIB, "..", "native");
+
+function nativeOnlyFolders(): string[] {
+  try {
+    return readdirSync(NATIVE_ONLY)
+      .filter((name) => statSync(join(NATIVE_ONLY, name)).isDirectory())
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
+const SHARED_FOR_NATIVE = [
+  "../../../components/shared/native/",
+  "../../../components/shared/core/",
+  "../../../components/shared/react/useControllableState",
+];
+
+describe("source/native (mobile-only components)", () => {
+  const folders = nativeOnlyFolders();
+
+  it.each(folders.length ? folders : ["(none yet)"])("%s stays inside its folder and shared", (folder) => {
+    if (!folders.length) return;
+    const root = join(NATIVE_ONLY, folder);
+    const offenders = sourceFiles(root).flatMap((file) =>
+      specifiers(file)
+        .filter((s) => {
+          if (!s.startsWith(".")) return !["react", "react-native"].includes(s);
+          const target = resolve(file, "..", s);
+          if (!relative(root, target).startsWith("..")) return false;
+          // Normalise to the spelling the CLI rewrites, from this file's depth.
+          const fromComponentDepth = relative(join(root, "native"), target).split(sep).join("/");
+          return !SHARED_FOR_NATIVE.some((allowed) => `${fromComponentDepth}`.startsWith(allowed.replace(/\/$/, "")));
+        })
+        .map((s) => `${relative(NATIVE_ONLY, file)} -> ${s}`),
+    );
+    expect(offenders).toEqual([]);
+  });
+
+  it("uses only react-native APIs that react-native-web supports", () => {
+    const offenders = folders.flatMap((folder) =>
+      sourceFiles(join(NATIVE_ONLY, folder)).flatMap((file) =>
+        reactNativeValueImports(file)
+          .filter((name) => !WEB_SAFE_RN.has(name))
+          .map((name) => `${relative(NATIVE_ONLY, file)} -> ${name}`),
+      ),
+    );
+    expect(offenders).toEqual([]);
+  });
+});

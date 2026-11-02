@@ -7,19 +7,24 @@ import type { NavGroup } from "../_lib/docs";
 import type { Locale } from "../_lib/i18n";
 import { t } from "../_lib/strings";
 import type { AgentNavGroup } from "../_lib/agent-config";
+import type { NativeNavGroup } from "../_lib/native-config";
 import { SidebarNav } from "./SidebarNav";
 import { AgentSidebarNav } from "./AgentSidebarNav";
+import { NativeSidebarNav } from "./native/NativeSidebarNav";
 import { Logo } from "./Logo";
 
 export function MobileNav({
   nav,
   locale,
   agentNav,
+  nativeNav,
 }: {
   nav: NavGroup[];
   locale: Locale;
   /** Set on SE Agent pages, whose drawer lists the agent's pages instead. */
   agentNav?: AgentNavGroup[];
+  /** Set on React Native pages, whose drawer lists the native pages instead. */
+  nativeNav?: NativeNavGroup[];
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const pathname = usePathname();
@@ -55,6 +60,8 @@ export function MobileNav({
           <div className="flex-1 overflow-y-auto px-4 py-6">
             {agentNav ? (
               <AgentSidebarNav nav={agentNav} onNavigate={close} />
+            ) : nativeNav ? (
+              <NativeSidebarNav nav={nativeNav} onNavigate={close} />
             ) : (
               <SidebarNav nav={nav} locale={locale} onNavigate={close} />
             )}

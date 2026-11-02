@@ -1,0 +1,116 @@
+---
+title: "Getting started"
+description: "Add GramproKit components to a React Native or Expo app: install with the CLI, wrap the app in KitProvider, and use the same props as the web Kit."
+group: "Get started"
+order: 1
+---
+
+GramproKit for React Native gives you the components of the web Kit, drawn
+natively for iOS and Android, plus mobile patterns such as an app bar, bottom
+navigation and a floating action button. As on the web, components are
+**copied into your project** as source you own and can edit. Kit adds no
+packages to your app.
+
+## Requirements
+
+| | Minimum |
+|---|---|
+| React Native | 0.83, New Architecture (the only architecture since 0.82) |
+| React | 19.2 |
+| Expo | SDK 56 or later recommended; Expo Go works |
+| JavaScript engine | Hermes (the default) |
+
+Kit is pure JavaScript with no native modules, so it runs in **Expo Go**, in
+development builds and in bare React Native apps alike.
+
+## Install components
+
+Run the CLI from your app's folder. It sees `react-native` or `expo` in your
+`package.json` and installs the native edition. Prereleases are published
+under the npm tag `native`:
+
+```bash
+npx @grampro/kit@native add Button Input AppBar
+```
+
+Run it with no names to pick from a list. Components land in
+`src/component-lib/` (or `component-lib/` without a `src` folder), each with
+its own folder, plus a shared `shared/` folder and a `gbs.theme.ts` written
+once for you to edit. To install somewhere else, pass `--dest`. In a monorepo
+that holds web and native apps, pass `--platform native`.
+
+Each folder's `index.ts` is the native entry, so imports need no extra
+TypeScript configuration. The examples use an `@/` path alias, as Expo's
+templates set up; a relative path works the same:
+
+```tsx
+import { Button } from "@/component-lib/button";
+import { AppBar } from "@/component-lib/app-bar";
+```
+
+## Wrap your app once
+
+`KitProvider` supplies the theme, follows the device's light/dark setting, and
+hosts toasts, dialogs and menus above the rest of the app. Put it at the root,
+around everything:
+
+```tsx
+import { KitProvider } from "@/component-lib/shared/native";
+import { theme } from "@/component-lib/gbs.theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+export default function App() {
+  return (
+    <KitProvider theme={theme} insets={useSafeAreaInsets()}>
+      <Root />
+    </KitProvider>
+  );
+}
+```
+
+`insets` are optional. Kit reads no safe-area library itself; when you pass the
+insets, sheets, app bars, bottom navigation and toasts keep clear of the notch
+and the home indicator. Without `react-native-safe-area-context`, leave the
+prop out.
+
+Mount `<Toaster />` and `<DialogHost />` once inside the provider if you use
+`toast()` or `dialog.confirm()`.
+
+## Use them
+
+The props are the web Kit's props, with React Native's conventions where the
+platform differs: `onPress` instead of `onClick`, `style` and `styles` instead
+of `className` and `classNames`.
+
+```tsx
+<Input label="Email" type="email" required />
+<Button onPress={() => save()}>Save</Button>
+```
+
+See [Differences from the web](/native/docs/differences) for the full list.
+
+## Teach your coding agent
+
+The CLI installs a skill that teaches Claude Code, Codex and Antigravity the
+native components and their rules:
+
+```bash
+npx @grampro/kit@native skill
+```
+
+## Hermes and Intl
+
+Hermes on Android has `Intl.DateTimeFormat`, `Intl.NumberFormat` and
+`Intl.Collator`, but not `Intl.Locale` or `Intl.Segmenter`. Kit covers both
+gaps: the first day of the week comes from a built-in CLDR table (Sunday for
+India and the US, Saturday for Egypt), and character counts and avatar
+initials split text into graphemes even without `Intl.Segmenter`. Dates and
+numbers format the same as on the web, including Indian grouping and native
+digits. This was measured on a device; see the repository's
+`docs/react-native.md`.
+
+## Beta
+
+React Native support is in beta. Props follow the web Kit, but names and
+behaviour may change between prereleases on the `native` tag. Pin the version
+you install, and read the changelog before updating.

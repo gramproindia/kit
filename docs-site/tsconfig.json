@@ -40,6 +40,9 @@
       ],
       "react-dom/client": [
         "./node_modules/@types/react-dom/client"
+      ],
+      "@native-preview/runtime": [
+        "./native-preview/runtime.d.ts"
       ]
     }
   },
@@ -52,6 +55,7 @@
   ],
   "exclude": [
     "node_modules",
+    "native-preview/**/*.tsx",
     "**/__tests__/**/*",
     "**/*.test.ts",
     "**/*.test.tsx"

@@ -15,16 +15,13 @@
       "core/locale.ts",
       "core/progress.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/CircularProgress.tsx",
-      "native/Progress.tsx",
       "react/CircularProgress.tsx",
       "react/Progress.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:5d077b8001293f71d4f4310523e2b51f847dc15a2af7d90455c9b0860be7d1c3"
+    "sourceHash": "sha256:933a03f0e8b002f3b18d9379125cbd3976e3a5ded4e2be9b7e30385b3d5e5ece"
   },
   "purpose": "A bar or a ring for work with a known end, where an unknown length is a different thing from zero per cent.",
   "props": [

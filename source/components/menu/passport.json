@@ -22,11 +22,7 @@
       "core/locale.ts",
       "core/navigation.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Menu.tsx",
-      "native/context.ts",
-      "native/items.tsx",
       "react/Menu.tsx",
       "react/context.ts",
       "react/items.tsx",
@@ -34,7 +30,7 @@
       "react/props.ts",
       "react/useMenuKeys.ts"
     ],
-    "sourceHash": "sha256:0523a2bcd99c75c2fba4dfa145bfa1c9b38f661fe6aa0eeba39249a9324ff746"
+    "sourceHash": "sha256:b9618a85c6f2eca267bee544b9c01f6d8b7f5868245b5654ec0a6a6577fef663"
   },
   "purpose": "A menu of commands with arrow keys, typeahead, checkbox and radio items and submenus, following the WAI-ARIA menu pattern.",
   "props": [

@@ -1,13 +1,14 @@
 {
   "expo": {
-    "name": "native-playground",
-    "slug": "native-playground",
+    "name": "GramproKit Demo",
+    "slug": "gramprokit-demo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gramproindia.kitdemo"
     },
     "android": {
       "adaptiveIcon": {
@@ -16,13 +17,15 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.gramproindia.kitdemo"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "experiments": {
       "tsconfigPaths": false
-    }
+    },
+    "scheme": "gramprokit"
   }
 }

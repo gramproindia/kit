@@ -1,0 +1,75 @@
+---
+title: "Differences from the web"
+description: "What changes when a GramproKit component runs on iOS and Android: styling, events, overlays, accessibility, and what is not there yet."
+group: "Get started"
+order: 3
+---
+
+The native components share their logic with the web Kit (each component's
+`core/` folder: date and number maths, stores, validation, the agent
+contract), and keep the same prop names wherever the platform allows. What
+differs follows from React Native itself.
+
+## Styling
+
+| Web | Native |
+|---|---|
+| `className` on the root | `style` |
+| `classNames={{ slot }}` | `styles={{ slot }}` |
+| `data-state="open"` and other `data-*` | a state object passed to `style` / `styles` functions |
+| `--gbs-*` CSS variables | the `KitProvider` theme ([Theming](/native/docs/theming)) |
+| `theme` prop / `.dark` class | `KitProvider colorScheme` |
+
+## Events
+
+- `onClick` becomes `onPress`. An async `onPress` on Button shows progress,
+  as `onClick` does on the web.
+- Value callbacks keep their web names (`onValueChange`, `onCheckedChange`,
+  `onChange` on pickers). Text fields also fire `onChangeText`.
+- There are no forms: no `name`, `form`, `type="submit"` or form status.
+  `required` marks the label and is announced; validation is yours.
+
+## Overlays
+
+There is no browser top layer, so Kit has its own:
+
+- Modals, dialogs, sheets and menus render above everything and close on
+  **Android back**. Their exit animation finishes before they unmount.
+- Pickers and menus take a `presentation` prop: `"sheet"` (a bottom sheet),
+  `"popover"` (anchored to the trigger), or `"auto"`: a sheet below 600dp,
+  a popover on tablets.
+- Popovers are placed by the same `placePopover` function as the web, so
+  flipping and edge rules match.
+- Toasts float above the app without blocking touches. One fired from inside
+  an open modal appears once the modal closes (known gap).
+
+## Touch, keyboard and screen readers
+
+- Touch has no hover: Tooltip shows on long-press.
+- Arrow-key navigation (tabs, menus, grids, calendars) is web only. On native,
+  each item is its own target.
+- Steppers (NumberInput, time fields) expose increment and decrement actions
+  to VoiceOver and TalkBack.
+- Accessibility uses React Native's `role` and `aria-*` props. `description`
+  and `error` become the accessibility hint, since there is no
+  `aria-describedby`.
+- Everything tappable is at least 44dp (`touchTarget` in the theme).
+
+## Not on native (yet)
+
+- **DataGrid** is not part of the native edition.
+- Typed date entry; pickers are tap-to-pick.
+- Agent operability (`AgentSurface`, WebMCP) is web only for now; the agent
+  contracts in `core/` already port.
+- Passports describe the web props; native props are documented on these
+  pages, generated from the components' TypeScript.
+
+## New on native
+
+Mobile patterns with no web counterpart: [AppBar](/native/docs/app-bar),
+[BottomNavigation](/native/docs/bottom-navigation),
+[Fab & SpeedDial](/native/docs/fab),
+[SegmentedControl](/native/docs/segmented-control),
+[ListItem & List](/native/docs/list-item),
+[BottomSheet](/native/docs/bottom-sheet) and
+[SearchBar](/native/docs/search-bar).

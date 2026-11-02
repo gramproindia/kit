@@ -23,11 +23,7 @@
       "core/types.ts",
       "core/validate.ts",
       "hooks/useFileUploader.ts",
-      "index.native.ts",
       "index.ts",
-      "native/FileUploader.tsx",
-      "native/file.ts",
-      "native/icons.tsx",
       "react/FileRow.tsx",
       "react/FileUploader.tsx",
       "react/icons.tsx",
@@ -35,7 +31,7 @@
       "react/props.ts",
       "react/useFileUploader.ts"
     ],
-    "sourceHash": "sha256:122f2e2e6a6f65b9069394ffcbf6d334f81c7df5b1dbb35bdfd9da1e389a32e9"
+    "sourceHash": "sha256:043edfcf892d731dbe9e871a24b7d30982bfbbda7de829ffe48d9c0315571a51"
   },
   "purpose": "Drop, browse or paste files, validate them against size and type, and upload in chunks that can pause, resume and retry.",
   "props": [

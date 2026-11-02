@@ -17,14 +17,11 @@
       "core/index.ts",
       "core/navigation.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Tabs.tsx",
-      "native/context.ts",
       "react/Tabs.tsx",
       "react/context.ts"
     ],
-    "sourceHash": "sha256:939b429ad81a38fb4b090009411177e859c0318f76c67739f7876889dee77a98"
+    "sourceHash": "sha256:3d8e29857c59101e547f234c45735db68cc87ee143cc87d841372ec612e2c663"
   },
   "purpose": "Tabs in underline, pill or segmented styles, horizontal or vertical, with panels that can stay mounted when hidden.",
   "props": [

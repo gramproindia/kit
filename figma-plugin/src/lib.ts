@@ -373,6 +373,14 @@ const ICONS = {
   inbox: '<path d="M5 4h14l2 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6Z"/><path d="M3 12h5l1.5 3h5L21 12"/>',
   users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 5.2a3.5 3.5 0 0 1 0 5.6M17.5 14.2A6.5 6.5 0 0 1 21.5 20"/>',
   spinnerArc: '<path d="M12 3a9 9 0 1 0 9 9"/>',
+  // Mobile.
+  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+  bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4Z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  share: '<path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+  rupee: '<path d="M6 4h12M6 9h12M9 4c6 0 6 10 0 10H6l8 7"/>',
+  arrowLeft: '<path d="M19 12H5M11 18l-6-6 6-6"/>',
 } as const;
 
 type IconName = keyof typeof ICONS;

@@ -1,71 +1,76 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
-import { KitProvider, useKitTheme, type ColorScheme } from "../source/components/shared/native";
-import { Gallery } from "./demos/Gallery";
-import { IntlSpike } from "./spikes/intl/IntlSpike";
+import { DialogHost } from "../source/components/dialog";
+import { KitProvider } from "../source/components/shared/native";
+import { Toaster } from "../source/components/toaster";
+import { BottomNavigation, type BottomNavigationItem } from "../source/native/bottom-navigation";
+import { InvoicesProvider, useInvoices } from "./src/data/invoices";
+import { Navigator, type TabKey } from "./src/navigation/Navigator";
+import { ComponentsScreen, DemoScreen } from "./src/screens/ComponentsScreen";
+import { CreateScreen } from "./src/screens/CreateScreen";
+import { DiagnosticsScreen } from "./src/screens/DiagnosticsScreen";
+import { HomeScreen } from "./src/screens/HomeScreen";
+import { InvoiceScreen } from "./src/screens/InvoiceScreen";
+import { SettingsScreen } from "./src/screens/SettingsScreen";
+import { ThemeEditorScreen } from "./src/screens/ThemeEditorScreen";
+import { AppSettingsProvider, useAppSettings } from "./src/theme/AppSettings";
+import { HostsProvider, Icon, useRootHostsSuppressed } from "./src/ui/kit";
 
-type Screen = "components" | "intl";
-type Scheme = ColorScheme | "system";
+/*
+ * GramproKit Demo: a sample invoicing app built only from Kit's React Native
+ * components (beta). Each tab's first screen is named after the tab; the rest
+ * are pushed.
+ */
+const SCREENS = {
+  home: HomeScreen,
+  create: CreateScreen,
+  components: ComponentsScreen,
+  settings: SettingsScreen,
+  invoice: InvoiceScreen,
+  demo: DemoScreen,
+  theme: ThemeEditorScreen,
+  diagnostics: DiagnosticsScreen,
+};
 
-function Chip({ label, active, onPress }: { label: string; active: boolean; onPress(): void }) {
-  const { tokens } = useKitTheme();
+const icon = (glyph: string) => ({ color }: { color: string }) => <Icon glyph={glyph} color={color} size={22} />;
+
+function TabBar({ tab, setTab }: { tab: TabKey; setTab(tab: TabKey): void }) {
+  const { invoices } = useInvoices();
+  const overdue = invoices.filter((i) => i.status === "overdue").length;
+  const items: BottomNavigationItem[] = [
+    { key: "home", label: "Home", icon: icon("⌂"), badge: overdue || undefined },
+    { key: "create", label: "New invoice", icon: icon("＋") },
+    { key: "components", label: "Components", icon: icon("▦") },
+    { key: "settings", label: "Settings", icon: icon("⚙") },
+  ];
+  return <BottomNavigation items={items} value={tab} onValueChange={(v) => setTab(v as TabKey)} />;
+}
+
+/** Toaster and DialogHost, once, unless a catalog demo is showing its own. */
+function RootHosts() {
+  const suppressed = useRootHostsSuppressed();
+  if (suppressed) return null;
   return (
-    <Pressable
-      role="tab"
-      aria-selected={active}
-      onPress={onPress}
-      style={[
-        styles.chip,
-        { borderColor: tokens.border, backgroundColor: active ? tokens.accent : "transparent" },
-      ]}
-    >
-      <Text style={{ color: active ? tokens.accentFg : tokens.fg, fontWeight: "600" }}>{label}</Text>
-    </Pressable>
+    <>
+      <Toaster position="top-center" />
+      <DialogHost />
+    </>
   );
 }
 
-function Shell({
-  screen,
-  setScreen,
-  scheme,
-  setScheme,
-}: {
-  screen: Screen;
-  setScreen(s: Screen): void;
-  scheme: Scheme;
-  setScheme(s: Scheme): void;
-}) {
-  const { tokens, scheme: resolved } = useKitTheme();
-  const insets = useSafeAreaInsets();
-  return (
-    <View style={[styles.root, { backgroundColor: tokens.bg, paddingTop: insets.top + 8 }]}>
-      <View style={[styles.bar, { borderColor: tokens.border }]}>
-        <Text style={[styles.brand, { color: tokens.fg }]}>GramproKit Native</Text>
-        <View style={styles.chips}>
-          <Chip label="Components" active={screen === "components"} onPress={() => setScreen("components")} />
-          <Chip label="Intl test" active={screen === "intl"} onPress={() => setScreen("intl")} />
-          <View style={styles.spacer} />
-          {(["system", "light", "dark"] as const).map((s) => (
-            <Chip key={s} label={s} active={scheme === s} onPress={() => setScheme(s)} />
-          ))}
-        </View>
-      </View>
-      {screen === "components" ? <Gallery /> : <IntlSpike />}
-      <StatusBar style={resolved === "dark" ? "light" : "dark"} />
-    </View>
-  );
-}
-
-function Root() {
-  const [screen, setScreen] = useState<Screen>("components");
-  const [scheme, setScheme] = useState<Scheme>("system");
+function ThemedApp() {
+  const settings = useAppSettings();
   // Kit reads no safe-area library itself; the app hands it the insets.
   const insets = useSafeAreaInsets();
   return (
-    <KitProvider colorScheme={scheme} insets={insets}>
-      <Shell screen={screen} setScreen={setScreen} scheme={scheme} setScheme={setScheme} />
+    <KitProvider theme={settings.theme} colorScheme={settings.resolved} insets={insets}>
+      <HostsProvider>
+        <InvoicesProvider>
+          <Navigator screens={SCREENS} renderTabBar={(tab, setTab) => <TabBar tab={tab} setTab={setTab} />} />
+          <RootHosts />
+        </InvoicesProvider>
+      </HostsProvider>
+      <StatusBar style={settings.resolved === "dark" ? "light" : "dark"} />
     </KitProvider>
   );
 }
@@ -73,16 +78,9 @@ function Root() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <Root />
+      <AppSettingsProvider>
+        <ThemedApp />
+      </AppSettingsProvider>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  bar: { paddingHorizontal: 16, paddingBottom: 10, gap: 8, borderBottomWidth: StyleSheet.hairlineWidth },
-  brand: { fontSize: 20, fontWeight: "800" },
-  chips: { flexDirection: "row", gap: 6, flexWrap: "wrap" },
-  chip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, borderWidth: 1 },
-  spacer: { flex: 1 },
-});

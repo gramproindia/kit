@@ -15,6 +15,7 @@ import {
   Package,
   ScanLine,
   PanelsTopLeft,
+  Smartphone,
   Sparkles,
   SquareCheck,
   Table2,
@@ -112,6 +113,16 @@ export async function Overview({ locale }: { locale: Locale }) {
             </a>
             <Link href={v2Config.legacyDocsHref} className="v2-btn">
               {s.view1xDocs}
+            </Link>
+          </div>
+
+          {/* The React Native edition lives under /native with its own home. */}
+          <div className="mt-4 flex justify-center">
+            <Link href="/native" className="v2-btn" lang="en">
+              <Smartphone className="size-4 text-(--v2-accent)" aria-hidden />
+              Kit for React Native
+              <span className="v2-badge">beta</span>
+              <ArrowRight className="size-4" aria-hidden />
             </Link>
           </div>
 

@@ -25,9 +25,17 @@ const path = require("path");
 const { execFileSync } = require("child_process");
 const { figmaFrame } = require("./figma.cjs");
 const { jsxOpenings } = require("../jsx-tags.cjs");
+const native = require("../native.cjs");
 
 const CATALOGUE = path.join(__dirname, "..", "..", "source", "components");
-const REFERENCES = path.join(__dirname, "..", "..", ".gbs", "skills", "gbs-components", "references");
+// GRAMPRO_KIT_SKILL_SOURCE is for tests: a fixture .gbs folder, as the CLI reads it.
+const SKILLS_ROOT = path.join(
+  process.env.GRAMPRO_KIT_SKILL_SOURCE || path.join(__dirname, "..", "..", ".gbs"),
+  "skills",
+);
+const REFERENCES = path.join(SKILLS_ROOT, "gbs-components", "references");
+/** The React Native skill's references (beta). */
+const NATIVE_REFERENCES = path.join(SKILLS_ROOT, "gbs-native", "references");
 
 /** The newest protocol revision this server knows. Older clients get theirs back. */
 const PROTOCOL_VERSION = "2025-06-18";
@@ -79,13 +87,44 @@ function catalogue() {
 
 const componentFolders = () => catalogue().folders;
 
+const spell = (value) => String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/**
+ * A mobile-only component (React Native, beta), by name, folder or export.
+ * These have no passport yet, so they sit beside the catalogue, not in it.
+ */
+function findNativeOnly(name) {
+  const wanted = spell(name);
+  return (
+    native
+      .nativeOnlyComponents()
+      .find((entry) => [entry.name, entry.folder, ...entry.exports].some((n) => spell(n) === wanted)) || null
+  );
+}
+
 /** Resolve a name the way an agent would write it: "DataGrid", "data-grid", "datagrid". */
 function findFolder(name) {
-  const entry = catalogue().byName.get(
-    String(name || "").toLowerCase().replace(/[^a-z0-9]/g, ""),
-  );
-  return entry ? entry.folder : null;
+  const entry = catalogue().byName.get(spell(name));
+  if (entry) return entry.folder;
+  const mobile = findNativeOnly(name);
+  return mobile ? mobile.folder : null;
 }
+
+/** Where a catalogue component runs. */
+const platformsOf = (folder) => (native.hasNative(folder) ? ["web", "native"] : ["web"]);
+
+/** "web", "native", or undefined for both; anything else is a mistake worth naming. */
+function readPlatform(platform) {
+  if (platform === undefined || platform === null || platform === "") return { platform: undefined };
+  const value = String(platform).toLowerCase();
+  if (value !== "web" && value !== "native") return { error: `Unknown platform "${platform}". Use web or native.` };
+  return { platform: value };
+}
+
+const NATIVE_NOTE =
+  "React Native (beta, may change): style/styles replace className/classNames, onPress replaces onClick, " +
+  "and the app is wrapped once in <KitProvider> from shared/native. The props listed are the web ones " +
+  "until native passports ship; read get_example and the native README for the differences.";
 
 /** The parsed passport for a folder, from the index rather than from disk. */
 const passportOf = (folder) => catalogue().byFolder.get(folder).passport;
@@ -114,16 +153,32 @@ function purposeOf(folder, passport) {
 
 // -------------------------------------------------------------------- tools
 
-function listComponents() {
-  return componentFolders().map((folder) => {
-    const passport = passportOf(folder);
-    return {
-      component: passport.identity.component,
-      folder,
-      exports: passport.identity.exports || [],
-      purpose: purposeOf(folder, passport),
-    };
-  });
+function listComponents(requested) {
+  const read = readPlatform(requested);
+  if (read.error) return { error: read.error };
+  const { platform } = read;
+  const shared = componentFolders()
+    .map((folder) => {
+      const passport = passportOf(folder);
+      return {
+        component: passport.identity.component,
+        folder,
+        exports: passport.identity.exports || [],
+        purpose: purposeOf(folder, passport),
+        platforms: platformsOf(folder),
+      };
+    })
+    .filter((entry) => !platform || entry.platforms.includes(platform));
+  if (platform === "web") return shared;
+  // Mobile-only components, after the shared ones so existing callers see the same order.
+  const mobile = native.nativeOnlyComponents().map((entry) => ({
+    component: entry.name,
+    folder: entry.folder,
+    exports: entry.exports,
+    purpose: entry.purpose,
+    platforms: ["native"],
+  }));
+  return [...shared, ...mobile];
 }
 
 /**
@@ -133,18 +188,44 @@ function listComponents() {
  * an agent cannot act on. What it can act on is the shape: names, types, the
  * union values for enum props, which are required, and the handler signatures.
  */
-function getComponent(name) {
+function getComponent(name, requested) {
+  const read = readPlatform(requested);
+  if (read.error) return { error: read.error };
+  const { platform } = read;
+  const mobile = catalogue().byName.get(spell(name)) ? null : findNativeOnly(name);
+  if (mobile) {
+    if (platform === "web") {
+      return { error: `${mobile.name} is native only (React Native). There is no web version.` };
+    }
+    return {
+      component: mobile.name,
+      folder: mobile.folder,
+      exports: mobile.exports,
+      importFrom: `@/component-lib/${mobile.folder}`,
+      purpose: mobile.purpose,
+      platforms: ["native"],
+      beta: true,
+      props: [],
+      note: "Mobile-only (beta): no passport yet. Read get_example for its README and usage.",
+    };
+  }
   const folder = findFolder(name);
   if (!folder) {
     return { error: `No component named "${name}". Call list_components for the catalogue.` };
   }
   const p = passportOf(folder);
+  const platforms = platformsOf(folder);
+  if (platform === "native" && !platforms.includes("native")) {
+    return { error: `${p.identity.component} is not available on native yet.`, platforms };
+  }
   return {
     component: p.identity.component,
     folder,
     exports: p.identity.exports || [],
     importFrom: `@/component-lib/${folder}`,
     purpose: purposeOf(folder, p),
+    platforms,
+    ...(platform === "native" ? { note: NATIVE_NOTE } : {}),
     props: (p.props || []).map((prop) => ({
       name: prop.name,
       type: prop.typeText || prop.type,
@@ -178,10 +259,60 @@ function getComponent(name) {
 }
 
 /** The README's code fences: how the component is meant to be used. */
-function getExample(name) {
+/** Code fences in a markdown file. */
+function fences(file) {
+  const blocks = [];
+  const text = fs.readFileSync(file, "utf8");
+  const fence = /```(\w*)\r?\n([\s\S]*?)```/g;
+  let match;
+  while ((match = fence.exec(text))) blocks.push({ language: match[1] || "txt", code: match[2].trim() });
+  return blocks;
+}
+
+/**
+ * Native usage for a cross-platform component: the code in the React Native
+ * skill's references that renders it. Those ship in the package (.gbs/), where
+ * the playground's demos do not.
+ */
+function nativeExamplesFor(folder) {
+  if (!fs.existsSync(NATIVE_REFERENCES)) return [];
+  const p = passportOf(folder);
+  const names = [p.identity.component, ...(p.identity.exports || [])].filter((n) => /^[A-Z]/.test(n));
+  const opens = new RegExp(`<(${names.map((n) => n.replace(/[^A-Za-z0-9]/g, "")).join("|")})[\\s/>]`);
+  const found = [];
+  for (const file of fs.readdirSync(NATIVE_REFERENCES).filter((f) => f.endsWith(".md")).sort()) {
+    for (const block of fences(path.join(NATIVE_REFERENCES, file))) {
+      if (opens.test(block.code)) found.push({ ...block, source: `gbs-native/references/${file}` });
+    }
+  }
+  return found;
+}
+
+function getExample(name, requested) {
+  const read = readPlatform(requested);
+  if (read.error) return { error: read.error };
   const folder = findFolder(name);
   if (!folder) return { error: `No component named "${name}".` };
-  const readme = path.join(CATALOGUE, folder, "README.md");
+  const mobile = catalogue().byFolder.has(folder) ? null : findNativeOnly(folder);
+  if (read.platform === "web" && mobile) {
+    return { error: `${mobile.name} is native only (React Native). There is no web version.` };
+  }
+  if (read.platform === "native" && !mobile) {
+    if (!platformsOf(folder).includes("native")) {
+      return { error: `${passportOf(folder).identity.component} is not available on native yet.` };
+    }
+    const examples = nativeExamplesFor(folder);
+    if (examples.length) return { component: folder, platform: "native", examples };
+    // No native example yet: the web usage, with what changes on native.
+    const readme = path.join(CATALOGUE, folder, "README.md");
+    return {
+      component: folder,
+      platform: "native",
+      note: `No native example for this component yet; this is the web usage. ${NATIVE_NOTE}`,
+      examples: fs.existsSync(readme) ? fences(readme) : [],
+    };
+  }
+  const readme = path.join(mobile ? mobile.dir : CATALOGUE, mobile ? "" : folder, "README.md");
   if (!fs.existsSync(readme)) return { error: `No README for ${folder}.` };
 
   const blocks = [];
@@ -193,14 +324,18 @@ function getExample(name) {
 }
 
 /** The authored guidance that ships with the agent skill. */
-function getGuidance(topic) {
-  const available = fs.existsSync(REFERENCES)
-    ? fs.readdirSync(REFERENCES).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""))
+function getGuidance(topic, requested) {
+  const read = readPlatform(requested);
+  if (read.error) return { error: read.error };
+  // React Native (beta) has its own skill and references.
+  const root = read.platform === "native" ? NATIVE_REFERENCES : REFERENCES;
+  const available = fs.existsSync(root)
+    ? fs.readdirSync(root).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""))
     : [];
   if (!topic) return { topics: available };
 
   /*
-   * `topic` is caller-controlled, and `path.join(REFERENCES, topic + ".md")`
+   * `topic` is caller-controlled, and `path.join(root, topic + ".md")`
    * followed a `../` out of the references folder: a prompt-injected agent
    * could turn this into "read any .md file on disk". The list is already an
    * allowlist of what actually ships, so a topic that is not one of those
@@ -211,8 +346,8 @@ function getGuidance(topic) {
   if (!available.includes(topic)) {
     return { error: `No guidance for "${topic}".`, topics: available };
   }
-  const file = path.join(REFERENCES, `${topic}.md`);
-  if (!path.resolve(file).startsWith(path.resolve(REFERENCES) + path.sep)) {
+  const file = path.join(root, `${topic}.md`);
+  if (!path.resolve(file).startsWith(path.resolve(root) + path.sep)) {
     return { error: `No guidance for "${topic}".`, topics: available };
   }
   if (!fs.existsSync(file)) return { error: `No guidance for "${topic}".`, topics: available };
@@ -227,7 +362,63 @@ function getGuidance(topic) {
  * exist. Spread props and expressions are skipped rather than guessed at — a
  * validator that invents errors is worse than none.
  */
-function validateUsage(code) {
+/** Web props a native component never takes, and what it takes instead. */
+const WEB_ONLY_PROPS = {
+  className: "style",
+  classNames: "styles",
+  onClick: "onPress",
+  onDoubleClick: "onLongPress",
+  onMouseEnter: "onPressIn",
+  onMouseLeave: "onPressOut",
+  onKeyDown: null,
+  onKeyUp: null,
+  htmlFor: null,
+  tabIndex: null,
+};
+
+/**
+ * On native the passports still describe the web props, so the only check
+ * that cannot invent errors is the reverse one: web-only props used on a
+ * native component.
+ */
+function validateNativeUsage(source) {
+  const known = new Set(native.nativeOnlyComponents().flatMap((entry) => [entry.name, ...entry.exports]));
+  for (const folder of componentFolders()) {
+    if (!platformsOf(folder).includes("native")) continue;
+    const p = passportOf(folder);
+    for (const exported of [p.identity.component, ...(p.identity.exports || [])]) known.add(exported);
+  }
+  const issues = [];
+  const used = [];
+  for (const { name, attrs } of jsxOpenings(source)) {
+    if (!known.has(name)) continue;
+    used.push({ component: name, props: attrs });
+    for (const attr of attrs) {
+      if (!(attr in WEB_ONLY_PROPS)) continue;
+      const instead = WEB_ONLY_PROPS[attr];
+      issues.push({
+        component: name,
+        prop: attr,
+        problem: "web-only prop; React Native components do not take it",
+        ...(instead ? { didYouMean: [instead] } : {}),
+      });
+    }
+  }
+  return {
+    platform: "native",
+    checked: used,
+    issues,
+    ok: issues.length === 0,
+    summary: issues.length
+      ? `${issues.length} web-only prop(s) across ${used.length} element(s).`
+      : `${used.length} element(s) use no web-only props. (Native props are not checked against passports yet.)`,
+  };
+}
+
+function validateUsage(code, requested) {
+  const read = readPlatform(requested);
+  if (read.error) return { error: read.error };
+  if (read.platform === "native") return validateNativeUsage(String(code || ""));
   const source = String(code || "");
   const known = new Map();
   for (const folder of componentFolders()) {
@@ -295,7 +486,9 @@ function validateUsage(code) {
  * follows the project's own layout — so this runs it rather than
  * reimplementing that judgement.
  */
-function installComponents(names) {
+function installComponents(names, requested) {
+  const read = readPlatform(requested);
+  if (read.error) return { error: read.error };
   const list = Array.isArray(names) ? names : String(names || "").split(/[\s,]+/);
   const wanted = list.map((n) => String(n).trim()).filter(Boolean);
   if (wanted.length === 0) return { error: "Name at least one component." };
@@ -317,7 +510,9 @@ function installComponents(names) {
   let stderr = "";
   let failed = false;
   try {
-    stdout = execFileSync(process.execPath, [cli, "add", ...wanted], {
+    // Without a platform the CLI reads the project's package.json, as `add` does.
+    const platformArgs = read.platform ? ["--platform", read.platform] : [];
+    stdout = execFileSync(process.execPath, [cli, "add", ...wanted, ...platformArgs], {
       cwd: process.cwd(),
       encoding: "utf8",
       timeout: 120000,
@@ -378,8 +573,18 @@ const TOOLS = [
     name: "list_components",
     description:
       "Every component in the catalogue with its exports and what it is for. Call this first when deciding which component a design calls for.",
-    inputSchema: { type: "object", properties: {}, additionalProperties: false },
-    run: () => listComponents(),
+    inputSchema: {
+      type: "object",
+      properties: {
+        platform: {
+          type: "string",
+          enum: ["web", "native"],
+          description: "Only components for this platform. native is React Native (beta). Omit for all.",
+        },
+      },
+      additionalProperties: false,
+    },
+    run: (args) => listComponents(args && args.platform),
   },
   {
     name: "get_component",
@@ -387,22 +592,33 @@ const TOOLS = [
       "A component's full contract: props with types and allowed values, which are required, event handler signatures, slots, states and composition rules. Read this before writing any JSX that uses it, rather than recalling the API.",
     inputSchema: {
       type: "object",
-      properties: { name: { type: "string", description: 'Component or folder name, e.g. "DataGrid".' } },
+      properties: {
+        name: { type: "string", description: 'Component or folder name, e.g. "DataGrid".' },
+        platform: {
+          type: "string",
+          enum: ["web", "native"],
+          description: "native for React Native (beta): adds the native usage notes, or says it is not available.",
+        },
+      },
       required: ["name"],
       additionalProperties: false,
     },
-    run: (args) => getComponent(args.name),
+    run: (args) => getComponent(args.name, args.platform),
   },
   {
     name: "get_example",
-    description: "Working usage taken from the component's own README.",
+    description:
+      "Working usage taken from the component's own README. With platform native (React Native, beta), the native usage from the native skill.",
     inputSchema: {
       type: "object",
-      properties: { name: { type: "string" } },
+      properties: {
+        name: { type: "string" },
+        platform: { type: "string", enum: ["web", "native"] },
+      },
       required: ["name"],
       additionalProperties: false,
     },
-    run: (args) => getExample(args.name),
+    run: (args) => getExample(args.name, args.platform),
   },
   {
     name: "get_guidance",
@@ -410,10 +626,17 @@ const TOOLS = [
       "Authored guidance on a topic: forms (including making a page operable by a browser agent with <AgentSurface>), overlays, data-grid, pickers, styling, accessibility, data-display, toaster, install. Omit the topic to list them.",
     inputSchema: {
       type: "object",
-      properties: { topic: { type: "string" } },
+      properties: {
+        topic: { type: "string" },
+        platform: {
+          type: "string",
+          enum: ["web", "native"],
+          description: "native for the React Native (beta) guidance. Omit the topic to list that platform's topics.",
+        },
+      },
       additionalProperties: false,
     },
-    run: (args) => getGuidance(args.topic),
+    run: (args) => getGuidance(args.topic, args.platform),
   },
   {
     name: "figma_frame",
@@ -453,23 +676,31 @@ const TOOLS = [
           items: { type: "string" },
           description: 'Component names, e.g. ["DataGrid", "Button"].',
         },
+        platform: {
+          type: "string",
+          enum: ["web", "native"],
+          description: "Override the platform. By default it is read from the project's package.json (react-native or expo means native).",
+        },
       },
       required: ["names"],
       additionalProperties: false,
     },
-    run: (args) => installComponents(args.names),
+    run: (args) => installComponents(args.names, args.platform),
   },
   {
     name: "validate_usage",
     description:
-      "Check JSX against the passports and report props that do not exist or required props left out. Run this on code you have written before telling the user it is done.",
+      "Check JSX against the passports and report props that do not exist or required props left out. Run this on code you have written before telling the user it is done. With platform native (React Native, beta), flags web-only props such as className and onClick.",
     inputSchema: {
       type: "object",
-      properties: { code: { type: "string", description: "JSX source to check." } },
+      properties: {
+        code: { type: "string", description: "JSX source to check." },
+        platform: { type: "string", enum: ["web", "native"] },
+      },
       required: ["code"],
       additionalProperties: false,
     },
-    run: (args) => validateUsage(args.code),
+    run: (args) => validateUsage(args.code, args.platform),
   },
 ];
 

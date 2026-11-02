@@ -25,6 +25,7 @@ const crypto = require("crypto");
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
 const ui = require("./tools/ui.cjs");
+const native = require("./tools/native.cjs");
 
 // Configuration
 const CONFIG = {
@@ -119,7 +120,10 @@ const SKIP_DIRS = new Set([
  * ambiguous answer is no answer, so two of them fall through to the default
  * and the author can say which with `--dest`.
  */
-const findExistingDest = () => {
+const findExistingDest = (platform = "web") => {
+  // Each platform's install leaves its own marker: gbs.css on the web, the
+  // theme file on native. A monorepo with both finds the one it is adding to.
+  const marker = platform === "native" ? native.THEME_FILE : native.CSS_BARREL;
   const found = [];
 
   const walk = (dir, depth) => {
@@ -130,7 +134,7 @@ const findExistingDest = () => {
     } catch {
       return; // Unreadable directory: not somewhere we would have installed.
     }
-    if (entries.some((entry) => entry.isFile() && entry.name === "gbs.css")) {
+    if (entries.some((entry) => entry.isFile() && entry.name === marker)) {
       found.push(dir);
       return;
     }
@@ -153,10 +157,10 @@ const findExistingDest = () => {
  * project's own layout decides: a project with `src/` gets `src/`, because
  * dropping a sibling of `src/` at the root is nobody's convention.
  */
-const resolveDestPath = (requested) => {
+const resolveDestPath = (requested, platform = "web") => {
   if (requested) return path.resolve(process.cwd(), requested);
 
-  const existing = findExistingDest();
+  const existing = findExistingDest(platform);
   if (existing) return existing;
 
   return fs.existsSync(path.join(process.cwd(), "src"))
@@ -168,16 +172,10 @@ const resolveDestPath = (requested) => {
  * The agent skill. It teaches a coding agent how to use these components, so it
  * belongs at the root of the project being worked on, not in component-lib.
  */
-const SKILL_SOURCE_PATH = path.join(__dirname, ".gbs");
+// GRAMPRO_KIT_SKILL_SOURCE is for the CLI's own tests: a fixture .gbs folder.
+const SKILL_SOURCE_PATH = process.env.GRAMPRO_KIT_SKILL_SOURCE || path.join(__dirname, ".gbs");
 const SKILL_DEST_DIR = ".gbs";
 const SKILL_NAME = "gbs-components";
-
-/** Where SKILL.md and references/ live inside the package. */
-const SKILL_SRC_DIR = path.join(
-  SKILL_SOURCE_PATH,
-  "skills",
-  SKILL_NAME,
-);
 
 /**
  * Agents we can write a copy of the skill for. Each looks in its own place and
@@ -190,6 +188,60 @@ const SKILL_TARGETS = ["claude", "codex", "antigravity"];
 const AGENTS_FILE = "AGENTS.md";
 const BLOCK_START = "<!-- @grampro/kit:start -->";
 const BLOCK_END = "<!-- @grampro/kit:end -->";
+
+/**
+ * One skill per platform. A React Native project gets gbs-native; a monorepo
+ * can have both. Each has its own AGENTS.md block, so they sit side by side.
+ */
+const SKILLS = {
+  web: {
+    platform: "web",
+    name: SKILL_NAME,
+    blockStart: BLOCK_START,
+    blockEnd: BLOCK_END,
+    heading: "GramproKit components",
+    filesLabel: "React UI files",
+    defaultGlobs: "src/**/*.tsx",
+    pointer: [
+      "This project uses GramproKit components (@grampro/kit). They are copied",
+      "into the project with their styles, so you own them. Before adding or",
+      "changing UI, read `{skill}` and follow it.",
+      "",
+      "It covers the import rule (components are copied into `component-lib/`, not",
+      "imported from a package), the change-handler name each component uses, and",
+      "the props that do not exist. Deeper detail is in the `references/` folder",
+      "beside it — open the one the task needs.",
+    ],
+  },
+  native: {
+    platform: "native",
+    name: "gbs-native",
+    blockStart: "<!-- @grampro/kit-native:start -->",
+    blockEnd: "<!-- @grampro/kit-native:end -->",
+    heading: "GramproKit for React Native (beta)",
+    filesLabel: "React Native UI files",
+    defaultGlobs: "app/**/*.tsx, src/**/*.tsx",
+    pointer: [
+      "This project uses GramproKit's React Native edition (@grampro/kit, beta: it",
+      "may change between prereleases). Components are copied into the project, so",
+      "you own them. Before adding or changing UI, read `{skill}` and follow it.",
+      "",
+      "It covers the setup (one <KitProvider> at the root), styling with style/styles",
+      "and theme tokens rather than className, onPress rather than onClick, and the",
+      "mobile-only components. Deeper detail is in the `references/` folder beside",
+      "it — open the one the task needs.",
+    ],
+  },
+};
+
+/** Where a skill's SKILL.md and references/ live inside the package. */
+const skillSrcDir = (skill) => path.join(SKILL_SOURCE_PATH, "skills", skill.name);
+
+/** Whether a file the skill installer wrote belongs to this skill. */
+const belongsToSkill = (file, skill) =>
+  file.startsWith(`${SKILL_DEST_DIR}/skills/${skill.name}/`) ||
+  file.startsWith(`.claude/skills/${skill.name}/`) ||
+  file === `.agents/rules/${skill.name}.md`;
 
 /** Newline, named so long template literals stay readable. */
 const NL = String.fromCharCode(10);
@@ -231,24 +283,48 @@ const componentForExport = (name) => {
         if (/^[A-Z][A-Za-z]+$/.test(exported)) exportIndex.set(exported.toLowerCase(), component);
       }
     }
+    // Mobile-only components have no passport yet; their index.ts names them.
+    for (const entry of native.nativeOnlyComponents()) {
+      for (const exported of entry.exports) {
+        if (!exportIndex.has(exported.toLowerCase())) exportIndex.set(exported.toLowerCase(), entry.name);
+      }
+    }
   }
   return exportIndex.get(String(name).toLowerCase()) || null;
+};
+
+/** Mobile-only component names: AppBar, Fab, ... (React Native). */
+const nativeOnlyNames = () => native.nativeOnlyComponents().map((entry) => entry.name);
+const nativeOnlyEntry = (component) =>
+  native.nativeOnlyComponents().find((entry) => entry.name === component) || null;
+
+/** Every current component name, either platform. */
+const allCurrentComponents = () => [...CONFIG.components, ...nativeOnlyNames()];
+
+/** Whether a current component can be installed on a platform. */
+const availableOn = (component, platform) => {
+  if (nativeOnlyEntry(component)) return platform === "native";
+  if (!CONFIG.components.includes(component)) return false;
+  return platform === "native" ? native.hasNative(folderFor(component, true)) : true;
 };
 
 const normalizeComponent = (component, availableComponents) =>
   availableComponents.find(
     (available) => available.toLowerCase() === component.toLowerCase(),
   ) ||
-  (availableComponents === CONFIG.components ? componentForExport(component) : undefined);
+  (availableComponents === CONFIG.legacyComponents ? undefined : componentForExport(component));
 
-const getAvailableComponents = (current = false) =>
-  current ? CONFIG.components : CONFIG.legacyComponents;
+const getAvailableComponents = (current = false, platform = "web") => {
+  if (!current) return CONFIG.legacyComponents;
+  return allCurrentComponents().filter((component) => availableOn(component, platform));
+};
 
 const getSourcePath = (current = false) => (current ? SOURCE_PATH : LEGACY_SOURCE_PATH);
 
 /** The folder a component lives in, which is not always its lowercased name. */
 const folderFor = (component, current = false) =>
-  (current && CONFIG.folders[component]) || component.toLowerCase();
+  (current && (CONFIG.folders[component] || nativeOnlyEntry(component)?.folder)) ||
+  component.toLowerCase();
 
 
 /*
@@ -467,8 +543,20 @@ const locallyEdited = (dest, manifest) =>
  * are that `shared/` only ever moves forward, and that a file the user has
  * edited since we wrote it is never replaced without `--force`.
  */
-const installShared = async (destPath, { force = false } = {}) => {
-  const src = path.join(SOURCE_PATH, SHARED_DIR);
+const installShared = async (destPath, { force = false, platform = "web" } = {}) => {
+  // Native projects get a subset: core/, native/ and the one DOM-free hook.
+  // Web projects get everything but native/, which imports react-native. Both
+  // are staged so the comparison below runs on exactly what is written.
+  const staged =
+    platform === "native" ? native.stageShared() : native.stageWeb(path.join(SOURCE_PATH, SHARED_DIR));
+  try {
+    await installSharedFrom(staged || path.join(SOURCE_PATH, SHARED_DIR), destPath, { force, platform });
+  } finally {
+    if (staged) native.removeStage(staged);
+  }
+};
+
+const installSharedFrom = async (src, destPath, { force, platform }) => {
   const dest = path.join(destPath, SHARED_DIR);
 
   if (!fs.existsSync(src)) {
@@ -482,6 +570,16 @@ const installShared = async (destPath, { force = false } = {}) => {
   const manifest = readJson(path.join(dest, MANIFEST_FILE));
   const installedVersion = manifest ? manifest.version : null;
   const edited = locallyEdited(dest, manifest);
+
+  // One folder holds one platform's shared/. Switching it is --force's to do.
+  const installedPlatform = manifest ? manifest.platform || "web" : null;
+  if (installedPlatform && installedPlatform !== platform && !force) {
+    console.error(
+      `\n${ui.cross()} ${path.basename(destPath)}/${SHARED_DIR} was installed for ${installedPlatform}, and this is a ${platform} install.`,
+    );
+    console.error("  Use a separate --dest for each platform, or re-run with --force to switch it.");
+    process.exit(1);
+  }
 
   if (installedVersion && !force) {
     const order = compareVersions(installedVersion, srcVersion);
@@ -558,6 +656,7 @@ const installShared = async (destPath, { force = false } = {}) => {
     path.join(dest, MANIFEST_FILE),
     {
       version: srcVersion,
+      ...(platform !== "web" ? { platform } : {}),
       installedAt: new Date().toISOString(),
       files: Object.fromEntries(
         files.map((file) => [file, sha256(path.join(src, file))]),
@@ -566,10 +665,11 @@ const installShared = async (destPath, { force = false } = {}) => {
     { spaces: 2 },
   );
 
+  const label = platform === "native" ? " (native)" : "";
   console.log(
     installedVersion
-      ? `${ui.check()} shared updated ${installedVersion} → ${srcVersion}`
-      : `${ui.check()} shared v${srcVersion} installed`,
+      ? `${ui.check()} shared updated ${installedVersion} → ${srcVersion}${label}`
+      : `${ui.check()} shared v${srcVersion} installed${label}`,
   );
 };
 
@@ -623,12 +723,13 @@ const frontMatterField = (frontMatter, key) => {
  * bundled beside SKILL.md. Only the front matter changes — it spells the glob
  * list `paths` where the GBS agent spells it `autoAttach`.
  */
-const writeClaudeSkill = async (root) => {
-  const base = rel(".claude", "skills", SKILL_NAME);
+const writeClaudeSkill = async (root, skill = SKILLS.web) => {
+  const base = rel(".claude", "skills", skill.name);
+  const srcDir = skillSrcDir(skill);
   const written = [];
 
-  for (const file of listFiles(SKILL_SRC_DIR)) {
-    const from = path.join(SKILL_SRC_DIR, file);
+  for (const file of listFiles(srcDir)) {
+    const from = path.join(srcDir, file);
     const to = path.join(root, base, file);
 
     if (file === "SKILL.md") {
@@ -636,7 +737,7 @@ const writeClaudeSkill = async (root) => {
       const globs = frontMatterField(frontMatter, "autoAttach");
       const lines = [
         "---",
-        "name: " + (frontMatterField(frontMatter, "name") || SKILL_NAME),
+        "name: " + (frontMatterField(frontMatter, "name") || skill.name),
         "description: " + frontMatterField(frontMatter, "description"),
       ];
       // Claude Code spells the glob list `paths`; the GBS agent spells it `autoAttach`.
@@ -660,19 +761,19 @@ const writeClaudeSkill = async (root) => {
  * glob activation is set on the rule in the IDE rather than in the file, so the
  * globs are stated in the text for whoever configures it.
  */
-const writeAntigravityRule = async (root) => {
+const writeAntigravityRule = async (root, skill = SKILLS.web) => {
   const { frontMatter, body } = parseSkillDoc(
-    path.join(SKILL_SRC_DIR, "SKILL.md"),
+    path.join(skillSrcDir(skill), "SKILL.md"),
   );
-  const target = rel(".agents", "rules", SKILL_NAME + ".md");
+  const target = rel(".agents", "rules", skill.name + ".md");
 
   const preamble = [
-    "> Applies to React UI files: " +
-      (frontMatterField(frontMatter, "autoAttach") || "src/**/*.tsx") +
+    "> Applies to " + skill.filesLabel + ": " +
+      (frontMatterField(frontMatter, "autoAttach") || skill.defaultGlobs) +
       ".",
     "> Set that as this rule's glob if you want it attached automatically.",
     "> Deeper reference files live in " +
-      rel(SKILL_DEST_DIR, "skills", SKILL_NAME, "references") +
+      rel(SKILL_DEST_DIR, "skills", skill.name, "references") +
       "/.",
     "",
   ].join(NL);
@@ -684,37 +785,30 @@ const writeAntigravityRule = async (root) => {
 /**
  * Codex: a pointer in AGENTS.md rather than the skill itself, because that file
  * is always in context and the skill is about 10 KB. Everything outside our markers is
- * left exactly as it was.
+ * left exactly as it was. Each skill owns its own marked block.
  */
-const writeAgentsPointer = async (root) => {
+const writeAgentsPointer = async (root, skill = SKILLS.web) => {
   const file = path.join(root, AGENTS_FILE);
-  const skillPath = rel(SKILL_DEST_DIR, "skills", SKILL_NAME, "SKILL.md");
+  const skillPath = rel(SKILL_DEST_DIR, "skills", skill.name, "SKILL.md");
 
   const block = [
-    BLOCK_START,
+    skill.blockStart,
     "",
-    "## GramproKit components",
+    "## " + skill.heading,
     "",
-    "This project uses GramproKit components (@grampro/kit). They are copied",
-    "into the project with their styles, so you own them. Before adding or",
-    "changing UI, read `" + skillPath + "` and follow it.",
+    ...skill.pointer.map((line) => line.split("{skill}").join(skillPath)),
     "",
-    "It covers the import rule (components are copied into `component-lib/`, not",
-    "imported from a package), the change-handler name each component uses, and",
-    "the props that do not exist. Deeper detail is in the `references/` folder",
-    "beside it — open the one the task needs.",
-    "",
-    BLOCK_END,
+    skill.blockEnd,
   ].join(NL);
 
   const existing = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
   let next;
 
-  if (existing.includes(BLOCK_START) && existing.includes(BLOCK_END)) {
+  if (existing.includes(skill.blockStart) && existing.includes(skill.blockEnd)) {
     next =
-      existing.slice(0, existing.indexOf(BLOCK_START)) +
+      existing.slice(0, existing.indexOf(skill.blockStart)) +
       block +
-      existing.slice(existing.indexOf(BLOCK_END) + BLOCK_END.length);
+      existing.slice(existing.indexOf(skill.blockEnd) + skill.blockEnd.length);
   } else if (existing.trim()) {
     next = existing.replace(/\s+$/, "") + NL + NL + block + NL;
   } else {
@@ -722,7 +816,7 @@ const writeAgentsPointer = async (root) => {
   }
 
   await fs.outputFile(file, next);
-  return existing.includes(BLOCK_START) ? "updated" : "added";
+  return existing.includes(skill.blockStart) ? "updated" : "added";
 };
 
 /**
@@ -735,23 +829,31 @@ const writeAgentsPointer = async (root) => {
  * Everything we write is tracked by sha256 in one manifest, so a file the user
  * has edited is never replaced without `--force`. AGENTS.md is the exception:
  * the project owns that file, and we only rewrite our own marked block.
+ *
+ * `platforms` picks the skills: gbs-components for the web, gbs-native for
+ * React Native, both for a monorepo. Installing one never touches the other's
+ * files or its record in the manifest.
  */
 const installSkill = async (
   destRoot,
-  { force = false, targets = SKILL_TARGETS } = {},
+  { force = false, targets = SKILL_TARGETS, platforms = ["web"] } = {},
 ) => {
-  const src = SKILL_SOURCE_PATH;
+  const skills = platforms.map((platform) => SKILLS[platform]).filter(Boolean);
 
-  if (!fs.existsSync(src)) {
-    throw new Error(
-      `The skill is missing from ${src}. Update the CLI and try again.`,
-    );
+  for (const skill of skills) {
+    if (!fs.existsSync(path.join(skillSrcDir(skill), "SKILL.md"))) {
+      throw new Error(
+        `The ${skill.name} skill is missing from ${path.join(SKILL_SOURCE_PATH, "skills")}. Update the CLI and try again.`,
+      );
+    }
   }
 
   const manifestPath = path.join(destRoot, SKILL_DEST_DIR, MANIFEST_FILE);
   const manifest = readJson(manifestPath);
   const installedVersion = manifest ? manifest.version : null;
-  const edited = locallyEdited(destRoot, manifest);
+  const ours = (file) => skills.some((skill) => belongsToSkill(file, skill));
+  // Only this run's skills: an edit to the other platform's skill is not in the way.
+  const edited = locallyEdited(destRoot, manifest).filter(ours);
 
   if (edited.length > 0 && !force) {
     console.error(`${NL}${ui.cross()} These skill files have local changes:`);
@@ -766,31 +868,36 @@ const installSkill = async (
     process.exit(1);
   }
 
-  // The canonical copy.
   const written = [];
-  for (const file of listFiles(src)) {
-    await fs.copy(path.join(src, file), path.join(destRoot, SKILL_DEST_DIR, file), {
-      overwrite: true,
-    });
-    written.push(rel(SKILL_DEST_DIR, file));
+  const agents = [];
+  for (const skill of skills) {
+    // The canonical copy.
+    const srcDir = skillSrcDir(skill);
+    for (const file of listFiles(srcDir)) {
+      const target = rel(SKILL_DEST_DIR, "skills", skill.name, file);
+      await fs.copy(path.join(srcDir, file), path.join(destRoot, target), {
+        overwrite: true,
+      });
+      written.push(target);
+    }
+
+    // One adapter per agent that looks somewhere else.
+    if (targets.includes("claude")) {
+      written.push(...(await writeClaudeSkill(destRoot, skill)));
+    }
+    if (targets.includes("antigravity")) {
+      written.push(...(await writeAntigravityRule(destRoot, skill)));
+    }
+    if (targets.includes("codex")) {
+      agents.push({ skill, result: await writeAgentsPointer(destRoot, skill) });
+    }
   }
 
-  // One adapter per agent that looks somewhere else.
-  if (targets.includes("claude")) {
-    written.push(...(await writeClaudeSkill(destRoot)));
-  }
-  if (targets.includes("antigravity")) {
-    written.push(...(await writeAntigravityRule(destRoot)));
-  }
-  const agents = targets.includes("codex")
-    ? await writeAgentsPointer(destRoot)
-    : null;
-
-  // Drop what an older version left behind, but only files we installed and
-  // the user has not since changed.
+  // Drop what an older version of these skills left behind, but only files we
+  // installed and the user has not since changed.
   if (manifest) {
     const removed = Object.keys(manifest.files).filter(
-      (file) => !written.includes(file),
+      (file) => ours(file) && !written.includes(file),
     );
     for (const file of removed) {
       const target = path.join(destRoot, file);
@@ -804,34 +911,53 @@ const installSkill = async (
     }
   }
 
+  // The other platform's skill keeps its record.
+  const kept = manifest
+    ? Object.entries(manifest.files).filter(
+        ([file]) => !ours(file) && fs.existsSync(path.join(destRoot, file)),
+      )
+    : [];
+  const keptSkills = ((manifest && manifest.skills) || (manifest ? [SKILL_NAME] : [])).filter(
+    (name) => !skills.some((skill) => skill.name === name) &&
+      kept.some(([file]) => file.includes(`/${name}/`) || file.endsWith(`/${name}.md`)),
+  );
+
   fs.writeJsonSync(
     manifestPath,
     {
       version: PACKAGE_VERSION,
       installedAt: new Date().toISOString(),
       targets,
+      skills: [...keptSkills, ...skills.map((skill) => skill.name)],
       // Hashed after writing, because the adapters are generated rather than copied.
-      files: Object.fromEntries(
-        written.map((file) => [file, sha256(path.join(destRoot, file))]),
-      ),
+      files: Object.fromEntries([
+        ...kept,
+        ...written.map((file) => [file, sha256(path.join(destRoot, file))]),
+      ]),
     },
     { spaces: 2 },
   );
 
-  console.log(
-    installedVersion
-      ? `${ui.check()} skill updated ${installedVersion} → ${PACKAGE_VERSION}`
-      : `${ui.check()} skill v${PACKAGE_VERSION} installed`,
-  );
-  console.log(`  ${SKILL_DEST_DIR}/ (canonical, ${listFiles(src).length} files)`);
-  if (targets.includes("claude")) {
-    console.log(`  .claude/skills/${SKILL_NAME}/ for Claude Code`);
-  }
-  if (targets.includes("antigravity")) {
-    console.log(`  .agents/rules/${SKILL_NAME}.md for Antigravity`);
-  }
-  if (agents) {
-    console.log(`  ${AGENTS_FILE} block ${agents}, for Codex`);
+  for (const skill of skills) {
+    const label = skill.platform === "native" ? `${skill.name} (React Native, beta)` : skill.name;
+    console.log(
+      installedVersion
+        ? `${ui.check()} skill ${label} updated ${installedVersion} → ${PACKAGE_VERSION}`
+        : `${ui.check()} skill ${label} v${PACKAGE_VERSION} installed`,
+    );
+    console.log(
+      `  ${SKILL_DEST_DIR}/skills/${skill.name}/ (canonical, ${listFiles(skillSrcDir(skill)).length} files)`,
+    );
+    if (targets.includes("claude")) {
+      console.log(`  .claude/skills/${skill.name}/ for Claude Code`);
+    }
+    if (targets.includes("antigravity")) {
+      console.log(`  .agents/rules/${skill.name}.md for Antigravity`);
+    }
+    const pointer = agents.find((entry) => entry.skill === skill);
+    if (pointer) {
+      console.log(`  ${AGENTS_FILE} block ${pointer.result}, for Codex`);
+    }
   }
   console.log("  Commit them so the whole team's agents pick this up.");
 };
@@ -867,8 +993,8 @@ const parseSkillTargets = (value) => {
  * what this version of the kit changes, and which call sites an update would
  * break. Read-only. See tools/doctor/index.cjs.
  */
-const runDoctorCommand = ({ only = [], dest: requestedDest, json = false }) => {
-  const dest = resolveDestPath(requestedDest);
+const runDoctorCommand = ({ only = [], dest: requestedDest, json = false, platform = "web" }) => {
+  const dest = resolveDestPath(requestedDest, platform);
   if (!fs.existsSync(dest)) {
     console.error(
       `No ${path.basename(dest)}/ folder here, so there is nothing to check.` +
@@ -886,6 +1012,15 @@ const runDoctorCommand = ({ only = [], dest: requestedDest, json = false }) => {
     kitRoot: SOURCE_PATH,
     kitVersion: PACKAGE_VERSION,
     only,
+    // Mobile-only components live beside the cross-platform ones.
+    extraKitRoots: [native.NATIVE_ONLY],
+    // The passports describe the web props; comparing a native copy against
+    // them would report differences that are only the platform. File level only.
+    contracts: platform !== "native",
+    contractsNote:
+      platform === "native"
+        ? "Native install: file-level changes only (passports describe the web props for now)."
+        : undefined,
   });
 
   if (report.rows.length === 0 && report.notInstalled.length === 0) {
@@ -908,8 +1043,8 @@ const runDoctorCommand = ({ only = [], dest: requestedDest, json = false }) => {
  * describes the modification. `passport.local.json` is read as an overlay and
  * never written.
  */
-const runPassport = async ({ check: checkOnly, dest: requestedDest }) => {
-  const dest = resolveDestPath(requestedDest);
+const runPassport = async ({ check: checkOnly, dest: requestedDest, platform = "web" }) => {
+  const dest = resolveDestPath(requestedDest, platform);
 
   if (!fs.existsSync(dest)) {
     console.error(
@@ -917,6 +1052,17 @@ const runPassport = async ({ check: checkOnly, dest: requestedDest }) => {
         `${NL}  npx @grampro/kit add Button`,
     );
     process.exit(1);
+  }
+
+  // Passports describe the web contract for now; a native copy has no web view
+  // to read. Say so rather than report every component as broken.
+  const sharedManifest = readJson(path.join(dest, SHARED_DIR, MANIFEST_FILE));
+  if (sharedManifest && sharedManifest.platform === "native") {
+    console.log(
+      "Passports describe the web props for now, so they are not generated or checked for a" +
+        " React Native install (beta). `doctor` reports what changed in your copies.",
+    );
+    return;
   }
 
   let passport;
@@ -990,7 +1136,7 @@ const isSkillWord = (value) =>
 /** The files a component needs beside it, which differ between the two sets. */
 const copySupportFiles = async (destPath, current, options) => {
   if (current) {
-    await installShared(destPath, options);
+    await installShared(destPath, { force: options.force, platform: options.platform || "web" });
     return;
   }
   // The legacy components' common files. The current set uses none of them.
@@ -1022,10 +1168,22 @@ const checkComponentExists = (component, destPath, current = false) => {
  *
  * Returns "installed", "updated", "unchanged" or "kept".
  */
-const copyComponent = async (component, destPath, current = false, { force = false } = {}) => {
+const copyComponent = async (component, destPath, current = false, { force = false, platform = "web" } = {}) => {
+  let stage = null;
   try {
     const folder = folderFor(component, current);
-    const componentSrc = path.join(getSourcePath(current), folder);
+    // On native the files are staged first — native view, no react/ or CSS, the
+    // native entry as index.ts — and everything below runs on that stage.
+    if (current && platform === "native") {
+      const entry = nativeOnlyEntry(component);
+      stage = entry ? native.stageNativeOnly(entry) : native.stageCrossPlatform(folder);
+      for (const warning of stage.warnings) console.error(`  ${ui.c.yellow("!")} ${warning}`);
+    } else if (current) {
+      // A web project gets the folder without its native view (react-native imports).
+      const web = native.stageWeb(path.join(getSourcePath(current), folder));
+      if (web) stage = { dir: web, warnings: [] };
+    }
+    const componentSrc = stage ? stage.dir : path.join(getSourcePath(current), folder);
     const componentDest = path.join(destPath, folder);
 
     if (!fs.existsSync(componentSrc)) {
@@ -1067,6 +1225,7 @@ const copyComponent = async (component, destPath, current = false, { force = fal
         component,
         version: PACKAGE_VERSION,
         sourceDir: componentSrc,
+        platform,
       });
     }
 
@@ -1091,6 +1250,8 @@ const copyComponent = async (component, destPath, current = false, { force = fal
   } catch (error) {
     console.error(`Error installing component ${component}:`, error.message);
     process.exit(1);
+  } finally {
+    if (stage) native.removeStage(stage.dir);
   }
 };
 
@@ -1150,9 +1311,7 @@ const installComponentWithDependencies = async (
     });
   }
 
-  reportStyleBarrel(await writeStyleBarrel(destPath, current));
-
-  console.log(`\nFor documentation visit: ${CONFIG.docs}`);
+  await reportAfterInstall(destPath, current, options);
 };
 
 const installMultipleComponents = async (
@@ -1205,8 +1364,20 @@ const installMultipleComponents = async (
     });
   }
 
-  reportStyleBarrel(await writeStyleBarrel(destPath, current));
+  await reportAfterInstall(destPath, current, options);
+};
 
+/**
+ * The one manual step after an install: import gbs.css on the web, wrap the
+ * app in KitProvider on native (where gbs.theme.ts stands in for the CSS).
+ */
+const reportAfterInstall = async (destPath, current, options = {}) => {
+  if (current && options.platform === "native") {
+    const wrote = native.writeThemeFile(destPath);
+    for (const line of native.nativeSetupLines(destPath, process.cwd(), wrote)) console.log(line);
+    return;
+  }
+  reportStyleBarrel(await writeStyleBarrel(destPath, current));
   console.log(`\nFor documentation visit: ${CONFIG.docs}`);
 };
 
@@ -1223,18 +1394,22 @@ const GROUPS = {
   Navigation: ["Breadcrumb", "Tabs"],
 };
 const groupOf = (component) =>
-  Object.keys(GROUPS).find((group) => GROUPS[group].includes(component)) || "";
+  (nativeOnlyEntry(component) ? "Mobile" : "") ||
+  Object.keys(GROUPS).find((group) => GROUPS[group].includes(component)) ||
+  "";
 
 /** The one-line purpose a component's passport gives, for the picker's hint line. */
 const purposeOf = (component, current) => {
   if (!current) return "";
+  const entry = nativeOnlyEntry(component);
+  if (entry) return entry.purpose;
   const passport = readJson(path.join(SOURCE_PATH, folderFor(component, true), "passport.json"));
   return (passport && passport.purpose) || "";
 };
 
-const interactiveComponentSelector = async (current = false, destPath) => {
+const interactiveComponentSelector = async (current = false, destPath, platform = "web") => {
   const { multiselect } = require("./tools/prompt.cjs");
-  const options = getAvailableComponents(current)
+  const options = getAvailableComponents(current, platform)
     .map((component) => ({
       value: component,
       tag: current ? groupOf(component) : "",
@@ -1243,7 +1418,7 @@ const interactiveComponentSelector = async (current = false, destPath) => {
     }))
     // The docs' order of groups, alphabetical within each.
     .sort((a, b) => {
-      const order = Object.keys(GROUPS);
+      const order = [...Object.keys(GROUPS), "Mobile"];
       return order.indexOf(a.tag) - order.indexOf(b.tag) || a.value.localeCompare(b.value);
     });
   const picked = await multiselect({ message: "Which components?", options });
@@ -1257,8 +1432,29 @@ const parseMultipleComponents = (componentString) => {
     .filter((comp) => comp.length > 0);
 };
 
-const validateComponents = (components, current = false) => {
-  const availableComponents = getAvailableComponents(current);
+/**
+ * Known components the platform does not have yet are named and skipped, with
+ * a failing exit code, while the rest of the command goes through: DataGrid on
+ * native, AppBar on the web.
+ */
+const dropUnavailable = (components, current, platform) => {
+  if (!current) return components;
+  return components.filter((component) => {
+    if (!allCurrentComponents().includes(component) || availableOn(component, platform)) return true;
+    if (platform === "native") {
+      console.error(`${ui.cross()} ${component} is not available on native yet. Skipped.`);
+    } else {
+      console.error(
+        `${ui.cross()} ${component} is native only (React Native). Run this in a React Native project, or pass --platform native. Skipped.`,
+      );
+    }
+    process.exitCode = 1;
+    return false;
+  });
+};
+
+const validateComponents = (components, current = false, platform = "web") => {
+  const availableComponents = getAvailableComponents(current, platform);
   const invalidComponents = components.filter(
     (comp) => !availableComponents.includes(comp),
   );
@@ -1295,7 +1491,7 @@ const COMMANDS = new Set(["add", "list", "skill", "passport", "mcp", "secret", "
  * Flags that take a separate value, so the token after one is that value and
  * not a component name. `--flag=value` is a single token and needs no entry.
  */
-const VALUE_FLAGS = new Set(["--dest", "--for", "--add", "-a"]);
+const VALUE_FLAGS = new Set(["--dest", "--for", "--add", "-a", "--platform"]);
 
 /** Reads a verb-first invocation, or null when this is the old flag style. */
 const readCommand = (argv) => {
@@ -1389,16 +1585,23 @@ const main = async () => {
       type: "boolean",
       default: false,
     })
+    .option("platform", {
+      describe:
+        "web or native (React Native, beta); with skill, also both. Default: native when package.json has react-native or expo",
+      type: "string",
+    })
     .example("$0 add Button", "Install one component")
     .example("$0 add DataGrid Button Modal", "Install several")
     .example("$0 list", "List available components")
     .example("$0 skill", "Install the agent skill for every supported agent")
     .example("$0 skill --for claude", "Only the Claude Code copy")
+    .example("$0 skill --platform both", "Web and React Native skills, for a monorepo")
     .example("$0 passport --check", "Fail if a passport is stale (CI)")
     .example("$0 doctor", "What you changed, what upstream changed, what an update breaks")
     .example("$0 doctor DataGrid --json", "One component, as JSON")
     .example("$0 add Select --legacy", "Install from the 1.x set")
     .example("$0 add Button --dest app/ui", "Choose where they go")
+    .example("$0 add Button AppBar --platform native", "React Native (beta); detected from package.json by default")
     .example("$0 mcp", "Serve the catalogue to a coding agent over MCP")
     .example("$0 mcp install", "Register the MCP server with every agent found")
     .example("$0 mcp install --for codex", "Only write the Codex config")
@@ -1413,6 +1616,36 @@ const main = async () => {
    * these, and now there is nothing to opt into.
    */
   const current = !argv.legacy;
+
+  /*
+   * Which edition: React Native (beta) or the web. Read from the project, so
+   * `npx @grampro/kit@native add Button` in an Expo app needs no flag. Only
+   * the commands that copy or report components care.
+   */
+  // `both` means something only to `skill`, for a monorepo with web and native apps.
+  const bothPlatforms = String(argv.platform || "").trim().toLowerCase() === "both";
+  const skillCommand = Boolean(argv.skill || (parsed && parsed.command === "skill") || isSkillWord(argv.add));
+  if (bothPlatforms && !skillCommand) {
+    console.error("--platform both applies to `skill` only. Use web or native.");
+    process.exit(1);
+  }
+  const detected = native.detectPlatform(process.cwd(), bothPlatforms ? undefined : argv.platform);
+  if (detected.error) {
+    console.error(detected.error);
+    process.exit(1);
+  }
+  const platform = current ? detected.platform : "web";
+  if (!current && detected.platform === "native" && argv.platform && !skillCommand) {
+    console.error("The 1.x components (--legacy) are web only.");
+    process.exit(1);
+  }
+  const announcePlatform = () => {
+    if (current && (platform === "native" || argv.platform)) {
+      console.log(
+        `Platform: ${platform}${platform === "native" ? " (React Native, beta)" : ""} — ${detected.reason}`,
+      );
+    }
+  };
 
   if (argv["beta"] === true) {
     console.log(
@@ -1471,7 +1704,7 @@ const main = async () => {
   }
 
   if (parsed && parsed.command === "doctor") {
-    runDoctorCommand({ only: parsed.operands, dest: argv.dest, json: argv.json });
+    runDoctorCommand({ only: parsed.operands, dest: argv.dest, json: argv.json, platform });
     return;
   }
 
@@ -1497,14 +1730,28 @@ const main = async () => {
 
   // List components if requested
   if (argv.list) {
-    const availableComponents = getAvailableComponents(current);
-    console.log(`\nAvailable ${current ? "" : "1.x "}components:`);
-    availableComponents.forEach((comp) => {
-      const deps = CONFIG.dependencies[comp]
-        ? ` (requires: ${CONFIG.dependencies[comp].join(", ")})`
-        : "";
-      console.log(`- ${comp}${deps}`);
-    });
+    if (current) {
+      // Every component, with where it runs. This project's platform is marked.
+      announcePlatform();
+      const rows = allCurrentComponents().map((comp) => {
+        const web = availableOn(comp, "web");
+        const mobile = availableOn(comp, "native");
+        return { comp, where: web && mobile ? "web · native" : web ? "web only" : "native only", here: availableOn(comp, platform) };
+      });
+      const width = Math.max(...rows.map((row) => row.comp.length)) + 2;
+      console.log(`\nAvailable components (this project: ${platform}):`);
+      for (const row of rows) {
+        console.log(`- ${row.comp.padEnd(width)}${row.where}${row.here ? "" : "  (not for this project)"}`);
+      }
+    } else {
+      console.log("\nAvailable 1.x components:");
+      getAvailableComponents(current).forEach((comp) => {
+        const deps = CONFIG.dependencies[comp]
+          ? ` (requires: ${CONFIG.dependencies[comp].join(", ")})`
+          : "";
+        console.log(`- ${comp}${deps}`);
+      });
+    }
     if (current) {
       console.log(
         `\nEvery component also installs component-lib/${SHARED_DIR}, which they all import.`,
@@ -1521,12 +1768,13 @@ const main = async () => {
 
   // Interactive mode
   if (argv.interactive) {
-    const destPath = resolveDestPath(argv.dest);
+    const destPath = resolveDestPath(argv.dest, platform);
     const where = path.relative(process.cwd(), destPath) || ".";
-    ui.intro(`GramproKit ${PACKAGE_VERSION}`);
+    ui.intro(`GramproKit ${PACKAGE_VERSION}${platform === "native" ? " · React Native (beta)" : ""}`);
+    if (!assertPlatformFits(destPath, platform, argv.force)) return;
     let selectedComponents;
     try {
-      selectedComponents = await interactiveComponentSelector(current, destPath);
+      selectedComponents = await interactiveComponentSelector(current, destPath, platform);
     } catch (error) {
       ui.outro(ui.c.red(error.message));
       process.exitCode = 1;
@@ -1543,10 +1791,10 @@ const main = async () => {
 
     await fs.ensureDir(destPath);
 
-    await copySupportFiles(destPath, current, { force: argv.force });
+    await copySupportFiles(destPath, current, { force: argv.force, platform });
 
     // Install selected components
-    await installMultipleComponents(selectedComponents, destPath, current, { force: argv.force });
+    await installMultipleComponents(selectedComponents, destPath, current, { force: argv.force, platform });
     console.log("");
     ui.outro(
       process.exitCode
@@ -1559,16 +1807,24 @@ const main = async () => {
   // Passports are regenerated in place against the project's own copied
   // source, so a fork's passport describes the fork.
   if (argv.passport) {
-    await runPassport({ check: argv.check, dest: argv.dest });
+    await runPassport({ check: argv.check, dest: argv.dest, platform });
     return;
   }
 
   // The skill goes to the project root, not component-lib, so it is handled
   // before anything reaches the component installer.
   if (argv.skill || isSkillWord(argv.add)) {
+    // The skill follows the project like `add` does: gbs-native for React Native.
+    const skillPlatforms = bothPlatforms ? ["web", "native"] : [detected.platform];
+    if (bothPlatforms || detected.platform === "native" || argv.platform) {
+      console.log(
+        `Platform: ${bothPlatforms ? "web and native" : detected.platform} — ${bothPlatforms ? "--platform" : detected.reason}`,
+      );
+    }
     await installSkill(process.cwd(), {
       force: argv.force,
       targets: parseSkillTargets(argv.for),
+      platforms: skillPlatforms,
     });
 
     // `-a --skill` leaves `add` empty, and `-a skill` names no component.
@@ -1584,31 +1840,62 @@ const main = async () => {
 
   // Parse components (single or multiple)
   const componentInput = argv.add;
-  const components = parseMultipleComponents(componentInput).map(
-    (component) =>
-      normalizeComponent(component, getAvailableComponents(current)) ||
-      component,
+  announcePlatform();
+  // Names resolve against both platforms, so `add AppBar` on the web is told
+  // it is native only rather than that it does not exist.
+  const components = dropUnavailable(
+    parseMultipleComponents(componentInput).map(
+      (component) =>
+        normalizeComponent(component, current ? allCurrentComponents() : getAvailableComponents(current)) ||
+        component,
+    ),
+    current,
+    platform,
   );
 
-  // Validate all components
-  if (!validateComponents(components, current)) {
+  if (components.length === 0) {
     process.exit(1);
   }
 
-  const destPath = resolveDestPath(argv.dest);
+  // Validate all components
+  if (!validateComponents(components, current, platform)) {
+    process.exit(1);
+  }
+
+  const destPath = resolveDestPath(argv.dest, platform);
+  if (!assertPlatformFits(destPath, platform, argv.force)) return;
   await fs.ensureDir(destPath);
 
-  await copySupportFiles(destPath, current, { force: argv.force });
+  const options = { force: argv.force, platform };
+  await copySupportFiles(destPath, current, options);
 
   // Install components
   if (components.length === 1) {
     // Single component installation (existing behavior)
-    await installComponentWithDependencies(components[0], destPath, current, { force: argv.force });
+    await installComponentWithDependencies(components[0], destPath, current, options);
   } else {
     // Multiple components installation
-    await installMultipleComponents(components, destPath, current, { force: argv.force });
+    await installMultipleComponents(components, destPath, current, options);
   }
 };
+
+/**
+ * One folder, one platform. A web install's gbs.css and shared/ do not belong
+ * beside native components, and the reverse; --force is the way to switch.
+ */
+function assertPlatformFits(destPath, platform, force) {
+  const other = native.platformConflict(destPath, platform);
+  if (!other || force) return true;
+  const where = path.relative(process.cwd(), destPath) || ".";
+  console.error(
+    `${ui.cross()} ${where}/ already holds a ${other} install, and this project is ${platform}.`,
+  );
+  console.error(
+    `  Install into another folder with --dest, or pass --platform ${other} to add to it. --force switches the folder.`,
+  );
+  process.exitCode = 1;
+  return false;
+}
 
 main().catch((error) => {
   console.error("Error:", error.message);

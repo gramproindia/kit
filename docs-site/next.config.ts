@@ -25,7 +25,18 @@ const options = {
 
 const nextConfig: NextConfig = {
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
-  turbopack: { root: repoRoot },
+  turbopack: {
+    root: repoRoot,
+    resolveAlias: {
+      // The /native previews render the real React Native components with
+      // react-native-web, through a shim that keeps them inside a drawn phone
+      // (native-preview/rn-shim.tsx). Nothing else on the site imports
+      // react-native, so the web docs are untouched.
+      "react-native": "./native-preview/rn-shim.tsx",
+      // The type checker sees native-preview/runtime.d.ts instead (tsconfig paths).
+      "@native-preview/runtime": "./native-preview/runtime.tsx",
+    },
+  },
   // Keep tracing inside the repo too, so a standalone build finds the library.
   outputFileTracingRoot: repoRoot,
   images: {

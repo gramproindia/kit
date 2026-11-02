@@ -13,14 +13,12 @@
       "core/index.ts",
       "core/locale.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Popover.tsx",
       "react/Popover.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:622ba11dfe14f0a580a3c362bb307895f07715e4e381384362efbe820c61cf32"
+    "sourceHash": "sha256:fb05956aae6ea96cc26c636b3570515ed952665d02ceb550da55770d725bae4d"
   },
   "purpose": "A panel anchored to the control that opened it, in the top layer, with light dismiss, Escape, and flipping when there is no room.",
   "props": [

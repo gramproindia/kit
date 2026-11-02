@@ -18,6 +18,10 @@
       "command": "generate"
     },
     {
+      "name": "Generate mobile design system (iOS & Android) \u2014 beta",
+      "command": "generate-mobile"
+    },
+    {
       "name": "Export selection for an agent",
       "command": "export"
     },

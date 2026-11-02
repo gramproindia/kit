@@ -15,15 +15,13 @@
       "core/index.ts",
       "core/locale.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Badge.tsx",
       "react/Badge.tsx",
       "react/Tag.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:d46102879135776d53ad393ed8a84765b1f76c36c01940a340e90e1cdedc0c9b"
+    "sourceHash": "sha256:bb9dec4fe25d7f800a7c1bbabd49b8a4fb3e1f89a544523a2badfc75c756f5e0"
   },
   "purpose": "Short labels: a status, a category, a count that stops at 99+, and chips the user can take off.",
   "props": [

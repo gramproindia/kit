@@ -87,10 +87,10 @@ genuinely headless, and the component READMEs document it under "Headless use".
 
 | | |
 | --- | --- |
-| `add <Component>...` | Copy components into the project, or update ones already there. A component you have edited is left alone unless you pass `--force`. `--dest` chooses where; `--legacy` reaches the 1.x set. |
+| `add <Component>...` | Copy components into the project, or update ones already there. A component you have edited is left alone unless you pass `--force`. `--dest` chooses where; `--legacy` reaches the 1.x set; `--platform native\|web` overrides React Native detection (beta). |
 | `doctor [Component...]` | What you changed in your copies, what the new version changes, and which of your call sites an update would break. `--json` for agents and CI. |
 | `list` | What is available to add. |
-| `skill` | Install the agent skill. `--for claude,codex,antigravity` narrows it. |
+| `skill` | Install the agent skill. `--for claude,codex,antigravity` narrows it. In a React Native project it installs the native skill (`gbs-native`); `--platform both` installs both. |
 | `mcp` | Run the MCP server. Agents start this themselves; you rarely type it. |
 | `mcp install` | Write the server's configuration for Claude Code, Codex and Cursor. |
 | `secret set figma` | Store a Figma token in the OS credential store. Also `get`, `list`, `remove`. |
@@ -98,6 +98,46 @@ genuinely headless, and the component READMEs document it under "Headless use".
 | `passport --check` | Fail if a passport has drifted from its source. For CI, and after forking a component. |
 
 `npx @grampro/kit <command>`, or `grampro-kit` once it is a dev dependency.
+
+## React Native (beta)
+
+> **Beta. It may break.** The native edition ships as prereleases on the
+> `native` npm tag. Its APIs can change between them without a major version.
+
+The same components, for iOS and Android, plus mobile-only ones: AppBar,
+BottomNavigation, Fab and SpeedDial, BottomSheet, List and ListItem,
+SearchBar, SegmentedControl. It is pure JavaScript with no native modules or
+dependencies, so it runs in Expo Go, in development builds and in bare React
+Native (New Architecture, RN 0.83 or later).
+
+```bash
+npx @grampro/kit@native add Button Input Select AppBar
+```
+
+`add` detects React Native from `react-native` or `expo` in `package.json`.
+`--platform native` or `--platform web` overrides that. A native install copies
+each component's native view and its shared logic (`core/`), never the web
+files, and writes `gbs.theme.ts` where the web edition writes `gbs.css`. Wrap
+the app once:
+
+```tsx
+import { KitProvider } from "./component-lib/shared/native";
+import { theme } from "./component-lib/gbs.theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context"; // optional
+
+<KitProvider theme={theme} insets={useSafeAreaInsets()}>{app}</KitProvider>
+```
+
+The props mostly match the web, with these differences:
+
+- `style`/`styles` replace `className`/`classNames`.
+- `onPress` replaces `onClick`.
+- Pickers and menus open as bottom sheets on phones.
+
+DataGrid is web only for now.
+
+Docs: [kit.gramproindia.com/native](https://kit.gramproindia.com/native). The
+plan is in [`docs/react-native.md`](docs/react-native.md).
 
 ## Documentation
 

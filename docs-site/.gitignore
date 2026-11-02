@@ -45,6 +45,9 @@ next-env.d.ts
 # these are build output rather than source -- and the highlighted sources are
 # ~2 MB that would churn on every component change.
 app/(main)/_components/generated/
+# The same for the React Native previews: rewritten copies of
+# native-playground/demos, rebuilt by scripts/generate-native-demos.mjs.
+native-preview/generated/
 
 # diagram intermediates
 # The .webp are served, so they are committed. The .svg beside them is just

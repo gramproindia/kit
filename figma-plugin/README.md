@@ -75,6 +75,42 @@ Dark mode: select a frame, then in the right panel under **Appearance** set the
 > Two variable modes (Light and Dark) need a paid Figma plan. On the Starter
 > plan the plugin creates Light only and says so in its summary.
 
+## Mobile design system — iOS & Android (BETA)
+
+**Plugins → Development → Grampro Kit → Generate mobile design system (iOS &
+Android) — beta** builds the GramproKit React Native components in the same
+file (or a new one). It is a separate command, so the web pages are untouched.
+
+> **BETA.** The React Native kit is in prerelease on the npm `native` tag, and
+> both the components and this design set may change or break between
+> prereleases.
+
+| Page | Contents |
+| --- | --- |
+| **Mobile · Foundations** | The mobile-only colour tokens in Light and Dark, the iOS (SF Pro), Android (Roboto) and Kit type ramps, touch targets and the 34 / 44 / 52 control heights, mobile radii, and the safe areas of an iPhone 16 and a Pixel 9. |
+| **Mobile · Components** | 25 sets prefixed `Mobile/`: AppBar, BottomNavigation, SegmentedControl, Tabs, Button, Fab, SpeedDial, Field (Input / Select / Date), SearchBar, Switch, Checkbox, Radio, BottomSheet, Dialog, Toast, Menu, ListItem (+ iOS settings and Android inbox examples), Card, Stat, Badge, Avatar, Alert, Progress, Spinner, Skeleton. |
+| **Mobile · Screens** | The GramproKit Demo app on iPhone 16 (393 × 852) and Pixel 9 (412 × 915), each in Light and Dark: Home dashboard, New invoice, Settings · Theme, a bottom sheet open, a dialog open. Built from instances, so editing a component updates every screen. |
+
+- **Platform property** only where iOS and Android differ: AppBar (iOS
+  navigation bar small / large title; Android M3 small / center / medium /
+  large), BottomNavigation (tab bar; M3 navigation bar with the pill),
+  SegmentedControl (sliding thumb; M3 segmented buttons), SearchBar, Switch,
+  BottomSheet, Dialog (iOS alert; M3 dialog), Toast (iOS banner; M3 snackbar),
+  Menu (context menu / action sheet; M3 menu / sheet), ListItem, Fab (M3 FAB;
+  an iOS "floating button" for apps that use one on both — iOS has no FAB).
+  Everything else is one look on both, as Kit renders it.
+- **Theme by variable mode, not duplicates.** Mobile shares every colour
+  variable with the web kit and adds `surface/raised` and `surface/grouped`;
+  the size collection gains `mobile/*` (touch target, control heights, font
+  size, safe areas) and `radius/sheet`, `radius/dialog-ios`,
+  `radius/dialog-android`. Text styles go under `Grampro Kit Mobile/`.
+- **Fonts.** iOS styles use SF Pro and Android styles Roboto. SF Pro is not on
+  Windows or in the browser: there the iOS styles fall back to Inter and the
+  closing message says so. Install SF Pro and run the command again to update
+  the styles in place.
+- Mirrors `source/components/shared/native/theme.ts` and the components in
+  `source/components/*/native` and `source/native/*`.
+
 ## Running it again
 
 When the code's tokens or components change, update `src/tokens.ts` (and the
@@ -95,7 +131,7 @@ file:
 cd figma-plugin
 npm install
 npm run build    # compiles src/*.ts to dist/code.js (committed, so designers don't need Node)
-npm run smoke    # runs the plugin against a mock Figma API to catch runtime errors
+npm run smoke    # runs both generators (web, then mobile) and the export against a mock Figma API
 ```
 
 | File | Purpose |
@@ -109,7 +145,10 @@ npm run smoke    # runs the plugin against a mock Figma API to catch runtime err
 | `src/display.ts` | Alert, Badge, Tag, Avatar, Progress, Accordion. |
 | `src/overlays.ts` | Modal, Dialog, Toast, FileUploader, DataGrid. |
 | `src/surfaces.ts` | Menu, Popover, Tooltip, Card, Stat, Skeleton, Empty state. |
-| `src/main.ts` | Pages and orchestration. |
+| `src/mobile-tokens.ts` | Mobile-only variables and the iOS / Android / Kit text styles (BETA). |
+| `src/mobile-components.ts` | The `Mobile/` component sets, with iOS and Android variants (BETA). |
+| `src/mobile-screens.ts` | Mobile · Foundations and Mobile · Screens (BETA). |
+| `src/main.ts` | Pages and orchestration; the `generate-mobile` command. |
 
 ## Limits
 

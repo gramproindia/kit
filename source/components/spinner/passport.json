@@ -15,15 +15,13 @@
       "core/types.ts",
       "core/visibility.ts",
       "hooks/useDelayedLoading.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Spinner.tsx",
       "react/Spinner.tsx",
       "react/locale.ts",
       "react/props.ts",
       "react/useDelayedLoading.ts"
     ],
-    "sourceHash": "sha256:61336367975b1cd5c8fc503b30c58b5044b57aa2d86aec1b9c4d812469c92359"
+    "sourceHash": "sha256:c29af28b5d17e52739b0870cb00740674e933e623b60de2853940cc24003c3bc"
   },
   "purpose": "A loading indicator on its own, beside a label or covering content, with a delay before it appears and a minimum time on screen.",
   "props": [

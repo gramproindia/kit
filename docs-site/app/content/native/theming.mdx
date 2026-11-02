@@ -1,0 +1,106 @@
+---
+title: "Theming"
+description: "The native mirror of the --gbs-* tokens: one theme object for colours, radius, type size and touch targets, in light and dark."
+group: "Get started"
+order: 2
+---
+
+On the web, Kit is themed with `--gbs-*` CSS variables. React Native has no
+CSS cascade, so the same tokens are a JavaScript object you pass to
+`KitProvider`. The names match (camelCase), and so does the default palette,
+so a brand set once in Figma themes both.
+
+## Your theme
+
+The first native install writes `gbs.theme.ts`. It is yours, and Kit never
+overwrites it:
+
+```tsx
+import type { KitTheme } from "./shared/native";
+
+export const theme: KitTheme = {
+  // One set for both schemes:
+  accent: "#7c3aed",
+  radius: 10,
+};
+```
+
+Or set the schemes separately:
+
+```tsx
+export const theme: KitTheme = {
+  light: { accent: "#7c3aed" },
+  dark: { accent: "#a78bfa" },
+};
+```
+
+`KitProvider` follows the device's light/dark setting. Force one with
+`colorScheme="light"` or `"dark"`.
+
+## Tokens
+
+Colours are hex, so components can mix them for pressed states and tints. A
+non-hex value still works; it just is not mixed.
+
+| Token | CSS variable | Light | Dark |
+|---|---|---|---|
+| `bg` | `--gbs-bg` | `#ffffff` | `#0b0b0e` |
+| `fg` | `--gbs-fg` | `#18181b` | `#f4f4f5` |
+| `muted` | `--gbs-muted` | `#71717a` | `#a1a1aa` |
+| `border` | `--gbs-border` | `#e4e4e7` | `#27272a` |
+| `borderControl` | `--gbs-border-control` | `#a1a1aa` | `#52525b` |
+| `borderSubtle` | `--gbs-border-subtle` | `#f0f0f2` | `#1c1c20` |
+| `hover` | `--gbs-hover` | `#f4f4f5` | `#1f1f23` |
+| `subtle` | `--gbs-subtle` | `#f4f4f5` | `#1c1c20` |
+| `inputBg` | `--gbs-input-bg` | `#ffffff` | `#121216` |
+| `readonlyBg` | `--gbs-readonly-bg` | `#fafafa` | `#0e0e12` |
+| `accent` | `--gbs-accent` | `#2563eb` | `#60a5fa` |
+| `accentFg` | `--gbs-accent-fg` | `#ffffff` | `#0b1220` |
+| `accentSoft` | `--gbs-accent-soft` | `#eff6ff` | `#172554` |
+| `accentStrong` | `--gbs-accent-strong` | `#1d4ed8` | `#bfdbfe` |
+| `danger` | `--gbs-danger` | `#dc2626` | `#f87171` |
+| `dangerFg` | `--gbs-danger-fg` | `#ffffff` | `#1c0606` |
+| `success` | `--gbs-success` | `#15803d` | `#4ade80` |
+| `warning` | `--gbs-warning` | `#b45309` | `#fbbf24` |
+| `info` | `--gbs-info` | `#2563eb` | `#60a5fa` |
+| `focus` | `--gbs-focus` | `#2563eb` | `#60a5fa` |
+| `skeleton` | `--gbs-skeleton` | `#ececee` | `#232329` |
+| `backdrop` | `--gbs-backdrop` | `rgba(9, 9, 11, 0.5)` | `rgba(0, 0, 0, 0.6)` |
+| `raised` | (native only) | `#ffffff` | `#18181c` |
+| `shadow` | `--gbs-shadow` | `0 10px 30px -8px rgba(0,0,0,.18)` | `… rgba(0,0,0,.6)` |
+| `tooltipBg` | `--gbs-tooltip-bg` | `#18181b` | `#f4f4f5` |
+| `tooltipFg` | `--gbs-tooltip-fg` | `#fafafa` | `#18181b` |
+| `radius` | `--gbs-radius` | `8` | `8` |
+| `fontSize` | `--gbs-font-size` | `15` (web: 13px) | `15` |
+| `touchTarget` | (native only) | `44` | `44` |
+
+`raised` is the surface of elevated cards, sheets and menus. It is lighter
+than `bg` in dark mode, because shadows barely show on a near-black screen.
+`touchTarget` is the smallest height of anything tappable: 44 suits iOS, and
+48 matches Material.
+
+## Per component
+
+Every component takes `style` for its root and `styles` for its parts, the
+native stand-ins for `className` and `classNames`. Either can be a function of
+the component's state, which replaces the web's `data-*` attributes:
+
+```tsx
+<Button
+  style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.98 : 1 }] })}
+  styles={{ label: { letterSpacing: 0.5 } }}
+>
+  Save
+</Button>
+```
+
+## In your own components
+
+```tsx
+import { useKitTheme } from "@/component-lib/shared/native";
+
+function Price({ amount }: { amount: string }) {
+  const { tokens } = useKitTheme();
+  return <Text style={{ color: tokens.fg, fontSize: tokens.fontSize + 4 }}>{amount}</Text>;
+}
+```

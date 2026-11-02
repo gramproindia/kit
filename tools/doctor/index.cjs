@@ -48,12 +48,28 @@ function compareVersions(a, b) {
   return 0;
 }
 
+/** Folders in one or more kit roots; a root that does not exist adds nothing. */
+function kitFolders(roots) {
+  const names = new Set();
+  for (const root of [].concat(roots)) {
+    if (!root || !fs.existsSync(root)) continue;
+    for (const e of fs.readdirSync(root, { withFileTypes: true })) if (e.isDirectory()) names.add(e.name);
+  }
+  return names;
+}
+
+/** The kit root that holds a folder: the first of `roots` that has it. */
+function kitDirFor(folder, roots) {
+  for (const root of [].concat(roots)) {
+    if (root && fs.existsSync(path.join(root, folder))) return path.join(root, folder);
+  }
+  return path.join([].concat(roots)[0], folder);
+}
+
 /** Component folders installed in `dest` that this CLI also knows. */
 function installedFolders(dest, kitRoot) {
   if (!fs.existsSync(dest)) return [];
-  const known = new Set(
-    fs.readdirSync(kitRoot, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name),
-  );
+  const known = kitFolders(kitRoot);
   return fs
     .readdirSync(dest, { withFileTypes: true })
     .filter((e) => e.isDirectory() && e.name !== SHARED && known.has(e.name))
@@ -66,7 +82,7 @@ function folderFor(name, kitRoot, folders) {
   const wanted = normalise(name);
   for (const folder of folders) {
     if (normalise(folder) === wanted) return folder;
-    const passport = readJson(path.join(kitRoot, folder, PASSPORT));
+    const passport = readJson(path.join(kitDirFor(folder, kitRoot), PASSPORT));
     const names = [passport?.identity?.component, ...(passport?.identity?.exports || [])].filter(Boolean);
     if (names.some((n) => normalise(n) === wanted)) return folder;
   }
@@ -125,14 +141,16 @@ const brokenProps = (props, lost) =>
  */
 function runDoctor(options) {
   const { cwd, dest, kitRoot, kitVersion, only, contracts = true, impact = true } = options;
-  const installed = installedFolders(dest, kitRoot);
+  // React Native's mobile-only components sit in a second root (source/native).
+  const roots = [kitRoot, ...(options.extraKitRoots || [])];
+  const installed = installedFolders(dest, roots);
 
   let folders = installed;
   const notInstalled = [];
   if (only && only.length) {
     folders = [];
     for (const name of only) {
-      const folder = folderFor(name, kitRoot, installed);
+      const folder = folderFor(name, roots, installed);
       if (folder) {
         if (!folders.includes(folder)) folders.push(folder);
       } else notInstalled.push(name);
@@ -141,7 +159,7 @@ function runDoctor(options) {
 
   const rows = folders.map((folder) => {
     const dir = path.join(dest, folder);
-    const kitDir = path.join(kitRoot, folder);
+    const kitDir = kitDirFor(folder, roots);
     const kitPassport = readJson(path.join(kitDir, PASSPORT));
     const theirs = compactContract(kitPassport);
     const status = inspect(dir, { folder, kitDir, kitVersion });
@@ -159,6 +177,9 @@ function runDoctor(options) {
 
   // Contracts for edited copies only: a pristine copy's contract is its baseline.
   let contractNote = null;
+  if (!contracts && options.contractsNote && rows.some((row) => row.state !== "pristine")) {
+    contractNote = options.contractsNote;
+  }
   let reactTypes = true;
   const needContracts = contracts && rows.some((row) => row.state !== "pristine");
   if (needContracts) {

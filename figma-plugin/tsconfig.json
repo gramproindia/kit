@@ -26,6 +26,9 @@
     "src/surfaces.ts",
     "src/display.ts",
     "src/export.ts",
+    "src/mobile-tokens.ts",
+    "src/mobile-components.ts",
+    "src/mobile-screens.ts",
     "src/main.ts"
   ]
 }

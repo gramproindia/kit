@@ -1,10 +1,12 @@
 {
-  "name": "native-playground",
+  "name": "gramprokit-demo",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
     "expo": "~58.0.22",
+    "expo-clipboard": "~58.0.4",
     "expo-status-bar": "~58.0.4",
+    "expo-system-ui": "~58.0.7",
     "react": "19.3.0",
     "react-native": "0.88.1",
     "react-native-safe-area-context": "~5.10.1"
@@ -17,7 +19,9 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "apk": "expo prebuild --platform android --no-install && cd android && gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a",
+    "typecheck": "tsc --noEmit"
   },
   "private": true
 }

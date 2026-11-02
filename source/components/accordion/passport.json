@@ -15,16 +15,13 @@
       "core/index.ts",
       "core/open.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Accordion.tsx",
-      "native/context.ts",
       "react/Accordion.tsx",
       "react/AccordionItem.tsx",
       "react/context.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:d1aeed1d210bc6270206a4319a24ef8b42cae1d62ac04dddf3b24cee6fcf7cbb"
+    "sourceHash": "sha256:c04b9c09e8661f463e2a808ecd45a7c080c236bc7b398efc1b3505a45e245f00"
   },
   "purpose": "Sections that open and close, built on native <details> and <summary>, with single or multiple expansion.",
   "props": [

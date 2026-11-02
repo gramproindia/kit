@@ -4,6 +4,11 @@
 // properties bound to missing layers, and a few of Figma's own layout rules.
 //
 //   npm run build && npm run smoke
+//
+// `node test/smoke.mjs mobile` runs the "Generate mobile design system"
+// command instead of the web one.
+
+const MOBILE = process.argv[2] === "mobile";
 
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -153,6 +158,7 @@ function makeComponent() {
 let variableCount = 0;
 const collections = [];
 const figma = {
+  command: MOBILE ? "generate-mobile" : undefined,
   mixed: Symbol("mixed"),
   root: makeNode("DOCUMENT"),
   variables: {
@@ -352,5 +358,6 @@ if (problems.length) {
 const widest = sets.reduce((a, b) => (a.width > b.width ? a : b), sets[0]);
 console.log(`widest grid: ${widest?.name} at ${Math.round(widest?.width ?? 0)}px (section content is ${SECTION_CONTENT}px)`);
 
-const ok = figma.closed?.startsWith("Grampro Kit ready") && unreferenced === 0 && problems.length === 0;
+const ready = MOBILE ? "Grampro Kit mobile ready" : "Grampro Kit ready";
+const ok = figma.closed?.startsWith(ready) && unreferenced === 0 && problems.length === 0;
 process.exit(ok ? 0 : 1);

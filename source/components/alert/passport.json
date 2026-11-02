@@ -14,15 +14,13 @@
       "core/live.ts",
       "core/locale.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Alert.tsx",
       "react/Alert.tsx",
       "react/icons.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:911053e7e6dcd2124171ecaaee93bf41703fae0ff12e937b3ab43763f02304d3"
+    "sourceHash": "sha256:7aa0bac6814261ae9270d23f79d3aaf730eb64808425800851abccf70d08deb9"
   },
   "purpose": "A message that stays in the page — neither interrupting like a dialog nor leaving like a toast. For conditions the user needs to keep seeing.",
   "props": [

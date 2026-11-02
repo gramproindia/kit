@@ -1,0 +1,43 @@
+---
+title: "Running on devices"
+description: "Try the native components on a real iPhone or Android phone with Expo Go, from Windows, macOS or Linux, and test them with Maestro."
+group: "Get started"
+order: 4
+---
+
+The previews on these pages run the real components in your browser through
+react-native-web. Shadows, fonts, the keyboard and the feel of a sheet differ
+on a phone, so try them on one.
+
+## The playground app
+
+The repository has `native-playground/`, an Expo app that renders every demo
+on these pages from Kit's source:
+
+```bash
+cd native-playground
+npm install
+npx expo start
+```
+
+Scan the QR code with **Expo Go** (Android or iOS). Because Kit has no native
+modules, no build is needed, and that includes iPhones from a Windows machine.
+
+## Android over USB
+
+With USB debugging on, the phone can reach the dev server over the cable,
+without sharing Wi-Fi:
+
+```bash
+adb reverse tcp:8081 tcp:8081
+npx expo start --localhost
+```
+
+Then press `a`, or open `exp://127.0.0.1:8081` in Expo Go.
+
+## Automated tests
+
+For your own app, React Native Testing Library covers the components, and
+[Maestro](https://maestro.dev) covers flows on a device. Maestro runs natively
+on Windows (no WSL or Docker) against an emulator or a phone plugged in over
+USB. iOS flows need the iOS simulator, which CI can provide on macOS runners.

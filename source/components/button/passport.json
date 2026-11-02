@@ -14,14 +14,12 @@
       "core/locale.ts",
       "core/state.ts",
       "core/types.ts",
-      "index.native.ts",
       "index.ts",
-      "native/Button.tsx",
       "react/Button.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:918a3cc2562b7ccded91c53607f66c0bb4c3299c0cfdfd82e62d30e77abc57f1"
+    "sourceHash": "sha256:69680240e6c11983a05e6766111a43494fd88b22dcfdd7e3648948d1f9627239"
   },
   "purpose": "Trigger an action. Not for navigation unless `render` supplies a link element.",
   "props": [
