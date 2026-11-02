@@ -1851,3 +1851,69 @@
   color: var(--v2-muted);
   font-size: 0.8125rem;
 }
+
+/*
+ * Native previews: Kit's native fields draw their own focus ring on the field's
+ * frame. The browser's default outline on the inner <input> (react-native-web
+ * renders TextInput as one) would draw a second ring inside it. Phones have no
+ * such outline, so drop it inside the phone screen only.
+ */
+[data-rn-screen] input:focus,
+[data-rn-screen] textarea:focus {
+  outline: none;
+}
+
+/*
+ * Native docs: the live phone and the demo's source side by side. The stage
+ * has a fixed width so the phone does not size from its own container.
+ */
+.v2-native-preview {
+  display: grid;
+  margin: 2rem 0;
+  overflow: hidden;
+  border: 1px solid var(--v2-border);
+  border-radius: 0.75rem;
+  background: var(--v2-surface);
+}
+
+.v2-native-preview-stage {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem 1.5rem;
+}
+
+.v2-native-preview-code {
+  display: flex;
+  min-width: 0;
+  max-height: 44rem;
+  flex-direction: column;
+  border-top: 1px solid var(--v2-border);
+  background: var(--v2-code-bg);
+}
+
+.v2-native-preview-code .v2-code {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.v2-native-preview-code .v2-code pre {
+  flex: 1;
+  overflow: auto;
+  font-size: 0.75rem;
+}
+
+@media (min-width: 64rem) {
+  .v2-native-preview[data-has-code] {
+    grid-template-columns: 23rem minmax(0, 1fr);
+  }
+
+  .v2-native-preview[data-has-code] .v2-native-preview-code {
+    border-top: 0;
+    border-left: 1px solid var(--v2-border);
+  }
+}

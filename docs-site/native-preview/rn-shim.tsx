@@ -71,7 +71,10 @@ if (!(measure as { __kitPatched?: boolean }).__kitPatched) {
       const screen = node?.closest?.(`[${SCREEN_ATTR}]`);
       if (!screen) return callback(x, y, w, h);
       const r = screen.getBoundingClientRect();
-      callback(x - r.left, y - r.top, w, h);
+      // The phone is drawn at real device size and scaled down to fit the page;
+      // getBoundingClientRect is in scaled pixels, layout is not. Undo the scale.
+      const scale = (screen as HTMLElement).offsetWidth ? r.width / (screen as HTMLElement).offsetWidth : 1;
+      callback((x - r.left) / scale, (y - r.top) / scale, w / scale, h / scale);
     });
   patched.__kitPatched = true;
   UIManager.measureInWindow = patched;

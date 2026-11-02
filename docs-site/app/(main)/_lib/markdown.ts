@@ -3,7 +3,7 @@ import matter from "gray-matter";
 import { siteConfig } from "@/site.config";
 import { getDocs, readSourceWithFallback, type DocMeta } from "./docs";
 import { agentConfig, getAgentDocs, readAgentSource } from "./agent-docs";
-import { getNativeDocs, nativeConfig, readNativeSource, NATIVE_BASE } from "./native-docs";
+import { demoApp, getNativeDocs, nativeConfig, readNativeSource, NATIVE_BASE } from "./native-docs";
 import { v2Config } from "./config";
 import { DEFAULT_LOCALE, homeHref, LOCALE_CODES, localeInfo, type Locale } from "./i18n";
 import { t } from "./strings";
@@ -110,10 +110,16 @@ function convertBody(source: string, locale: Locale, pageUrl: string) {
     }
 
     // A React Native preview runs in a phone frame on the page only.
+    // With the demo's source inside it, keep the code and drop the tags.
     if (/^<NativePreview\s[^>]*\/>\s*$/.test(line)) {
       out.push(`_${s.mdInteractiveDemo}_ [${s.mdOpenLiveExample}](${pageUrl})`);
       continue;
     }
+    if (/^<NativePreview\s[^>]*>\s*$/.test(line)) {
+      out.push(`_${s.mdInteractiveDemo}_ [${s.mdOpenLiveExample}](${pageUrl}). The example's source:`);
+      continue;
+    }
+    if (/^<\/NativePreview>\s*$/.test(line)) continue;
 
     if (/^<(\w*Wrapper(Beta)?|DemoGrid)\s*\/>\s*$/.test(line)) {
       out.push(`_${s.mdInteractiveDemo}_ [${s.mdOpenLiveExample}](${pageUrl})`);
@@ -201,6 +207,17 @@ async function nativeLlmsLines() {
     "",
     `${nativeConfig.description} Install with \`${nativeConfig.install}\` (npm tag \`${nativeConfig.npmTag}\`). Overview: ${absoluteUrl(NATIVE_BASE)}.`,
     "",
+    // What a coding agent gets wrong when it carries web habits into React Native.
+    "Rules for coding agents working in a React Native or Expo app:",
+    "",
+    "- Detect the platform from package.json: `react-native` or `expo` means native. The CLI does the same, and `--platform native|web` overrides it.",
+    "- Mount `<KitProvider theme={theme} insets={useSafeAreaInsets()}>` once at the root, and `<Toaster />` and `<DialogHost />` once inside it. `theme` comes from the generated `gbs.theme.ts`.",
+    "- Style with `style` and `styles={{ slot }}` plus the theme tokens. `className`, `classNames` and `styles.css` are web only. Events are `onPress`, not `onClick`; change handlers keep the web names (`onChange` on pickers and FileUploader, `onValueChange` on text fields and groups).",
+    "- Pickers and menus take `presentation`: `auto` (a bottom sheet on phones, a popover on tablets), `sheet` or `popover`. FileUploader needs an injected `pick()`; Kit adds no picker dependency.",
+    "- Everything is pure JavaScript with no native modules, so it runs in Expo Go. Requires React Native 0.83 or later, React 19.2, and the New Architecture. DataGrid is not available on native yet.",
+    `- Agent tooling: \`npx @grampro/kit@${nativeConfig.npmTag} skill\` installs the \`gbs-native\` skill for Claude Code, Codex and Antigravity (\`--platform both\` installs web and native). The MCP server's tools take \`platform: "native"\`: \`list_components\`, \`get_component\`, \`get_example\`, \`get_guidance\`, \`install_component\`, and \`validate_usage\`, which flags web-only props such as \`className\` and \`onClick\`.`,
+    `- A sample Android app built only from Kit, ${demoApp.name}: ${demoApp.apkUrl}`,
+    "",
   ];
   for (const doc of await getNativeDocs()) {
     lines.push(`- [${doc.title}](${absoluteUrl(markdownHref(doc))}): ${doc.description}`);
@@ -228,6 +245,8 @@ export const getLlmsTxt = cache(async () => {
     "Also known as Grampro Kit, GBS Kit and GBS Components. The npm package is `@grampro/kit`, the source is at https://github.com/gramproindia/kit, and the published documentation is https://kit.gramproindia.com.",
     "",
     "Components are copy-in blocks: `npx @grampro/kit add <Component>` (or `pnpm dlx @grampro/kit add <Component>`) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once. Run `npx @grampro/kit add` with no names, in a terminal, to pick from a searchable list.",
+    "",
+    `There is a React Native edition, in beta: \`${nativeConfig.install}\` in a React Native or Expo project installs the native version of the same components, plus mobile-only ones (AppBar, BottomNavigation, Fab, SegmentedControl, ListItem, BottomSheet, SearchBar). The CLI detects the platform; do not mix web and native APIs. See the "${nativeConfig.name} (beta)" section below.`,
     "",
     "Pages can be operated by browser agents without writing tool definitions: wrap a page in `<AgentSurface>` and every form field and data grid inside describes what it accepts, from its own props, through one WebMCP tool, `operate_page`. Each action is checked by the component it targets before anything changes, and a refusal says why. See the Agent Surface page.",
     "",

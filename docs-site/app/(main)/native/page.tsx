@@ -4,6 +4,7 @@ import {
   ArrowRight,
   Bot,
   Copy,
+  Download,
   Layers,
   MoonStar,
   PackageOpen,
@@ -13,7 +14,7 @@ import {
 } from "lucide-react";
 import { CommandTabs } from "../_components/CommandTabs";
 import { PhoneFrame } from "../_components/native/PhoneFrame";
-import { getNativeDocs, nativeConfig, NATIVE_BASE, NATIVE_DOCS, NATIVE_GROUPS } from "../_lib/native-docs";
+import { demoApp, getNativeDocs, nativeConfig, NATIVE_BASE, NATIVE_DOCS, NATIVE_GROUPS } from "../_lib/native-docs";
 import { BRAND } from "../_lib/seo";
 
 const TITLE = "GramproKit for React Native (beta)";
@@ -100,6 +101,10 @@ export default async function NativeHome() {
               Get started
               <ArrowRight className="size-4" aria-hidden />
             </Link>
+            <a href={demoApp.apkUrl} className="v2-btn">
+              <Download className="size-4" aria-hidden />
+              Demo app for Android
+            </a>
             <Link href={`${NATIVE_DOCS}/app-bar`} className="v2-btn">
               Browse components
             </Link>
@@ -130,7 +135,7 @@ export default async function NativeHome() {
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-(--v2-muted)">
             These phones run the native source through react-native-web. Tap, type and open sheets. A real device
-            feels better still: run the playground app in Expo Go.
+            feels better still: install the demo app below.
           </p>
         </div>
         <div className="flex flex-wrap items-start justify-center gap-10">
@@ -140,6 +145,31 @@ export default async function NativeHome() {
               <p className="mt-1 text-center text-sm font-medium">{caption}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="v2-container pb-16 sm:pb-20" aria-labelledby="demo-app-heading">
+        <div className="v2-card mx-auto flex max-w-3xl flex-col items-start gap-5 sm:flex-row sm:items-center">
+          <Smartphone className="size-8 shrink-0 text-(--v2-accent)" aria-hidden />
+          <div className="flex-1">
+            <h2 id="demo-app-heading" className="text-lg font-semibold">
+              Try it on your phone
+            </h2>
+            <p className="mt-1.5 text-sm text-(--v2-muted)">
+              {demoApp.name} is a sample business app built only from Kit: dashboard, invoice form, every component,
+              and a live theme editor. {demoApp.requirements} On iPhone, run the playground in Expo Go.
+            </p>
+            <p className="mt-2 text-xs text-(--v2-muted)">{demoApp.sideloadNote}</p>
+          </div>
+          <div className="flex shrink-0 flex-col gap-2">
+            <a href={demoApp.apkUrl} className="v2-btn" data-variant="primary">
+              <Download className="size-4" aria-hidden />
+              Download APK
+            </a>
+            <Link href={`${NATIVE_DOCS}/devices`} className="text-center text-sm text-(--v2-accent)">
+              Other ways to run it
+            </Link>
+          </div>
         </div>
       </section>
 

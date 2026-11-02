@@ -27,6 +27,19 @@ npm run apk             # prebuild + gradlew assembleRelease (arm64-v8a)
 Needs JDK 17+ and the Android SDK (`ANDROID_HOME`). The release build is
 signed with the debug keystore: fine for a demo, not for the Play Store.
 
+**Windows:** the C++ build fails with "Filename longer than 260 characters" from
+this repo's deep path (ninja in SDK CMake 3.22 ignores long paths, and `subst`
+doesn't help because autolinking resolves real paths). Build from a short copy,
+e.g. `D:\g\source` + `D:\g\p` (this folder), and add to the generated
+`android/app/build.gradle`:
+
+```groovy
+android.externalNativeBuild.cmake.buildStagingDirectory = file('D:/c')
+```
+
+Note: `expo prebuild` rewrites the `android`/`ios` scripts in package.json to
+`expo run:*`; restore them to `expo start --*` for the Expo Go workflow.
+
 ## What's inside
 
 | Tab | Shows |

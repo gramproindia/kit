@@ -82,7 +82,7 @@ async function demoSource(demo: string) {
       if (!new RegExp(`export function ${demo}\\b`).test(text)) continue;
       return text
         .replace(/["']\.\.\/\.\.\/source\/(?:components|native)\/([^"']+)["']/g, '"@/component-lib/$1"')
-        .replace(/["']\.\/layout["']/g, '"./layout" // Section and Row: page layout for the demo');
+        .replace(/["']\.\/layout["'];?/g, '"./layout"; // Section and Row: page layout for the demo');
     }
   } catch {
     // The playground is not part of a docs-only checkout; the page still works.
@@ -91,7 +91,7 @@ async function demoSource(demo: string) {
 }
 
 async function componentSource(entry: NativeComponentEntry) {
-  const props = await readProps();
+  const [props, source] = await Promise.all([readProps(), demoSource(entry.demo)]);
   const folderImport = `@/component-lib/${entry.folder}`;
   const lines = [
     "---",
@@ -100,7 +100,11 @@ async function componentSource(entry: NativeComponentEntry) {
     `group: ${JSON.stringify(entry.group)}`,
     "---",
     "",
-    `<NativePreview demo="${entry.demo}" />`,
+    // The live phone, with the demo's code beside it. The fence must not be
+    // indented and needs blank lines around it, or MDX reads it as text.
+    ...(source
+      ? [`<NativePreview demo="${entry.demo}">`, "", "```tsx", source.trimEnd(), "```", "", "</NativePreview>"]
+      : [`<NativePreview demo="${entry.demo}" />`]),
     "",
     "## Install",
     "",
@@ -132,24 +136,6 @@ async function componentSource(entry: NativeComponentEntry) {
   }
   lines.push("");
 
-  const source = await demoSource(entry.demo);
-  if (source) {
-    lines.push(
-      "## Example source",
-      "",
-      "The preview above, as it runs in the playground app.",
-      "",
-      "<details>",
-      `<summary>${entry.demo}.tsx</summary>`,
-      "",
-      "```tsx",
-      source.trimEnd(),
-      "```",
-      "",
-      "</details>",
-      "",
-    );
-  }
   return lines.join("\n");
 }
 

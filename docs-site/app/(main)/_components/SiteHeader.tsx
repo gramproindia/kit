@@ -74,7 +74,8 @@ export function SiteHeader({
             {/* Shorter between lg and xl, where the header is tight. */}
             <span className="xl:hidden">Native</span>
             <span className="hidden xl:inline">React Native</span>
-            <span className="v2-pill hidden xl:inline">beta</span>
+            {/* inline-flex, not inline: .v2-pill centres its text with flex. */}
+            <span className="v2-pill hidden xl:inline-flex">beta</span>
           </Link>
           <Link
             href={v2Config.seAgent}
