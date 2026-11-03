@@ -244,7 +244,8 @@ export function OtpInput(props: OtpInputProps) {
           value={value}
           onChangeText={change}
           editable={!disabled && !readOnly}
-          maxLength={length}
+          // No maxLength: it would cut a paste such as "123-456" to "123-45"
+          // before `change` could strip the dash. sanitizeOtp caps the length.
           keyboardType={mode === "numeric" ? "number-pad" : "default"}
           inputMode={mode === "numeric" ? "numeric" : "text"}
           textContentType="oneTimeCode"

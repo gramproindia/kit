@@ -1,3 +1,5 @@
+import { defaultBadgeText } from "./locale";
+
 /**
  * The label a counter shows, and the one a screen reader hears.
  *
@@ -17,12 +19,15 @@ export function formatCount(
   count: number,
   max = 99,
   format?: (value: number) => string,
+  // The spoken words come from the locale strings, so "more than" can be
+  // translated with the rest of the component.
+  moreThan: (value: string) => string = defaultBadgeText.moreThan,
 ): CountLabel {
   const show = (value: number) => (format ? format(value) : String(value));
   if (!Number.isFinite(count)) return { text: "" };
   const whole = Math.trunc(count);
   if (whole <= max) return { text: show(whole) };
-  return { text: `${show(max)}+`, spoken: `more than ${show(max)}` };
+  return { text: `${show(max)}+`, spoken: moreThan(show(max)) };
 }
 
 /**

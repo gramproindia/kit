@@ -33,10 +33,16 @@ export interface MenuKeysOptions {
 export function useMenuKeys({ listRef, onDismiss, nested, rtl = false }: MenuKeysOptions) {
   const typeahead = useRef({ buffer: "", at: 0 });
 
-  const items = useCallback(
-    () => Array.from(listRef.current?.querySelectorAll<HTMLElement>(ITEM_SELECTOR) ?? []),
-    [listRef],
-  );
+  // A submenu is rendered inside its parent's list, so a plain query would also
+  // pick up the submenu's items. Keep only the ones whose nearest menu is ours.
+  const items = useCallback(() => {
+    const list = listRef.current;
+    if (!list) return [];
+    const menu = list.closest('[role="menu"]') ?? list;
+    return Array.from(list.querySelectorAll<HTMLElement>(ITEM_SELECTOR)).filter(
+      (element) => (element.closest('[role="menu"]') ?? list) === menu,
+    );
+  }, [listRef]);
 
   const focusAt = useCallback(
     (elements: HTMLElement[], index: number) => {
@@ -57,6 +63,9 @@ export function useMenuKeys({ listRef, onDismiss, nested, rtl = false }: MenuKey
     focusAt(elements, edgeIndex(describe(elements), "last"));
   }, [items, focusAt]);
 
+  // Every key handled here stops propagating: a submenu sits inside its
+  // parent's list, and letting the event bubble would move focus twice.
+  // Tab is the exception - it should close every level on its way out.
   const onKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
       const elements = items();
@@ -69,18 +78,22 @@ export function useMenuKeys({ listRef, onDismiss, nested, rtl = false }: MenuKey
       switch (event.key) {
         case "ArrowDown":
           event.preventDefault();
+          event.stopPropagation();
           focusAt(elements, nextIndex(described, current, 1));
           return;
         case "ArrowUp":
           event.preventDefault();
+          event.stopPropagation();
           focusAt(elements, nextIndex(described, current, -1));
           return;
         case "Home":
           event.preventDefault();
+          event.stopPropagation();
           focusAt(elements, edgeIndex(described, "first"));
           return;
         case "End":
           event.preventDefault();
+          event.stopPropagation();
           focusAt(elements, edgeIndex(described, "last"));
           return;
         case "Escape":
@@ -104,6 +117,7 @@ export function useMenuKeys({ listRef, onDismiss, nested, rtl = false }: MenuKey
 
       if (!isTypeaheadKey(event.key, event.ctrlKey || event.metaKey || event.altKey)) return;
       event.preventDefault();
+      event.stopPropagation();
       const now = Date.now();
       const buffer = typeaheadBuffer(typeahead.current.buffer, event.key, now - typeahead.current.at);
       typeahead.current = { buffer, at: now };

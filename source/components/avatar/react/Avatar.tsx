@@ -8,7 +8,7 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
-import { colorIndex, initials as toInitials } from "../core/identity";
+import { colorIndex, initials as toInitials, showsImage } from "../core/identity";
 import type { AvatarLocaleText, AvatarShape, AvatarSize, AvatarStatus } from "../core/types";
 import { defaultAvatarText } from "./locale";
 import { cx, type AvatarSlot } from "./props";
@@ -73,9 +73,9 @@ export function Avatar(props: AvatarProps) {
   } = props;
 
   const text = useMemo(() => ({ ...defaultAvatarText, ...localeText }), [localeText]);
-  const [failed, setFailed] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | undefined>();
   const letters = initialsProp ?? toInitials(name);
-  const showImage = Boolean(src) && !failed;
+  const showImage = showsImage(src, failedSrc);
 
   return (
     <span
@@ -99,7 +99,7 @@ export function Avatar(props: AvatarProps) {
           alt=""
           loading="lazy"
           decoding="async"
-          onError={() => setFailed(true)}
+          onError={() => setFailedSrc(src)}
         />
       ) : (
         <span className={cx("av-fallback", classNames?.fallback)} aria-hidden="true">

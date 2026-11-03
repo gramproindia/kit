@@ -221,10 +221,13 @@ export function FileUploader(props: FileUploaderProps) {
   const [dragging, setDragging] = useState(false);
   const [announcement, setAnnouncement] = useState("");
 
-  const transport = useMemo<Transport | undefined>(() => {
-    if (customTransport) return customTransport;
-    if (!endpoint) return undefined;
-    return createHttpTransport({
+  // The latest request options, read when each chunk is sent: inline
+  // `headers`/`params` objects don't rebuild the transport every render, and a
+  // token refreshed mid-upload is used for the next chunk. The last endpoint
+  // is kept so a file already uploading can finish if the prop goes away.
+  const httpOptions = useRef<HttpTransportOptions | undefined>(undefined);
+  if (endpoint) {
+    httpOptions.current = {
       endpoint,
       method,
       headers,
@@ -232,8 +235,15 @@ export function FileUploader(props: FileUploaderProps) {
       params,
       fieldNames,
       parseResponse,
-    });
-  }, [customTransport, endpoint, method, headers, withCredentials, params, fieldNames, parseResponse]);
+    };
+  }
+  const hasEndpoint = Boolean(endpoint);
+
+  const transport = useMemo<Transport | undefined>(() => {
+    if (customTransport) return customTransport;
+    if (!hasEndpoint) return undefined;
+    return (request) => createHttpTransport(httpOptions.current!)(request);
+  }, [customTransport, hasEndpoint]);
 
   const { store, items, rejections } = useFileUploader({
     multiple,

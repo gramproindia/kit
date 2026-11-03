@@ -1,9 +1,9 @@
 "use client";
 
 import {
+  memo,
+  useEffect,
   useRef,
-  useState,
-  type CSSProperties,
   type KeyboardEvent,
   type MouseEvent,
   type PointerEvent,
@@ -35,13 +35,53 @@ interface ToastItemProps {
   text: ToasterLocaleText;
 }
 
-export function ToastItem({ toast, store, closeButton, icons, classNames, text }: ToastItemProps) {
-  const [swipe, setSwipe] = useState(0);
+/**
+ * Memoised: pausing and resuming the timers re-renders the Toaster, and none of
+ * that should reach toasts whose record has not changed.
+ */
+export const ToastItem = memo(function ToastItem({
+  toast,
+  store,
+  closeButton,
+  icons,
+  classNames,
+  text,
+}: ToastItemProps) {
+  const itemRef = useRef<HTMLLIElement>(null);
   const drag = useRef<{ pointerId: number; startX: number } | null>(null);
+  const swipe = useRef({ offset: 0, frame: 0 });
   const { action, cancel, render } = toast;
   const closing = toast.state === "closing";
 
-  const dismiss = () => store.dismiss(toast.id);
+  useEffect(() => () => cancelAnimationFrame(swipe.current.frame), []);
+
+  /**
+   * The drag offset goes straight to a CSS variable, at most once a frame,
+   * instead of through state: a re-render per pointermove is wasted work.
+   */
+  const setSwipe = (offset: number) => {
+    swipe.current.offset = offset;
+    if (swipe.current.frame) return;
+    swipe.current.frame = requestAnimationFrame(() => {
+      swipe.current.frame = 0;
+      const element = itemRef.current;
+      if (!element) return;
+      const value = swipe.current.offset;
+      element.style.setProperty("--ts-swipe", `${value}px`);
+      element.toggleAttribute("data-swiping", value !== 0);
+    });
+  };
+
+  const dismiss = () => {
+    // A focused button that is removed fires no focusout, so the Toaster would
+    // think focus is still inside and hold every timer. Hand focus to the list
+    // first, as Escape does, so it stays in the region and blur works later.
+    const element = itemRef.current;
+    if (element?.contains(document.activeElement)) {
+      element.closest<HTMLElement>(".ts-list")?.focus();
+    }
+    store.dismiss(toast.id);
+  };
 
   // `null` from the toast or the Toaster hides the icon; `undefined` means "use the default".
   const icon =
@@ -59,8 +99,7 @@ export function ToastItem({ toast, store, closeButton, icons, classNames, text }
   const onKeyDown = (event: KeyboardEvent<HTMLLIElement>) => {
     if (event.key !== "Escape" || !toast.dismissible) return;
     event.preventDefault();
-    // Keep focus in the notification region instead of dropping it on <body>.
-    event.currentTarget.closest<HTMLElement>(".ts-list")?.focus();
+    // dismiss() keeps focus in the notification region instead of dropping it on <body>.
     dismiss();
   };
 
@@ -87,6 +126,7 @@ export function ToastItem({ toast, store, closeButton, icons, classNames, text }
 
   return (
     <li
+      ref={itemRef}
       className={cx("ts-toast", classNames?.toast, toast.className)}
       // The list is a polite live region; errors interrupt.
       role={toast.type === "error" ? "alert" : undefined}
@@ -95,8 +135,6 @@ export function ToastItem({ toast, store, closeButton, icons, classNames, text }
       data-type={toast.type}
       data-state={toast.state}
       data-custom={render ? "" : undefined}
-      data-swiping={swipe !== 0 ? "" : undefined}
-      style={{ "--ts-swipe": `${swipe}px` } as CSSProperties}
       onKeyDown={onKeyDown}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -161,4 +199,4 @@ export function ToastItem({ toast, store, closeButton, icons, classNames, text }
       )}
     </li>
   );
-}
+});

@@ -49,6 +49,11 @@ export interface BreadcrumbProps {
 
 const FONT: Record<BreadcrumbSize, number> = { sm: -2, md: -1, lg: 0 };
 
+// Crumbs are drawn 36 high to keep the row compact; the slop takes the touch
+// target to the 44pt minimum without changing the look.
+const CRUMB_SLOP = { top: 4, bottom: 4 };
+const ELLIPSIS_SLOP = { top: 4, bottom: 4, left: 4, right: 4 };
+
 const themed = createThemedStyles((t) => ({
   list: { flexDirection: "row", alignItems: "center", gap: 2, paddingVertical: 2 },
   item: { flexDirection: "row", alignItems: "center", gap: 2 },
@@ -133,6 +138,7 @@ export function Breadcrumb(props: BreadcrumbProps) {
     return (
       <Pressable
         role="link"
+        hitSlop={CRUMB_SLOP}
         onPress={() => {
           item.onClick?.();
           if (item.href !== undefined) onNavigate?.(item, index);
@@ -171,6 +177,7 @@ export function Breadcrumb(props: BreadcrumbProps) {
                   role="button"
                   aria-label={text.showMore(String(slot.hidden.length))}
                   onPress={() => setExpanded(true)}
+                  hitSlop={ELLIPSIS_SLOP}
                   style={({ pressed }) => [s.ellipsis, pressed && { backgroundColor: tokens.hover }, slots?.ellipsis]}
                 >
                   <Text style={[s.ellipsisText, { fontSize }]}>…</Text>

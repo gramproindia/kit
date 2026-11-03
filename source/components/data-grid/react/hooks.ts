@@ -40,6 +40,37 @@ export function useStoreSelector<S, R>(
   return useSyncExternalStore(store.subscribe, getSelection, getSelection);
 }
 
+/**
+ * Returns the previous value while `isEqual` says nothing changed, so an
+ * inline object prop does not give the grid context a new identity (and
+ * re-render every cell) on each parent render.
+ */
+export function useStableValue<V>(value: V, isEqual: (a: V, b: V) => boolean): V {
+  const [stable, setStable] = useState(value);
+  if (stable !== value && !isEqual(stable, value)) {
+    // React's "adjust state during render" pattern: re-runs this component only.
+    setStable(value);
+    return value;
+  }
+  return stable;
+}
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && Object.getPrototypeOf(value) === Object.prototype;
+
+/** Compares plain objects key by key, recursing into nested ones (`localeText.operators`). */
+export function shallowEqualNested<V>(a: V, b: V): boolean {
+  if (Object.is(a, b)) return true;
+  if (!isPlainObject(a) || !isPlainObject(b)) return false;
+  const keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+  return keys.every((key) => {
+    const x = a[key];
+    const y = b[key];
+    return Object.is(x, y) || (isPlainObject(x) && isPlainObject(y) && shallowEqualNested(x, y));
+  });
+}
+
 /** Row selection, from the controlled prop when present, otherwise internal state. */
 export function useSelectionState<T, R>(
   selector: (selection: Record<RowId, boolean>) => R,

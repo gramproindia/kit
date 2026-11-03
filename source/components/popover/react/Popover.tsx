@@ -4,6 +4,7 @@ import {
   cloneElement,
   isValidElement,
   useCallback,
+  useEffect,
   useId,
   useImperativeHandle,
   useMemo,
@@ -137,6 +138,27 @@ export function Popover(props: PopoverProps) {
     [setOpen],
   );
 
+  // The browser closes the popover for both Escape and an outside click and
+  // reports them the same way. Remember whether the last thing that happened
+  // was an Escape nobody else handled, so the close can say which it was.
+  const escapePressed = useRef(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      escapePressed.current = event.key === "Escape" && !event.defaultPrevented;
+    };
+    const onPointerDown = () => {
+      escapePressed.current = false;
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => {
+      escapePressed.current = false;
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown, true);
+    };
+  }, [open]);
+
   // The anchor is state, not a ref: the panel only renders once we have an
   // element to position it against.
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
@@ -170,7 +192,7 @@ export function Popover(props: PopoverProps) {
       {open && anchor && (
         <AnchoredPopover
           anchor={anchor}
-          onClose={() => setOpen(false, "outside")}
+          onClose={() => setOpen(false, escapePressed.current ? "escape" : "outside")}
           id={`${id}-panel`}
           label={title ? undefined : (ariaLabel ?? text.label)}
           labelledBy={title ? `${id}-title` : undefined}

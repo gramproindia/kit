@@ -314,7 +314,14 @@ export function describeFieldContract(contract: FieldContract): Record<string, u
  * manifest, including each member's own input schema; `operate` sends intents
  * to one member by id.
  */
-const registered = new WeakMap<ModelContext, Map<string, { current: () => AgentSurfaceHandle | null }>>();
+interface SurfaceClaim {
+  getSurface: () => AgentSurfaceHandle | null;
+  onCall?: (entry: ToolCallLog) => void;
+}
+// Every surface that has claimed a name, newest last. The tool calls the newest
+// claim's surface and observer; releasing the newest hands the tool back to the
+// one before it (a nested or overlapping AgentSurface) instead of to nothing.
+const registered = new WeakMap<ModelContext, Map<string, SurfaceClaim[]>>();
 
 export const SURFACE_TOOL_SCHEMA: JsonSchema = {
   type: "object",
@@ -377,20 +384,23 @@ export function registerSurfaceTool(
     registered.set(modelContext, byName);
   }
 
-  const pointer = { current: getSurface };
-  const existing = byName.get(name);
-  if (existing) {
-    existing.current = getSurface;
+  const claim: SurfaceClaim = { getSurface, onCall: options.onCall };
+  let claims = byName.get(name);
+  if (claims) {
+    claims.push(claim);
   } else {
-    byName.set(name, pointer);
-    const slot = pointer;
+    claims = [claim];
+    byName.set(name, claims);
+    const list = claims;
     modelContext.registerTool({
       name,
       description: SURFACE_DESCRIPTION,
       inputSchema: SURFACE_TOOL_SCHEMA,
       async execute(rawInput: unknown) {
         const input = (rawInput ?? {}) as { action?: unknown; target?: unknown; intents?: unknown };
-        const surface = slot.current();
+        // Read the newest claim at call time, so a later surface's onCall is used too.
+        const current = list[list.length - 1];
+        const surface = current ? current.getSurface() : null;
         let payload: ToolResultPayload;
         if (!surface) {
           payload = { ok: false, status: "declined", message: "This page has no operable controls right now." };
@@ -415,7 +425,7 @@ export function registerSurfaceTool(
           };
         }
         try {
-          options.onCall?.({ input: rawInput, result: payload });
+          current?.onCall?.({ input: rawInput, result: payload });
         } catch {
           /* observers never break a call */
         }
@@ -424,14 +434,16 @@ export function registerSurfaceTool(
     });
   }
 
-  const slot = byName.get(name)!;
+  const stack = claims;
   return {
     registered: true,
     toolName: name,
     inputSchema: SURFACE_TOOL_SCHEMA,
     release() {
-      // Leave the tool registered (it cannot be removed) but stop it pointing here.
-      if (slot.current === getSurface) slot.current = () => null;
+      // Leave the tool registered (it cannot be removed) but drop this claim, so
+      // the tool falls back to the surface before it, or declines when none is left.
+      const at = stack.indexOf(claim);
+      if (at !== -1) stack.splice(at, 1);
     },
   };
 }

@@ -21,7 +21,7 @@ import {
 import { createThemedStyles, useKitTheme } from "../../shared/native/KitProvider";
 import { alpha } from "../../shared/native/theme";
 import { useControllableState } from "../../shared/react/useControllableState";
-import { countCharacters } from "../core/count";
+import { counterValue } from "../core/count";
 import { defaultInputText } from "../core/locale";
 import type { FieldSize, InputLocaleText } from "../core/types";
 import { EyeIcon, XIcon } from "./icons";
@@ -68,7 +68,11 @@ export interface InputProps
   clearable?: boolean;
   /** For `type="password"`, a button that shows the text. Default true. */
   revealPassword?: boolean;
-  /** A character counter under the field; shows `count / maxLength` when `maxLength` is set. */
+  /**
+   * A character counter under the field; shows `count / maxLength` when
+   * `maxLength` is set. With a limit it counts as the limit does (UTF-16 units,
+   * so an emoji can count as 2 to 4); without one, characters as people see them.
+   */
   showCount?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
@@ -193,7 +197,8 @@ export function Input(props: InputProps) {
 
   const invalid = Boolean(error);
   const isPassword = type === "password";
-  const count = countCharacters(current);
+  // Counted only when shown: grapheme splitting is not free on every keystroke.
+  const count = showCount ? counterValue(current, maxLength) : 0;
   const st: InputStyleState = { focused, disabled, readOnly, invalid, size };
   const fontSize = size === "sm" ? tokens.fontSize - 1 : size === "lg" ? tokens.fontSize + 1 : tokens.fontSize;
   const hint = [plain(error), plain(description), accessibilityHint].filter(Boolean).join(". ");

@@ -11,7 +11,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/api.ts",
       "core/index.ts",
@@ -28,7 +28,7 @@
       "react/props.ts",
       "react/useToasts.ts"
     ],
-    "sourceHash": "sha256:11f0a81e8fd2d58a9c29c96868bb535ad3d200b327257472294e284d68baf98f"
+    "sourceHash": "sha256:c4fa666468046cfe9142c1a3df8ee0dceb958478b7197e46a57a2001138c750c"
   },
   "purpose": "Short notifications you mount once and call from anywhere, with no hook, context or provider. For things that happened, not things that must be decided.",
   "props": [
@@ -67,7 +67,7 @@
       "typeText": "'auto' | 'ltr' | 'rtl' | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Writing direction, which decides which corner `position` means.\nDefault `auto`, taken from the document.",
+      "description": "Writing direction, which decides which corner `position` means.\r\nDefault `auto`, taken from the document.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -86,7 +86,7 @@
       "required": false,
       "default": "DEFAULT_HOTKEY",
       "origin": "derived",
-      "description": "Keys that move focus to the notifications: `KeyboardEvent` modifier names\nplus a `code`. Default `[\"altKey\", \"KeyT\"]`.",
+      "description": "Keys that move focus to the notifications: `KeyboardEvent` modifier names\r\nplus a `code`. Default `[\"altKey\", \"KeyT\"]`.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -114,6 +114,15 @@
       "typeText": "Partial<ToasterLocaleText> | undefined",
       "required": false,
       "origin": "derived"
+    },
+    {
+      "name": "maxQueue",
+      "type": "number",
+      "typeText": "number | undefined",
+      "required": false,
+      "origin": "derived",
+      "description": "Toasts allowed to wait beyond `limit`; the oldest waiting are dropped past it. Default 20.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "position",
@@ -244,8 +253,8 @@
   },
   "examples": [],
   "coverage": {
-    "propsTotal": 8,
-    "propsDescribed": 8,
+    "propsTotal": 9,
+    "propsDescribed": 9,
     "describedPct": 100,
     "authoredSections": [
       "accessibility",

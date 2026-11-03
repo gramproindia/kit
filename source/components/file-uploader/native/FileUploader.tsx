@@ -1,4 +1,4 @@
-import { memo, useEffect, useImperativeHandle, useMemo, useState, type ReactNode, type Ref } from "react";
+import { memo, useEffect, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import {
   AccessibilityInfo,
   Image,
@@ -15,6 +15,7 @@ import { alpha } from "../../shared/native/theme";
 import { fileKind, formatBytes } from "../core/format";
 import { defaultUploaderText } from "../core/locale";
 import { summarize, type AddResult, type UploaderStore } from "../core/store";
+import { hasKnownSize } from "../core/validate";
 import { createHttpTransport, type HttpTransportOptions } from "../core/transport";
 import type {
   ExistingFile,
@@ -131,6 +132,8 @@ export interface FileUploaderProps {
   onFileSuccess?(item: UploadItem): void;
   onFileError?(item: UploadItem, error: unknown): void;
   onUploadComplete?(items: UploadItem[]): void;
+  /** `pick` threw or rejected (e.g. permission denied). Logged with `console.error` when not set. */
+  onPickError?(error: unknown): void;
 
   ref?: Ref<FileUploaderHandle>;
 }
@@ -254,9 +257,11 @@ function IconButton({
   );
 }
 
-function ProgressBar({ value, color, label }: { value: number; color: string; label?: string }) {
+/** `value` undefined: indeterminate, for a file whose size the picker did not give. */
+function ProgressBar({ value, color, label }: { value: number | undefined; color: string; label?: string }) {
   const { tokens } = useKitTheme();
   const s = themed(tokens);
+  const width = value === undefined ? 100 : Math.max(0, Math.min(1, value)) * 100;
   return (
     <View
       style={s.track}
@@ -264,9 +269,12 @@ function ProgressBar({ value, color, label }: { value: number; color: string; la
       aria-label={label}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-valuenow={Math.round(value * 100)}
+      aria-valuenow={value === undefined ? undefined : Math.round(value * 100)}
+      aria-busy={value === undefined || undefined}
     >
-      <View style={[s.bar, { width: `${Math.max(0, Math.min(1, value)) * 100}%`, backgroundColor: color }]} />
+      <View
+        style={[s.bar, { width: `${width}%`, backgroundColor: color }, value === undefined && { opacity: 0.35 }]}
+      />
     </View>
   );
 }
@@ -301,18 +309,20 @@ const FileRow = memo(function FileRow({
   const [broken, setBroken] = useState(false);
 
   const percent = formatPercent(item.progress, locale);
-  const size = formatBytes(file.size, locale);
+  // Unknown sizes (the picker gave none) show no size and no percentage, not "0 B" and 100%.
+  const sized = hasKnownSize(item.file);
+  const size = sized ? formatBytes(file.size, locale) : null;
   const label: Record<UploadItem["status"], string | null> = {
     idle: null,
     queued: text.queued,
     uploading: null,
-    paused: `${text.paused} · ${percent}`,
+    paused: sized ? `${text.paused} · ${percent}` : text.paused,
     success: text.uploaded,
     error: text.failed,
     canceled: text.canceled,
   };
   const meta =
-    status === "uploading"
+    status === "uploading" && size
       ? text.progress(formatBytes(item.uploadedBytes, locale), size, percent)
       : [size, label[status]].filter(Boolean).join(" · ");
   const showProgress = status === "uploading" || status === "paused" || (status === "error" && item.progress > 0);
@@ -337,7 +347,11 @@ const FileRow = memo(function FileRow({
         {status === "error" && item.error ? <Text style={s.itemError}>{item.error}</Text> : null}
         {showProgress && (
           <View style={slots?.progress}>
-            <ProgressBar value={item.progress} color={barColor} label={name} />
+            <ProgressBar
+              value={sized || status !== "uploading" ? item.progress : undefined}
+              color={barColor}
+              label={name}
+            />
           </View>
         )}
       </View>
@@ -420,7 +434,8 @@ function ExistingFileRow({
 /**
  * Pick files and upload them with progress, pause, resume and retry. The
  * queue, validation and retries are the web uploader's engine, unchanged; the
- * picker is yours to pass in as `pick`.
+ * picker is yours to pass in as `pick`. Each file goes in one request, so
+ * resuming a paused file sends it again from the start.
  */
 export function FileUploader(props: FileUploaderProps) {
   const {
@@ -464,6 +479,7 @@ export function FileUploader(props: FileUploaderProps) {
     onFileSuccess,
     onFileError,
     onUploadComplete,
+    onPickError,
   } = props;
 
   const { tokens } = useKitTheme();
@@ -471,13 +487,22 @@ export function FileUploader(props: FileUploaderProps) {
   const text = useMemo(() => ({ ...defaultUploaderText, ...localeText }), [localeText]);
   const [picking, setPicking] = useState(false);
 
+  // The latest request options, read per request: inline `headers`/`params`
+  // don't rebuild the transport every render, and a refreshed token is used on
+  // the next attempt. The last endpoint is kept so a running upload can finish.
+  const httpOptions = useRef<HttpTransportOptions | undefined>(undefined);
+  if (endpoint) {
+    httpOptions.current = { endpoint, method, headers, withCredentials, params, fieldNames, parseResponse };
+  }
+  const hasEndpoint = Boolean(endpoint);
+
   const transport = useMemo<Transport | undefined>(() => {
     if (customTransport) return customTransport;
-    if (!endpoint) return undefined;
+    if (!hasEndpoint) return undefined;
     // The web transport, unchanged: React Native's XMLHttpRequest reports
     // upload progress, and its FormData sends `{ uri, name, type }` as a file.
-    return createHttpTransport({ endpoint, method, headers, withCredentials, params, fieldNames, parseResponse });
-  }, [customTransport, endpoint, method, headers, withCredentials, params, fieldNames, parseResponse]);
+    return (request) => createHttpTransport(httpOptions.current!)(request);
+  }, [customTransport, hasEndpoint]);
 
   const { store, items, rejections } = useFileUploader({
     multiple,
@@ -521,6 +546,10 @@ export function FileUploader(props: FileUploaderProps) {
     try {
       const picked = await pick();
       if (picked && picked.length > 0) addFiles(picked);
+    } catch (reason) {
+      // A failed pick (permission denied, picker crash) must not become an unhandled rejection.
+      if (onPickError) onPickError(reason);
+      else console.error(reason);
     } finally {
       setPicking(false);
     }

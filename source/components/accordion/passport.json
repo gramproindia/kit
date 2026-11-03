@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/index.ts",
       "core/open.ts",
@@ -21,7 +21,7 @@
       "react/context.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:c04b9c09e8661f463e2a808ecd45a7c080c236bc7b398efc1b3505a45e245f00"
+    "sourceHash": "sha256:594ae645ae0deb93f029382995c38b678a53b473266b2471c8713be225e10fa0"
   },
   "purpose": "Sections that open and close, built on native <details> and <summary>, with single or multiple expansion.",
   "props": [

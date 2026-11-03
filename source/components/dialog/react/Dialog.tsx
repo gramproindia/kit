@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
 } from "react";
@@ -66,6 +67,21 @@ const outside = (event: MouseEvent<HTMLDialogElement>) => {
   return x < rect.left || x > rect.right || y < rect.top || y > rect.bottom;
 };
 
+/**
+ * Whether this Escape is ours to act on. Not when something inside already
+ * handled it, while an IME is composing, or while a popover inside is open:
+ * the browser closes that popover first, and cancelling the key would stop it.
+ */
+const ownsEscape = (event: KeyboardEvent<HTMLDialogElement>) => {
+  if (event.key !== "Escape" || event.defaultPrevented || event.nativeEvent.isComposing) return false;
+  try {
+    return event.currentTarget.querySelector(":popover-open") === null;
+  } catch {
+    // A browser without :popover-open has no popovers to defer to.
+    return true;
+  }
+};
+
 /** An alert, confirm or prompt dialog. For the promise API, mount `<DialogHost />` and call `dialog.confirm()`. */
 export function Dialog(props: DialogProps) {
   const {
@@ -100,6 +116,7 @@ export function Dialog(props: DialogProps) {
   const text = useMemo(() => ({ ...defaultDialogText, ...localeText }), [localeText]);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const pressStartedOutside = useRef(false);
+  const escapeHandled = useRef(false);
 
   const [value, setValue] = useState(defaultValue);
   const [error, setError] = useState<string | null>(null);
@@ -186,9 +203,29 @@ export function Dialog(props: DialogProps) {
       data-intent={intent}
       data-size={size}
       data-state={open ? "open" : "closed"}
+      // Escape is handled on keydown and cancelled there. Relying on preventing
+      // the `cancel` event alone isn't enough: Chrome only honours that with
+      // fresh user activation, and would otherwise close past `dismissible`.
+      onKeyDown={(event) => {
+        if (!ownsEscape(event)) return;
+        event.preventDefault();
+        escapeHandled.current = true;
+        setTimeout(() => (escapeHandled.current = false));
+        if (dismissible) cancel();
+      }}
+      // Other close requests, such as Android's back gesture.
       onCancel={(event) => {
         event.preventDefault();
+        if (escapeHandled.current) return;
         if (dismissible) cancel();
+      }}
+      // Closed anyway (the browser can force it): answer for it, so the promise
+      // and the host never wait on a dialog that is gone. Mid-confirm, put it
+      // back instead, so the work in progress isn't lost.
+      onClose={(event) => {
+        if (!open) return;
+        if (pending) event.currentTarget.showModal();
+        else onClose?.("cancel", value);
       }}
       onPointerDown={(event) => {
         pressStartedOutside.current = outside(event);

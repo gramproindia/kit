@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/index.ts",
       "core/lines.ts",

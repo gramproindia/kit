@@ -4,7 +4,7 @@ import { useLayoutEffect, useMemo, useRef, type CSSProperties, type ReactNode, t
 import { getLayoutVars } from "../core/columns";
 import type { PageResult } from "../core/rows";
 import type { ColumnFilter, ColumnLayout, GridRow, SortItem } from "../core/types";
-import { getColumnRange, getRowRange, visibleRangeEqual, type VisibleRange } from "../core/virtual";
+import { getColumnRange, getRowRange, rangeEqual } from "../core/virtual";
 import { cx, useGridContext } from "./context";
 import { HeaderRow } from "./HeaderRow";
 import { useStoreSelector } from "./hooks";
@@ -65,15 +65,16 @@ export function GridViewport<T>({
     };
   }, [engine]);
 
-  // Re-renders only when the visible window of rows or columns changes.
-  const range = useStoreSelector(
+  // Re-renders only when the visible window of rows or columns changes. Two
+  // selectors, so vertical scrolling keeps the column range's identity and the
+  // memoized rows and header skip rendering.
+  const rowRange = useStoreSelector(
     engine.viewport,
-    (v): VisibleRange => ({
-      rows: getRowRange(v, rows.length, rowHeight, headerHeight),
-      columns: getColumnRange(layout, v),
-    }),
-    visibleRangeEqual,
+    (v) => getRowRange(v, rows.length, rowHeight, headerHeight),
+    rangeEqual,
   );
+  const colRange = useStoreSelector(engine.viewport, (v) => getColumnRange(layout, v), rangeEqual);
+  const range = { rows: rowRange, columns: colRange };
 
   const active = useStoreSelector(engine.store, (s) => s.ui.activeCell);
   const activeItem = active ? layout.columns[active.colIndex] : undefined;

@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/index.ts",
       "core/locale.ts",
@@ -19,7 +19,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:33a1b8a76fbb2faea046cf45cecb11bcb3e8c7286123205f4e2a18bda6a1b6da"
+    "sourceHash": "sha256:7353bd0d467b856f85649d158ad0b944b981b7778eee9efe3df3b26d0f5bc7ad"
   },
   "purpose": "Where a page sits in the app: a trail that collapses in the middle when it is long, renders through your router's link, and can emit schema.org JSON-LD.",
   "props": [

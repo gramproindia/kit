@@ -5,6 +5,7 @@ import {
   createGridExecutors,
   decodeGridView,
   encodeGridView,
+  sanitizeGridState,
   GRID_OPERATIONS,
   nearest,
   projectQuery,
@@ -785,5 +786,77 @@ describe("saved views", () => {
     agent.applyView(saved);
     expect(api.getState().filters).toEqual(saved.state.filters);
     expect(agent.history().at(-1)?.label).toBe('Apply view "Kerala accounts"');
+  });
+});
+
+describe("saved views from untrusted input", () => {
+  it("rejects a view whose state is not an object", () => {
+    const encode = (value: unknown) => encodeGridView(value as never);
+    expect(decodeGridView(encode({ v: 1, state: null }))).toBeNull();
+    expect(decodeGridView(encode({ v: 1, state: [] }))).toBeNull();
+    expect(decodeGridView(encode(null))).toBeNull();
+  });
+
+  it("drops malformed keys and merges the rest over the current state", () => {
+    const { agent, api } = mountAgent();
+    api.setDensity("compact");
+    const before = api.getState();
+
+    expect(agent.applyView({ v: 1, state: null } as never)).toBe(false);
+    expect(agent.applyView({ v: 1, state: { filters: 5 } } as never)).toBe(false);
+    expect(api.getState()).toEqual(before);
+
+    const applied = agent.applyView({
+      v: 1,
+      instanceId: "x",
+      state: {
+        filters: [{ columnId: "region", operator: "equals", value: "Kerala" }],
+        sorting: "name",
+        pagination: { pageIndex: -1, pageSize: 10 },
+        rowSelection: { "1": true, "2": "yes" },
+      },
+    } as never);
+
+    expect(applied).toBe(true);
+    const state = api.getState();
+    expect(state.filters).toEqual([{ columnId: "region", operator: "equals", value: "Kerala" }]);
+    expect(state.sorting).toEqual(before.sorting);
+    expect(state.pagination.pageSize).toBe(before.pagination.pageSize);
+    expect(state.rowSelection).toEqual(before.rowSelection);
+    expect(state.density).toBe("compact");
+  });
+
+  it("rejects unknown filter operators and non-finite sizes", () => {
+    expect(
+      sanitizeGridState({
+        filters: [{ columnId: "a", operator: "matches", value: "x" }],
+        columnSizing: { a: Number.NaN },
+        density: "huge",
+        columnPinning: { left: ["a"], right: ["b"] },
+      }),
+    ).toEqual({ columnPinning: { left: ["a"], right: ["b"] } });
+  });
+});
+
+describe("agent updates", () => {
+  it("applies a stricter policy handed over after creation", () => {
+    const { api, options } = mountGrid();
+    const agent = createGridAgent<Account>({ api, options, semantics: SEMANTICS, locale: "en-IN", now: () => NOW });
+    expect(agent.validate({ action: "export", format: "csv" }).status).not.toBe("rejected");
+
+    agent.update(options, { semantics: SEMANTICS, policy: { denyOperations: ["export"] }, locale: "en-IN" });
+    expect(agent.validate({ action: "export", format: "csv" })).toMatchObject({
+      status: "rejected",
+      layer: "policy",
+      code: "operation-denied",
+    });
+  });
+
+  it("sees new data passed through update", () => {
+    const { api, options } = mountGrid();
+    const agent = createGridAgent<Account>({ api, options, now: () => NOW });
+    expect(agent.dataset().rows.length).toBe(accounts.length);
+    agent.update({ ...options, data: accounts.slice(0, 2) });
+    expect(agent.dataset().rows.length).toBe(2);
   });
 });

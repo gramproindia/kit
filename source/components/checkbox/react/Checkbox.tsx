@@ -17,6 +17,7 @@ import { describeField } from "../../shared/core/field";
 import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
 import type { CheckboxSize, CheckedState } from "../core/types";
 import { CheckboxGroupContext } from "./context";
+import { useDomSync } from "./domSync";
 import { cx, type CheckboxSlot } from "./props";
 
 export interface CheckboxProps
@@ -90,18 +91,43 @@ export function Checkbox(props: CheckboxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, []);
 
-  const [own, setOwn] = useControllableState<CheckedState>(checkedProp, defaultChecked);
+  const [own, setOwn, controlled] = useControllableState<CheckedState>(checkedProp, defaultChecked);
   const inGroup = group !== null && value !== undefined;
   // Inside a group the group owns the state, whoever owns it outside one.
   const state: CheckedState = inGroup ? group.values.includes(value) : own;
 
-  // "Indeterminate" exists only as a DOM property, not an attribute.
+  // "Indeterminate" exists only as a DOM property, not an attribute. Applied
+  // on every render, because a click clears it in the browser even when the
+  // state stays mixed.
   useLayoutEffect(() => {
     if (inputRef.current) inputRef.current.indeterminate = state === "indeterminate";
-  }, [state]);
+  });
+
+  // A form reset, or a form library writing `el.checked`, would otherwise be
+  // undone on the next render. The group resets its own values.
+  useDomSync(
+    inputRef,
+    "checked",
+    state === true,
+    {
+      onReset: () => {
+        if (inGroup) return undefined;
+        setOwn(defaultChecked);
+        return defaultChecked === true;
+      },
+      onWrite: (next) => {
+        if (inGroup) group.toggle(value, next);
+        else setOwn(next);
+      },
+    },
+    inGroup || !controlled,
+  );
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const next = event.target.checked;
+    // Put the dash back for now; if the state does change, the next render
+    // sets it right. Without this a parent that keeps the box mixed loses it.
+    event.target.indeterminate = state === "indeterminate";
     if (inGroup) group.toggle(value, next);
     else setOwn(next);
     onChange?.(event);

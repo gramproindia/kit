@@ -15,6 +15,8 @@ export interface ToasterProps {
   limit?: number;
   /** Default auto-close delay in milliseconds. Default 5000. */
   duration?: number;
+  /** Toasts allowed to wait beyond `limit`; the oldest waiting are dropped past it. Default 20. */
+  maxQueue?: number;
   /** Show a close button on dismissible toasts. Default true. */
   closeButton?: boolean;
   /** Replace the icon per type; `null` hides it. */
@@ -37,9 +39,9 @@ const OFFSET = 12;
 export function Toaster(props: ToasterProps) {
   const portal = usePortal("Toaster");
   const key = useRef<number | null>(null);
-  const node = <ToastRegion {...props} />;
+  const { position, limit, duration, maxQueue, closeButton, icons, store, style, styles, localeText } = props;
 
-  // Mount into the host once; hand it the latest props on every render.
+  // Mount into the host once; hand it new props only when one changes.
   useEffect(() => {
     key.current = portal.mount(null);
     return () => {
@@ -49,8 +51,23 @@ export function Toaster(props: ToasterProps) {
   }, [portal]);
 
   useEffect(() => {
-    if (key.current !== null) portal.update(key.current, node);
-  });
+    if (key.current === null) return;
+    portal.update(
+      key.current,
+      <ToastRegion
+        position={position}
+        limit={limit}
+        duration={duration}
+        maxQueue={maxQueue}
+        closeButton={closeButton}
+        icons={icons}
+        store={store}
+        style={style}
+        styles={styles}
+        localeText={localeText}
+      />,
+    );
+  }, [portal, position, limit, duration, maxQueue, closeButton, icons, store, style, styles, localeText]);
 
   return null;
 }
@@ -59,6 +76,7 @@ function ToastRegion({
   position = "top-center",
   limit,
   duration,
+  maxQueue,
   closeButton = true,
   icons,
   store = toastStore,
@@ -72,8 +90,8 @@ function ToastRegion({
   const text = useMemo(() => ({ ...defaultToasterText, ...localeText }), [localeText]);
 
   useEffect(() => {
-    store.configure({ limit, duration });
-  }, [store, limit, duration]);
+    store.configure({ limit, duration, maxQueue });
+  }, [store, limit, duration, maxQueue]);
 
   const empty = snapshot.toasts.length === 0;
   useEffect(() => {

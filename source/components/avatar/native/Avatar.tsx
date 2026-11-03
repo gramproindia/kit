@@ -23,7 +23,7 @@ import {
 } from "react-native";
 import { createThemedStyles, useKitTheme } from "../../shared/native/KitProvider";
 import { mix } from "../../shared/native/theme";
-import { colorIndex, initials as toInitials, splitGroup } from "../core/identity";
+import { colorIndex, initials as toInitials, showsImage, splitGroup } from "../core/identity";
 import { defaultAvatarText } from "../core/locale";
 import type { AvatarLocaleText, AvatarShape, AvatarSize, AvatarStatus } from "../core/types";
 import { avatarColors } from "./hue";
@@ -117,9 +117,9 @@ export function Avatar(props: AvatarProps) {
   const { tokens, scheme } = useKitTheme();
   const s = themed(tokens);
   const text = useMemo(() => ({ ...defaultAvatarText, ...localeText }), [localeText]);
-  const [failed, setFailed] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | undefined>();
   const letters = initialsProp ?? toInitials(name);
-  const showImage = Boolean(src) && !failed;
+  const showImage = showsImage(src, failedSrc);
   const { box, font } = SIZES[size];
   const radius = shape === "square" ? tokens.radius : box / 2;
   const colors = avatarColors(colorIndex(name || letters, PALETTE), scheme === "dark");
@@ -145,7 +145,7 @@ export function Avatar(props: AvatarProps) {
       {showImage ? (
         <Image
           source={{ uri: src }}
-          onError={() => setFailed(true)}
+          onError={() => setFailedSrc(src)}
           style={[{ width: box, height: box, borderRadius: radius }, slots?.image]}
           accessibilityIgnoresInvertColors
         />

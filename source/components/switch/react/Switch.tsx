@@ -18,6 +18,7 @@ import { describeField } from "../../shared/core/field";
 import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
 import { adopt, idleToggle, request, settle } from "../core/toggle";
 import type { SwitchLabelPosition, SwitchLocaleText, SwitchSize } from "../core/types";
+import { useDomSync } from "./domSync";
 import { defaultSwitchText } from "./locale";
 import { cx, type SwitchSlot } from "./props";
 
@@ -64,6 +65,15 @@ export interface SwitchProps
   localeText?: Partial<SwitchLocaleText>;
   /** The `<input>` element. */
   ref?: Ref<HTMLInputElement>;
+}
+
+/** `:dir()` is recent; engines without it throw, so fall back to the computed style. */
+function isRtl(element: HTMLElement): boolean {
+  try {
+    return element.matches(":dir(rtl)");
+  } catch {
+    return getComputedStyle(element).direction === "rtl";
+  }
 }
 
 /**
@@ -124,6 +134,22 @@ export function Switch(props: SwitchProps) {
   const saving = state.pending !== null || loading;
   const locked = Boolean(disabled) || readOnly === true || saving;
 
+  // A form reset, or a form library writing `el.checked`, would otherwise be
+  // undone on the next render, since `checked` is rendered from state.
+  useDomSync(
+    inputRef,
+    "checked",
+    checked,
+    {
+      onReset: () => {
+        setState(idleToggle(defaultChecked));
+        return defaultChecked;
+      },
+      onWrite: (next) => setState((current) => adopt(current, next)),
+    },
+    !controlled,
+  );
+
   const change = useCallback(
     (next: boolean) => {
       const result = onCheckedChange?.(next);
@@ -156,7 +182,7 @@ export function Switch(props: SwitchProps) {
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     onKeyDown?.(event);
     if (event.defaultPrevented || locked) return;
-    const rtl = event.currentTarget.matches(":dir(rtl)");
+    const rtl = isRtl(event.currentTarget);
     const on = rtl ? "ArrowLeft" : "ArrowRight";
     const off = rtl ? "ArrowRight" : "ArrowLeft";
     if (event.key !== on && event.key !== off) return;

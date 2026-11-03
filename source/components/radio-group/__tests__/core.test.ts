@@ -62,3 +62,10 @@ describe("hasEnabledOption", () => {
     expect(hasEnabledOption([], false)).toBe(false);
   });
 });
+
+describe("hasEnabledOption with children", () => {
+  it("lets a group built from <Radio> children be cleared unless it is disabled", () => {
+    expect(hasEnabledOption(null, false)).toBe(true);
+    expect(hasEnabledOption(null, true)).toBe(false);
+  });
+});

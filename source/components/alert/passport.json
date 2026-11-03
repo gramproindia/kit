@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/index.ts",
       "core/live.ts",
@@ -20,7 +20,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:7aa0bac6814261ae9270d23f79d3aaf730eb64808425800851abccf70d08deb9"
+    "sourceHash": "sha256:dc9c5db57480ff8cf7822f877b32d1c2d570ee7bc349df7d461f80749af941ae"
   },
   "purpose": "A message that stays in the page — neither interrupting like a dialog nor leaving like a toast. For conditions the user needs to keep seeing.",
   "props": [

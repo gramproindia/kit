@@ -11,7 +11,7 @@ import {
 } from "react";
 import { describeField } from "../../shared/core/field";
 import { toDate, toISODate } from "../core/calendar";
-import { inputPlaceholder } from "../core/format";
+import { MAX_DATE_TEXT_LENGTH, inputPlaceholder } from "../core/format";
 import type { DateInput, DateRange } from "../core/types";
 import { CalendarPanel, type DatePreset } from "./CalendarPanel";
 import { CalendarIcon, XIcon } from "./icons";
@@ -159,8 +159,12 @@ export function DateRangePicker(props: DateRangePickerProps) {
     handle,
   });
 
-  const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "ArrowDown" || (event.key === "Enter" && !picker.open)) {
+  const onInputKeyDown = (name: RangeField, event: KeyboardEvent<HTMLInputElement>) => {
+    // Enter on typed text settles it, the way leaving the field does.
+    if (event.key === "Enter" && picker.hasDraft(name)) {
+      event.preventDefault();
+      picker.commitInput(name);
+    } else if (event.key === "ArrowDown" || (event.key === "Enter" && !picker.open)) {
       event.preventDefault();
       picker.setOpen(true);
     } else if (event.key === "Escape" && picker.open) {
@@ -182,12 +186,13 @@ export function DateRangePicker(props: DateRangePickerProps) {
       required={required}
       autoComplete="off"
       spellCheck={false}
+      maxLength={MAX_DATE_TEXT_LENGTH}
       aria-label={name === "start" ? text.startDate : text.endDate}
       aria-invalid={invalid || undefined}
       aria-describedby={describedBy}
       onChange={(event) => picker.onInputChange(name, event.target.value)}
       onBlur={() => picker.onInputBlur(name)}
-      onKeyDown={onInputKeyDown}
+      onKeyDown={(event) => onInputKeyDown(name, event)}
       onClick={allowInput ? undefined : () => !disabled && picker.setOpen(true)}
     />
   );

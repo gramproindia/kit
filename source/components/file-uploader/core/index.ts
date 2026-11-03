@@ -20,7 +20,7 @@ export {
   UploadHttpError,
 } from "./transport";
 export type { ChunkFieldNames, HttpTransportOptions, UploadParams } from "./transport";
-export { fileKey, matchesAccept, partitionFiles } from "./validate";
+export { fileKey, hasKnownSize, matchesAccept, partitionFiles } from "./validate";
 export type { Partitioned, ValidationRules } from "./validate";
 export { fileKind, formatBytes, readFileId } from "./format";
 export { defaultUploaderText } from "./locale";

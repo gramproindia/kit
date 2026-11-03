@@ -1,5 +1,5 @@
 // Framework-free: character counting and the OTP rules the components use.
-export { countCharacters } from "./count";
+export { counterValue, countCharacters } from "./count";
 export {
   activeCell,
   cellAt,

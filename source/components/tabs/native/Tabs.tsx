@@ -4,8 +4,11 @@ import {
   useEffect,
   useId,
   useMemo,
+  use,
+  useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type ComponentRef,
   type ReactNode,
 } from "react";
@@ -27,7 +30,14 @@ import { renderText } from "../../shared/native/primitives";
 import { useControllableState } from "../../shared/react/useControllableState";
 import { tabDomId } from "../core/navigation";
 import type { TabsActivation, TabsOrientation, TabsSize, TabsVariant } from "../core/types";
-import { TabsContext, useTabsContext, type TabLayout, type TabsContextValue } from "./context";
+import {
+  createTabLayoutStore,
+  TabLayoutContext,
+  TabsContext,
+  useTabsContext,
+  type TabLayout,
+  type TabsContextValue,
+} from "./context";
 
 const HEIGHT: Record<TabsSize, number> = { sm: 36, md: 44, lg: 52 };
 const PAD: Record<TabsSize, number> = { sm: 10, md: 14, lg: 18 };
@@ -109,7 +119,7 @@ export function Tabs(props: TabsProps) {
   const registry = useRef(new Map<string, { disabled: boolean; order: number }>());
   const counter = useRef(0);
   const [registered, setRegistered] = useState(0);
-  const [layouts, setLayouts] = useState<Record<string, TabLayout>>({});
+  const [layoutStore] = useState(createTabLayoutStore);
 
   const select = useCallback(
     (next: string) => {
@@ -129,46 +139,62 @@ export function Tabs(props: TabsProps) {
     };
   }, []);
 
-  const setLayout = useCallback((tab: string, layout: TabLayout) => {
-    setLayouts((current) => {
-      const old = current[tab];
-      if (
-        old &&
-        old.x === layout.x &&
-        old.y === layout.y &&
-        old.width === layout.width &&
-        old.height === layout.height
-      ) {
-        return current;
-      }
-      return { ...current, [tab]: layout };
-    });
-  }, []);
+  const setLayout = useCallback(
+    (tab: string, layout: TabLayout) => layoutStore.set(tab, layout),
+    [layoutStore],
+  );
 
-  // Without a matching value, select the first enabled tab.
+  // Without a matching value, select the first enabled tab. Asked once per
+  // mismatch: a controlled parent that keeps passing a value matching no tab
+  // would otherwise get onValueChange on every re-render.
+  const autoSelected = useRef<string | null>(null);
   useEffect(() => {
-    if (value !== undefined && registry.current.has(value)) return;
+    if (value !== undefined && registry.current.has(value)) {
+      autoSelected.current = null;
+      return;
+    }
     const first = [...registry.current.entries()]
       .filter(([, entry]) => !entry.disabled)
       .sort((a, b) => a[1].order - b[1].order)[0];
-    if (first) select(first[0]);
+    if (!first) return;
+    const attempt = JSON.stringify([value ?? null, first[0]]);
+    if (autoSelected.current === attempt) return;
+    autoSelected.current = attempt;
+    select(first[0]);
   }, [registered, value, select]);
 
   const context = useMemo<TabsContextValue>(
-    () => ({ id, value, select, orientation, variant, size, keepMounted, register, setLayout, layouts }),
-    [id, value, select, orientation, variant, size, keepMounted, register, setLayout, layouts],
+    () => ({
+      id,
+      value,
+      select,
+      orientation,
+      variant,
+      size,
+      keepMounted,
+      register,
+      setLayout,
+      get layouts() {
+        return layoutStore.get();
+      },
+    }),
+    [id, value, select, orientation, variant, size, keepMounted, register, setLayout, layoutStore],
   );
 
   return (
     <TabsContext value={context}>
-      <View {...rest} style={[s.root, orientation === "vertical" && s.vertical, style]}>
-        {children}
-      </View>
+      <TabLayoutContext value={layoutStore}>
+        <View {...rest} style={[s.root, orientation === "vertical" && s.vertical, style]}>
+          {children}
+        </View>
+      </TabLayoutContext>
     </TabsContext>
   );
 }
 
 /* ---------------------------------------------------------------- TabList */
+
+const noSubscription = () => () => undefined;
 
 export interface TabListProps extends Omit<ViewProps, "children"> {
   /** The tab row, scrolled horizontally when the tabs do not fit. */
@@ -187,45 +213,62 @@ export function TabList(props: TabListProps) {
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
   const width = useRef<number>(0);
 
-  // Indicator geometry. Layout props cannot use the native driver; these are
-  // a handful of numbers at 200ms, cheap on the JS thread.
-  const start = useRef(new Animated.Value(0)).current;
-  const extent = useRef(new Animated.Value(0)).current;
-  const placed = useRef(false);
-  const active = context.value !== undefined ? context.layouts[context.value] : undefined;
+  // Only the list follows the tabs' measurements; see TabLayoutStore.
+  const store = use(TabLayoutContext);
+  const layouts = useSyncExternalStore(store?.subscribe ?? noSubscription, () =>
+    store ? store.get() : context.layouts,
+  );
+  const active = context.value !== undefined ? layouts[context.value] : undefined;
+  const start = active ? (horizontal ? active.x : active.y) : 0;
+  const extent = active ? (horizontal ? active.width : active.height) : 0;
 
-  useEffect(() => {
+  // The indicator is laid out at the selected tab's size and moved with
+  // transforms, which run on the native driver. On a change it starts scaled
+  // to look like the old tab, then eases to rest at scale 1, so its rounded
+  // ends are exact once it settles.
+  const offset = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+  const placed = useRef<{ start: number; extent: number } | null>(null);
+
+  useLayoutEffect(() => {
     if (!active) return;
-    const to = horizontal ? { start: active.x, extent: active.width } : { start: active.y, extent: active.height };
-    if (!placed.current || reduced) {
-      start.setValue(to.start);
-      extent.setValue(to.extent);
-      placed.current = true;
+    const from = placed.current;
+    if (from && from.start === start && from.extent === extent) return;
+    placed.current = { start, extent };
+    if (!from || reduced || from.extent <= 0 || extent <= 0) {
+      offset.setValue(start);
+      scale.setValue(1);
     } else {
+      offset.setValue(from.start);
+      scale.setValue(from.extent / extent);
       Animated.parallel([
-        Animated.timing(start, { toValue: to.start, duration: 200, useNativeDriver: false }),
-        Animated.timing(extent, { toValue: to.extent, duration: 200, useNativeDriver: false }),
+        Animated.timing(offset, { toValue: start, duration: 200, useNativeDriver: true }),
+        Animated.timing(scale, { toValue: 1, duration: 200, useNativeDriver: true }),
       ]).start();
     }
     // Keep the selected tab in view on a scrolling list.
     if (horizontal) {
-      scroll.current?.scrollTo({ x: Math.max(0, active.x - (width.current - active.width) / 2), animated: !reduced });
+      scroll.current?.scrollTo({ x: Math.max(0, start - (width.current - extent) / 2), animated: !reduced });
     }
-  }, [active, horizontal, reduced, start, extent]);
+  }, [active, start, extent, horizontal, reduced, offset, scale]);
 
   const { variant } = context;
-  const indicatorStyle: Animated.WithAnimatedValue<ViewStyle> =
+  // Pinned to the list's start edge and scaled from it, so the maths above holds.
+  const motion: Animated.WithAnimatedValue<ViewStyle> = horizontal
+    ? { left: 0, width: extent, transformOrigin: "0% 50%", transform: [{ translateX: offset }, { scaleX: scale }] }
+    : { top: 0, height: extent, transformOrigin: "50% 0%", transform: [{ translateY: offset }, { scaleY: scale }] };
+  const indicatorStyle: ViewStyle =
     variant === "line"
       ? horizontal
-        ? { bottom: -1, height: 2, borderRadius: 2, left: start, width: extent, backgroundColor: tokens.accent }
-        : { right: -1, width: 2, borderRadius: 2, top: start, height: extent, backgroundColor: tokens.accent }
+        ? { bottom: -1, height: 2, borderRadius: 2, backgroundColor: tokens.accent }
+        : { right: -1, width: 2, borderRadius: 2, backgroundColor: tokens.accent }
       : variant === "pills"
         ? horizontal
-          ? { top: 0, bottom: 0, left: start, width: extent, borderRadius: tokens.radius - 2, backgroundColor: tokens.accentSoft }
-          : { left: 0, right: 0, top: start, height: extent, borderRadius: tokens.radius - 2, backgroundColor: tokens.accentSoft }
+          ? { top: 0, bottom: 0, borderRadius: tokens.radius - 2, backgroundColor: tokens.accentSoft }
+          : { left: 0, right: 0, borderRadius: tokens.radius - 2, backgroundColor: tokens.accentSoft }
         : horizontal
-          ? { top: 3, bottom: 3, left: start, width: extent, borderRadius: tokens.radius - 2, backgroundColor: tokens.bg, boxShadow: tokens.shadow }
-          : { left: 3, right: 3, top: start, height: extent, borderRadius: tokens.radius - 2, backgroundColor: tokens.bg, boxShadow: tokens.shadow };
+          ? { top: 3, bottom: 3, borderRadius: tokens.radius - 2, backgroundColor: tokens.bg, boxShadow: tokens.shadow }
+          : { left: 3, right: 3, borderRadius: tokens.radius - 2, backgroundColor: tokens.bg, boxShadow: tokens.shadow };
 
   const listStyle = [
     horizontal ? s.list : s.listVertical,
@@ -237,7 +280,7 @@ export function TabList(props: TabListProps) {
     <View {...rest} role="tablist" aria-orientation={context.orientation} style={[listStyle, slots?.list, style]}>
       {/* Behind the tabs; drawn first so labels sit on top. */}
       <Animated.View
-        style={[s.indicator, indicatorStyle, { opacity: active ? 1 : 0 }, slots?.indicator]}
+        style={[s.indicator, indicatorStyle, motion, { opacity: active ? 1 : 0 }, slots?.indicator]}
         pointerEvents="none"
         aria-hidden
       />

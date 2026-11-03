@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/dismiss.ts",
       "core/index.ts",
@@ -20,7 +20,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:ceb430c1201cab3f2c196e863510c3bfa7f6dc880f48419bc15a4e982f15890a"
+    "sourceHash": "sha256:2a7aea2ba13bec3930dc23523b3e679ca4481d518b9e79e7b02af09d0661a81d"
   },
   "purpose": "Forms, details and drawers above the page, on the native <dialog> element, with focus trapped inside and the rest of the page inert.",
   "props": [

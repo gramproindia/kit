@@ -118,7 +118,7 @@ export function RadioGroup(props: RadioGroupProps) {
     [selected, commit, disabled, error, size, variant],
   );
 
-  const showClear = clearable && selected !== null && hasEnabledOption(items ?? [], disabled);
+  const showClear = clearable && selected !== null && hasEnabledOption(items, disabled);
 
   return (
     <View

@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/index.ts",
       "core/locale.ts",
@@ -18,7 +18,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:fb05956aae6ea96cc26c636b3570515ed952665d02ceb550da55770d725bae4d"
+    "sourceHash": "sha256:57f519c9509b2df58c3c22ad23e2b1d50f77af310113715f4f129ed8af22ab54"
   },
   "purpose": "A panel anchored to the control that opened it, in the top layer, with light dismiss, Escape, and flipping when there is no room.",
   "props": [

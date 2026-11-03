@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { memo, useEffect, useMemo, useRef, type ReactNode } from "react";
 import {
   AccessibilityInfo,
   Animated,
@@ -119,7 +119,16 @@ interface ToastItemProps {
   text: ToasterLocaleText;
 }
 
-export function ToastItem({ toast, store, closeButton, fromTop, icons, styles: slots, text }: ToastItemProps) {
+/** Memoised: pausing the timers re-renders the Toaster, not every toast in it. */
+export const ToastItem = memo(function ToastItem({
+  toast,
+  store,
+  closeButton,
+  fromTop,
+  icons,
+  styles: slots,
+  text,
+}: ToastItemProps) {
   const { tokens } = useKitTheme();
   const s = toastStyles(tokens);
   const reduced = useReducedMotion();
@@ -290,4 +299,4 @@ export function ToastItem({ toast, store, closeButton, fromTop, icons, styles: s
       </Animated.View>
     </Animated.View>
   );
-}
+});

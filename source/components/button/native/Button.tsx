@@ -1,4 +1,4 @@
-import { useMemo, useState, type ComponentRef, type ReactNode, type Ref } from "react";
+import { useMemo, useRef, useState, type ComponentRef, type ReactNode, type Ref } from "react";
 import {
   Pressable,
   Text,
@@ -144,15 +144,22 @@ export function Button(props: ButtonProps) {
   const s = themed(tokens);
   const text = useMemo(() => ({ ...defaultButtonText, ...localeText }), [localeText]);
   const [pressPending, setPressPending] = useState(false);
+  // The state above only takes effect on the next render, so two taps landing
+  // in the same frame would both get through. The ref closes the gate at once.
+  const pendingRef = useRef(false);
   const state = buttonState({ disabled, loading, pending: pressPending });
   const iconOnly = icon !== undefined && (children === undefined || children === null);
 
   const handlePress = (event: GestureResponderEvent) => {
-    if (state.inactive) return;
+    if (state.inactive || pendingRef.current) return;
     const result = onPress?.(event);
     if (!isPromiseLike(result)) return;
+    pendingRef.current = true;
     setPressPending(true);
-    const done = () => setPressPending(false);
+    const done = () => {
+      pendingRef.current = false;
+      setPressPending(false);
+    };
     Promise.resolve(result).then(done, (error: unknown) => {
       done();
       throw error;

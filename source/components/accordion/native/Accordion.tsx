@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Animated,
+  LayoutAnimation,
   Pressable,
   View,
   type StyleProp,
@@ -40,7 +41,8 @@ const themed = createThemedStyles((t) => ({
   title: { fontWeight: "600", color: t.fg },
   description: { color: t.muted },
   content: { overflow: "hidden" },
-  body: { position: "absolute", left: 0, right: 0, top: 0 },
+  // In the flow: the content sizes to it when open, and clips it at height 0.
+  body: {},
   text: { color: t.fg, lineHeight: t.fontSize * 1.45 },
 }));
 
@@ -67,6 +69,13 @@ export interface AccordionProps {
   size?: AccordionSize;
   /** Which side the chevron sits on. Default `end`. */
   iconPosition?: AccordionIconPosition;
+  /**
+   * Mount every panel from the start. By default a panel mounts the first
+   * time it opens and then stays mounted, so its state survives closing.
+   * Default false. (On the web, closed `<details>` content is always in the
+   * page, so find-in-page can reach it.)
+   */
+  keepMounted?: boolean;
   style?: StyleProp<ViewStyle>;
   styles?: Partial<Record<AccordionSlot, StyleProp<ViewStyle>>>;
 }
@@ -87,11 +96,13 @@ export function Accordion(props: AccordionProps) {
     variant = "separated",
     size = "md",
     iconPosition = "end",
+    keepMounted = false,
     style,
     styles: slots,
   } = props;
   const { tokens } = useKitTheme();
   const s = themed(tokens);
+  const reduced = useReducedMotion();
 
   const [open, setOpen] = useControllableState<string[]>(value, defaultValue ?? []);
   const settings = useMemo(() => ({ multiple, collapsible }), [multiple, collapsible]);
@@ -103,15 +114,24 @@ export function Accordion(props: AccordionProps) {
   const toggle = useCallback(
     (item: string) => {
       const next = toggleOpen(effective, item, settings);
+      // The panels' heights change in the next commit; LayoutAnimation runs
+      // that resize on the UI thread, so it stays smooth while a panel mounts.
+      // Only "update": views created or removed in the same commit should not fade.
+      if (!reduced) {
+        LayoutAnimation.configureNext({
+          duration: 200,
+          update: { type: LayoutAnimation.Types.easeInEaseOut },
+        });
+      }
       setOpen(next);
       onValueChange?.(next);
     },
-    [effective, settings, setOpen, onValueChange],
+    [effective, settings, setOpen, onValueChange, reduced],
   );
 
   const context = useMemo<AccordionContextValue>(
-    () => ({ open: effective, toggle, size, variant, iconPosition }),
-    [effective, toggle, size, variant, iconPosition],
+    () => ({ open: effective, toggle, size, variant, iconPosition, keepMounted }),
+    [effective, toggle, size, variant, iconPosition, keepMounted],
   );
 
   return (
@@ -156,6 +176,8 @@ export interface AccordionItemProps {
   /** Replaces the chevron. */
   icon?: ReactNode;
   disabled?: boolean;
+  /** Overrides `keepMounted` on `Accordion` for this panel. */
+  keepMounted?: boolean;
   style?: StyleProp<ViewStyle>;
   styles?: Partial<{
     root: StyleProp<ViewStyle>;
@@ -170,7 +192,18 @@ export interface AccordionItemProps {
 
 /** One section. Its open state belongs to the accordion. */
 export function AccordionItem(props: AccordionItemProps) {
-  const { value, title, description, children, meta, icon, disabled = false, style, styles: slots } = props;
+  const {
+    value,
+    title,
+    description,
+    children,
+    meta,
+    icon,
+    disabled = false,
+    keepMounted,
+    style,
+    styles: slots,
+  } = props;
   const context = useAccordionContext("AccordionItem");
   const { tokens } = useKitTheme();
   const s = themed(tokens);
@@ -182,26 +215,26 @@ export function AccordionItem(props: AccordionItemProps) {
   const plain = context.variant === "plain";
   const padX = plain ? 0 : pad.x;
 
-  // Height animates from 0 to the body's measured height. Height cannot use
-  // the native driver; one value per item, so the JS thread copes.
-  const [measured, setMeasured] = useState(0);
-  const height = useRef(new Animated.Value(open ? 1 : 0)).current;
+  // A panel is mounted once it has been opened, and stays mounted after, so
+  // a long list of closed panels costs nothing until someone looks.
+  const [visited, setVisited] = useState(open);
+  if (open && !visited) setVisited(true);
+  const mounted = open || visited || (keepMounted ?? context.keepMounted ?? false);
+
+  // The height change is animated by the accordion's LayoutAnimation (UI
+  // thread); only the chevron turns here, on the native driver.
   const turn = useRef(new Animated.Value(open ? 1 : 0)).current;
 
   useEffect(() => {
     const to = open ? 1 : 0;
     if (reduced) {
-      height.setValue(to);
       turn.setValue(to);
       return;
     }
-    const animation = Animated.parallel([
-      Animated.timing(height, { toValue: to, duration: 200, useNativeDriver: false }),
-      Animated.timing(turn, { toValue: to, duration: 200, useNativeDriver: true }),
-    ]);
+    const animation = Animated.timing(turn, { toValue: to, duration: 200, useNativeDriver: true });
     animation.start();
     return () => animation.stop();
-  }, [open, reduced, height, turn]);
+  }, [open, reduced, turn]);
 
   const chevron = (
     <Animated.View
@@ -248,27 +281,28 @@ export function AccordionItem(props: AccordionItemProps) {
         {context.iconPosition === "end" && chevron}
       </Pressable>
 
-      <Animated.View
+      <View
         nativeID={`${id}-content`}
         role="region"
         aria-labelledby={`${id}-header`}
-        // Closed content stays mounted (state survives) but leaves the
+        // Closed content that stays mounted (its state survives) leaves the
         // accessibility tree, as a closed <details> does.
         aria-hidden={!open}
         importantForAccessibility={open ? "auto" : "no-hide-descendants"}
         style={[
           s.content,
-          { height: height.interpolate({ inputRange: [0, 1], outputRange: [0, measured] }) },
+          !open && { height: 0 },
           slots?.content,
         ]}
       >
-        <View
-          style={[s.body, { paddingHorizontal: padX, paddingBottom: pad.y }, slots?.body]}
-          onLayout={(event) => setMeasured(event.nativeEvent.layout.height)}
-        >
-          {renderText(children, [s.text, { fontSize }])}
-        </View>
-      </Animated.View>
+        {mounted && (
+          <View
+            style={[s.body, { paddingHorizontal: padX, paddingBottom: pad.y }, slots?.body]}
+          >
+            {renderText(children, [s.text, { fontSize }])}
+          </View>
+        )}
+      </View>
     </View>
   );
 }

@@ -17,9 +17,10 @@ import {
 import { useControllableState } from "../../shared/react/useControllableState";
 import { describeField } from "../../shared/core/field";
 import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
-import { countCharacters } from "../core/count";
+import { counterValue } from "../core/count";
 import { fitHeight } from "../core/size";
 import type { FieldSize, TextareaLocaleText, TextareaResize } from "../core/types";
+import { useDomSync } from "./domSync";
 import { defaultTextareaText } from "./locale";
 import { cx, type TextareaSlot } from "./props";
 
@@ -45,7 +46,11 @@ export interface TextareaProps
   maxRows?: number;
   /** Which way people can drag to resize. Default `vertical`, or `none` with `autoResize`. */
   resize?: TextareaResize;
-  /** A character counter; shows `count / maxLength` when `maxLength` is set. */
+  /**
+   * A character counter; shows `count / maxLength` when `maxLength` is set.
+   * With a limit it counts as the limit does (UTF-16 units, so an emoji can
+   * count as 2 to 4); without one, characters as people see them.
+   */
   showCount?: boolean;
   classNames?: Partial<Record<TextareaSlot, string>>;
   localeText?: Partial<TextareaLocaleText>;
@@ -99,7 +104,7 @@ export function Textarea(props: TextareaProps) {
   useImperativeHandle(ref, () => textareaRef.current as HTMLTextAreaElement, []);
 
   // Mirrors the text even when uncontrolled, for the counter and auto-resize.
-  const [current, setCurrent] = useControllableState(valueProp, defaultValue ?? "");
+  const [current, setCurrent, controlled] = useControllableState(valueProp, defaultValue ?? "");
 
   // Inside an <AgentSurface>, offered to an agent with what it accepts now.
   useAgentSurfaceField(() => ({
@@ -133,15 +138,40 @@ export function Textarea(props: TextareaProps) {
       paddingBlock: px(computed.paddingTop) + px(computed.paddingBottom),
       borderBlock: px(computed.borderTopWidth) + px(computed.borderBottomWidth),
     };
+    // Collapsing to "auto" for a moment can shorten the page, and the browser
+    // then scrolls it; put the scroll position back afterwards.
+    const scroller = element.ownerDocument.scrollingElement;
+    const scrollTop = scroller?.scrollTop;
     element.style.height = "auto";
     const { height, overflow } = fitHeight(element.scrollHeight, metrics, floor, maxRows);
     element.style.height = `${height}px`;
     element.style.overflowY = overflow ? "auto" : "hidden";
+    if (scroller && scrollTop !== undefined && scroller.scrollTop !== scrollTop) scroller.scrollTop = scrollTop;
   }, [autoResize, floor, maxRows]);
 
   useLayoutEffect(() => {
     measure();
   }, [measure, current]);
+
+  // A form reset, or a form library writing `el.value`, changes the text
+  // without an input event; the counter and the height follow it here.
+  useDomSync(
+    textareaRef,
+    "value",
+    current,
+    {
+      onReset: (field) => {
+        setCurrent(field.value);
+        measure();
+        return undefined;
+      },
+      onWrite: (next) => {
+        setCurrent(next);
+        measure();
+      },
+    },
+    !controlled,
+  );
 
   // A narrower field wraps more lines, so measure again when the width changes.
   useEffect(() => {
@@ -158,7 +188,8 @@ export function Textarea(props: TextareaProps) {
   }, [autoResize, measure]);
 
   const invalid = Boolean(error);
-  const count = countCharacters(current);
+  // Counted only when shown: grapheme splitting is not free on every keystroke.
+  const count = showCount ? counterValue(current, maxLength) : 0;
   const describedBy = describeField(id, { extra: describedByProp, description, error });
   const rowVariables = {
     "--ta-min-rows": floor,

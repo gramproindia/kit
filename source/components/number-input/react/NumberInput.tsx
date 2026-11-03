@@ -19,7 +19,7 @@ import { describeField } from "../../shared/core/field";
 import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
 import { formatNumber } from "../core/format";
 import { parseNumber, toEditText } from "../core/parse";
-import { clamp, round, snapToStep, stepBy } from "../core/step";
+import { clamp, round, shiftDecimal, snapToStep, stepBy } from "../core/step";
 import type {
   ClampBehavior,
   NumberInputLocaleText,
@@ -172,10 +172,24 @@ export function NumberInput(props: NumberInputProps) {
     [locale, format, currency, decimals, useGrouping],
   );
 
+  // A percentage is edited in the units it is shown in: 45 for 45%, while the
+  // value stays 0.45. Typing 45 must not mean 4,500%.
+  const editPower = format === "percent" ? 2 : 0;
+  const readTyped = useCallback(
+    (typed: string): number | null => {
+      const parsed = parseNumber(typed, locale, format === "currency" ? currency : undefined);
+      return parsed === null ? null : shiftDecimal(parsed, -editPower);
+    },
+    [locale, format, currency, editPower],
+  );
+
   // Formatted at rest, plain while being edited: separators inserted under the
   // caret are the reason typing in a "smart" number field feels wrong.
   const shown =
-    draft ?? (focused ? toEditText(value, locale) : formatNumber(value, formatOptions));
+    draft ??
+    (focused
+      ? toEditText(value === null ? null : shiftDecimal(value, editPower), locale)
+      : formatNumber(value, formatOptions));
 
   const commit = useCallback(
     (next: number | null) => {
@@ -188,12 +202,14 @@ export function NumberInput(props: NumberInputProps) {
   /** Rounds, snaps and clamps a raw number into what the field will hold. */
   const settle = useCallback(
     (raw: number): number => {
-      let next = decimals === undefined ? raw : round(raw, decimals);
+      // `decimals` counts the digits shown, which for a percentage are two
+      // places further along than the value's.
+      let next = decimals === undefined ? raw : round(raw, decimals + editPower);
       if (snap) next = snapToStep(next, { step, min, max });
       if (clampBehavior !== "none") next = clamp(next, min, max);
       return next;
     },
-    [decimals, snap, step, min, max, clampBehavior],
+    [decimals, editPower, snap, step, min, max, clampBehavior],
   );
 
   // Inside an <AgentSurface>, offered to an agent as a number with its bounds.
@@ -228,7 +244,7 @@ export function NumberInput(props: NumberInputProps) {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const typed = event.target.value;
     setDraft(typed);
-    const parsed = parseNumber(typed, locale);
+    const parsed = readTyped(typed);
     if (parsed === null) {
       // An empty field is a value; anything else unreadable is a half-typed
       // number, and the last good one stands until it is finished or left.
@@ -255,7 +271,7 @@ export function NumberInput(props: NumberInputProps) {
       commit(null);
       return;
     }
-    const parsed = parseNumber(typed, locale);
+    const parsed = readTyped(typed);
     // Something unreadable falls back to the last number the field held, rather
     // than being thrown away: leaving a field should never destroy a value.
     if (parsed !== null) commit(settle(parsed));
@@ -264,12 +280,12 @@ export function NumberInput(props: NumberInputProps) {
   const applyStep = useCallback(
     (direction: 1 | -1, amount = step) => {
       if (disabled || readOnly) return;
-      const from = draft === null ? value : (parseNumber(draft, locale) ?? value);
+      const from = draft === null ? value : (readTyped(draft) ?? value);
       const next = stepBy(from, direction, { step: amount, min, max });
       setDraft(null);
       commit(snap ? snapToStep(next, { step, min, max }) : next);
     },
-    [disabled, readOnly, draft, value, locale, step, min, max, snap, commit],
+    [disabled, readOnly, draft, value, readTyped, step, min, max, snap, commit],
   );
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -340,9 +356,11 @@ export function NumberInput(props: NumberInputProps) {
   }, [applyStep]);
 
   const repeat = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const repeating = useRef<1 | -1 | null>(null);
   const stopRepeat = useCallback(() => {
     clearTimeout(repeat.current);
     repeat.current = undefined;
+    repeating.current = null;
   }, []);
   useEffect(() => stopRepeat, [stopRepeat]);
 
@@ -351,8 +369,11 @@ export function NumberInput(props: NumberInputProps) {
     // selection gesture rather than a request for a hundred more.
     if (event.button !== 0) return;
     event.preventDefault();
+    // A second press before the first was released must not leave a timer behind.
+    stopRepeat();
     inputRef.current?.focus();
     applyStep(direction);
+    repeating.current = direction;
     event.currentTarget.setPointerCapture(event.pointerId);
     const tick = () => {
       latestStep.current(direction);
@@ -364,6 +385,19 @@ export function NumberInput(props: NumberInputProps) {
   const invalid = Boolean(error);
   const atMin = value !== null && min !== undefined && value <= min;
   const atMax = value !== null && max !== undefined && value >= max;
+
+  // A button disabled at the limit may never see its pointerup, so the
+  // repeat is stopped here rather than left running until unmount.
+  useEffect(() => {
+    const direction = repeating.current;
+    if (direction !== null && (disabled || readOnly || (direction === 1 ? atMax : atMin))) stopRepeat();
+  }, [disabled, readOnly, atMax, atMin, stopRepeat]);
+
+  // iOS's decimal pad has no minus key, so a field that takes negatives gets
+  // the full keyboard. An unbounded field keeps the pad: most never go below
+  // zero, and the stepper and arrow keys still reach negatives.
+  const inputMode =
+    min !== undefined && min < 0 ? "text" : min !== undefined && min >= 0 && decimals === 0 ? "numeric" : "decimal";
   const describedBy = describeField(id, { extra: describedByProp, description, error });
 
   return (
@@ -406,7 +440,7 @@ export function NumberInput(props: NumberInputProps) {
           id={id}
           // Text, not number: see the note on the component.
           type="text"
-          inputMode={min !== undefined && min >= 0 && decimals === 0 ? "numeric" : "decimal"}
+          inputMode={inputProps.inputMode ?? inputMode}
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}

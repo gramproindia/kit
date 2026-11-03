@@ -3,7 +3,7 @@ import { computeLayout, resolveColumns } from "../core/columns";
 import { createInitialState } from "../core/state";
 import type { ColumnDef } from "../core/types";
 import { createFormatters } from "../core/values";
-import { toCsv } from "../export/csv";
+import { neutralizeFormula, toCsv } from "../export/csv";
 import { buildPrintHtml } from "../export/pdf";
 import { buildExportTable } from "../export/table";
 import { columnName, createXlsxBlob, escapeXml } from "../export/xlsx";
@@ -66,5 +66,34 @@ describe("export", () => {
     const html = buildPrintHtml(table, { title: "<Report>", orientation: "landscape", paperSize: "A4" });
     expect(html).toContain("&#60;Report&#62;");
     expect(html).not.toContain("<Report>");
+  });
+});
+
+describe("formula injection", () => {
+  it("decides on the text, not the column type", () => {
+    const formatted: ColumnDef<Person>[] = [
+      { field: "age", type: "number", format: () => '=HYPERLINK("http://x")' },
+      { field: "id", type: "number", format: (v) => `-${v}` },
+    ];
+    const items = computeLayout(resolveColumns(formatted), createInitialState({ data: people, columns: formatted })).columns;
+    const [, first] = toCsv(buildExportTable(people, items, createFormatters("en-US"))).split("\r\n");
+    expect(first).toBe(`"'=HYPERLINK(""http://x"")",-1`);
+  });
+
+  it("leaves plain numbers alone and guards everything else", () => {
+    expect(["-5", "+1,234.50", "-12 %", "1 000"].map(neutralizeFormula)).toEqual([
+      "-5",
+      "+1,234.50",
+      "-12 %",
+      "1 000",
+    ]);
+    expect(["=1+1", "-5+cmd", "@SUM(A1)", "\t=1", "+", "-"].map(neutralizeFormula)).toEqual([
+      "'=1+1",
+      "'-5+cmd",
+      "'@SUM(A1)",
+      "'\t=1",
+      "'+",
+      "'-",
+    ]);
   });
 });

@@ -44,3 +44,10 @@ describe("showCount", () => {
     expect(showCount(Number.NaN, true)).toBe(false);
   });
 });
+
+describe("formatCount locale", () => {
+  it("takes the spoken words for a capped count from the locale strings", () => {
+    const moreThan = (value: string) => `plus de ${value}`;
+    expect(formatCount(150, 99, undefined, moreThan)).toEqual({ text: "99+", spoken: "plus de 99" });
+  });
+});

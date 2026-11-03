@@ -147,14 +147,16 @@ export function Listbox<V extends OptionValue>({
     }
   }, [activeIndex, itemIndexByOption, metrics, listRef]);
 
-  // The next page is asked for at most once per list length. `loading` is not
+  // The next page is asked for at most once per list. `loading` is not
   // enough on its own: it belongs to the caller and only turns on a render or
   // more later, while scroll events fire many times a second, so a single flick
   // at the end of the list would otherwise send a burst of identical requests.
-  const requestedAt = useRef(-1);
+  // Keyed by the items array, not its length: a new search or new options make
+  // a new list, which may well be as long as the one already asked about.
+  const requestedFor = useRef<readonly ListItem<V>[] | null>(null);
   const loadMore = () => {
-    if (!hasMore || loading || !onLoadMore || requestedAt.current === items.length) return;
-    requestedAt.current = items.length;
+    if (!hasMore || loading || !onLoadMore || requestedFor.current === items) return;
+    requestedFor.current = items;
     onLoadMore();
   };
 
@@ -162,12 +164,12 @@ export function Listbox<V extends OptionValue>({
   // scroll event follows, so ask from here instead.
   useLayoutEffect(() => {
     const el = listRef.current;
-    if (!el || !hasMore || loading || !onLoadMore || requestedAt.current === items.length) return;
+    if (!el || !hasMore || loading || !onLoadMore || requestedFor.current === items) return;
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
-      requestedAt.current = items.length;
+      requestedFor.current = items;
       onLoadMore();
     }
-  }, [hasMore, loading, onLoadMore, items.length, listRef]);
+  }, [hasMore, loading, onLoadMore, items, listRef]);
 
   const onScroll = (event: UIEvent<HTMLDivElement>) => {
     const el = event.currentTarget;
@@ -266,6 +268,8 @@ export function Listbox<V extends OptionValue>({
         style={{ height: empty ? undefined : listHeight }}
         data-virtual={isVirtual || undefined}
         tabIndex={searchable ? -1 : 0}
+        // Without a search box, focus sits here, so the active option is announced from here.
+        aria-activedescendant={!searchable && activeIndex >= 0 ? getOptionId(activeIndex) : undefined}
         onScroll={onScroll}
         onKeyDown={searchable ? undefined : onKeyDown}
       >

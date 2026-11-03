@@ -130,7 +130,7 @@ function targetPath(file: string, specifier: string): string[] {
  */
 const WEB_SAFE_RN = new Set([
   "AccessibilityInfo", "ActivityIndicator", "Animated", "Dimensions", "Easing", "FlatList",
-  "I18nManager", "Image", "Keyboard", "Modal", "PanResponder", "Platform", "Pressable",
+  "I18nManager", "Image", "Keyboard", "LayoutAnimation", "Modal", "PanResponder", "Platform", "Pressable",
   "ScrollView", "SectionList", "StatusBar", "StyleSheet", "Text", "TextInput", "View", "useColorScheme",
   "useWindowDimensions",
 ]);

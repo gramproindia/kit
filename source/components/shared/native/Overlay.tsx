@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Animated, Easing, Modal, Pressable, StyleSheet, View } from "react-native";
-import { useKitTheme } from "./KitProvider";
+import { useKitTheme, useOverlayPortalOutlet } from "./KitProvider";
 import { useReducedMotion } from "./motion";
 
 export interface OverlayProps {
@@ -11,6 +11,11 @@ export interface OverlayProps {
   dismissible?: boolean;
   /** Android back dismisses. Default true. */
   closeOnBack?: boolean;
+  /**
+   * Android back, handled by the caller instead: when given, back calls this
+   * and never `onDismiss`, whatever `closeOnBack` says.
+   */
+  onBack?(): void;
   /** `dim` darkens the app behind; `none` is for menus and popovers. Default `dim`. */
   backdrop?: "dim" | "none";
   /** After the exit animation, once nothing is on screen. */
@@ -35,6 +40,7 @@ export function Overlay({
   onDismiss,
   dismissible = true,
   closeOnBack = true,
+  onBack,
   backdrop = "dim",
   onClosed,
   duration = 180,
@@ -76,6 +82,10 @@ export function Overlay({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, mounted, progress, time]);
 
+  // Toasts and tooltips render in here while this is the top-most overlay, so
+  // they are not hidden under this Modal's window.
+  const outlet = useOverlayPortalOutlet(mounted);
+
   if (!mounted) return null;
 
   return (
@@ -86,7 +96,8 @@ export function Overlay({
       statusBarTranslucent
       navigationBarTranslucent
       onRequestClose={() => {
-        if (closeOnBack) onDismiss?.();
+        if (onBack) onBack();
+        else if (closeOnBack) onDismiss?.();
       }}
     >
       <View style={StyleSheet.absoluteFill} pointerEvents={open ? "box-none" : "none"}>
@@ -105,6 +116,7 @@ export function Overlay({
         </Animated.View>
         {typeof children === "function" ? children(progress) : children}
       </View>
+      {outlet}
     </Modal>
   );
 }

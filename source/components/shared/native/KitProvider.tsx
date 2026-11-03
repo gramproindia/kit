@@ -1,9 +1,11 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
@@ -16,6 +18,7 @@ import {
 } from "react-native";
 import { KitIconsContext, type KitIcons } from "./icons";
 import { mergeIcons } from "./icons-merge";
+import { createPortalHost, sameIcons, sameTheme, type PortalHost } from "./portal-host";
 import { resolveTokens, type ColorScheme, type KitTheme, type KitTokens } from "./theme";
 
 interface ThemeValue {
@@ -25,13 +28,18 @@ interface ThemeValue {
 
 const ThemeContext = createContext<ThemeValue | null>(null);
 
-type PortalEntry = { key: number; node: ReactNode };
 interface PortalValue {
   mount(node: ReactNode): number;
   update(key: number, node: ReactNode): void;
   unmount(key: number): void;
 }
 const PortalContext = createContext<PortalValue | null>(null);
+// The full host, for Overlay: it claims the top layer while open and renders
+// the portal outlet inside its Modal. See portal-host.ts for why.
+const PortalHostContext = createContext<PortalHost<ReactNode> | null>(null);
+// True inside a portal outlet, so an overlay rendered from a portal entry does
+// not pull the outlet into itself (which would unmount it, and loop).
+const InsideOutletContext = createContext(false);
 
 /** Space taken by the status bar, notch and home indicator, in dp. */
 export interface Insets {
@@ -72,29 +80,21 @@ export function KitProvider({ theme, colorScheme = "system", insets, icons, chil
   const device = useColorScheme();
   const scheme: ColorScheme =
     colorScheme === "system" ? (device === "dark" ? "dark" : "light") : colorScheme;
-  const value = useMemo(() => ({ tokens: resolveTokens(scheme, theme), scheme }), [scheme, theme]);
+  // Keep the last theme and icons while the new ones are equal, so an inline
+  // `theme={{ … }}` does not rebuild tokens (and every consumer's styles) on
+  // each render of the parent.
+  const stableTheme = useStable(theme, sameTheme);
+  const stableIcons = useStable(icons, sameIcons);
+  const value = useMemo(() => ({ tokens: resolveTokens(scheme, stableTheme), scheme }), [scheme, stableTheme]);
   const { top = 0, right = 0, bottom = 0, left = 0 } = insets ?? {};
   const edges = useMemo(() => ({ top, right, bottom, left }), [top, right, bottom, left]);
   const outerIcons = useContext(KitIconsContext);
-  const iconSet = useMemo(() => mergeIcons(outerIcons, icons), [outerIcons, icons]);
+  const iconSet = useMemo(() => mergeIcons(outerIcons, stableIcons), [outerIcons, stableIcons]);
 
-  const [entries, setEntries] = useState<PortalEntry[]>([]);
-  const nextKey = useRef(0);
+  const [host] = useState(() => createPortalHost<ReactNode>());
   const portal = useMemo<PortalValue>(
-    () => ({
-      mount(node) {
-        const key = nextKey.current++;
-        setEntries((list) => [...list, { key, node }]);
-        return key;
-      },
-      update(key, node) {
-        setEntries((list) => list.map((entry) => (entry.key === key ? { key, node } : entry)));
-      },
-      unmount(key) {
-        setEntries((list) => list.filter((entry) => entry.key !== key));
-      },
-    }),
-    [],
+    () => ({ mount: host.mount, update: host.update, unmount: host.unmount }),
+    [host],
   );
 
   return (
@@ -102,23 +102,70 @@ export function KitProvider({ theme, colorScheme = "system", insets, icons, chil
       <InsetsContext.Provider value={edges}>
       <KitIconsContext.Provider value={iconSet}>
       <PortalContext.Provider value={portal}>
+      <PortalHostContext.Provider value={host}>
         <View style={styles.root}>
           {children}
-          {entries.length > 0 && (
-            <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-              {entries.map((entry) => (
-                <View key={entry.key} style={StyleSheet.absoluteFill} pointerEvents="box-none">
-                  {entry.node}
-                </View>
-              ))}
-            </View>
-          )}
+          <PortalOutlet layer={null} />
         </View>
+      </PortalHostContext.Provider>
       </PortalContext.Provider>
       </KitIconsContext.Provider>
       </InsetsContext.Provider>
     </ThemeContext.Provider>
   );
+}
+
+/** `value`, or the previous one while it is still equal by `same`. */
+function useStable<T>(value: T, same: (a: T, b: T) => boolean): T {
+  const ref = useRef(value);
+  if (ref.current !== value && !same(ref.current, value)) ref.current = value;
+  return ref.current;
+}
+
+/**
+ * Where portal entries render: the provider's own view (`layer` null) while no
+ * overlay is open, else inside the top-most open overlay's Modal. Only the
+ * outlet whose layer is on top renders anything, so no entry renders twice.
+ */
+function PortalOutlet({ layer }: { layer: object | null }) {
+  const host = useContext(PortalHostContext);
+  const entries = useSyncExternalStore(host ? host.subscribe : noSubscribe, () => host?.entries() ?? EMPTY);
+  const top = useSyncExternalStore(host ? host.subscribe : noSubscribe, () => host?.top() ?? null);
+  if (!host || top !== layer || entries.length === 0) return null;
+  return (
+    <InsideOutletContext.Provider value>
+      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+        {entries.map((entry) => (
+          <View key={entry.key} style={StyleSheet.absoluteFill} pointerEvents="box-none">
+            {entry.node}
+          </View>
+        ))}
+      </View>
+    </InsideOutletContext.Provider>
+  );
+}
+const EMPTY: readonly never[] = [];
+const noSubscribe = () => () => undefined;
+
+/**
+ * For Overlay: while `active`, claim the top layer, so portal entries (toasts,
+ * tooltips) move into this overlay's Modal and stay above it. Returns the
+ * outlet to render inside the Modal, after the overlay's own content.
+ */
+export function useOverlayPortalOutlet(active: boolean): ReactNode {
+  const host = useContext(PortalHostContext);
+  const inside = useContext(InsideOutletContext);
+  const [layer, setLayer] = useState<object | null>(null);
+  useEffect(() => {
+    if (!active || !host || inside) return undefined;
+    const claim = host.claimLayer();
+    setLayer(claim.layer);
+    return () => {
+      claim.release();
+      setLayer(null);
+    };
+  }, [active, host, inside]);
+  return layer ? <PortalOutlet layer={layer} /> : null;
 }
 
 /**

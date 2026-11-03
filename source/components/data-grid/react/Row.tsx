@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, type MouseEvent, type ReactNode } from "react";
+import { getOwn } from "../core/grid";
 import type { ColumnLayout, ColumnLayoutItem, GridRow } from "../core/types";
 import type { Range } from "../core/virtual";
 import { Cell } from "./Cell";
@@ -31,9 +32,9 @@ function RowView<T>({ row, rowIndex, ariaRowIndex, top, layout, colRange, classN
   const editingColumn = useStoreSelector(engine.store, (s) =>
     s.ui.editing?.rowId === row.id ? s.ui.editing.columnId : null,
   );
-  const pending = useStoreSelector(engine.store, (s) => s.ui.pending[row.id]);
-  const errors = useStoreSelector(engine.store, (s) => s.ui.errors[row.id]);
-  const selected = useSelectionState<T, boolean>((selection) => selection[row.id] === true);
+  const pending = useStoreSelector(engine.store, (s) => getOwn(s.ui.pending, row.id));
+  const errors = useStoreSelector(engine.store, (s) => getOwn(s.ui.errors, row.id));
+  const selected = useSelectionState<T, boolean>((selection) => getOwn(selection, row.id) === true);
   const selectable = features.selection && isRowSelectable(row.original);
 
   const handleClick = (event: MouseEvent<HTMLDivElement>, kind: "click" | "double") => {
@@ -51,8 +52,8 @@ function RowView<T>({ row, rowIndex, ariaRowIndex, top, layout, colRange, classN
       item={item}
       active={activeCol === item.visibleIndex}
       editing={editingColumn === item.column.id}
-      pendingValue={pending && item.column.id in pending ? pending[item.column.id] : NO_PENDING}
-      error={errors?.[item.column.id]}
+      pendingValue={pending && Object.hasOwn(pending, item.column.id) ? pending[item.column.id] : NO_PENDING}
+      error={getOwn(errors, item.column.id)}
       selected={selected}
       selectable={selectable}
     />

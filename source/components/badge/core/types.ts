@@ -8,4 +8,9 @@ export type BadgeSize = "sm" | "md";
 export interface BadgeLocaleText {
   /** The remove button on a Tag. `label` is the tag's own text. */
   remove(label: string): string;
+  /**
+   * What a screen reader hears for a capped count such as "99+". `value` is
+   * the cap, already formatted.
+   */
+  moreThan(value: string): string;
 }

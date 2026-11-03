@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { colorIndex, initials, splitGroup } from "../core/identity";
+import { colorIndex, initials, showsImage, splitGroup } from "../core/identity";
 
 describe("initials", () => {
   it("takes the first and last part of a name", () => {
@@ -84,5 +84,19 @@ describe("splitGroup", () => {
   it("handles a group with no room for faces", () => {
     expect(splitGroup(people, 1)).toEqual({ shown: [], overflow: 5 });
     expect(splitGroup(people, 0)).toEqual({ shown: [], overflow: 5 });
+  });
+});
+
+describe("showsImage", () => {
+  it("draws a picture only when there is a URL that has not failed", () => {
+    expect(showsImage(undefined, undefined)).toBe(false);
+    expect(showsImage("", undefined)).toBe(false);
+    expect(showsImage("a.png", undefined)).toBe(true);
+    expect(showsImage("a.png", "a.png")).toBe(false);
+  });
+
+  it("gives a new URL its own chance after an old one failed", () => {
+    // A recycled list cell, or a profile picture that was just changed.
+    expect(showsImage("b.png", "a.png")).toBe(true);
   });
 });

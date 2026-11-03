@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
   type Ref,
@@ -78,6 +79,21 @@ const outside = (event: MouseEvent<HTMLDialogElement>) =>
   isOutside(event.currentTarget.getBoundingClientRect(), event.clientX, event.clientY);
 
 /**
+ * Whether this Escape is ours to act on. Not when something inside already
+ * handled it, while an IME is composing, or while a popover inside is open:
+ * the browser closes that popover first, and cancelling the key would stop it.
+ */
+const ownsEscape = (event: KeyboardEvent<HTMLDialogElement>) => {
+  if (event.key !== "Escape" || event.defaultPrevented || event.nativeEvent.isComposing) return false;
+  try {
+    return event.currentTarget.querySelector(":popover-open") === null;
+  } catch {
+    // A browser without :popover-open has no popovers to defer to.
+    return true;
+  }
+};
+
+/**
  * A modal built on the native `<dialog>` element. The browser provides the top
  * layer, the inert background, the focus trap and focus return; the component
  * adds controlled state, dismiss rules, drawers and animation.
@@ -113,6 +129,7 @@ export function Modal(props: ModalProps) {
   const text = useMemo(() => ({ ...defaultModalText, ...localeText }), [localeText]);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const pressStartedOutside = useRef(false);
+  const escapeHandled = useRef(false);
 
   const [open, setOpenState] = useControllableState(openProp, defaultOpen);
 
@@ -188,12 +205,25 @@ export function Modal(props: ModalProps) {
       aria-labelledby={title ? `${id}-title` : undefined}
       aria-describedby={description ? `${id}-description` : undefined}
       aria-label={title ? undefined : ariaLabel}
-      // Escape: keep the browser from closing it, and decide ourselves.
-      onCancel={(event) => {
+      // Escape: keep the browser from closing it, and decide ourselves. This is
+      // done on keydown because Chrome only honours a prevented `cancel` event
+      // with fresh user activation, and would otherwise close past
+      // closeOnEscape={false} or onBeforeClose.
+      onKeyDown={(event) => {
+        if (!ownsEscape(event)) return;
         event.preventDefault();
+        escapeHandled.current = true;
+        setTimeout(() => (escapeHandled.current = false));
         requestClose("escape");
       }}
-      // Closed some other way, e.g. by a `<form method="dialog">` inside.
+      // Other close requests, such as Android's back gesture.
+      onCancel={(event) => {
+        event.preventDefault();
+        if (escapeHandled.current) return;
+        requestClose("escape");
+      }}
+      // Closed some other way, e.g. by a `<form method="dialog">` inside, or
+      // forced by the browser: bring React's state back in line.
       onClose={() => {
         if (open) setOpen(false, "api");
       }}

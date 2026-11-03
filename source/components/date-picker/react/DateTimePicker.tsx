@@ -12,6 +12,7 @@ import {
 } from "react";
 import { describeField } from "../../shared/core/field";
 import { isDayDisabled, startOfDay, toISODate } from "../core/calendar";
+import { MAX_DATE_TEXT_LENGTH } from "../core/format";
 import {
   clampDateTime,
   dateTimePlaceholder,
@@ -151,6 +152,8 @@ export function DateTimePicker(props: DateTimePickerProps) {
       const settled = next && clamp ? clampDateTime(next, minMoment, maxMoment) : next;
       if (!controlled) setOwn(settled);
       if (settled) setPendingTime(timeOf(settled));
+      // A value from anywhere else replaces whatever was typed.
+      setDraft(null);
       setInputError(null);
       onChange?.(settled);
     },
@@ -257,30 +260,44 @@ export function DateTimePicker(props: DateTimePickerProps) {
     return parsed ? withTime(parsed.date, parsed.time ?? timeRef.current) : null;
   };
 
+  // Typing changes nothing until blur or Enter: "15/03/2026 1" already reads
+  // as a moment, and reporting it would hand the form a time nobody chose.
   const onInputChange = (raw: string) => {
     if (!editable) return;
     setDraft(raw);
     setInputError(null);
-    // Committed as soon as it reads as a whole, allowed moment.
-    const next = read(raw);
-    if (next && !outOfBounds(next)) commit(next);
   };
 
-  const onInputBlur = () => {
+  /**
+   * Settles the typed text. Text that is not an allowed moment stays in the
+   * field with an error, and the value stays what it was before the typing.
+   */
+  const commitDraft = () => {
     if (draft === null) return;
-    setDraft(null);
     const trimmed = draft.trim();
     if (!trimmed) {
-      commit(null);
+      setDraft(null);
+      setInputError(null);
+      if (current) commit(null);
       return;
     }
     const next = read(trimmed);
-    if (!next) setInputError(text.invalidDate);
-    else if (outOfBounds(next)) setInputError(text.outOfRange);
+    if (!next || outOfBounds(next)) {
+      setInputError(next ? text.outOfRange : text.invalidDate);
+      return;
+    }
+    setDraft(null);
+    setInputError(null);
+    if (!current || next.getTime() !== current.getTime()) commit(next);
   };
 
+  const onInputBlur = commitDraft;
+
   const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "ArrowDown" || (event.key === "Enter" && !picker.open)) {
+    if (event.key === "Enter" && draft !== null) {
+      event.preventDefault();
+      commitDraft();
+    } else if (event.key === "ArrowDown" || (event.key === "Enter" && !picker.open)) {
       event.preventDefault();
       picker.setOpen(true);
     } else if (event.key === "Escape" && picker.open) {
@@ -328,6 +345,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
           required={required}
           autoComplete="off"
           spellCheck={false}
+          maxLength={MAX_DATE_TEXT_LENGTH}
           aria-invalid={invalid || undefined}
           aria-describedby={describedBy}
           onChange={(event) => onInputChange(event.target.value)}

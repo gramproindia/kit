@@ -1,3 +1,3 @@
-export { colorIndex, initials, splitGroup } from "./identity";
+export { colorIndex, initials, showsImage, splitGroup } from "./identity";
 export type * from "./types";
 export { defaultAvatarText } from "./locale";

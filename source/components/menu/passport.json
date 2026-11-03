@@ -16,7 +16,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/index.ts",
       "core/locale.ts",
@@ -30,7 +30,7 @@
       "react/props.ts",
       "react/useMenuKeys.ts"
     ],
-    "sourceHash": "sha256:b9618a85c6f2eca267bee544b9c01f6d8b7f5868245b5654ec0a6a6577fef663"
+    "sourceHash": "sha256:277adf6f6667bfcb3b5c9e3c5c7dc05f400d0ab385175fe6befb9311b81409fa"
   },
   "purpose": "A menu of commands with arrow keys, typeahead, checkbox and radio items and submenus, following the WAI-ARIA menu pattern.",
   "props": [

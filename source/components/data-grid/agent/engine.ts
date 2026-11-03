@@ -26,7 +26,7 @@ import {
   type ValidationLayer,
 } from "../../shared/core/agent";
 import type { GridApi } from "../core/grid";
-import type { GridOptions, GridState } from "../core/types";
+import type { FilterOperator, FilterValue, GridOptions, GridState } from "../core/types";
 import {
   buildGridContract,
   type GridAgentPolicy,
@@ -127,8 +127,19 @@ export interface GridAgent<T> {
   clearHistory(): void;
   saveView(label?: string): GridView;
   applyView(view: GridView): boolean;
-  /** Hand the agent this render's props when `data`, `columns` or flags change. */
-  update(options: GridOptions<T>): void;
+  /**
+   * Hand the agent this render's props when `data`, `columns` or flags change.
+   * Pass `extras` to replace semantics, policy and locale too; a key left out
+   * of `extras` is cleared, as an omitted prop would be.
+   */
+  update(
+    options: GridOptions<T>,
+    extras?: {
+      semantics?: Readonly<Record<string, GridColumnSemantics>> | undefined;
+      policy?: GridAgentPolicy | undefined;
+      locale?: string | undefined;
+    },
+  ): void;
   dataset(): GridDataset<T>;
 }
 
@@ -151,11 +162,105 @@ const fromBase64Url = (text: string): string => {
 /** A saved view as one URL-safe string. */
 export const encodeGridView = (view: GridView): string => toBase64Url(JSON.stringify(view));
 
-/** Reads a string from `encodeGridView`, or null when it is not one. */
+const FILTER_OPERATORS = new Set<string>([
+  "contains", "notContains", "equals", "notEquals", "startsWith", "endsWith",
+  "gt", "gte", "lt", "lte", "between", "before", "after", "in", "isEmpty", "isNotEmpty",
+] satisfies FilterOperator[]);
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const isStringList = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((entry) => typeof entry === "string");
+
+const isFilterValue = (value: unknown): boolean =>
+  value === undefined ||
+  value === null ||
+  typeof value === "string" ||
+  typeof value === "boolean" ||
+  (typeof value === "number" && Number.isFinite(value)) ||
+  (Array.isArray(value) &&
+    value.every((entry) => typeof entry === "string" || (typeof entry === "number" && Number.isFinite(entry))));
+
+/** A record of `check`-passing values, copied as own properties only. */
+function recordOf<V>(value: unknown, check: (entry: unknown) => entry is V): Record<string, V> | undefined {
+  if (!isRecord(value)) return undefined;
+  const out: Record<string, V> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (!check(entry)) return undefined;
+    Object.defineProperty(out, key, { value: entry, writable: true, enumerable: true, configurable: true });
+  }
+  return out;
+}
+
+const isBoolean = (entry: unknown): entry is boolean => typeof entry === "boolean";
+const isSize = (entry: unknown): entry is number =>
+  typeof entry === "number" && Number.isFinite(entry) && entry >= 0;
+const isIndex = (value: unknown, min: number): value is number =>
+  typeof value === "number" && Number.isInteger(value) && value >= min;
+
+/**
+ * Keeps the state keys of an untrusted view whose shape is right and drops the
+ * rest. A saved view comes from a URL or storage, so `{ "filters": 5 }` must
+ * not reach the grid, where it would throw.
+ */
+export function sanitizeGridState(input: unknown): Partial<GridState> {
+  if (!isRecord(input)) return {};
+  const out: Partial<GridState> = {};
+  const { sorting, filters, globalFilter, pagination, rowSelection } = input;
+  const { columnOrder, columnVisibility, columnSizing, columnPinning, density } = input;
+
+  if (
+    Array.isArray(sorting) &&
+    sorting.every((s) => isRecord(s) && typeof s.columnId === "string" && typeof s.desc === "boolean")
+  ) {
+    out.sorting = sorting.map((s: Record<string, unknown>) => ({ columnId: s.columnId as string, desc: s.desc as boolean }));
+  }
+  if (
+    Array.isArray(filters) &&
+    filters.every(
+      (f) =>
+        isRecord(f) &&
+        typeof f.columnId === "string" &&
+        typeof f.operator === "string" &&
+        FILTER_OPERATORS.has(f.operator) &&
+        isFilterValue(f.value) &&
+        isFilterValue(f.value2),
+    )
+  ) {
+    out.filters = filters.map((f: Record<string, unknown>) => ({
+      columnId: f.columnId as string,
+      operator: f.operator as FilterOperator,
+      ...(f.value !== undefined ? { value: f.value as FilterValue } : {}),
+      ...(f.value2 !== undefined ? { value2: f.value2 as FilterValue } : {}),
+    }));
+  }
+  if (typeof globalFilter === "string") out.globalFilter = globalFilter;
+  if (isRecord(pagination) && isIndex(pagination.pageIndex, 0) && isIndex(pagination.pageSize, 1)) {
+    out.pagination = { pageIndex: pagination.pageIndex, pageSize: pagination.pageSize };
+  }
+  const selection = recordOf(rowSelection, isBoolean);
+  if (selection) out.rowSelection = selection;
+  if (isStringList(columnOrder)) out.columnOrder = columnOrder;
+  const visibility = recordOf(columnVisibility, isBoolean);
+  if (visibility) out.columnVisibility = visibility;
+  const sizing = recordOf(columnSizing, isSize);
+  if (sizing) out.columnSizing = sizing;
+  if (isRecord(columnPinning) && isStringList(columnPinning.left) && isStringList(columnPinning.right)) {
+    out.columnPinning = { left: columnPinning.left, right: columnPinning.right };
+  }
+  if (density === "compact" || density === "standard" || density === "comfortable") out.density = density;
+  return out;
+}
+
+/**
+ * Reads a string from `encodeGridView`, or null when it is not one. Only the
+ * envelope is checked here; `applyView` drops any malformed state key.
+ */
 export function decodeGridView(text: string): GridView | null {
   try {
     const parsed = JSON.parse(fromBase64Url(text)) as GridView;
-    return parsed && parsed.v === 1 && typeof parsed.state === "object" ? parsed : null;
+    return isRecord(parsed) && parsed.v === 1 && isRecord(parsed.state) ? parsed : null;
   } catch {
     return null;
   }
@@ -165,7 +270,9 @@ export function decodeGridView(text: string): GridView | null {
 
 export function createGridAgent<T>(input: GridAgentOptions<T>): GridAgent<T> {
   let options = input.options;
-  const { api, semantics, policy = {}, locale, stats, maxEnumValues, instanceId } = input;
+  // Mutable: the host may tighten the policy or change semantics after mount.
+  let { semantics, policy = {}, locale } = input;
+  const { api, stats, maxEnumValues, instanceId } = input;
   const now = input.now ?? (() => new Date());
 
   const history = createSnapshotHistory<GridState>({
@@ -178,7 +285,7 @@ export function createGridAgent<T>(input: GridAgentOptions<T>): GridAgent<T> {
 
   let datasetCache: { key: unknown[]; value: GridDataset<T> } | null = null;
   const dataset = (): GridDataset<T> => {
-    const key = [options.data, options.columns, options.getRowId, options.mode, options.rowCount];
+    const key = [options.data, options.columns, options.getRowId, options.mode, options.rowCount, locale];
     if (!datasetCache || datasetCache.key.some((part, i) => part !== key[i])) {
       datasetCache = { key, value: createDataset(options, locale) };
     }
@@ -188,7 +295,7 @@ export function createGridAgent<T>(input: GridAgentOptions<T>): GridAgent<T> {
   let contractCache: { key: unknown[]; value: GridRuntimeContract } | null = null;
   const contract = (): GridRuntimeContract => {
     const state = api.getState();
-    const key = [options, state, history.canUndo(), history.canRedo(), dataset()];
+    const key = [options, state, history.canUndo(), history.canRedo(), dataset(), policy, semantics];
     if (!contractCache || contractCache.key.some((part, i) => part !== key[i])) {
       contractCache = {
         key,
@@ -442,15 +549,25 @@ export function createGridAgent<T>(input: GridAgentOptions<T>): GridAgent<T> {
     }),
 
     applyView(view) {
-      if (view.v !== 1) return false;
-      history.record(view.label ? `Apply view "${view.label}"` : "Apply saved view", () => {
-        api.setState(() => view.state);
+      if (!isRecord(view) || view.v !== 1) return false;
+      // Views arrive from URLs and storage: keep only well-formed keys and
+      // merge them over the current state, so a partial view is still valid.
+      const state = sanitizeGridState(view.state);
+      if (Object.keys(state).length === 0) return false;
+      const label = typeof view.label === "string" && view.label ? `Apply view "${view.label}"` : "Apply saved view";
+      history.record(label, () => {
+        api.setState((prev) => ({ ...prev, ...state }));
       });
       return true;
     },
 
-    update(next) {
+    update(next, extras) {
       options = next;
+      if (extras) {
+        semantics = extras.semantics;
+        policy = extras.policy ?? {};
+        locale = extras.locale;
+      }
     },
 
     dataset,

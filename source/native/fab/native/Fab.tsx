@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ComponentRef, type ReactNode
 import {
   Animated,
   Easing,
+  LayoutAnimation,
   Pressable,
   Text,
   View,
@@ -133,29 +134,42 @@ export function Fab({
   // The label's width, measured once off-screen, drives the extend animation.
   const [labelWidth, setLabelWidth] = useState(0);
   const open = Boolean(label) && extended;
+  // The width the button is laid out at. It follows `open` one commit later,
+  // with a layout animation configured just before, so the resize runs on the
+  // UI thread: animating `width` through Animated needs the JS thread, which
+  // stutters exactly when this is used, while a list is scrolling.
+  const [wide, setWide] = useState(open);
   const progress = useRef(new Animated.Value(open ? 1 : 0)).current;
   useEffect(() => {
-    // Width cannot run on the native driver; the label fade rides along.
+    if (open !== wide) {
+      // Only `update` is animated: the configuration applies to the whole next
+      // commit, and views created or removed elsewhere in it should not fade.
+      if (!reduced) {
+        LayoutAnimation.configureNext({
+          duration: 200,
+          update: { type: LayoutAnimation.Types.easeInEaseOut },
+        });
+      }
+      setWide(open);
+    }
     Animated.timing(progress, {
       toValue: open ? 1 : 0,
       duration: reduced ? 0 : 200,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
-  }, [open, reduced, progress]);
+  }, [open, wide, reduced, progress]);
 
   const inactive = disabled || loading;
   const gap = 12;
   const extra = label ? labelWidth + gap + dims.box * 0.3 : 0;
   const iconOffset = (dims.box - dims.icon) / 2;
+  // Until the label is measured an extended FAB would render too narrow, cut
+  // off, then jump to size; it stays invisible for that first frame instead.
+  const measuring = open && labelWidth === 0;
 
   const button = (
-    <Animated.View
-      ref={ref}
-      style={[
-        { width: label ? progress.interpolate({ inputRange: [0, 1], outputRange: [dims.box, dims.box + extra] }) : dims.box },
-      ]}
-    >
+    <View ref={ref} style={{ width: wide && label ? dims.box + extra : dims.box, opacity: measuring ? 0 : 1 }}>
       <Pressable
         role="button"
         aria-label={ariaLabel ?? label}
@@ -183,7 +197,14 @@ export function Fab({
         {label && (
           <Animated.Text
             numberOfLines={1}
-            style={[s.label, { color: colors.ink, marginStart: gap, opacity: progress }, slots?.label]}
+            // Held at its measured width so the shrinking button clips it rather
+            // than re-wrapping it into an ellipsis on every frame.
+            style={[
+              s.label,
+              { color: colors.ink, marginStart: gap, opacity: progress },
+              labelWidth > 0 && { width: labelWidth, flexShrink: 0 },
+              slots?.label,
+            ]}
           >
             {label}
           </Animated.Text>
@@ -202,7 +223,7 @@ export function Fab({
           </Text>
         </View>
       )}
-    </Animated.View>
+    </View>
   );
 
   if (!place) return button;

@@ -75,6 +75,8 @@ export function getColumnRange<T>(
   };
 }
 
+export const rangeEqual = (a: Range, b: Range): boolean => a.start === b.start && a.end === b.end;
+
 export function visibleRangeEqual(a: VisibleRange, b: VisibleRange): boolean {
   return (
     a.rows.start === b.rows.start &&

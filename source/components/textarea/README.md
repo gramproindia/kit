@@ -35,5 +35,15 @@ All `<textarea>` attributes plus `value`, `defaultValue`, `onValueChange`,
 `localeText`, and `ref` (the `<textarea>`).
 
 Auto-resize uses CSS `field-sizing: content` where supported and measures the
-text elsewhere. `countCharacters` and `fitHeight` are exported from the
+text elsewhere.
+
+With `maxLength`, the counter counts what the limit counts: UTF-16 units, as
+browsers and React Native enforce it, so an emoji such as 👍🏽 counts as 4 and
+the counter reads 10 / 10 exactly when typing stops. Without `maxLength` it
+counts characters as people see them.
+
+A form reset, or a form library setting the value directly, updates the
+counter and the height too.
+
+`countCharacters`, `counterValue` and `fitHeight` are exported from the
 framework-free `core`.

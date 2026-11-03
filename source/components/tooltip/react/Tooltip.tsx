@@ -85,11 +85,12 @@ export function Tooltip(props: TooltipProps) {
   // changes, so there is no timer to track and nothing to cancel by hand.
   useEffect(() => {
     const next = nextVisibility(triggers, { open: delay, close: closeDelay });
-    // Anything immediate has already been applied by the handler below.
-    if (next.delay === 0) return;
+    // Anything immediate has already been applied by the handler below, and a
+    // change to the state it is already in (such as "closed" on mount) needs no timer.
+    if (next.delay === 0 || next.open === open) return;
     const timer = setTimeout(() => setOpen(next.open), next.delay);
     return () => clearTimeout(timer);
-  }, [triggers, delay, closeDelay]);
+  }, [triggers, delay, closeDelay, open]);
 
   const set = (trigger: TooltipTrigger, value: boolean) => {
     const next = { ...triggers, [trigger]: value };
@@ -105,16 +106,23 @@ export function Tooltip(props: TooltipProps) {
     setOpen(false);
   }, []);
 
+  const shown = open && !disabled;
+
   // Escape closes it wherever focus happens to be, which the pattern requires
-  // and which matters most when the tooltip is covering something.
+  // and which matters most when the tooltip is covering something. That press
+  // is spent on the tooltip: listening in the capture phase and cancelling it
+  // keeps the same Escape from also closing a dialog or menu underneath.
   useEffect(() => {
-    if (!open) return;
+    if (!shown) return;
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") hide();
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      event.preventDefault();
+      event.stopPropagation();
+      hide();
     };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, hide]);
+    document.addEventListener("keydown", onKeyDown, true);
+    return () => document.removeEventListener("keydown", onKeyDown, true);
+  }, [shown, hide]);
 
   if (!isValidElement(children)) {
     throw new Error("Tooltip: `children` must be a single React element.");
@@ -129,8 +137,6 @@ export function Tooltip(props: TooltipProps) {
     onClick?(event: unknown): void;
     "aria-describedby"?: string;
   };
-
-  const shown = open && !disabled;
 
   const triggerProps = {
     // Describes, never names: the control keeps its own accessible name.

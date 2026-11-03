@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/agent.ts",
       "core/group.ts",
@@ -21,10 +21,11 @@
       "react/Checkbox.tsx",
       "react/CheckboxGroup.tsx",
       "react/context.ts",
+      "react/domSync.ts",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:deccdfe1bc99609c2fe8e4bac0bddae6f665d77903c74f576f1d9107a2f1df2f"
+    "sourceHash": "sha256:c2a32ea27b151f0ebea4a1f3c248f2d28fd2aa65527307c26eb2f7718b784290"
   },
   "purpose": "A single native checkbox, and CheckboxGroup for several that share a name, with mixed state, a select-all and group-level validation.",
   "props": [
@@ -253,7 +254,7 @@
       "signature": "((values: string[]) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The checked values after a change. They accumulate in the order they were\nchecked, not the order the options are declared, so sort before comparing\ntwo selections for equality.",
+      "description": "The checked values after a change. They accumulate in the order they were\r\nchecked, not the order the options are declared, so sort before comparing\r\ntwo selections for equality.",
       "descriptionOrigin": "jsdoc"
     },
     {

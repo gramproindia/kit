@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countCharacters } from "../core/count";
+import { counterValue, countCharacters } from "../core/count";
 import {
   activeCell,
   cellAt,
@@ -71,5 +71,26 @@ describe("otp layout", () => {
     expect(cellAt(cells, 120)).toBe(2);
     expect(cellAt(cells, 500)).toBe(2);
     expect(cellAt([], 10)).toBe(0);
+  });
+});
+
+describe("counter value", () => {
+  it("counts as maxLength does when there is a limit, so the counter and the limit agree", () => {
+    // Two thumbs-up with a skin tone are 8 UTF-16 units, which is what blocks typing.
+    expect(counterValue("👍🏽👍🏽", 10)).toBe(8);
+    expect(counterValue("hello", 10)).toBe(5);
+  });
+
+  it("counts what a person sees when there is no limit", () => {
+    expect(counterValue("👍🏽👍🏽")).toBe(2);
+    expect(counterValue("")).toBe(0);
+  });
+});
+
+describe("OTP paste", () => {
+  it("keeps every digit of a pasted code that carries separators", () => {
+    // With maxLength={6} on the native field this paste arrived as "123-45".
+    expect(sanitizeOtp("123-456", 6)).toBe("123456");
+    expect(sanitizeOtp("Your code is 123 456. Do not share it.", 6)).toBe("123456");
   });
 });

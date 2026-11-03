@@ -11,7 +11,15 @@
  */
 
 import { parseISODate, startOfDay, toISODate } from "./calendar";
-import { DEFAULT_DATE_FORMAT, formatDate, inputPlaceholder, parseDate } from "./format";
+import {
+  DEFAULT_DATE_FORMAT,
+  MAX_DATE_TEXT_LENGTH,
+  formatDate,
+  inputPlaceholder,
+  normalizeDateText,
+  parseDate,
+  stripTrailingFillers,
+} from "./format";
 import type { DateInput } from "./types";
 
 export interface TimeOfDay {
@@ -67,14 +75,23 @@ export function toISODateTime(date: Date, seconds = false): string {
   return `${toISODate(date)}T${time}${seconds ? `:${pad(date.getSeconds())}` : ""}`;
 }
 
+/** An ISO date-time with a zone or offset, e.g. `2026-03-10T23:00:00Z`. */
+const ZONED_ISO = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}(?::\d{2})?)(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})$/i;
+
 /**
  * A date and time from anything `value` accepts: a `Date` (copied, time kept),
- * an ISO date-time, an ISO date (midnight) or a timestamp.
+ * an ISO date-time, an ISO date (midnight) or a timestamp. A zoned ISO
+ * date-time is read as the wall clock it names, zone dropped, so
+ * `2026-03-10T23:00:00Z` stays 10 March, 23:00 in every time zone.
  */
 export function toDateTime(value: DateInput | null | undefined): Date | null {
   if (value === null || value === undefined) return null;
   if (typeof value === "string") {
-    const local = parseISODateTime(value) ?? parseISODate(value);
+    const text = value.trim();
+    const zoned = ZONED_ISO.exec(text);
+    const local = zoned
+      ? parseISODateTime(`${zoned[1]}T${zoned[2]}`)
+      : (parseISODateTime(text) ?? parseISODate(text));
     if (local) return local;
   }
   const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
@@ -93,7 +110,9 @@ export function clampDateTime(date: Date, min?: Date | null, max?: Date | null):
  * Null when it is not a time of day.
  */
 export function parseTime(text: string): TimeOfDay | null {
-  const match = /^(\d{1,2})(?:[:.](\d{2}))?(?:[:.](\d{2}))?\s*([ap])?\.?\s*(?:m\.?)?$/i.exec(text.trim());
+  if (text.length > MAX_DATE_TEXT_LENGTH) return null;
+  // Each run of spaces sits before something required, so the match is linear.
+  const match = /^(\d{1,2})(?:[:.](\d{2}))?(?:[:.](\d{2}))?(?:\s*([ap])\.?\s*(?:m\.?)?)?$/i.exec(text.trim());
   if (!match) return null;
   let hours = Number(match[1]);
   const minutes = Number(match[2] ?? 0);
@@ -109,34 +128,79 @@ export function parseTime(text: string): TimeOfDay | null {
   return { hours, minutes, seconds };
 }
 
-/** The time at the end of a typed date-time, and what comes before it. */
-const TRAILING_TIME = /(\d{1,2}[:.]\d{2}(?:[:.]\d{2})?\s*(?:[ap]\.?\s*m\.?)?|\d{1,2}\s*[ap]\.?\s*m\.?)\s*$/i;
+/**
+ * The time at the end of a typed date-time. Run on trimmed text, with no two
+ * optional runs of spaces side by side, so it stays linear however many
+ * spaces someone pastes.
+ */
+const TRAILING_TIME = /(\d{1,2}[:.]\d{2}(?:[:.]\d{2})?(?:\s*[ap]\.?\s*m\.?)?|\d{1,2}\s*[ap]\.?\s*m\.?)$/i;
+
+/** The time at the start, the way Vietnamese writes it: "14:30 15 thg 3, 2026". */
+const LEADING_TIME = /^(\d{1,2}[:.]\d{2}(?:[:.]\d{2})?)(?=[\s,])/;
+
+/**
+ * Finds the locale's own AM or PM ("μ.μ.", "午後", "م") anywhere in the text
+ * and takes it out, so the time can be read wherever the locale puts it.
+ * Latin "am"/"pm" is left in place for `parseTime`.
+ */
+function takeDayPeriod(text: string, locale?: string): { text: string; period: "am" | "pm" | null } {
+  const spaced = text.replace(/\s+/gu, " ").toLowerCase();
+  const isLetter = (character: string | undefined) =>
+    character !== undefined && /[\p{L}\p{M}]/u.test(character);
+  const names = dayPeriodNames(locale);
+  for (let index = 0; index < 2; index++) {
+    const name = names[index].replace(/\s+/gu, " ").toLowerCase();
+    if (!name || /^[ap]\.? ?m\.?$/.test(name)) continue;
+    // A whole word only: Arabic "م" must not match inside "مارس".
+    let at = spaced.indexOf(name);
+    while (at !== -1 && (isLetter(spaced[at - 1]) || isLetter(spaced[at + name.length]))) {
+      at = spaced.indexOf(name, at + 1);
+    }
+    if (at === -1) continue;
+    const rest = `${spaced.slice(0, at)} ${spaced.slice(at + name.length)}`.trim();
+    return { text: rest, period: index === 0 ? "am" : "pm" };
+  }
+  return { text, period: null };
+}
 
 /**
  * Reads what someone typed into a date-time field: an ISO date-time, or a
- * date in any form `parseDate` reads followed by a time — `15/03/2026 14:30`,
- * `Mar 15, 2026, 2:30 PM`. With no time typed, `time` is null and the caller
- * decides which time to keep.
+ * date in any form `parseDate` reads with a time — `15/03/2026 14:30`,
+ * `Mar 15, 2026, 2:30 PM`, `2026年3月15日 午後2:30`. With no time typed, `time`
+ * is null and the caller decides which time to keep.
  */
 export function parseDateTime(
   text: string,
   locale?: string,
   reference: Date = new Date(),
 ): { date: Date; time: TimeOfDay | null } | null {
-  const trimmed = text.trim();
-  if (!trimmed) return null;
+  if (text.length > MAX_DATE_TEXT_LENGTH) return null;
+  const normalized = normalizeDateText(text, locale).trim();
+  if (!normalized) return null;
 
-  const iso = parseISODateTime(trimmed);
+  const iso = parseISODateTime(normalized);
   if (iso) return { date: startOfDay(iso), time: timeOf(iso) };
 
-  const found = TRAILING_TIME.exec(trimmed);
-  const time = found ? parseTime(found[1]) : null;
-  if (found && !time) return null;
-  // What is left is the date, less the comma or connecting word before the
-  // time ("at", "um", "à") that some locales write.
-  const datePart = found
-    ? trimmed.slice(0, found.index).replace(/[\s,]*(?:at|um|à|a las|alle|om)?[\s,]*$/iu, "")
-    : trimmed;
+  const { text: body, period } = takeDayPeriod(normalized, locale);
+  // Words after the time, like Bulgarian "ч." (hours), say nothing.
+  const trimmed = stripTrailingFillers(body, locale);
+
+  let timeText: string | null = null;
+  let datePart = trimmed;
+  const trailing = TRAILING_TIME.exec(trimmed);
+  const leading = trailing ? null : LEADING_TIME.exec(trimmed);
+  if (trailing) {
+    timeText = trailing[1];
+    datePart = trimmed.slice(0, trailing.index);
+  } else if (leading) {
+    timeText = leading[1];
+    datePart = trimmed.slice(leading[0].length);
+  }
+
+  const time = timeText ? parseTime(period ? `${timeText} ${period}` : timeText) : null;
+  if (timeText && !time) return null;
+  // What is left is the date. The comma or connecting word before the time
+  // ("at", "um", "klo") is one of the words parseDate already passes over.
   const date = parseDate(datePart, locale, reference);
   return date ? { date, time } : null;
 }

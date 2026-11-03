@@ -189,7 +189,7 @@ function ToolbarMenu({
 function SelectionSummary<T>() {
   const { engine, locale, features, numberFormat } = useGridContext<T>();
   const selection = useSelectionState<T, Record<RowId, boolean>>((s) => s);
-  const count = useMemo(() => Object.values(selection).filter(Boolean).length, [selection]);
+  const count = useMemo(() => Object.values(selection).filter((v) => v === true).length, [selection]);
 
   if (!features.selection || count === 0) return null;
   return (

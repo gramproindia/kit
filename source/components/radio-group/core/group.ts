@@ -30,7 +30,13 @@ export function resolveValue(
   return options.some((option) => option.value === value) ? value : null;
 }
 
-/** Whether anything in the group can still be chosen, for a `clear` button. */
-export function hasEnabledOption(options: readonly RadioOption[], disabled: boolean): boolean {
-  return !disabled && options.some((option) => !option.disabled);
+/**
+ * Whether anything in the group can still be chosen, for a `clear` button.
+ * `null` stands for a group built from `<Radio>` children rather than an
+ * options list: those cannot be inspected, so only the group's own
+ * `disabled` counts.
+ */
+export function hasEnabledOption(options: readonly RadioOption[] | null, disabled: boolean): boolean {
+  if (disabled) return false;
+  return options === null || options.some((option) => !option.disabled);
 }

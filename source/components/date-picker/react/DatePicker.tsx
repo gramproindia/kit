@@ -11,7 +11,7 @@ import {
 } from "react";
 import { describeField } from "../../shared/core/field";
 import { toDate, toISODate } from "../core/calendar";
-import { inputPlaceholder } from "../core/format";
+import { MAX_DATE_TEXT_LENGTH, inputPlaceholder } from "../core/format";
 import type { DateInput, DateRange } from "../core/types";
 import { CalendarPanel } from "./CalendarPanel";
 import { CalendarIcon, XIcon } from "./icons";
@@ -150,7 +150,11 @@ export function DatePicker(props: DatePickerProps) {
   });
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "ArrowDown" || (event.key === "Enter" && !picker.open)) {
+    // Enter on typed text settles it, the way leaving the field does.
+    if (event.key === "Enter" && picker.hasDraft("start")) {
+      event.preventDefault();
+      picker.commitInput("start");
+    } else if (event.key === "ArrowDown" || (event.key === "Enter" && !picker.open)) {
       event.preventDefault();
       picker.setOpen(true);
     } else if (event.key === "Escape" && picker.open) {
@@ -195,6 +199,7 @@ export function DatePicker(props: DatePickerProps) {
           required={required}
           autoComplete="off"
           spellCheck={false}
+          maxLength={MAX_DATE_TEXT_LENGTH}
           aria-invalid={invalid || undefined}
           aria-describedby={describedBy}
           onChange={(event) => picker.onInputChange("start", event.target.value)}

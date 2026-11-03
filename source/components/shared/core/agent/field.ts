@@ -189,7 +189,11 @@ export function setValueSchema(contract: FieldContract): JsonSchema {
   // text
   const value: JsonSchema = { type: "string" };
   if (contract.maxLength) (value as { maxLength?: number }).maxLength = contract.maxLength;
-  if (contract.pattern) (value as { pattern?: string }).pattern = contract.pattern;
+  // Advertise the pattern as the field enforces it: anchored to the whole value,
+  // and not at all when it does not compile (the field then ignores it).
+  if (contract.pattern && compileFieldPattern(contract.pattern)) {
+    (value as { pattern?: string }).pattern = `^(?:${contract.pattern})$`;
+  }
   return { type: "object", required: ["value"], additionalProperties: false, properties: { value } };
 }
 
@@ -428,6 +432,33 @@ function nearestOption(wanted: string, options: readonly FieldOption[]): FieldOp
   return bestScore <= Math.max(2, Math.floor(needle.length / 3)) ? best : null;
 }
 
+let vFlag: boolean | undefined;
+function supportsVFlag(): boolean {
+  if (vFlag === undefined) {
+    try {
+      new RegExp("", "v");
+      vFlag = true;
+    } catch {
+      vFlag = false;
+    }
+  }
+  return vFlag;
+}
+
+/**
+ * An HTML `pattern` compiled the way browsers compile it: anchored to the whole
+ * value, `^(?:pattern)$`, with the `v` flag. Engines without `v` (Hermes, older
+ * browsers) get `u`, which is what browsers used before `v`. Null when the
+ * pattern does not compile, because a browser then ignores the attribute.
+ */
+export function compileFieldPattern(pattern: string): RegExp | null {
+  try {
+    return new RegExp(`^(?:${pattern})$`, supportsVFlag() ? "v" : "u");
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Validate one intent against one field.
  *
@@ -628,15 +659,10 @@ export function validateFieldIntent(
       });
     }
     if (contract.pattern) {
-      let matches = true;
-      try {
-        matches = new RegExp(contract.pattern).test(value);
-      } catch {
-        // A pattern the field itself could not compile is not the caller's
-        // fault, so it is not held against them.
-        matches = true;
-      }
-      if (!matches) {
+      // A pattern the field itself could not compile is not the caller's
+      // fault, so it is not held against them (browsers ignore it too).
+      const pattern = compileFieldPattern(contract.pattern);
+      if (pattern && !pattern.test(value)) {
         return fail({
           layer: "policy",
           code: "pattern-mismatch",

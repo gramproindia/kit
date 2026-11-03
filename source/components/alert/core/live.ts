@@ -23,3 +23,16 @@ export function liveness(variant: AlertVariant): Liveness {
     ? { role: "alert", live: "assertive" }
     : { role: "status", live: "polite" };
 }
+
+/**
+ * The words to speak when an urgent alert appears, for platforms that have no
+ * live regions (iOS VoiceOver ignores `role="alert"`). Only plain text can be
+ * spoken this way; parts that are elements are skipped.
+ */
+export function announcementText(parts: readonly unknown[]): string {
+  return parts
+    .filter((part): part is string | number => typeof part === "string" || typeof part === "number")
+    .map((part) => String(part).trim())
+    .filter(Boolean)
+    .join(". ");
+}

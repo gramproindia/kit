@@ -16,7 +16,9 @@ export function describeProgress(
     return { indeterminate: true, value: null, fraction: 0, percent: 0 };
   }
   const top = Number.isFinite(max) && max > 0 ? max : 0;
-  const clamped = Math.min(Math.max(value, 0), top || value);
+  // With nothing to measure against the value is 0 too, so the reported value
+  // never lands above the reported max.
+  const clamped = Math.min(Math.max(value, 0), top);
   const fraction = top === 0 ? 0 : clamped / top;
   return {
     indeterminate: false,
@@ -25,6 +27,7 @@ export function describeProgress(
     // Rounded for display only; the bar itself is drawn from `fraction`, so a
     // 99.6% bar does not snap to full while the last bytes are still moving.
     percent: Math.round(fraction * 100),
+    max: top,
   };
 }
 

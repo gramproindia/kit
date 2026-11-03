@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ComponentRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentRef, type ReactNode } from "react";
 import {
   Animated,
   Dimensions,
@@ -100,12 +100,33 @@ export function SpeedDial({
     onOpenChange?.(next);
   };
 
-  const show = () => {
-    anchor.current?.measureInWindow((x, y, width, height) => {
-      setRect({ x, y: y + windowTopOffset(viewport.height), width, height });
-      setOpen(true);
+  const show = () => setOpen(true);
+
+  // Measured whenever the dial opens, however it was opened (a press, or a
+  // controlled `open` set by the caller), and again when the window changes
+  // size, so a rotation while open does not leave the menu where the button
+  // used to be. `fresh` keeps the overlay shut until this opening's
+  // measurement is in, rather than flashing at a stale position.
+  const [fresh, setFresh] = useState(false);
+  useEffect(() => {
+    if (!open) {
+      setFresh(false);
+      return;
+    }
+    let cancelled = false;
+    // One frame's grace so a rotation's new layout has landed before reading it.
+    const frame = requestAnimationFrame(() => {
+      anchor.current?.measureInWindow((x, y, width, height) => {
+        if (cancelled) return;
+        setRect({ x, y: y + windowTopOffset(viewport.height), width, height });
+        setFresh(true);
+      });
     });
-  };
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
+  }, [open, viewport.width, viewport.height]);
 
   return (
     <>
@@ -121,7 +142,7 @@ export function SpeedDial({
         style={style}
         aria-expanded={open}
       />
-      <Overlay open={open && rect !== null} onDismiss={() => setOpen(false)} duration={160}>
+      <Overlay open={open && fresh && rect !== null} onDismiss={() => setOpen(false)} duration={160}>
         {(progress) =>
           rect && (
             <View

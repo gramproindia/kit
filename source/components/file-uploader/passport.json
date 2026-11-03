@@ -13,7 +13,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/format.ts",
       "core/index.ts",
@@ -31,7 +31,7 @@
       "react/props.ts",
       "react/useFileUploader.ts"
     ],
-    "sourceHash": "sha256:043edfcf892d731dbe9e871a24b7d30982bfbbda7de829ffe48d9c0315571a51"
+    "sourceHash": "sha256:cede75799e878d0ccf8360517b8361c23efb789d9476cf68fe425de5e60c29b5"
   },
   "purpose": "Drop, browse or paste files, validate them against size and type, and upload in chunks that can pause, resume and retry.",
   "props": [

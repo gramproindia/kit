@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore, type CSSProperties } from "react";
+import { useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { dialogStore } from "../core/dialog";
 import type { DialogStore } from "../core/store";
 import type { DialogLocaleText, DialogRequest } from "../core/types";
@@ -25,6 +25,25 @@ export function DialogHost({ store = dialogStore, ...shared }: DialogHostProps) 
   // Keep the last dialog rendered while it animates out.
   const [shown, setShown] = useState<DialogRequest | undefined>(current);
   if (current && current !== shown) setShown(current);
+
+  // A queued dialog replaces the previous one by key, so the old <dialog> is
+  // removed rather than closed and the browser's focus return goes to <body>.
+  // Remember what had focus when the run of dialogs began and return there
+  // after the last one. A layout effect, so it runs before the dialog's own
+  // effect moves focus inside.
+  const active = shown !== undefined;
+  const returnTo = useRef<HTMLElement | null>(null);
+  useLayoutEffect(() => {
+    if (!active) return;
+    returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    return () => {
+      const target = returnTo.current;
+      returnTo.current = null;
+      // Only if focus is lost; never pull it from somewhere the user moved it.
+      const lost = !document.activeElement || document.activeElement === document.body;
+      if (target?.isConnected && lost) target.focus();
+    };
+  }, [active]);
 
   if (!shown) return null;
 

@@ -73,6 +73,7 @@ updates that toast instead of adding another.
 | `position` | `"top-left"` \| `"top-center"` \| `"top-right"` \| `"bottom-left"` \| `"bottom-center"` \| `"bottom-right"` | `"top-right"` | Where the stack sits. Full width on narrow screens. |
 | `limit` | `number` | `3` | Toasts on screen at once. The rest wait, with their timers held. |
 | `duration` | `number` | `5000` | Default auto-close delay. |
+| `maxQueue` | `number` | `20` | Toasts allowed to wait beyond `limit`. Past it the oldest waiting toasts are dropped (their `onDismiss` runs). `Infinity` keeps them all. |
 | `closeButton` | `boolean` | `true` | Close button on dismissible toasts. |
 | `hotkey` | `string[]` | `["altKey", "KeyT"]` | Moves focus to the notifications. `[]` turns it off. |
 | `icons` | `Partial<Record<ToastType, ReactNode>>` | — | Replace icons per type; `null` hides one. |
@@ -86,6 +87,8 @@ updates that toast instead of adding another.
 - Timers pause while the pointer is over the toasts, while focus is inside them,
   and while the browser tab is hidden.
 - Toasts beyond `limit` wait with their full time and appear as others close.
+  At most `maxQueue` wait; a burst beyond that drops the oldest waiting ones,
+  so a loop calling `toast()` can't pile up thousands.
 - Toasts render in a portal on `<body>`, so no parent's overflow, transform or
   z-index can hide them.
 

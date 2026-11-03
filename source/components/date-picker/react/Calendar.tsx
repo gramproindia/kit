@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type KeyboardEvent } from "react";
+import { memo, useEffect, useRef, type KeyboardEvent } from "react";
 import { formatDate } from "../core/format";
 import type { CalendarDay, CalendarMonth, DatePickerLocaleText } from "../core/types";
 import type { WeekdayName } from "../core/format";
@@ -73,37 +73,20 @@ export function Calendar({
       return <td key={day.key} className="dp-cell" aria-hidden="true" />;
     }
     const state = getDayState(day.date);
-    const focused = day.key === focusedKey;
     return (
-      <td
+      <DayCell
         key={day.key}
-        role="gridcell"
-        className="dp-cell"
-        aria-selected={state.selected || undefined}
-        data-in-range={state.inRange || undefined}
-        data-range-start={state.rangeStart || undefined}
-        data-range-end={state.rangeEnd || undefined}
-      >
-        <button
-          type="button"
-          className={cx("dp-day", dayClassName)}
-          data-key={day.key}
-          data-autofocus={focused || undefined}
-          data-today={day.today || undefined}
-          data-outside={day.outside || undefined}
-          data-weekend={day.weekend || undefined}
-          data-selected={state.selected || undefined}
-          tabIndex={focused ? 0 : -1}
-          disabled={day.disabled}
-          aria-label={formatDate(day.date, locale, FULL_DATE)}
-          aria-current={day.today ? "date" : undefined}
-          onClick={() => onSelect(day.date)}
-          onPointerEnter={() => onPreview(day.date)}
-          onFocus={() => onPreview(day.date)}
-        >
-          {day.day}
-        </button>
-      </td>
+        day={day}
+        locale={locale}
+        focused={day.key === focusedKey}
+        selected={state.selected}
+        inRange={state.inRange}
+        rangeStart={state.rangeStart}
+        rangeEnd={state.rangeEnd}
+        dayClassName={dayClassName}
+        onSelect={onSelect}
+        onPreview={onPreview}
+      />
     );
   };
 
@@ -158,3 +141,60 @@ export function Calendar({
     </div>
   );
 }
+
+interface DayCellProps extends DayState {
+  day: CalendarDay;
+  locale?: string;
+  focused: boolean;
+  dayClassName?: string;
+  onSelect(date: Date): void;
+  onPreview(date: Date | null): void;
+}
+
+/**
+ * One day. Memoised on plain flags, so moving focus or the range preview
+ * re-renders the few days that changed rather than all 42 (or 84).
+ */
+const DayCell = memo(function DayCell({
+  day,
+  locale,
+  focused,
+  selected,
+  inRange,
+  rangeStart,
+  rangeEnd,
+  dayClassName,
+  onSelect,
+  onPreview,
+}: DayCellProps) {
+  return (
+    <td
+      role="gridcell"
+      className="dp-cell"
+      aria-selected={selected || undefined}
+      data-in-range={inRange || undefined}
+      data-range-start={rangeStart || undefined}
+      data-range-end={rangeEnd || undefined}
+    >
+      <button
+        type="button"
+        className={cx("dp-day", dayClassName)}
+        data-key={day.key}
+        data-autofocus={focused || undefined}
+        data-today={day.today || undefined}
+        data-outside={day.outside || undefined}
+        data-weekend={day.weekend || undefined}
+        data-selected={selected || undefined}
+        tabIndex={focused ? 0 : -1}
+        disabled={day.disabled}
+        aria-label={formatDate(day.date, locale, FULL_DATE)}
+        aria-current={day.today ? "date" : undefined}
+        onClick={() => onSelect(day.date)}
+        onPointerEnter={() => onPreview(day.date)}
+        onFocus={() => onPreview(day.date)}
+      >
+        {day.day}
+      </button>
+    </td>
+  );
+});

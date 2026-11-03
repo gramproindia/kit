@@ -113,8 +113,17 @@ People can type instead of picking. Input is read in the locale's own field
 order, so `03/04/2026` is 3 April in `en-GB` and 4 March in `en-US`. ISO
 (`2026-03-12`) is accepted in every locale, month names work (`12 Mar 2026`), and
 a missing year or month falls back to the month on screen. The calendar follows
-along as you type. Text that isn't a date, or a date outside the limits, shows a
-message when the field loses focus and leaves the value untouched.
+along as you type, but the value only changes on blur or **Enter**, so a
+half-typed `12/03/2` never reaches `onChange`. Text that isn't a date, or a date
+outside the limits, stays in the field with a message, and the value stays what
+it was before the typing began.
+
+What the field shows always reads back, in every locale: the locale's own
+digits (`١٥/٠٣/٢٠٢٦`), the words it writes around a date (`15 de marzo de
+2026`, `15 марта 2026 г.`) and CJK dates (`2026年3月15日`). Names and years are
+always Gregorian, to match the grid — `th-TH` shows 2026, not 2569. An ISO
+date-time with a zone (`2026-03-10T23:00:00Z`) in `value` is read as the date and
+time it names, not converted to the reader's zone.
 
 ## Range presets
 

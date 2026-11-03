@@ -14,9 +14,10 @@ import {
 import { useControllableState } from "../../shared/react/useControllableState";
 import { describeField } from "../../shared/core/field";
 import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
-import { countCharacters } from "../core/count";
+import { counterValue } from "../core/count";
 import type { FieldSize, InputLocaleText } from "../core/types";
 import { setNativeValue } from "./dom";
+import { useDomSync } from "./domSync";
 import { EyeIcon, EyeOffIcon, XIcon } from "./icons";
 import { defaultInputText } from "./locale";
 import { cx, type InputSlot } from "./props";
@@ -43,7 +44,11 @@ export interface InputProps
   clearable?: boolean;
   /** For `type="password"`, a button that shows the text. Default true. */
   revealPassword?: boolean;
-  /** A character counter under the field; shows `count / maxLength` when `maxLength` is set. */
+  /**
+   * A character counter under the field; shows `count / maxLength` when
+   * `maxLength` is set. With a limit it counts as the limit does (UTF-16 units,
+   * so an emoji can count as 2 to 4); without one, characters as people see them.
+   */
   showCount?: boolean;
   classNames?: Partial<Record<InputSlot, string>>;
   localeText?: Partial<InputLocaleText>;
@@ -93,8 +98,24 @@ export function Input(props: InputProps) {
   useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, []);
 
   // Mirrors the text even when uncontrolled, for the counter and the clear button.
-  const [current, setCurrent] = useControllableState(valueProp, defaultValue ?? "");
+  const [current, setCurrent, controlled] = useControllableState(valueProp, defaultValue ?? "");
   const [revealed, setRevealed] = useState(false);
+
+  // A form reset, or a form library writing `el.value`, changes the text
+  // without an input event; the counter and clear button follow it here.
+  useDomSync(
+    inputRef,
+    "value",
+    current,
+    {
+      onReset: (field) => {
+        setCurrent(field.value);
+        return undefined;
+      },
+      onWrite: setCurrent,
+    },
+    !controlled,
+  );
 
   // Inside an <AgentSurface>, offered to an agent with what it accepts now.
   // A password, a hidden or a file input never is.
@@ -132,7 +153,8 @@ export function Input(props: InputProps) {
 
   const invalid = Boolean(error);
   const isPassword = type === "password";
-  const count = countCharacters(current);
+  // Counted only when shown: grapheme splitting is not free on every keystroke.
+  const count = showCount ? counterValue(current, maxLength) : 0;
   const describedBy = describeField(id, { extra: describedByProp, description, error });
 
   return (

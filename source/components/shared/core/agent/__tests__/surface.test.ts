@@ -231,6 +231,27 @@ describe("registerSurfaceTool", () => {
     expect(described.structuredContent.manifest.members.map((m: { id: string }) => m.id)).toEqual(["name"]);
   });
 
+  it("calls the newest surface's onCall, and hands back to the older surface on release", async () => {
+    const { modelContext, tools } = fakeContext();
+    const first = createAgentSurface();
+    first.register(plain("First"));
+    const second = createAgentSurface();
+    second.register(plain("Second"));
+    const seen: string[] = [];
+    registerSurfaceTool(() => first, { modelContext, onCall: () => seen.push("first") });
+    const newer = registerSurfaceTool(() => second, { modelContext, onCall: () => seen.push("second") });
+
+    const a = await tools[0].execute({ action: "describe" });
+    expect(a.structuredContent.manifest.members.map((m: { id: string }) => m.id)).toEqual(["second"]);
+    expect(seen).toEqual(["second"]);
+
+    newer.release();
+    newer.release(); // twice is harmless
+    const b = await tools[0].execute({ action: "describe" });
+    expect(b.structuredContent.manifest.members.map((m: { id: string }) => m.id)).toEqual(["first"]);
+    expect(seen).toEqual(["second", "first"]);
+  });
+
   it("declines politely once its surface has gone", async () => {
     const { modelContext, tools } = fakeContext();
     const reg = registerSurfaceTool(() => createAgentSurface(), { modelContext });

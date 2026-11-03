@@ -24,6 +24,17 @@ export function round(value: number, decimals: number): number {
   return Math.round((value + Number.EPSILON * Math.sign(value)) * factor) / factor;
 }
 
+/**
+ * `value` times 10 to the `power`, without the binary-fraction noise of a
+ * plain multiply: 0.07 × 100 is 7, not 7.000000000000001. Used to edit a
+ * percentage in the units it is shown in.
+ */
+export function shiftDecimal(value: number, power: number): number {
+  if (!Number.isFinite(value) || power === 0) return value;
+  const shifted = value * 10 ** power;
+  return round(shifted, Math.max(0, decimalsOf(value) - power));
+}
+
 export function clamp(value: number, min?: number, max?: number): number {
   let result = value;
   if (min !== undefined && result < min) result = min;

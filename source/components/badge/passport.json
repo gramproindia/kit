@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/count.ts",
       "core/index.ts",
@@ -21,7 +21,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:bb9dec4fe25d7f800a7c1bbabd49b8a4fb3e1f89a544523a2badfc75c756f5e0"
+    "sourceHash": "sha256:ecf7c01452f7744e2e7b6f81be379a10a5eaf507ba362d6ee999d33735eff006"
   },
   "purpose": "Short labels: a status, a category, a count that stops at 99+, and chips the user can take off.",
   "props": [
@@ -155,7 +155,9 @@
       "type": "other",
       "typeText": "Partial<BadgeLocaleText> | undefined",
       "required": false,
-      "origin": "derived"
+      "origin": "derived",
+      "description": "Override the spoken strings, e.g. `moreThan` for a capped count.",
+      "descriptionOrigin": "jsdoc"
     },
     {
       "name": "max",

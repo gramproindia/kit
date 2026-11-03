@@ -38,7 +38,14 @@ and `ref` (the `<input>`).
 `classNames` (`root` `label` `cells` `cell` `separator` `description` `error`),
 `localeText`, and `ref` (the `<input>`).
 
+With `maxLength`, the counter counts what the limit counts: UTF-16 units, as
+browsers and React Native enforce it, so an emoji such as 👍🏽 counts as 4 and
+the counter reads 10 / 10 exactly when typing stops. Without `maxLength` it
+counts characters as people see them. A form reset, or a form library setting
+the value directly, updates the counter and the clear button too.
+
 ## Headless use
 
 `sanitizeOtp`, `otpPattern`, `otpInputMode`, `separatorsAfter`, `activeCell`,
-`cellAt` and `countCharacters` are exported from the framework-free `core`.
+`cellAt`, `countCharacters` and `counterValue` are exported from the
+framework-free `core`.

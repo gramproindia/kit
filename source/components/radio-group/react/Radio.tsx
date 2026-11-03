@@ -2,6 +2,7 @@
 
 import {
   use,
+  useEffect,
   useId,
   useImperativeHandle,
   useRef,
@@ -15,6 +16,7 @@ import { useControllableState } from "../../shared/react/useControllableState";
 import { describeField } from "../../shared/core/field";
 import type { RadioSize } from "../core/types";
 import { RadioGroupContext } from "./context";
+import { useDomSync } from "./domSync";
 import { cx, type RadioSlot } from "./props";
 
 export interface RadioProps
@@ -55,6 +57,11 @@ export interface RadioProps
   ref?: Ref<HTMLInputElement>;
 }
 
+// Every standalone radio whose checked state the browser owns, so each can
+// look again when a script checks another radio of its name: the browser
+// unchecks the old one without telling it.
+const domOwnedRadios = new Set<() => void>();
+
 /**
  * One choice, as a native radio. Inside a `RadioGroup` the group owns the
  * value; on its own it behaves like any other radio sharing a `name`.
@@ -92,8 +99,55 @@ export function Radio(props: RadioProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, []);
 
-  const [own, setOwn] = useControllableState(checkedProp, defaultChecked);
+  const [own, setOwn, controlled] = useControllableState(checkedProp, defaultChecked);
   const checked = group !== null ? group.value === value : own;
+  // A standalone radio nobody controls is left to the browser, which already
+  // knows that checking one radio unchecks the others of its name. Rendering
+  // `checked` from state here would have React put a deselected radio back.
+  // `own` then only mirrors the DOM, for `data-checked`.
+  const domOwned = group === null && !controlled;
+
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!domOwned || !input) return;
+    const refresh = () => setOwn(input.checked);
+    // Choosing another radio of this name unchecks this one without an event
+    // on it; the `change` on the radio chosen is the only sign.
+    const handleChange = (event: Event) => {
+      const target = event.target as HTMLInputElement | null;
+      if (target?.type === "radio" && target.name === input.name && target.form === input.form) refresh();
+    };
+    domOwnedRadios.add(refresh);
+    input.ownerDocument.addEventListener("change", handleChange);
+    return () => {
+      domOwnedRadios.delete(refresh);
+      input.ownerDocument.removeEventListener("change", handleChange);
+    };
+  }, [domOwned, setOwn]);
+
+  // A form reset, or a form library writing `el.checked`. In a group the group
+  // takes the change and resets itself; a standalone radio re-reads the DOM.
+  useDomSync(
+    inputRef,
+    "checked",
+    checked,
+    {
+      // The browser has already put a standalone radio back to its default.
+      onReset: () => {
+        if (group === null && inputRef.current) setOwn(inputRef.current.checked);
+        return undefined;
+      },
+      onWrite: (next) => {
+        if (group !== null) {
+          if (next) group.select(value);
+          else if (group.value === value) group.select(null);
+        } else {
+          domOwnedRadios.forEach((refresh) => refresh());
+        }
+      },
+    },
+    group !== null || domOwned,
+  );
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (group !== null) group.select(value);
@@ -102,7 +156,9 @@ export function Radio(props: RadioProps) {
     onCheckedChange?.(event.target.checked);
   };
 
-  const isDisabled = disabled ?? group?.disabled;
+  // Either one disables it, as on native: `disabled={false}` on one radio
+  // does not switch a disabled group back on.
+  const isDisabled = disabled || group?.disabled;
   const invalid = Boolean(error) || (group?.invalid ?? false);
   const describedBy = describeField(id, { extra: describedByProp, description, error });
 
@@ -123,7 +179,8 @@ export function Radio(props: RadioProps) {
           id={id}
           type="radio"
           className={cx("rd-input", classNames?.input)}
-          checked={checked}
+          checked={domOwned ? undefined : checked}
+          defaultChecked={domOwned ? defaultChecked : undefined}
           value={value}
           name={name ?? group?.name}
           disabled={isDisabled}

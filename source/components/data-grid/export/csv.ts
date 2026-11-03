@@ -3,22 +3,33 @@ import type { ExportTable } from "./table";
 /** Spreadsheet apps execute cells starting with these characters as formulas. */
 const FORMULA_PREFIX = /^[=+\-@\t\r]/;
 
-function escapeField(text: string, isText: boolean, delimiter: string): string {
-  const safe = isText && FORMULA_PREFIX.test(text) ? `'${text}` : text;
+/**
+ * A plain number such as "-5", "+1,234.50" or "-12 %". Intl group separators
+ * include the no-break spaces. Nothing here can form a formula.
+ */
+const NUMERIC_LITERAL = /^[-+]?[   ]*[\d.,][\d.,   ]*%?$/;
+
+/**
+ * Prefixes `'` to text a spreadsheet would run as a formula. Decided on the
+ * text itself, not the column type: a number column with a custom `format`
+ * can still produce "=HYPERLINK(...)".
+ */
+export function neutralizeFormula(text: string): string {
+  return FORMULA_PREFIX.test(text) && !NUMERIC_LITERAL.test(text) ? `'${text}` : text;
+}
+
+function escapeField(text: string, delimiter: string): string {
+  const safe = neutralizeFormula(text);
   const needsQuotes =
     safe.includes(delimiter) || safe.includes('"') || safe.includes("\n") || safe.includes("\r");
   return needsQuotes ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
 function serialize(table: ExportTable, delimiter: string): string {
-  const lines = [table.columns.map((c) => escapeField(c.header, true, delimiter)).join(delimiter)];
-  table.text.forEach((row, r) => {
-    lines.push(
-      row
-        .map((text, c) => escapeField(text, typeof table.values[r][c] === "string", delimiter))
-        .join(delimiter),
-    );
-  });
+  const lines = [table.columns.map((c) => escapeField(c.header, delimiter)).join(delimiter)];
+  for (const row of table.text) {
+    lines.push(row.map((text) => escapeField(text, delimiter)).join(delimiter));
+  }
   return lines.join("\r\n");
 }
 

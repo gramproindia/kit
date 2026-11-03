@@ -5,7 +5,8 @@ import type { RadioSize, RadioVariant } from "../core/types";
 
 export interface RadioGroupContextValue {
   value: string | null;
-  select(value: string): void;
+  /** `null` empties the group, as the clear button does. */
+  select(value: string | null): void;
   name: string;
   disabled: boolean;
   required: boolean;

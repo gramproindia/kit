@@ -1,5 +1,5 @@
 // Framework-free: character counting and the auto-resize math.
-export { countCharacters } from "./count";
+export { counterValue, countCharacters } from "./count";
 export { fitHeight, heightForRows } from "./size";
 export { defaultTextareaText } from "./locale";
 export type * from "./types";

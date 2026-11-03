@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/agent.ts",
       "core/count.ts",
@@ -21,11 +21,12 @@
       "react/Input.tsx",
       "react/OtpInput.tsx",
       "react/dom.ts",
+      "react/domSync.ts",
       "react/icons.tsx",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:fed10769862158bf442f44768a65515cdbf5f18d0481bb31d439929d6e333eff"
+    "sourceHash": "sha256:40313cc6194413d0e1440c60b692674b3b41645f559f84d1ca5cadcba978cb5f"
   },
   "purpose": "A single-line text field with its label, hint and error wired together. OtpInput is the same field split into one box per character for a one-time code.",
   "props": [
@@ -359,7 +360,7 @@
       "required": false,
       "default": false,
       "origin": "derived",
-      "description": "A character counter under the field; shows `count / maxLength` when `maxLength` is set.",
+      "description": "A character counter under the field; shows `count / maxLength` when\r\n`maxLength` is set. With a limit it counts as the limit does (UTF-16 units,\r\nso an emoji can count as 2 to 4); without one, characters as people see them.",
       "descriptionOrigin": "jsdoc"
     },
     {

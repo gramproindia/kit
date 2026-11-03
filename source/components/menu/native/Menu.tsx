@@ -2,7 +2,9 @@ import {
   cloneElement,
   isValidElement,
   useCallback,
+  useId,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -53,8 +55,8 @@ export interface MenuProps {
   /** Open to begin with, when you are not controlling `open`. */
   defaultOpen?: boolean;
   /**
-   * `reason` is `outside` (tap outside or Android back), `trigger`, `select`
-   * or `api`, and undefined when opening.
+   * `reason` is `outside` (tap outside), `escape` (Android back),
+   * `trigger`, `select` or `api`, and undefined when opening.
    */
   onOpenChange?(open: boolean, reason?: MenuCloseReason): void;
   /** Names the menu for screen readers. Defaults to the locale text. */
@@ -150,6 +152,15 @@ export function Menu(props: MenuProps) {
       depth: 0,
       presentation,
       push: (entry) => setStack((current) => [...current, entry]),
+      refresh: (entry) =>
+        setStack((current) => {
+          const index = current.findIndex((open) => open.id === entry.id);
+          if (index === -1) return current;
+          const was = current[index];
+          // Same state back means no re-render, which is what ends the loop.
+          if (was.label === entry.label && was.children === entry.children) return current;
+          return current.map((open, at) => (at === index ? entry : open));
+        }),
       text,
     }),
     [setOpen, closeOnSelect, slots, presentation, text],
@@ -173,11 +184,31 @@ export function Menu(props: MenuProps) {
 
   if (presentation === "sheet") {
     const top = stack[stack.length - 1];
-    const subContext = top ? { ...context, depth: stack.length } : context;
+    // Every level stays mounted and only the top one is shown. A submenu's
+    // content is rendered from the latest props its MenuSub reported, and the
+    // MenuSub can only report them while its own level is still rendered.
+    const levels = [
+      { key: "root", label: label ?? text.label, children, depth: 0 },
+      ...stack.map((entry, index) => ({
+        key: entry.id,
+        label: typeof entry.label === "string" ? entry.label : undefined,
+        children: entry.children,
+        depth: index + 1,
+      })),
+    ];
     return (
       <>
         {clone}
-        <Sheet open={open} onDismiss={() => setOpen(false, "outside")} onClosed={() => setStack([])}>
+        <Sheet
+          open={open}
+          onDismiss={() => setOpen(false, "outside")}
+          // Android back steps out of a submenu first, then closes like Escape.
+          onBack={() => {
+            if (stack.length > 0) setStack((current) => current.slice(0, -1));
+            else setOpen(false, "escape");
+          }}
+          onClosed={() => setStack([])}
+        >
           {top && (
             <>
               <Pressable
@@ -199,15 +230,17 @@ export function Menu(props: MenuProps) {
             </>
           )}
           <ScrollView>
-            <MenuContext value={subContext}>
-              <View
-                role="menu"
-                aria-label={top && typeof top.label === "string" ? top.label : (label ?? text.label)}
-                style={[list.sheetList, slots?.list, style]}
-              >
-                {top ? top.children : children}
-              </View>
-            </MenuContext>
+            {levels.map((level, index) => (
+              <SheetLevel key={level.key} context={context} depth={level.depth}>
+                <View
+                  role="menu"
+                  aria-label={level.label}
+                  style={[list.sheetList, slots?.list, style, index !== levels.length - 1 && hidden]}
+                >
+                  {level.children}
+                </View>
+              </SheetLevel>
+            ))}
           </ScrollView>
         </Sheet>
       </>
@@ -220,6 +253,7 @@ export function Menu(props: MenuProps) {
       <Anchored
         open={open}
         onDismiss={() => setOpen(false, "outside")}
+        onBack={() => setOpen(false, "escape")}
         anchorRef={anchorRef}
         side={side}
         align={align}
@@ -237,6 +271,14 @@ export function Menu(props: MenuProps) {
       </Anchored>
     </>
   );
+}
+
+const hidden = { display: "none" } as const;
+
+/** One level of a sheet menu, with a context whose depth is stable across renders. */
+function SheetLevel({ context, depth, children }: { context: MenuContextValue; depth: number; children: ReactNode }) {
+  const value = useMemo(() => (depth === 0 ? context : { ...context, depth }), [context, depth]);
+  return <MenuContext value={value}>{children}</MenuContext>;
 }
 
 /* ---------------------------------------------------------------- submenus */
@@ -257,6 +299,7 @@ export interface MenuSubProps {
  */
 export function MenuSub({ label, children, icon, disabled = false, style }: MenuSubProps) {
   const parent = useMenuContext("MenuSub");
+  const id = useId();
   const { tokens } = useKitTheme();
   const list = menuStyles(tokens);
   const [open, setOpen] = useState(false);
@@ -264,6 +307,13 @@ export function MenuSub({ label, children, icon, disabled = false, style }: Menu
   const context = useMemo(() => ({ ...parent, depth: parent.depth + 1 }), [parent]);
   const name = typeof label === "string" ? parent.text.submenu(label) : undefined;
   const arrow = <ChevronGlyph direction="right" size={14} color={tokens.muted} />;
+  const refresh = parent.presentation === "sheet" ? parent.refresh : undefined;
+
+  // In a sheet the open submenu is drawn by the Menu from what was pushed.
+  // Re-report this render's children so it never shows stale ticks.
+  useLayoutEffect(() => {
+    refresh?.({ id, label, children });
+  }, [refresh, id, label, children]);
 
   if (parent.presentation === "sheet") {
     return (
@@ -276,7 +326,7 @@ export function MenuSub({ label, children, icon, disabled = false, style }: Menu
         trailing={arrow}
         accessibilityLabel={name}
         style={style}
-        onPress={() => parent.push?.({ label, children })}
+        onPress={() => parent.push?.({ id, label, children })}
       />
     );
   }

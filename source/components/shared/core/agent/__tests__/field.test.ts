@@ -231,6 +231,23 @@ describe("policy layer", () => {
     expect(validateFieldIntent({ action: "setValue", value: "ABC" }, contract).ok).toBe(true);
   });
 
+  it("anchors an HTML pattern to the whole value, as browsers do", () => {
+    const contract = text({ pattern: "[0-9]{6}" });
+    expect(validateFieldIntent({ action: "setValue", value: "abc1234567" }, contract).ok).toBe(false);
+    expect(validateFieldIntent({ action: "setValue", value: "1234567" }, contract).ok).toBe(false);
+    expect(validateFieldIntent({ action: "setValue", value: "123456" }, contract).ok).toBe(true);
+    // Alternation is grouped before anchoring: "a|b" means exactly "a" or exactly "b".
+    expect(validateFieldIntent({ action: "setValue", value: "xa" }, text({ pattern: "a|b" })).ok).toBe(false);
+    expect(validateFieldIntent({ action: "setValue", value: "b" }, text({ pattern: "a|b" })).ok).toBe(true);
+  });
+
+  it("advertises the anchored pattern, and none when it cannot compile", () => {
+    const value = (pattern: string) =>
+      (setValueSchema(text({ pattern })) as { properties: { value: { pattern?: string } } }).properties.value;
+    expect(value("[0-9]{6}").pattern).toBe("^(?:[0-9]{6})$");
+    expect(value("([").pattern).toBeUndefined();
+  });
+
   it("does not hold an uncompilable pattern against the caller", () => {
     const result = validateFieldIntent({ action: "setValue", value: "x" }, text({ pattern: "([" }));
     expect(result.ok).toBe(true);

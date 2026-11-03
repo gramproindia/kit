@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useMemo, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useId, useMemo, useRef, type CSSProperties, type ReactNode } from "react";
 import { useControllableState } from "../../shared/react/useControllableState";
 import { describeField } from "../../shared/core/field";
 import { labelText, useAgentSurfaceField } from "../../shared/react/agentSurfaceContext";
@@ -14,6 +14,7 @@ import type {
 } from "../core/types";
 import { Radio } from "./Radio";
 import { RadioGroupContext, type RadioGroupContextValue } from "./context";
+import { useFormReset } from "./domSync";
 import { defaultRadioGroupText } from "./locale";
 import { cx, type RadioGroupSlot } from "./props";
 
@@ -95,7 +96,12 @@ export function RadioGroup(props: RadioGroupProps) {
   // group posts with a form: without it, two groups on a page share arrows.
   const name = nameProp ?? `${id}-radio`;
   const text = useMemo(() => ({ ...defaultRadioGroupText, ...localeText }), [localeText]);
-  const [current, setCurrent] = useControllableState<string | null>(value, defaultValue ?? null);
+  const [current, setCurrent, controlled] = useControllableState<string | null>(value, defaultValue ?? null);
+
+  // A form reset goes back to the default choice, as native radios do; the
+  // current value would otherwise check its radio again on the next render.
+  const rootRef = useRef<HTMLFieldSetElement>(null);
+  useFormReset(rootRef, () => setCurrent(defaultValue ?? null), !controlled);
 
   const items = useMemo(() => (options ? normalizeOptions(options) : null), [options]);
   // With children rather than options there is nothing to check the value
@@ -156,11 +162,12 @@ export function RadioGroup(props: RadioGroupProps) {
     [selected, commit, name, disabled, required, error, size, variant],
   );
 
-  const showClear = clearable && selected !== null && hasEnabledOption(items ?? [], disabled);
+  const showClear = clearable && selected !== null && hasEnabledOption(items, disabled);
   const describedBy = describeField(id, { description, error });
 
   return (
     <fieldset
+      ref={rootRef}
       id={id}
       className={cx("rd-group", classNames?.root, className)}
       style={style}

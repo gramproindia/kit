@@ -254,7 +254,10 @@ export function Modal(props: ModalProps) {
     return (
       <Sheet
         open={open}
+        // Backdrop taps and drags report "backdrop"; Android back is the web's
+        // Escape, so it reports "escape" and follows closeOnEscape instead.
         onDismiss={() => requestClose("backdrop")}
+        onBack={() => requestClose("escape")}
         dismissible={closeOnBackdrop}
         style={[slots?.root, rootStyle]}
       >

@@ -65,6 +65,8 @@ const themed = createThemedStyles((t) => ({
   end: { width: 24, height: 24, alignItems: "center", justifyContent: "center" },
   clear: { width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   cancel: { fontSize: t.fontSize, color: t.accent, fontWeight: "600" },
+  // Wide so the label is measured on one line, at its natural width.
+  measure: { position: "absolute", opacity: 0, left: 0, top: 0, width: 4000, alignItems: "flex-start" },
 }));
 
 /** The magnifier: the app's `search` icon if KitProvider has one, else drawn. */
@@ -232,28 +234,43 @@ export function SearchBar({
         </View>
       </View>
       {showCancel && (
+        // Measured here, outside the clipping box below: inside it the label
+        // is laid out in whatever width the box has at that moment (0 while
+        // hidden) and can come back truncated.
+        <View style={s.measure} pointerEvents="none" aria-hidden>
+          <Text
+            numberOfLines={1}
+            style={[s.cancel, slots?.cancel]}
+            onLayout={(e) => {
+              const w = Math.ceil(e.nativeEvent.layout.width);
+              if (Math.abs(w - cancelWidth) > 0.5 && w > 0) setCancelWidth(w);
+            }}
+          >
+            {text.cancel}
+          </Text>
+        </View>
+      )}
+      {showCancel && (
         <Animated.View
           style={{
             overflow: "hidden",
-            width: cancelWidth ? reveal.interpolate({ inputRange: [0, 1], outputRange: [0, cancelWidth] }) : undefined,
+            width: reveal.interpolate({ inputRange: [0, 1], outputRange: [0, cancelWidth] }),
             opacity: reveal,
-            marginLeft: reveal.interpolate({ inputRange: [0, 1], outputRange: [-10, 0] }),
+            // marginStart, not marginLeft: it tucks under the row's gap on the
+            // side the button actually sits, which flips in right-to-left.
+            marginStart: reveal.interpolate({ inputRange: [0, 1], outputRange: [-10, 0] }),
           }}
           pointerEvents={cancelShown ? "auto" : "none"}
         >
           <Pressable
             role="button"
             hitSlop={10}
-            onLayout={(e) => {
-              const w = e.nativeEvent.layout.width;
-              if (Math.abs(w - cancelWidth) > 0.5 && w > 0) setCancelWidth(w);
-            }}
             onPress={() => {
               change("");
               input.current?.blur();
               onCancel?.();
             }}
-            style={{ alignSelf: "flex-start" }}
+            style={{ alignSelf: "flex-start", width: cancelWidth || undefined }}
           >
             <Text numberOfLines={1} style={[s.cancel, slots?.cancel]}>
               {text.cancel}

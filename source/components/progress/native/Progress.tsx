@@ -205,7 +205,7 @@ export function Progress(props: ProgressProps) {
         // No value at all while the length is unknown: that is what tells a
         // screen reader to say "busy" rather than read out a zero.
         aria-valuemin={state.indeterminate ? undefined : 0}
-        aria-valuemax={state.indeterminate ? undefined : max}
+        aria-valuemax={state.indeterminate ? undefined : state.max}
         aria-valuenow={state.indeterminate ? undefined : (state.value ?? undefined)}
         aria-valuetext={state.indeterminate ? undefined : spokenValue}
         aria-busy={state.indeterminate || undefined}

@@ -22,6 +22,7 @@ import type {
   ExportScope,
   GridOptions,
   GridRow,
+  GridQuery,
   GridState,
   PdfExportOptions,
   PrintExportOptions,
@@ -116,18 +117,31 @@ export interface GridApi<T> {
 
 const EMPTY_UI: UiState = { activeCell: null, editing: null, pending: {}, errors: {} };
 
+/**
+ * Assigns an own property. Row ids are user data, and a plain `obj[id] = v`
+ * with the id "__proto__" would change the object's prototype instead.
+ */
+export function setOwn<V>(record: Record<string, V>, key: string, value: V): void {
+  Object.defineProperty(record, key, { value, writable: true, enumerable: true, configurable: true });
+}
+
+/** Reads an own property only, so ids like "constructor" don't hit the prototype. */
+export const getOwn = <V>(record: Record<string, V> | undefined, key: string): V | undefined =>
+  record !== undefined && Object.hasOwn(record, key) ? record[key] : undefined;
+
 function setNested<V>(
   record: Record<RowId, Record<string, V>>,
   rowId: RowId,
   columnId: string,
   value: V | undefined,
 ): Record<RowId, Record<string, V>> {
-  if (value === undefined && record[rowId]?.[columnId] === undefined) return record;
-  const inner = { ...record[rowId] };
+  const current = getOwn(record, rowId);
+  if (value === undefined && getOwn(current, columnId) === undefined) return record;
+  const inner = { ...current };
   if (value === undefined) delete inner[columnId];
-  else inner[columnId] = value;
+  else setOwn(inner, columnId, value);
   const next = { ...record };
-  if (Object.keys(inner).length > 0) next[rowId] = inner;
+  if (Object.keys(inner).length > 0) setOwn(next, rowId, inner);
   else delete next[rowId];
   return next;
 }
@@ -143,6 +157,11 @@ export function createGridEngine<T>(initialOptions: GridOptions<T>) {
   let anchorRowId: RowId | null = null;
   let draggingColumnId: string | null = null;
   let rowLookup: { rows: GridRow<T>[]; map: Map<RowId, GridRow<T>> } | null = null;
+  /** Latest async edit per cell; see `commitEdit`. */
+  const editSeq = new Map<string, number>();
+  let editCounter = 0;
+  let queryTimer: ReturnType<typeof setTimeout> | undefined;
+  let pendingQuery: GridQuery | null = null;
 
   const store = createStore<GridSnapshot>({
     state: createInitialState(options),
@@ -188,7 +207,35 @@ export function createGridEngine<T>(initialOptions: GridOptions<T>) {
     }
 
     options.onStateChange?.(next, prev);
-    if (queryChanged(prev, next)) options.onQueryChange?.(pickQuery(next));
+    if (queryChanged(prev, next)) reportQuery(prev, next);
+  }
+
+  function flushQuery() {
+    clearTimeout(queryTimer);
+    queryTimer = undefined;
+    const query = pendingQuery;
+    pendingQuery = null;
+    if (query) options.onQueryChange?.(query);
+  }
+
+  /**
+   * A change to the search text alone is debounced (server mode by default),
+   * so a fetch does not go out per keystroke. Anything else reports at once,
+   * carrying the latest search with it.
+   */
+  function reportQuery(prev: GridState, next: GridState) {
+    pendingQuery = pickQuery(next);
+    const delay = options.searchDebounceMs ?? (options.mode === "server" ? 300 : 0);
+    const searchOnly =
+      next.globalFilter !== prev.globalFilter &&
+      next.sorting === prev.sorting &&
+      next.filters === prev.filters;
+    if (!searchOnly || delay <= 0) {
+      flushQuery();
+      return;
+    }
+    clearTimeout(queryTimer);
+    queryTimer = setTimeout(flushQuery, delay);
   }
 
   const update = <K extends keyof GridState>(
@@ -226,9 +273,11 @@ export function createGridEngine<T>(initialOptions: GridOptions<T>) {
     if (!row || !isRowSelectable(row.original)) return;
 
     update("rowSelection", (selection) => {
-      const target = value ?? !selection[rowId];
+      const target = value ?? getOwn(selection, rowId) !== true;
       if (options.selectionMode === "single") {
-        return target ? { [rowId]: true } : {};
+        const single: Record<RowId, boolean> = {};
+        if (target) setOwn(single, rowId, true);
+        return single;
       }
 
       const next = { ...selection };
@@ -239,11 +288,11 @@ export function createGridEngine<T>(initialOptions: GridOptions<T>) {
       if (from !== -1 && to !== -1) {
         for (let i = Math.min(from, to); i <= Math.max(from, to); i++) {
           if (!isRowSelectable(rows[i].original)) continue;
-          if (target) next[rows[i].id] = true;
+          if (target) setOwn(next, rows[i].id, true);
           else delete next[rows[i].id];
         }
       } else if (target) {
-        next[rowId] = true;
+        setOwn(next, rowId, true);
       } else {
         delete next[rowId];
       }
@@ -259,19 +308,25 @@ export function createGridEngine<T>(initialOptions: GridOptions<T>) {
       const next = { ...selection };
       for (const row of rows) {
         if (!isRowSelectable(row.original)) continue;
-        if (value) next[row.id] = true;
+        if (value) setOwn(next, row.id, true);
         else delete next[row.id];
       }
       return next;
     });
   }
 
-  const getSelectedRowIds = () =>
-    Object.keys(getState().rowSelection).filter((id) => getState().rowSelection[id]);
+  // Own `true` only: an id such as "constructor" would otherwise read a
+  // function off the prototype and count as selected.
+  const getSelectedRowIds = () => {
+    const selection = getState().rowSelection;
+    return Object.keys(selection).filter((id) => selection[id] === true);
+  };
 
   const getSelectedRows = () => {
     const selection = getState().rowSelection;
-    return (model?.coreRows ?? []).filter((row) => selection[row.id]).map((row) => row.original);
+    return (model?.coreRows ?? [])
+      .filter((row) => getOwn(selection, row.id) === true)
+      .map((row) => row.original);
   };
 
   // --------------------------------------------------------------- navigation
@@ -391,10 +446,23 @@ export function createGridEngine<T>(initialOptions: GridOptions<T>) {
     if (!Object.is(previousValue, value) && options.onCellEdit) {
       const result = options.onCellEdit({ row: row.original, rowId, columnId, value, previousValue });
       if (result instanceof Promise) {
+        // Tag the edit, so an older save settling late cannot clear or fail a newer one.
+        const key = `${rowId}\u0000${columnId}`;
+        const seq = ++editCounter;
+        editSeq.set(key, seq);
+        const isLatest = () => {
+          if (editSeq.get(key) !== seq) return false;
+          editSeq.delete(key);
+          return true;
+        };
         setUi((ui) => ({ ...ui, pending: setNested(ui.pending, rowId, columnId, value) }));
         result.then(
-          () => setUi((ui) => ({ ...ui, pending: setNested(ui.pending, rowId, columnId, undefined) })),
-          (reason: unknown) =>
+          () => {
+            if (!isLatest()) return;
+            setUi((ui) => ({ ...ui, pending: setNested(ui.pending, rowId, columnId, undefined) }));
+          },
+          (reason: unknown) => {
+            if (!isLatest()) return;
             setUi((ui) => ({
               ...ui,
               pending: setNested(ui.pending, rowId, columnId, undefined),
@@ -404,7 +472,8 @@ export function createGridEngine<T>(initialOptions: GridOptions<T>) {
                 columnId,
                 reason instanceof Error ? reason.message : String(reason),
               ),
-            })),
+            }));
+          },
         );
       }
     }
@@ -586,9 +655,9 @@ export function createGridEngine<T>(initialOptions: GridOptions<T>) {
     async copyToClipboard() {
       if (!model) return;
       const selected = getSelectedRows();
+      const { toTsv, neutralizeFormula } = await import("../export/csv");
       let text = "";
       if (selected.length > 0) {
-        const { toTsv } = await import("../export/csv");
         text = toTsv(await buildTable({ rows: selected }));
       } else {
         const active = store.getSnapshot().ui.activeCell;
@@ -596,7 +665,8 @@ export function createGridEngine<T>(initialOptions: GridOptions<T>) {
         const item = active && model.layout.columns[active.colIndex];
         if (row && item && !item.column.internal) {
           const value = item.column.getValue(row.original);
-          text = formatCellValue(item.column, value, row.original, model.formatters);
+          // Pasted into a spreadsheet, so guarded like a CSV field.
+          text = neutralizeFormula(formatCellValue(item.column, value, row.original, model.formatters));
         }
       }
       if (text) await navigator.clipboard.writeText(text);

@@ -32,11 +32,29 @@ export function toBreadcrumbJsonLd(items: readonly JsonLdCrumb[], baseUrl?: stri
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      ...(item.href ? { item: baseUrl ? new URL(item.href, baseUrl).href : item.href } : {}),
-    })),
+    itemListElement: items.map((item, index) => {
+      const url = resolveHref(item.href, baseUrl);
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        ...(url ? { item: url } : {}),
+      };
+    }),
   };
+}
+
+/**
+ * `new URL` throws on a malformed href or base, and this runs during render
+ * (and on the server), so a bad link would take the whole page down. A crumb
+ * whose link cannot be resolved is listed without one instead.
+ */
+function resolveHref(href: string | undefined, baseUrl: string | undefined): string | undefined {
+  if (!href) return undefined;
+  if (!baseUrl) return href;
+  try {
+    return new URL(href, baseUrl).href;
+  } catch {
+    return undefined;
+  }
 }

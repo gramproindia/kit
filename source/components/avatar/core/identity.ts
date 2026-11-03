@@ -94,3 +94,12 @@ export function splitGroup<T>(items: readonly T[], max: number): { shown: T[]; o
   const shown = items.slice(0, max - 1);
   return { shown, overflow: items.length - shown.length };
 }
+
+/**
+ * Whether to draw the picture. The failure is remembered against the URL that
+ * failed, not as a plain flag: a new `src` (a profile update, or a recycled
+ * list cell showing someone else) gets its own chance to load.
+ */
+export function showsImage(src: string | undefined, failedSrc: string | undefined): boolean {
+  return Boolean(src) && src !== failedSrc;
+}

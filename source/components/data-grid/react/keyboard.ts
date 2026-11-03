@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from "react";
-import type { GridEngine } from "../core/grid";
+import { getOwn, type GridEngine } from "../core/grid";
 
 const INTERACTIVE = "input, select, textarea, button, a[href], [contenteditable]";
 
@@ -82,7 +82,7 @@ export function handleGridKeyDown<T>(event: KeyboardEvent<HTMLElement>, engine: 
       if (rowIndex === -1 && item?.column.internal) {
         const selection = api.getState().rowSelection;
         const allSelected = model.sortedRows.every(
-          (r) => !engine.isRowSelectable(r.original) || selection[r.id],
+          (r) => !engine.isRowSelectable(r.original) || getOwn(selection, r.id) === true,
         );
         api.toggleAllRowsSelected(!allSelected);
       } else if (row && engine.isRowSelectable(row.original)) {
@@ -100,7 +100,9 @@ export function handleGridKeyDown<T>(event: KeyboardEvent<HTMLElement>, engine: 
     case "c":
     case "C":
       if (!mod || window.getSelection()?.toString()) return;
-      void api.copyToClipboard();
+      // The browser may deny clipboard access; there is nothing to recover,
+      // but it must not surface as an unhandled rejection.
+      api.copyToClipboard().catch(() => {});
       break;
     default:
       return;

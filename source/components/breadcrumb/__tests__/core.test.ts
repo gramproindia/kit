@@ -56,3 +56,21 @@ describe("structured data", () => {
     );
   });
 });
+
+describe("structured data with bad links", () => {
+  it("leaves out a link it cannot resolve instead of throwing", () => {
+    const data = toBreadcrumbJsonLd(
+      [
+        { name: "Home", href: "/" },
+        { name: "Broken", href: "http://[not-a-host" },
+      ],
+      "https://app.example.com/",
+    );
+    expect(data.itemListElement[0].item).toBe("https://app.example.com/");
+    expect(data.itemListElement[1]).toEqual({ "@type": "ListItem", position: 2, name: "Broken" });
+  });
+
+  it("survives a malformed base URL", () => {
+    expect(() => toBreadcrumbJsonLd([{ name: "Docs", href: "/docs" }], "not a url")).not.toThrow();
+  });
+});

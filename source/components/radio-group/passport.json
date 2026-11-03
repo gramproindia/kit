@@ -10,7 +10,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/agent.ts",
       "core/group.ts",
@@ -21,10 +21,11 @@
       "react/Radio.tsx",
       "react/RadioGroup.tsx",
       "react/context.ts",
+      "react/domSync.ts",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:c852ca33c7d19159436ffb48cbc6f3ab04b08bb07ca91d01111bb1b4b8a9851e"
+    "sourceHash": "sha256:1c06a8d53ba2fae53cde9b12fc9731de3c73f552e4205ec254e118376ed6d592"
   },
   "purpose": "One choice out of a few, on native radios: a single tab stop, arrow keys between the choices, and a card variant for richer options.",
   "props": [
@@ -145,7 +146,7 @@
       "typeText": "ReactNode",
       "required": false,
       "origin": "derived",
-      "description": "The validation message for this one choice. A message that applies to the\nwhole question belongs on the RadioGroup instead.",
+      "description": "The validation message for this one choice. A message that applies to the\r\nwhole question belongs on the RadioGroup instead.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -245,7 +246,7 @@
       "signature": "ChangeEventHandler<HTMLInputElement> | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The underlying DOM event, for form libraries that want the native\nhandler.",
+      "description": "The underlying DOM event, for form libraries that want the native\r\nhandler.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -254,7 +255,7 @@
       "signature": "((checked: boolean) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "This radio was chosen. Only ever fires with `true`, since choosing\nanother radio deselects this one rather than firing on it — to follow a\ngroup's choice, use `onValueChange` on the RadioGroup.",
+      "description": "This radio was chosen. Only ever fires with `true`, since choosing\r\nanother radio deselects this one rather than firing on it — to follow a\r\ngroup's choice, use `onValueChange` on the RadioGroup.",
       "descriptionOrigin": "jsdoc"
     },
     {

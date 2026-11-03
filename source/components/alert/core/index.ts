@@ -1,3 +1,3 @@
-export { liveness, type Liveness } from "./live";
+export { announcementText, liveness, type Liveness } from "./live";
 export type * from "./types";
 export { defaultAlertText } from "./locale";

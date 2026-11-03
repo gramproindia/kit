@@ -12,7 +12,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/index.ts",
       "core/navigation.ts",
@@ -21,7 +21,7 @@
       "react/Tabs.tsx",
       "react/context.ts"
     ],
-    "sourceHash": "sha256:3d8e29857c59101e547f234c45735db68cc87ee143cc87d841372ec612e2c663"
+    "sourceHash": "sha256:7664c22bd0d89a84961292c98f3bd9342cd0df6808b17eb36f1cfc6e5aaac23b"
   },
   "purpose": "Tabs in underline, pill or segmented styles, horizontal or vertical, with panels that can stay mounted when hidden.",
   "props": [

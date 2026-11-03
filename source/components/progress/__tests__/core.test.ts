@@ -54,3 +54,19 @@ describe("stepFraction", () => {
     expect(stepFraction(1, 0)).toBe(0);
   });
 });
+
+describe("describeProgress max", () => {
+  it("never reports a value above the max it measured against", () => {
+    for (const max of [0, -5, Number.NaN]) {
+      const state = describeProgress(40, max);
+      expect(state.max).toBe(0);
+      expect(state.value).toBe(0);
+      expect(state.fraction).toBe(0);
+    }
+  });
+
+  it("reports the max it used", () => {
+    expect(describeProgress(3, 8).max).toBe(8);
+    expect(describeProgress(null).max).toBeUndefined();
+  });
+});

@@ -100,6 +100,10 @@ export function AnchoredPopover({
     const el = ref.current;
     if (!el) return;
 
+    // Read once: the direction does not change while the panel is open, and
+    // getComputedStyle on every scroll event forces a style recalculation.
+    const rtl = getComputedStyle(anchor).direction === "rtl";
+
     const position = () => {
       const rect = anchor.getBoundingClientRect();
       if (matchAnchorWidth) el.style.minWidth = `${rect.width}px`;
@@ -113,7 +117,7 @@ export function AnchoredPopover({
           align,
           gap,
           edge: EDGE,
-          rtl: getComputedStyle(anchor).direction === "rtl",
+          rtl,
           fitHeight,
           minHeight,
         },
@@ -137,17 +141,29 @@ export function AnchoredPopover({
       target?.focus({ preventScroll: true });
     }
 
+    // Scroll and resize fire many times a frame; measure and write at most once
+    // per frame, so a scroll does not force layout on every event.
+    let frame = 0;
+    const schedule = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        position();
+      });
+    };
+
     const observer = observeResize ? new ResizeObserver(position) : null;
     observer?.observe(el);
     if (observeResize === "both") observer?.observe(anchor);
-    window.addEventListener("resize", position);
+    window.addEventListener("resize", schedule, { passive: true });
     // Capture: a scroll in any ancestor moves the anchor, not just the page.
-    window.addEventListener("scroll", position, true);
+    window.addEventListener("scroll", schedule, { capture: true, passive: true });
 
     return () => {
+      if (frame) cancelAnimationFrame(frame);
       observer?.disconnect();
-      window.removeEventListener("resize", position);
-      window.removeEventListener("scroll", position, true);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule, true);
       const hadFocus = el.contains(document.activeElement);
       if (el.matches(":popover-open")) el.hidePopover();
       if (returnFocus && (hadFocus || document.activeElement === document.body) && anchor.isConnected) {

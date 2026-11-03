@@ -3,6 +3,8 @@ import type { ToastOptions, ToastRecord, ToastSnapshot } from "./types";
 
 export const DEFAULT_DURATION = 5000;
 export const DEFAULT_LIMIT = 3;
+/** Toasts allowed to wait beyond `limit`; past this the oldest waiting ones are dropped. */
+export const DEFAULT_MAX_QUEUE = 20;
 /** Matches the CSS exit transition, so a toast fades out before it leaves the DOM. */
 export const EXIT_DURATION = 200;
 
@@ -11,6 +13,12 @@ export interface ToastStoreConfig {
   duration?: number;
   /** Open toasts on screen at once; the rest wait with their timers held. */
   limit?: number;
+  /**
+   * Toasts allowed to wait beyond `limit`. When more arrive, the oldest waiting
+   * ones are dropped (their `onDismiss` runs), so a burst can't pile up forever.
+   * Default 20; `Infinity` keeps them all.
+   */
+  maxQueue?: number;
   /** How long a closed toast stays for its exit animation. */
   exitDuration?: number;
 }
@@ -61,6 +69,7 @@ export function createToastStore(config: ToastStoreConfig = {}): ToastStore {
   let settings: Required<ToastStoreConfig> = {
     duration: DEFAULT_DURATION,
     limit: DEFAULT_LIMIT,
+    maxQueue: DEFAULT_MAX_QUEUE,
     exitDuration: EXIT_DURATION,
     ...definedOnly(config),
   };
@@ -101,6 +110,31 @@ export function createToastStore(config: ToastStoreConfig = {}): ToastStore {
     snapshot = { ...snapshot, ...changes, toasts };
     syncTimers();
     for (const listener of listeners) listener();
+  }
+
+  /**
+   * Commits, first dropping the oldest toasts waiting beyond `limit` once more
+   * than `maxQueue` wait. Those were never on screen, so they leave without an
+   * exit animation; their `onDismiss` runs once the new snapshot is out.
+   */
+  function commitTrimmed(
+    toasts: readonly ToastRecord[],
+    changes: Partial<Omit<ToastSnapshot, "toasts">> = {},
+  ) {
+    const limit = changes.limit ?? snapshot.limit;
+    const max = Math.max(0, settings.maxQueue);
+    const waiting = toasts.filter((toast) => toast.state === "open").slice(limit);
+    // Newest first, so the oldest waiting are at the end.
+    const dropped = waiting.length > max ? new Set(waiting.slice(max)) : null;
+    if (dropped) {
+      for (const toast of dropped) {
+        stop(toast.id);
+        countdowns.delete(toast.id);
+      }
+      toasts = toasts.filter((toast) => !dropped.has(toast));
+    }
+    commit(toasts, changes);
+    if (dropped) for (const toast of dropped) toast.onDismiss?.(toast);
   }
 
   function close(id: string, auto: boolean) {
@@ -152,7 +186,7 @@ export function createToastStore(config: ToastStoreConfig = {}): ToastStore {
     stop(id);
     countdowns.set(id, { remaining: record.duration, startedAt: 0, handle: null });
 
-    commit(
+    commitTrimmed(
       reused
         ? snapshot.toasts.map((item) => (item === reused ? record : item))
         : [record, ...snapshot.toasts.filter((item) => item.id !== id)],
@@ -189,7 +223,10 @@ export function createToastStore(config: ToastStoreConfig = {}): ToastStore {
 
   function configure(next: ToastStoreConfig) {
     settings = { ...settings, ...definedOnly(next) };
-    if (settings.limit !== snapshot.limit) commit(snapshot.toasts, { limit: settings.limit });
+    const waiting = snapshot.toasts.filter((toast) => toast.state === "open").length - settings.limit;
+    if (settings.limit !== snapshot.limit || waiting > settings.maxQueue) {
+      commitTrimmed(snapshot.toasts, { limit: settings.limit });
+    }
   }
 
   return {

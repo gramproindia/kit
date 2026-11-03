@@ -310,6 +310,12 @@ export interface GridOptions<T> {
   onStateChange?(next: GridState, prev: GridState): void;
   /** Fires when sorting, filters, search or pagination change. */
   onQueryChange?(query: GridQuery): void;
+  /**
+   * Wait this long after the last search keystroke before calling
+   * `onQueryChange`. Other query changes report at once. Default 300 in
+   * `server` mode, 0 (no delay) in `client` mode.
+   */
+  searchDebounceMs?: number;
   /** Page the rows instead of scrolling the whole set. Default `true`. */
   enablePagination?: boolean;
   /** Let a header click sort the column. Default `true`. */

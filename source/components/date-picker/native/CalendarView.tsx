@@ -1,4 +1,4 @@
-import { useMemo, useRef, type ReactNode } from "react";
+import { memo, useMemo, useRef, type ReactNode } from "react";
 import {
   I18nManager,
   PanResponder,
@@ -11,10 +11,10 @@ import {
 } from "react-native";
 import { createThemedStyles, useKitTheme } from "../../shared/native/KitProvider";
 import { ChevronGlyph } from "../../shared/native/glyphs";
-import { alpha } from "../../shared/native/theme";
+import { alpha, type KitTokens } from "../../shared/native/theme";
 import { formatDate } from "../core/format";
 import type { CalendarDay, DatePickerLocaleText } from "../core/types";
-import type { CalendarEngine } from "./useCalendar";
+import type { CalendarEngine, DayState } from "./useCalendar";
 
 export interface CalendarStyles {
   calendar?: StyleProp<ViewStyle>;
@@ -39,6 +39,7 @@ interface CalendarViewProps {
 }
 
 const FULL_DATE: Intl.DateTimeFormatOptions = { weekday: "long", day: "numeric", month: "long", year: "numeric" };
+const DAY_NUMBER: Intl.DateTimeFormatOptions = { day: "numeric" };
 const CELL = 44;
 
 const themed = createThemedStyles((t) => ({
@@ -80,8 +81,23 @@ export function CalendarView({
   const { tokens } = useKitTheme();
   const s = themed(tokens);
   const { view } = calendar;
-  // Locale digits in the grid too: ٢٢ in Arabic, as the field shows.
-  const dayNumber = useMemo(() => new Intl.DateTimeFormat(locale, { day: "numeric" }), [locale]);
+  // Each day's spoken label and its number in the locale's digits (٢٢ in
+  // Arabic, as the field shows), worked out once per month shown, not per render.
+  const dayText = useMemo(() => {
+    const map = new Map<string, { label: string; number: string }>();
+    for (const month of calendar.months) {
+      for (const week of month.weeks) {
+        for (const day of week.days) {
+          if (map.has(day.key)) continue;
+          map.set(day.key, {
+            label: formatDate(day.date, locale, FULL_DATE),
+            number: formatDate(day.date, locale, DAY_NUMBER),
+          });
+        }
+      }
+    }
+    return map;
+  }, [calendar.months, locale]);
   const hideOutside = calendar.months.length > 1;
   const rtl = I18nManager.isRTL;
 
@@ -110,52 +126,23 @@ export function CalendarView({
   const renderDay = (day: CalendarDay) => {
     if (day.outside && hideOutside) return <View key={day.key} style={s.cell} />;
     const state = calendar.getDayState(day.date);
-    const fill = state.selected ? tokens.accent : "transparent";
-    const ink = state.selected ? tokens.accentFg : day.outside ? tokens.muted : tokens.fg;
-    // The band runs between the two ends: half a cell at each end, full between.
-    const band = state.inRange || state.rangeStart || state.rangeEnd;
-    const startSide = rtl ? "right" : "left";
-    const endSide = rtl ? "left" : "right";
+    const strings = dayText.get(day.key)!;
     return (
-      <View key={day.key} style={s.cell}>
-        {band && (
-          <View
-            style={[
-              s.band,
-              state.rangeStart && { [startSide]: "50%" },
-              state.rangeEnd && { [endSide]: "50%" },
-              state.rangeStart && state.rangeEnd && { opacity: 0 },
-            ]}
-          />
-        )}
-        <Pressable
-          role="button"
-          accessibilityLabel={formatDate(day.date, locale, FULL_DATE)}
-          aria-selected={state.selected}
-          aria-disabled={day.disabled}
-          disabled={day.disabled}
-          onPress={() => calendar.selectDate(day.date)}
-          style={({ pressed }) => [
-            s.day,
-            { backgroundColor: pressed && !state.selected ? tokens.hover : fill },
-            day.today && !state.selected && { borderColor: tokens.accent },
-            day.disabled && { opacity: 0.35 },
-            slots?.day,
-          ]}
-        >
-          <Text
-            style={[
-              s.dayText,
-              { color: ink },
-              (state.selected || day.today) && { fontWeight: "700" },
-              day.disabled && { textDecorationLine: "line-through" },
-              slots?.dayText,
-            ]}
-          >
-            {dayNumber.format(day.date)}
-          </Text>
-        </Pressable>
-      </View>
+      <Day
+        key={day.key}
+        day={day}
+        label={strings.label}
+        number={strings.number}
+        selected={state.selected}
+        inRange={state.inRange}
+        rangeStart={state.rangeStart}
+        rangeEnd={state.rangeEnd}
+        rtl={rtl}
+        tokens={tokens}
+        dayStyle={slots?.day}
+        dayTextStyle={slots?.dayText}
+        onSelect={calendar.selectDate}
+      />
     );
   };
 
@@ -302,3 +289,79 @@ export function CalendarView({
     </View>
   );
 }
+
+interface DayProps extends DayState {
+  day: CalendarDay;
+  label: string;
+  number: string;
+  rtl: boolean;
+  tokens: KitTokens;
+  dayStyle?: StyleProp<ViewStyle>;
+  dayTextStyle?: StyleProp<TextStyle>;
+  onSelect(date: Date): void;
+}
+
+/** One day, memoised on plain flags so a tap re-renders the days it changed. */
+const Day = memo(function Day({
+  day,
+  label,
+  number,
+  selected,
+  inRange,
+  rangeStart,
+  rangeEnd,
+  rtl,
+  tokens,
+  dayStyle,
+  dayTextStyle,
+  onSelect,
+}: DayProps) {
+  const s = themed(tokens);
+  const fill = selected ? tokens.accent : "transparent";
+  const ink = selected ? tokens.accentFg : day.outside ? tokens.muted : tokens.fg;
+  // The band runs between the two ends: half a cell at each end, full between.
+  const band = inRange || rangeStart || rangeEnd;
+  const startSide = rtl ? "right" : "left";
+  const endSide = rtl ? "left" : "right";
+  return (
+    <View style={s.cell}>
+      {band && (
+        <View
+          style={[
+            s.band,
+            rangeStart && { [startSide]: "50%" },
+            rangeEnd && { [endSide]: "50%" },
+            rangeStart && rangeEnd && { opacity: 0 },
+          ]}
+        />
+      )}
+      <Pressable
+        role="button"
+        accessibilityLabel={label}
+        aria-selected={selected}
+        aria-disabled={day.disabled}
+        disabled={day.disabled}
+        onPress={() => onSelect(day.date)}
+        style={({ pressed }) => [
+          s.day,
+          { backgroundColor: pressed && !selected ? tokens.hover : fill },
+          day.today && !selected && { borderColor: tokens.accent },
+          day.disabled && { opacity: 0.35 },
+          dayStyle,
+        ]}
+      >
+        <Text
+          style={[
+            s.dayText,
+            { color: ink },
+            (selected || day.today) && { fontWeight: "700" },
+            day.disabled && { textDecorationLine: "line-through" },
+            dayTextStyle,
+          ]}
+        >
+          {number}
+        </Text>
+      </Pressable>
+    </View>
+  );
+});

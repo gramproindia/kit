@@ -6,7 +6,7 @@ import type {
   UploadItem,
   UploadStatus,
 } from "./types";
-import { partitionFiles, type ValidationRules } from "./validate";
+import { hasKnownSize, partitionFiles, type ValidationRules } from "./validate";
 
 /** 5 MiB: small enough to retry cheaply, large enough to keep request overhead low. */
 export const DEFAULT_CHUNK_SIZE = 5 * 1024 * 1024;
@@ -102,6 +102,20 @@ function sleep(ms: number, signal: AbortSignal) {
     }, ms);
     signal.addEventListener("abort", onAbort, { once: true });
   });
+}
+
+/**
+ * Runs an app callback. If it throws, the error is reported on its own turn
+ * instead of turning a finished upload into a failed one.
+ */
+function notify(callback: () => void) {
+  try {
+    callback();
+  } catch (error) {
+    setTimeout(() => {
+      throw error;
+    });
+  }
 }
 
 function describeError(error: unknown): string {
@@ -201,8 +215,8 @@ export function createUploaderStore(initial: UploaderConfig = {}): UploaderStore
   async function run(id: string) {
     const item = find(id);
     if (!item || item.status !== "queued") return;
-    const transport = config.transport;
-    if (!transport) {
+    const started = config.transport;
+    if (!started) {
       patch(id, { status: "error", error: NO_TRANSPORT });
       return;
     }
@@ -216,7 +230,10 @@ export function createUploaderStore(initial: UploaderConfig = {}): UploaderStore
     const chunkSize = fresh ? Math.max(1, config.chunkSize ?? DEFAULT_CHUNK_SIZE) : item.chunkSize;
     const total = fresh ? chunkCount(item.file.size, chunkSize) : item.totalChunks;
     const { file, uploadId } = item;
-    const ratio = (bytes: number) => (file.size > 0 ? bytes / file.size : 1);
+    // An unknown size (some native pickers) or an empty file has no meaningful
+    // percentage: stay at 0 until the server confirms, never jump to 100%.
+    const sized = hasKnownSize(file) && file.size > 0;
+    const ratio = (bytes: number) => (sized ? bytes / file.size : 0);
     patch(id, { status: "uploading", chunkSize, totalChunks: total });
 
     let percent = Math.floor(item.progress * 100);
@@ -227,14 +244,18 @@ export function createUploaderStore(initial: UploaderConfig = {}): UploaderStore
       patch(id, { uploadedBytes: bytes, progress: ratio(bytes) });
     };
 
+    let succeeded = false;
     try {
       for (let index = item.chunksDone; index < total; index++) {
         const offset = index * chunkSize;
         const end = Math.min(file.size, offset + chunkSize);
         const chunk = file.slice(offset, end);
+        // Read per attempt, so a transport rebuilt mid-upload (say, with a
+        // refreshed token) is used for the next chunk. Falls back to the one
+        // the file started with if it was taken away.
         const response = await withRetries(
           () =>
-            transport({
+            (config.transport ?? started)({
               file,
               chunk,
               index,
@@ -250,8 +271,7 @@ export function createUploaderStore(initial: UploaderConfig = {}): UploaderStore
         patch(id, { chunksDone: index + 1, uploadedBytes: end, progress: ratio(end), response });
       }
       patch(id, { status: "success", uploadedBytes: file.size, progress: 1 });
-      const done = find(id);
-      if (done) config.onFileSuccess?.(done);
+      succeeded = true;
     } catch (error) {
       const current = find(id);
       if (!current || entry.reason === "remove") return;
@@ -269,11 +289,14 @@ export function createUploaderStore(initial: UploaderConfig = {}): UploaderStore
           progress: ratio(confirmed),
         });
         const failed = find(id);
-        if (failed) config.onFileError?.(failed, error);
+        if (failed) notify(() => config.onFileError?.(failed, error));
       }
     } finally {
       if (controllers.get(id) === entry) controllers.delete(id);
     }
+    // Outside the try: a throwing callback must not mark an uploaded file as failed.
+    const done = succeeded ? find(id) : undefined;
+    if (done) notify(() => config.onFileSuccess?.(done));
   }
 
   function pump() {
@@ -327,7 +350,7 @@ export function createUploaderStore(initial: UploaderConfig = {}): UploaderStore
     });
     pump();
 
-    if (starting.size > 0) void done.then((items) => config.onComplete?.(items));
+    if (starting.size > 0) void done.then((items) => notify(() => config.onComplete?.(items)));
     return done;
   }
 

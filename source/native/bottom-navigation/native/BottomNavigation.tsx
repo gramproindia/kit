@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, type ReactNode } from "react";
 import {
   Animated,
   Easing,
@@ -64,10 +64,12 @@ const themed = createThemedStyles((t) => ({
     borderTopWidth: 1,
     borderColor: t.border,
   },
-  item: { flex: 1, minWidth: 80, height: BAR_HEIGHT, alignItems: "center", justifyContent: "center", gap: 4 },
-  iconBox: { width: 64, height: 32, alignItems: "center", justifyContent: "center" },
+  // flex: 1 with no minimum: five tabs on a 360dp phone get 72dp each instead
+  // of overflowing the screen at 80dp apiece. Labels truncate to fit.
+  item: { flex: 1, minWidth: 0, height: BAR_HEIGHT, paddingHorizontal: 2, alignItems: "center", justifyContent: "center", gap: 4 },
+  iconBox: { width: 64, maxWidth: "100%", height: 32, alignItems: "center", justifyContent: "center" },
   indicator: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16, backgroundColor: t.accentSoft },
-  label: { fontSize: t.fontSize - 3, fontWeight: "500", color: t.muted },
+  label: { maxWidth: "100%", fontSize: t.fontSize - 3, fontWeight: "500", color: t.muted },
   activeLabel: { color: t.fg, fontWeight: "700" },
   badge: {
     position: "absolute",
@@ -85,7 +87,9 @@ const themed = createThemedStyles((t) => ({
   badgeText: { color: t.dangerFg, fontSize: 10, fontWeight: "700" },
 }));
 
-function Tab({
+// Memoised with a shared, stable onPress(key): switching tabs re-renders only
+// the one losing focus and the one gaining it, not the whole bar.
+const Tab = memo(function Tab({
   item,
   active,
   showLabel,
@@ -96,7 +100,7 @@ function Tab({
   item: BottomNavigationItem;
   active: boolean;
   showLabel: boolean;
-  onPress(): void;
+  onPress(key: string): void;
   slots: BottomNavigationProps["styles"];
   text: BottomNavigationLocaleText;
 }) {
@@ -131,7 +135,7 @@ function Tab({
       aria-disabled={item.disabled || undefined}
       aria-label={spoken}
       disabled={item.disabled}
-      onPress={onPress}
+      onPress={() => onPress(item.key)}
       style={[s.item, item.disabled && { opacity: 0.4 }, slots?.item]}
     >
       {({ pressed }) => (
@@ -163,7 +167,7 @@ function Tab({
       )}
     </Pressable>
   );
-}
+});
 
 /**
  * The bar of top-level destinations at the bottom of an app, Material 3 style:
@@ -187,6 +191,23 @@ export function BottomNavigation({
   const text = useMemo(() => ({ ...defaultBottomNavigationText, ...localeText }), [localeText]);
   const [value, setValue] = useControllableState(valueProp, defaultValue ?? items[0]?.key ?? "");
 
+  // One press handler for every tab that never changes identity, so the
+  // memoised tabs are not re-rendered just because a new closure was made.
+  // It reads the current value and callbacks through a ref.
+  const latest = useRef({ value, setValue, onValueChange, onReselect });
+  useLayoutEffect(() => {
+    latest.current = { value, setValue, onValueChange, onReselect };
+  });
+  const handlePress = useCallback((key: string) => {
+    const current = latest.current;
+    if (key === current.value) {
+      current.onReselect?.(key);
+      return;
+    }
+    current.setValue(key);
+    current.onValueChange?.(key);
+  }, []);
+
   return (
     <View
       role="tablist"
@@ -202,14 +223,7 @@ export function BottomNavigation({
             showLabel={labelVisibility === "always" || (labelVisibility === "active" && active)}
             slots={slots}
             text={text}
-            onPress={() => {
-              if (active) {
-                onReselect?.(item.key);
-                return;
-              }
-              setValue(item.key);
-              onValueChange?.(item.key);
-            }}
+            onPress={handlePress}
           />
         );
       })}

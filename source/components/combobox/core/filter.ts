@@ -9,14 +9,46 @@ import type {
 /** Ranges of `text` matching every search term, or null when one term is missing. */
 export function matchRanges(text: string, terms: readonly string[]): MatchRange[] | null {
   if (terms.length === 0) return [];
-  const haystack = text.toLocaleLowerCase();
+  return rangesIn(text, text.toLocaleLowerCase(), terms);
+}
+
+/** `haystack` is `text` lowercased, passed in so callers can cache it. */
+function rangesIn(text: string, haystack: string, terms: readonly string[]): MatchRange[] | null {
   const ranges: MatchRange[] = [];
   for (const term of terms) {
     const start = haystack.indexOf(term);
     if (start === -1) return null;
     ranges.push([start, start + term.length]);
   }
+  // Lowercasing can change the length ("İ" becomes two code units), so the
+  // indexes would be off in the original text: match, but don't highlight.
+  if (haystack.length !== text.length) return [];
   return mergeRanges(ranges);
+}
+
+interface SearchText {
+  label: string;
+  /** Description and keywords, lowercased and joined. */
+  extra: string;
+}
+
+/**
+ * Lowercased search text per option, so typing doesn't lowercase every label
+ * again on each keystroke. Keyed by the option object: a new object (or edited
+ * copy) gets fresh text; options that are mutated in place are not supported.
+ */
+const searchCache = new WeakMap<object, SearchText>();
+
+function searchTextOf(option: ComboboxOption<OptionValue>): SearchText {
+  let cached = searchCache.get(option);
+  if (!cached) {
+    cached = {
+      label: option.label.toLocaleLowerCase(),
+      extra: [option.description, ...(option.keywords ?? [])].filter(Boolean).join(" ").toLocaleLowerCase(),
+    };
+    searchCache.set(option, cached);
+  }
+  return cached;
 }
 
 function mergeRanges(ranges: MatchRange[]): MatchRange[] {
@@ -53,13 +85,15 @@ export function filterOptions<V extends OptionValue>(
       if (filterFn(option, search)) entries.push({ option, matches: matchRanges(option.label, terms) ?? [] });
       continue;
     }
-    const labelMatches = matchRanges(option.label, terms);
+    const cached = searchTextOf(option);
+    const labelMatches = rangesIn(option.label, cached.label, terms);
     if (labelMatches) {
       entries.push({ option, matches: labelMatches });
       continue;
     }
-    const extra = [option.description, ...(option.keywords ?? [])].filter(Boolean).join(" ");
-    if (extra && matchRanges(extra, terms)) entries.push({ option, matches: [] });
+    if (cached.extra && terms.every((term) => cached.extra.includes(term))) {
+      entries.push({ option, matches: [] });
+    }
   }
   return entries;
 }

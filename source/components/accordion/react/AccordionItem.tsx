@@ -6,10 +6,14 @@ import {
   type MouseEvent,
   type ReactNode,
   type Ref,
+  type SyntheticEvent,
 } from "react";
 import { ChevronDownIcon } from "../../shared/react/icons";
 import { useAccordionContext } from "./context";
 import { cx, type AccordionItemSlot } from "./props";
+
+// Controls that do their own thing when clicked, rather than toggle the section.
+const INTERACTIVE = "a[href], button, input, select, textarea, label, [contenteditable]";
 
 export interface AccordionItemProps {
   /** Identifies the panel in the accordion's value. */
@@ -53,9 +57,25 @@ export function AccordionItem(props: AccordionItemProps) {
   const open = context.open.includes(value);
 
   const onClick = (event: MouseEvent<HTMLElement>) => {
+    // A link or button placed in the title, description or meta does its own
+    // job, and the browser does not toggle the section for it either.
+    const control = (event.target as Element).closest(INTERACTIVE);
+    if (control && control !== event.currentTarget && event.currentTarget.contains(control)) return;
     // The accordion decides; letting the browser toggle as well would fight it.
     event.preventDefault();
     if (!disabled) context.toggle(value);
+  };
+
+  // The browser can open a section by itself — find-in-page does, to show a
+  // match inside. Follow it, so the state and the screen agree; a disabled
+  // section is closed again. Our own changes also fire this, and match.
+  const onToggle = (event: SyntheticEvent<HTMLDetailsElement>) => {
+    // React passes a nested accordion's toggles up through this one.
+    if (event.target !== event.currentTarget) return;
+    const details = event.currentTarget;
+    if (details.open === open) return;
+    if (disabled) details.open = open;
+    else context.toggle(value);
   };
 
   return (
@@ -65,6 +85,7 @@ export function AccordionItem(props: AccordionItemProps) {
       style={style}
       open={open}
       data-disabled={disabled || undefined}
+      onToggle={onToggle}
     >
       <summary
         id={`${id}-header`}

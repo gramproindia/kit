@@ -138,7 +138,9 @@ export const FileRow = memo(function FileRow({
           <img
             ref={attachPreview}
             alt=""
+            // Off the main thread, and only once the row scrolls into view.
             decoding="async"
+            loading="lazy"
             // Formats the browser can't draw (e.g. HEIC) fall back to the icon underneath.
             onError={(event) => {
               event.currentTarget.hidden = true;

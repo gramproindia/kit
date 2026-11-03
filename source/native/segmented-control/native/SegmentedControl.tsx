@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import {
   Animated,
   Pressable,
@@ -155,29 +155,39 @@ export function SegmentedControl(props: SegmentedControlProps) {
     }
   };
 
-  // Thumb: measured segment boxes, animated on the JS thread (left/width
-  // cannot run on the native driver).
+  // Thumb: measured segment boxes. The thumb is laid out at the selected
+  // segment's width and moved with translateX and scaleX, both on the native
+  // driver, so it glides without the JS thread (left and width cannot).
+  // Segments of equal width (the fullWidth default) only ever translate.
   const [boxes, setBoxes] = useState<Record<string, Box>>({});
-  const left = useRef(new Animated.Value(0)).current;
-  const width = useRef(new Animated.Value(0)).current;
-  const placed = useRef(false);
+  const translate = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+  const shown = useRef<Box | null>(null);
   const target = !multiple && single !== undefined ? boxes[single] : undefined;
+  const targetX = target?.x;
+  const targetWidth = target?.width;
 
-  useEffect(() => {
-    if (!target) return;
-    if (!placed.current || reduced) {
-      left.setValue(target.x);
-      width.setValue(target.width);
-      placed.current = true;
+  useLayoutEffect(() => {
+    if (targetX === undefined || targetWidth === undefined || targetWidth <= 0) return;
+    const prev = shown.current;
+    shown.current = { x: targetX, width: targetWidth };
+    if (!prev || reduced) {
+      translate.setValue(targetX);
+      scale.setValue(1);
       return;
     }
+    if (prev.x === targetX && prev.width === targetWidth) return;
+    // Start drawn exactly over the previous segment (scaling is about the
+    // centre), then settle on the new one at its natural size.
+    translate.setValue(prev.x + prev.width / 2 - targetWidth / 2);
+    scale.setValue(prev.width / targetWidth);
     const animation = Animated.parallel([
-      Animated.spring(left, { toValue: target.x, useNativeDriver: false, bounciness: 0, speed: 18 }),
-      Animated.spring(width, { toValue: target.width, useNativeDriver: false, bounciness: 0, speed: 18 }),
+      Animated.spring(translate, { toValue: targetX, useNativeDriver: true, bounciness: 0, speed: 18 }),
+      Animated.spring(scale, { toValue: 1, useNativeDriver: true, bounciness: 0, speed: 18 }),
     ]);
     animation.start();
     return () => animation.stop();
-  }, [target?.x, target?.width, reduced, left, width, target]);
+  }, [targetX, targetWidth, reduced, translate, scale]);
 
   const onSegmentLayout = (value: string) => (event: LayoutChangeEvent) => {
     const { x, width: w } = event.nativeEvent.layout;
@@ -205,7 +215,14 @@ export function SegmentedControl(props: SegmentedControlProps) {
       ]}
     >
       {thumbMode && target && (
-        <Animated.View style={[s.thumb, { left, width }, slots?.thumb]} pointerEvents="none" />
+        <Animated.View
+          style={[
+            s.thumb,
+            { left: 0, width: target.width, transform: [{ translateX: translate }, { scaleX: scale }] },
+            slots?.thumb,
+          ]}
+          pointerEvents="none"
+        />
       )}
       {options.map((option, index) => {
         const selected = isSelected(option.value);

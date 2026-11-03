@@ -19,8 +19,14 @@ export interface SheetProps {
   onDismiss?(): void;
   /** Heading at the top of the sheet, also its accessible name. */
   title?: ReactNode;
-  /** Tapping outside or dragging down dismisses. Default true. */
+  /** Tapping outside, dragging down or Android back dismisses. Default true. */
   dismissible?: boolean;
+  /**
+   * Android back (and the screen reader's escape gesture), handled by the
+   * caller: when given, it is called instead of `onDismiss`, even when
+   * `dismissible` is false. Without it, back dismisses only when `dismissible`.
+   */
+  onBack?(): void;
   /** Largest height, as a fraction of the screen. Default 0.9. */
   maxHeight?: number;
   onClosed?(): void;
@@ -50,10 +56,17 @@ const themed = createThemedStyles((t) => ({
   },
 }));
 
-/** Keyboard height, so a sheet with a search field stays above the keyboard. */
-function useKeyboardHeight(): number {
+/**
+ * Keyboard height, so a sheet with a search field stays above the keyboard.
+ * Listens only while `active` (the sheet is on screen): a closed sheet costs nothing.
+ */
+function useKeyboardHeight(active: boolean): number {
   const [height, setHeight] = useState(0);
   useEffect(() => {
+    if (!active) return undefined;
+    // A keyboard already up when the sheet opens sent its event before we listened.
+    const metrics = Keyboard.metrics();
+    setHeight(metrics ? metrics.height : 0);
     const show = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
     const hide = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
     const a = Keyboard.addListener(show, (e) => setHeight(e.endCoordinates.height));
@@ -62,7 +75,7 @@ function useKeyboardHeight(): number {
       a.remove();
       b.remove();
     };
-  }, []);
+  }, [active]);
   return height;
 }
 
@@ -74,6 +87,7 @@ function useKeyboardHeight(): number {
 export function Sheet({
   open,
   onDismiss,
+  onBack,
   title,
   dismissible = true,
   maxHeight = 0.9,
@@ -85,11 +99,27 @@ export function Sheet({
   const s = themed(tokens);
   const insets = useInsets();
   const { height: screen } = useWindowDimensions();
-  const keyboard = useKeyboardHeight();
+  // Kept on through the exit slide, so the panel does not jump as it leaves.
+  const [shown, setShown] = useState(open);
+  if (open && !shown) setShown(true);
+  const keyboard = useKeyboardHeight(shown);
   const drag = useRef(new Animated.Value(0)).current;
 
   const dismissRef = useRef(onDismiss);
   dismissRef.current = onDismiss;
+
+  // The drag-dismiss reset timer, cleared if the sheet unmounts first.
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (resetTimer.current !== null) clearTimeout(resetTimer.current);
+    },
+    [],
+  );
+
+  // Android back and the escape gesture: the caller's handler, else dismiss
+  // only when the sheet is dismissible.
+  const back = onBack ?? (dismissible ? onDismiss : undefined);
 
   const responder = useMemo(
     () =>
@@ -100,7 +130,11 @@ export function Sheet({
           if (g.dy > 80 || g.vy > 0.8) {
             dismissRef.current?.();
             // The exit slide continues from here; reset once it is off screen.
-            setTimeout(() => drag.setValue(0), 250);
+            if (resetTimer.current !== null) clearTimeout(resetTimer.current);
+            resetTimer.current = setTimeout(() => {
+              resetTimer.current = null;
+              drag.setValue(0);
+            }, 250);
           } else {
             Animated.spring(drag, { toValue: 0, useNativeDriver: false, bounciness: 4 }).start();
           }
@@ -112,7 +146,18 @@ export function Sheet({
   );
 
   return (
-    <Overlay open={open} onDismiss={onDismiss} dismissible={dismissible} onClosed={onClosed} duration={240}>
+    <Overlay
+      open={open}
+      onDismiss={onDismiss}
+      dismissible={dismissible}
+      onBack={onBack}
+      closeOnBack={dismissible}
+      onClosed={() => {
+        setShown(false);
+        onClosed?.();
+      }}
+      duration={240}
+    >
       {(progress) => (
         <Animated.View
           style={[
@@ -126,6 +171,7 @@ export function Sheet({
           role="dialog"
           aria-modal
           accessibilityViewIsModal
+          onAccessibilityEscape={back}
         >
           {/* Drag is JS-driven; it moves an inner layer so it never mixes with the native-driven slide. */}
           <Animated.View

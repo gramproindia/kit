@@ -137,6 +137,9 @@ export function useCombobox<V extends OptionValue>(params: UseComboboxParams<V>)
 
   const setOpen = useCallback(
     (next: boolean) => {
+      // Same as native: a disabled combobox can close but never open, from the
+      // UI or from `ref.open()`.
+      if (next && disabled) return;
       if (next === open) return;
       setOpenState(next);
       setAnchor(next ? controlRef.current : null);
@@ -144,7 +147,7 @@ export function useCombobox<V extends OptionValue>(params: UseComboboxParams<V>)
       if (!next) setSearchState("");
       onOpenChange?.(next);
     },
-    [open, onOpenChange, controlRef],
+    [open, disabled, onOpenChange, controlRef],
   );
 
   const closeAndFocus = useCallback(() => {
@@ -190,6 +193,7 @@ export function useCombobox<V extends OptionValue>(params: UseComboboxParams<V>)
   }, [disabled, commit]);
 
   const selectAllVisible = useCallback(() => {
+    if (disabled) return;
     const added = entries
       .filter((entry) => !entry.option.disabled && !selectedSet.has(entry.option.value))
       .map((entry) => entry.option);
@@ -201,7 +205,7 @@ export function useCombobox<V extends OptionValue>(params: UseComboboxParams<V>)
       return map;
     });
     commit(next);
-  }, [entries, values, selectedSet, max, commit]);
+  }, [disabled, entries, values, selectedSet, max, commit]);
 
   const trimmed = search.trim();
   const createLabel =
@@ -245,6 +249,9 @@ export function useCombobox<V extends OptionValue>(params: UseComboboxParams<V>)
   const onKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
       if (disabled) return;
+      // Keys that confirm an IME composition (Chinese, Japanese, Korean input)
+      // belong to the IME: Enter there must not select an option.
+      if (event.nativeEvent.isComposing || event.keyCode === 229) return;
       const { key } = event;
       const modified = event.ctrlKey || event.metaKey || event.altKey;
 

@@ -11,6 +11,11 @@ export interface ProgressState {
   fraction: number;
   /** 0 to 100, rounded, for reading. */
   percent: number;
+  /**
+   * The `max` actually measured against: a negative or non-numeric max is
+   * read as 0. Absent when indeterminate.
+   */
+  max?: number;
 }
 
 export interface ProgressLocaleText {

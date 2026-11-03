@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/agent.ts",
       "core/filter.ts",
@@ -28,7 +28,7 @@
       "react/surface.ts",
       "react/useCombobox.ts"
     ],
-    "sourceHash": "sha256:498d2ca8cc5017e957a89bcc584ad6e3457e73c56167c7e7ea0e391f752a4fe5"
+    "sourceHash": "sha256:295d5b8cbab3f04eaef000bebf9dab1cb74af1790e3e7bc8e03976fc3529821f"
   },
   "purpose": "Select and MultiSelect: a searchable combobox for one or many values, with options in the browser's top layer, optional virtualisation and create-on-type.",
   "props": [

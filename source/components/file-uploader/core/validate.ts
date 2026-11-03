@@ -28,11 +28,21 @@ export function matchesAccept(file: { name: string; type: string }, accept?: str
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
   return tokens.some((token) => {
+    // "*" and "*/*" mean anything, as they do in the browser's picker.
+    if (token === "*" || token === "*/*") return true;
     if (token.startsWith(".")) return name.endsWith(token);
     if (token.endsWith("/*")) return type.startsWith(token.slice(0, -1));
     return type === token;
   });
 }
+
+/**
+ * False for a file whose size the platform did not report. Such files carry
+ * `sizeUnknown: true` (the native uploader sets it when a picker gives no
+ * size); their `size` reads 0, which is not the real size.
+ */
+export const hasKnownSize = (file: File): boolean =>
+  (file as { sizeUnknown?: boolean }).sizeUnknown !== true;
 
 /** Two picks of the same file on disk produce the same key. */
 export const fileKey = (file: File) => `${file.name}:${file.size}:${file.lastModified}`;
@@ -44,8 +54,12 @@ export interface Partitioned {
 
 function check(file: File, rules: ValidationRules): { code: RejectionCode; message?: string } | null {
   if (!matchesAccept(file, rules.accept)) return { code: "file-type" };
-  if (rules.maxSize !== undefined && file.size > rules.maxSize) return { code: "file-too-large" };
-  if (rules.minSize !== undefined && file.size < rules.minSize) return { code: "file-too-small" };
+  // A size we don't know can't be checked here; the server has to enforce its
+  // own limit (it must anyway: these checks are for the user, not for safety).
+  if (hasKnownSize(file)) {
+    if (rules.maxSize !== undefined && file.size > rules.maxSize) return { code: "file-too-large" };
+    if (rules.minSize !== undefined && file.size < rules.minSize) return { code: "file-too-small" };
+  }
   const message = rules.validate?.(file);
   if (message) return { code: "custom", message };
   return null;

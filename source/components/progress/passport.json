@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/index.ts",
       "core/locale.ts",
@@ -21,7 +21,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:933a03f0e8b002f3b18d9379125cbd3976e3a5ded4e2be9b7e30385b3d5e5ece"
+    "sourceHash": "sha256:33b88b024f3a2e1362f68cf4b13101568ecb2d053e493fae2f596047c6faef56"
   },
   "purpose": "A bar or a ring for work with a known end, where an unknown length is a different thing from zero per cent.",
   "props": [

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countCharacters } from "../core/count";
+import { counterValue, countCharacters } from "../core/count";
 import { fitHeight, heightForRows } from "../core/size";
 
 const metrics = { lineHeight: 20, paddingBlock: 16, borderBlock: 2 };
@@ -34,5 +34,18 @@ describe("auto resize", () => {
 
   it("keeps maxRows from undercutting minRows", () => {
     expect(fitHeight(36, metrics, 4, 2).height).toBe(98);
+  });
+});
+
+describe("counter value", () => {
+  it("counts as maxLength does when there is a limit, so the counter and the limit agree", () => {
+    // Two thumbs-up with a skin tone are 8 UTF-16 units, which is what blocks typing.
+    expect(counterValue("👍🏽👍🏽", 10)).toBe(8);
+    expect(counterValue("hello", 10)).toBe(5);
+  });
+
+  it("counts what a person sees when there is no limit", () => {
+    expect(counterValue("👍🏽👍🏽")).toBe(2);
+    expect(counterValue("")).toBe(0);
   });
 });

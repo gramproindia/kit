@@ -40,6 +40,14 @@ the group — which panel is open, and whether the last one may be closed —
 because `<details name>` alone cannot express that and gives no value to store.
 
 Opening animates in browsers that have `interpolate-size` and
-`::details-content`, and simply shows and hides everywhere else.
+`::details-content`, and simply shows and hides everywhere else. A link or
+button inside a header's title, description or meta works as itself rather
+than toggling the section, and a section the browser opens by itself (to show
+a find-in-page match) is followed by the accordion's value.
+
+On React Native a panel mounts the first time it opens and stays mounted after;
+pass `keepMounted` (on `Accordion` or one `AccordionItem`) to mount closed
+panels from the start. On the web closed panels are always in the page, which
+is what lets find-in-page reach them.
 
 `toggleOpen` and `normalizeOpen` are exported from the framework-free `core`.

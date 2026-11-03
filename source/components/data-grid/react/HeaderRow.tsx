@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  memo,
   useMemo,
   useRef,
   type DragEvent,
@@ -10,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { isFilterActive } from "../core/filtering";
+import { getOwn } from "../core/grid";
 import type { ColumnFilter, ColumnLayout, ColumnLayoutItem, GridRow, RowId, SortItem } from "../core/types";
 import type { Range } from "../core/virtual";
 import { cx, useGridContext } from "./context";
@@ -27,7 +29,7 @@ interface HeaderRowProps<T> {
   rows: GridRow<T>[];
 }
 
-export function HeaderRow<T>({ layout, colRange, sorting, filters, rows }: HeaderRowProps<T>) {
+function HeaderRowView<T>({ layout, colRange, sorting, filters, rows }: HeaderRowProps<T>) {
   const { engine, classNames } = useGridContext<T>();
   const activeCol = useStoreSelector(engine.store, (s) => {
     const active = s.ui.activeCell;
@@ -82,7 +84,7 @@ interface HeaderCellProps<T> {
   filtered: boolean;
 }
 
-function HeaderCell<T>({ item, active, tabbable, sort, sortOrder, filtered }: HeaderCellProps<T>) {
+function HeaderCellView<T>({ item, active, tabbable, sort, sortOrder, filtered }: HeaderCellProps<T>) {
   const { engine, locale, classNames, features, openColumnMenu } = useGridContext<T>();
   const ref = useRef<HTMLDivElement>(null);
   useFocusWhenActive(ref, active);
@@ -280,7 +282,7 @@ interface SelectAllHeaderCellProps<T> {
   tabbable: boolean;
 }
 
-function SelectAllHeaderCell<T>({ item, rows, active, tabbable }: SelectAllHeaderCellProps<T>) {
+function SelectAllHeaderCellView<T>({ item, rows, active, tabbable }: SelectAllHeaderCellProps<T>) {
   const { engine, locale, classNames, features, isRowSelectable } = useGridContext<T>();
   const ref = useRef<HTMLDivElement>(null);
   useFocusWhenActive(ref, active);
@@ -292,7 +294,7 @@ function SelectAllHeaderCell<T>({ item, rows, active, tabbable }: SelectAllHeade
     for (const row of rows) {
       if (!isRowSelectable(row.original)) continue;
       selectable++;
-      if (selection[row.id]) selected++;
+      if (getOwn(selection, row.id) === true) selected++;
     }
     return selected === 0 ? "none" : selected === selectable ? "all" : "some";
   }, [rows, selection, isRowSelectable]);
@@ -330,3 +332,9 @@ function SelectAllHeaderCell<T>({ item, rows, active, tabbable }: SelectAllHeade
     </div>
   );
 }
+
+// Memoized: a vertical scroll re-renders the viewport, and the header's props
+// do not change with it.
+export const HeaderRow = memo(HeaderRowView) as typeof HeaderRowView;
+const HeaderCell = memo(HeaderCellView) as typeof HeaderCellView;
+const SelectAllHeaderCell = memo(SelectAllHeaderCellView) as typeof SelectAllHeaderCellView;

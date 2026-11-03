@@ -103,6 +103,8 @@ export interface BadgeProps extends Omit<ViewProps, "children" | "style"> {
     icon: StyleProp<ViewStyle>;
     label: StyleProp<TextStyle>;
   }>;
+  /** Override the spoken strings, e.g. `moreThan` for a capped count. */
+  localeText?: Partial<BadgeLocaleText>;
   ref?: Ref<ComponentRef<typeof View>>;
 }
 
@@ -125,6 +127,7 @@ export function Badge(props: BadgeProps) {
     icon,
     style,
     styles: slots,
+    localeText,
     ...rest
   } = props;
 
@@ -132,7 +135,8 @@ export function Badge(props: BadgeProps) {
   const s = themed(tokens);
   const counted = count !== undefined;
   if (counted && !showCount(count, showZero)) return null;
-  const label = counted ? formatCount(count, max, formatValue) : null;
+  const label = counted ? formatCount(count, max, formatValue, localeText?.moreThan ?? defaultBadgeText.moreThan) : null;
+  const spokenLabel = label?.spoken ?? rest["aria-label"];
   const c = badgeColors(tokens, variant, appearance);
   const textStyle = [s.label, size === "sm" ? s.labelSm : s.labelMd, { color: c.ink }, slots?.label];
 
@@ -141,7 +145,10 @@ export function Badge(props: BadgeProps) {
       {...rest}
       ref={ref}
       // "99+" read aloud is a guess at a number; the spoken label says what it means.
-      aria-label={label?.spoken ?? rest["aria-label"]}
+      aria-label={spokenLabel}
+      // A plain View is not an accessibility element on its own, so without
+      // this the label above is never read and "99+" is heard instead.
+      accessible={rest.accessible ?? (spokenLabel ? true : undefined)}
       style={[
         s.root,
         size === "sm" ? s.sm : s.md,

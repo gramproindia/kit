@@ -111,7 +111,9 @@ export function Radio(props: RadioProps) {
 
   const [own, setOwn] = useControllableState(checkedProp, defaultChecked);
   const checked = group !== null ? group.value === value : own;
-  const disabled = Boolean(disabledProp ?? group?.disabled);
+  // Either one disables it: an option's own `disabled={false}` cannot switch a
+  // disabled group back on, as with Checkbox.
+  const disabled = Boolean(disabledProp || group?.disabled);
   const invalid = Boolean(error) || (group?.invalid ?? false);
   const size = sizeProp ?? group?.size ?? "md";
   const variant = group?.variant ?? "default";

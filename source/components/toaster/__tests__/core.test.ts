@@ -254,3 +254,63 @@ describe("toast api", () => {
     expect(toastStore.getSnapshot().toasts).toHaveLength(0);
   });
 });
+
+describe("the waiting queue", () => {
+  const open = (store: ToastStore) =>
+    store.getSnapshot().toasts.filter((item) => item.state === "open").map((item) => item.id);
+
+  it("drops the oldest waiting toasts past maxQueue, telling their onDismiss", () => {
+    const store = createToastStore({ limit: 2, maxQueue: 2 });
+    const dropped: string[] = [];
+    for (let i = 1; i <= 6; i++) {
+      store.show(`Toast ${i}`, { id: `t${i}`, onDismiss: (item) => dropped.push(item.id) });
+    }
+    // Newest two on screen, the next two waiting, the oldest two dropped.
+    expect(open(store)).toEqual(["t6", "t5", "t4", "t3"]);
+    expect(dropped).toEqual(["t1", "t2"]);
+    expect(visibleToasts(store.getSnapshot()).map((item) => item.id)).toEqual(["t6", "t5"]);
+  });
+
+  it("keeps 20 waiting by default", () => {
+    const store = createToastStore({ limit: 1 });
+    for (let i = 0; i < 50; i++) store.show(`Toast ${i}`);
+    expect(open(store)).toHaveLength(21);
+    expect(open(store).at(-1)).toBe("toast-30");
+  });
+
+  it("keeps everything with an infinite maxQueue", () => {
+    const store = createToastStore({ limit: 1, maxQueue: Infinity });
+    for (let i = 0; i < 50; i++) store.show(`Toast ${i}`);
+    expect(open(store)).toHaveLength(50);
+  });
+
+  it("trims when configure lowers the limit or maxQueue", () => {
+    const store = createToastStore({ limit: 3, maxQueue: 5 });
+    for (let i = 1; i <= 8; i++) store.show(`Toast ${i}`, { id: `t${i}` });
+    expect(open(store)).toHaveLength(8);
+
+    store.configure({ maxQueue: 1 });
+    expect(open(store)).toEqual(["t8", "t7", "t6", "t5"]);
+
+    store.configure({ limit: 1 });
+    expect(open(store)).toEqual(["t8", "t7"]);
+  });
+
+  it("dropped toasts leave no timer behind", () => {
+    const store = createToastStore({ limit: 1, maxQueue: 0, duration: 1000 });
+    const onAutoClose = vi.fn();
+    store.show("First", { onAutoClose });
+    store.show("Second");
+    expect(open(store)).toEqual(["toast-2"]);
+    vi.advanceTimersByTime(5000);
+    expect(onAutoClose).not.toHaveBeenCalled();
+  });
+
+  it("does not notify listeners when configure changes nothing", () => {
+    const store = createToastStore();
+    const listener = vi.fn();
+    store.subscribe(listener);
+    store.configure({ duration: 1000 });
+    expect(listener).not.toHaveBeenCalled();
+  });
+});

@@ -94,7 +94,7 @@ export function Progress(props: ProgressProps) {
         // tells a screen reader to say "busy" rather than to read out a zero.
         aria-valuenow={state.indeterminate ? undefined : state.value ?? undefined}
         aria-valuemin={state.indeterminate ? undefined : 0}
-        aria-valuemax={state.indeterminate ? undefined : max}
+        aria-valuemax={state.indeterminate ? undefined : state.max}
         aria-valuetext={state.indeterminate ? undefined : typeof shown === "string" ? shown : undefined}
         // The visible label names the bar when there is one, so the name and
         // what is on screen can never drift apart.

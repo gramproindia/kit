@@ -7,6 +7,8 @@ export interface AccordionContextValue {
   size: AccordionSize;
   variant: AccordionVariant;
   iconPosition: AccordionIconPosition;
+  /** Mount closed panels from the start rather than on first open. */
+  keepMounted?: boolean;
 }
 
 export const AccordionContext = createContext<AccordionContextValue | null>(null);

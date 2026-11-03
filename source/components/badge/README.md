@@ -20,7 +20,8 @@ import "@/components/badge/styles.css";
 **Badge:** `children` or `count`, `variant` (`neutral` `accent` `success`
 `warning` `danger` `info`), `appearance` (`soft` `solid` `outline`), `size`
 (`sm` `md`), `max`, `showZero`, `formatValue`, `dot`, `icon`, `classNames`
-(`root` `dot` `icon` `label`), `ref`, and every `<span>` attribute.
+(`root` `dot` `icon` `label`), `localeText` (`moreThan`, what a screen reader
+hears for "99+"), `ref`, and every `<span>` attribute.
 
 **Tag:** the same variants, plus `onRemove`, `label` (names the remove button
 when the children are not a plain string), `disabled`, `classNames` (`root`

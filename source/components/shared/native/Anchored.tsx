@@ -3,6 +3,7 @@ import {
   Animated,
   Dimensions,
   I18nManager,
+  Keyboard,
   Platform,
   StatusBar,
   useWindowDimensions,
@@ -18,6 +19,11 @@ import { Overlay } from "./Overlay";
 export interface AnchoredProps {
   open: boolean;
   onDismiss?(): void;
+  /**
+   * Android back (and the screen reader's escape gesture). Defaults to
+   * `onDismiss`; pass it to tell back apart from a tap outside.
+   */
+  onBack?(): void;
   /** The trigger the panel is placed against. */
   anchorRef: RefObject<ComponentRef<typeof View> | null>;
   /** Default `bottom`; flips when there is no room. */
@@ -59,6 +65,7 @@ type Box = { width: number; height: number };
 export function Anchored({
   open,
   onDismiss,
+  onBack,
   anchorRef,
   side = "bottom",
   align = "start",
@@ -78,10 +85,20 @@ export function Anchored({
   const [size, setSize] = useState<Box | null>(null);
 
   useEffect(() => {
-    if (!open) return;
-    anchorRef.current?.measureInWindow((x, y, width, height) => {
-      setAnchor({ left: x, top: y, width, height, right: x + width, bottom: y + height });
-    });
+    if (!open) return undefined;
+    const measure = () =>
+      anchorRef.current?.measureInWindow((x, y, width, height) => {
+        setAnchor({ left: x, top: y, width, height, right: x + width, bottom: y + height });
+      });
+    measure();
+    // The keyboard showing or hiding can move the trigger (a resized or scrolled
+    // screen) without changing the window size, so measure again then.
+    const shown = Keyboard.addListener("keyboardDidShow", measure);
+    const hidden = Keyboard.addListener("keyboardDidHide", measure);
+    return () => {
+      shown.remove();
+      hidden.remove();
+    };
   }, [open, anchorRef, viewport.width, viewport.height]);
 
   const onLayout = (event: LayoutChangeEvent) => {
@@ -127,10 +144,17 @@ export function Anchored({
         )
       : null;
 
+  // `placement.left` is a physical offset from the left edge. In RTL, React
+  // Native swaps `left` and `right` (unless the app turned that off), so the
+  // physical left edge is then set through `right`.
+  const swapped = I18nManager.isRTL && I18nManager.doLeftAndRightSwapInRTL;
+  const x = placement ? placement.left + safe.left : 0;
+
   return (
     <Overlay
       open={open}
       onDismiss={onDismiss}
+      onBack={onBack}
       dismissible={dismissible}
       backdrop="none"
       duration={120}
@@ -143,11 +167,13 @@ export function Anchored({
       {(progress) => (
         <Animated.View
           onLayout={onLayout}
+          // The screen reader's escape gesture does what Android back does here.
+          onAccessibilityEscape={onBack ?? onDismiss}
           style={[
             s.panel,
             {
               // Rendered once invisibly to be measured, then placed.
-              left: placement ? placement.left + safe.left : 0,
+              ...(swapped ? { right: x } : { left: x }),
               top: placement ? placement.top + safe.top + windowTop : 0,
               maxHeight: placement?.maxHeight,
               maxWidth: box.width - edge * 2,

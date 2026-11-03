@@ -11,6 +11,7 @@ import {
   type Ref,
 } from "react";
 import {
+  Platform,
   Pressable,
   Text,
   TextInput,
@@ -27,7 +28,7 @@ import { alpha } from "../../shared/native/theme";
 import { formatNumber } from "../core/format";
 import { defaultNumberInputText } from "../core/locale";
 import { parseNumber, toEditText } from "../core/parse";
-import { clamp, round, snapToStep, stepBy } from "../core/step";
+import { clamp, round, shiftDecimal, snapToStep, stepBy } from "../core/step";
 import type { ClampBehavior, NumberInputLocaleText, NumberSize, NumberStyle } from "../core/types";
 
 type TextInputInstance = ComponentRef<typeof TextInput>;
@@ -227,8 +228,23 @@ export function NumberInput(props: NumberInputProps) {
     [locale, format, currency, decimals, useGrouping],
   );
 
+  // A percentage is edited in the units it is shown in: 45 for 45%, while the
+  // value stays 0.45. Typing 45 must not mean 4,500%.
+  const editPower = format === "percent" ? 2 : 0;
+  const readTyped = useCallback(
+    (typed: string): number | null => {
+      const parsed = parseNumber(typed, locale, format === "currency" ? currency : undefined);
+      return parsed === null ? null : shiftDecimal(parsed, -editPower);
+    },
+    [locale, format, currency, editPower],
+  );
+
   // Formatted at rest, plain while being edited.
-  const shown = draft ?? (focused ? toEditText(value, locale) : formatNumber(value, formatOptions));
+  const shown =
+    draft ??
+    (focused
+      ? toEditText(value === null ? null : shiftDecimal(value, editPower), locale)
+      : formatNumber(value, formatOptions));
 
   const commit = useCallback(
     (next: number | null) => {
@@ -241,17 +257,18 @@ export function NumberInput(props: NumberInputProps) {
   /** Rounds, snaps and clamps a raw number into what the field will hold. */
   const settle = useCallback(
     (raw: number): number => {
-      let next = decimals === undefined ? raw : round(raw, decimals);
+      // `decimals` counts the digits shown, two places on for a percentage.
+      let next = decimals === undefined ? raw : round(raw, decimals + editPower);
       if (snap) next = snapToStep(next, { step, min, max });
       if (clampBehavior !== "none") next = clamp(next, min, max);
       return next;
     },
-    [decimals, snap, step, min, max, clampBehavior],
+    [decimals, editPower, snap, step, min, max, clampBehavior],
   );
 
   const handleChange = (typed: string) => {
     setDraft(typed);
-    const parsed = parseNumber(typed, locale);
+    const parsed = readTyped(typed);
     if (parsed === null) {
       if (typed.trim() === "") commit(null);
       return;
@@ -262,12 +279,12 @@ export function NumberInput(props: NumberInputProps) {
   const applyStep = useCallback(
     (direction: 1 | -1, amount = step) => {
       if (disabled || readOnly) return;
-      const from = draft === null ? value : (parseNumber(draft, locale) ?? value);
+      const from = draft === null ? value : (readTyped(draft) ?? value);
       const next = stepBy(from, direction, { step: amount, min, max });
       setDraft(null);
       commit(snap ? snapToStep(next, { step, min, max }) : next);
     },
-    [disabled, readOnly, draft, value, locale, step, min, max, snap, commit],
+    [disabled, readOnly, draft, value, readTyped, step, min, max, snap, commit],
   );
 
   // Press and hold repeats. The timer reads the latest step function through a
@@ -277,13 +294,18 @@ export function NumberInput(props: NumberInputProps) {
     latestStep.current = applyStep;
   }, [applyStep]);
   const repeat = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const repeating = useRef<1 | -1 | null>(null);
   const stopRepeat = useCallback(() => {
     clearTimeout(repeat.current);
     repeat.current = undefined;
+    repeating.current = null;
   }, []);
   useEffect(() => stopRepeat, [stopRepeat]);
   const startRepeat = (direction: 1 | -1) => {
+    // A second press before the first was released must not leave a timer behind.
+    stopRepeat();
     applyStep(direction);
+    repeating.current = direction;
     const tick = () => {
       latestStep.current(direction);
       repeat.current = setTimeout(tick, REPEAT_INTERVAL);
@@ -294,11 +316,27 @@ export function NumberInput(props: NumberInputProps) {
   const invalid = Boolean(error);
   const atMin = value !== null && min !== undefined && value <= min;
   const atMax = value !== null && max !== undefined && value >= max;
+  // A Pressable disabled at the limit may never get its onPressOut, so the
+  // repeat is stopped here rather than left running until unmount.
+  useEffect(() => {
+    const direction = repeating.current;
+    if (direction !== null && (disabled || readOnly || (direction === 1 ? atMax : atMin))) stopRepeat();
+  }, [disabled, readOnly, atMax, atMin, stopRepeat]);
   const st: NumberInputStyleState = { focused, disabled, readOnly, invalid, size };
   const fontSize = size === "sm" ? tokens.fontSize - 1 : size === "lg" ? tokens.fontSize + 1 : tokens.fontSize;
   const border = invalid ? tokens.danger : focused ? tokens.focus : tokens.borderControl;
   const hint = [plain(error), plain(description), accessibilityHint].filter(Boolean).join(". ");
   const integerOnly = min !== undefined && min >= 0 && decimals === 0;
+  // iOS's number pads have no minus key; where a value can go below zero it
+  // gets numbers-and-punctuation instead. Android's "numeric" pad has one.
+  const signed = min === undefined || min < 0;
+  const keyboardType: TextInputProps["keyboardType"] = integerOnly
+    ? "number-pad"
+    : signed
+      ? Platform.OS === "ios"
+        ? "numbers-and-punctuation"
+        : "numeric"
+      : "decimal-pad";
 
   const stepButton = (direction: 1 | -1) => {
     const blocked = disabled || (direction === 1 ? atMax : atMin);
@@ -356,8 +394,7 @@ export function NumberInput(props: NumberInputProps) {
           value={shown}
           onChangeText={handleChange}
           editable={!disabled && !readOnly}
-          keyboardType={integerOnly ? "number-pad" : "decimal-pad"}
-          inputMode={integerOnly ? "numeric" : "decimal"}
+          keyboardType={keyboardType}
           autoCorrect={false}
           autoComplete="off"
           placeholder={placeholder}
@@ -394,7 +431,7 @@ export function NumberInput(props: NumberInputProps) {
               return;
             }
             // Something unreadable falls back to the last number held.
-            const parsed = parseNumber(typed, locale);
+            const parsed = readTyped(typed);
             if (parsed !== null) commit(settle(parsed));
           }}
           style={[s.input, { fontSize, minHeight: HEIGHT[size] - 2 }, apply(slots?.input, st)]}

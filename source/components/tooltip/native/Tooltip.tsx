@@ -194,7 +194,9 @@ interface BubbleProps {
 
 /**
  * Measured against the overlay host itself, not the window, so it lines up
- * however the app's root is laid out.
+ * however the app's root is laid out - including when the host is an open
+ * overlay's outlet rather than the provider's root, since host and anchor are
+ * measured the same way and only their difference is used.
  */
 function Bubble({ anchorRef, side, align, gap, style, textStyle, children }: BubbleProps) {
   const { tokens } = useKitTheme();
@@ -232,6 +234,12 @@ function Bubble({ anchorRef, side, align, gap, style, textStyle, children }: Bub
         )
       : null;
 
+  // `placement.left` is a physical offset from the host's left edge. In RTL,
+  // React Native swaps `left` and `right` (unless the app turned that off), so
+  // the physical left edge is then set through `right`, as Anchored does.
+  const swapped = I18nManager.isRTL && I18nManager.doLeftAndRightSwapInRTL;
+  const x = placement?.left ?? 0;
+
   useEffect(() => {
     if (!placement) return;
     Animated.timing(fade, { toValue: 1, duration: reduced ? 0 : 120, useNativeDriver: true }).start();
@@ -251,7 +259,7 @@ function Bubble({ anchorRef, side, align, gap, style, textStyle, children }: Bub
         onLayout={onLayout}
         style={[
           s.bubble,
-          { left: placement?.left ?? 0, top: placement?.top ?? 0, opacity: placement ? fade : 0 },
+          { ...(swapped ? { right: x } : { left: x }), top: placement?.top ?? 0, opacity: placement ? fade : 0 },
           style,
         ]}
       >

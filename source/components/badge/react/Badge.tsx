@@ -2,7 +2,8 @@
 
 import type { HTMLAttributes, ReactNode, Ref } from "react";
 import { formatCount, showCount } from "../core/count";
-import type { BadgeAppearance, BadgeSize, BadgeVariant } from "../core/types";
+import { defaultBadgeText } from "../core/locale";
+import type { BadgeAppearance, BadgeLocaleText, BadgeSize, BadgeVariant } from "../core/types";
 import { cx, type BadgeSlot } from "./props";
 
 export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
@@ -26,6 +27,8 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, "child
   /** An icon before the label, in place of `dot`. */
   icon?: ReactNode;
   classNames?: Partial<Record<BadgeSlot, string>>;
+  /** Override the spoken strings, e.g. `moreThan` for a capped count. */
+  localeText?: Partial<BadgeLocaleText>;
   ref?: Ref<HTMLSpanElement>;
 }
 
@@ -51,12 +54,13 @@ export function Badge(props: BadgeProps) {
     icon,
     className,
     classNames,
+    localeText,
     ...rest
   } = props;
 
   const counted = count !== undefined;
   if (counted && !showCount(count, showZero)) return null;
-  const label = counted ? formatCount(count, max, formatValue) : null;
+  const label = counted ? formatCount(count, max, formatValue, localeText?.moreThan ?? defaultBadgeText.moreThan) : null;
 
   return (
     <span

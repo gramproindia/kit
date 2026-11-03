@@ -18,8 +18,22 @@ export function useFileUploader(config: UploaderConfig = {}): UseFileUploaderRes
     store.configure(config);
   });
 
-  // Nothing should keep uploading for a component that is gone.
-  useEffect(() => () => store.cancel(), [store]);
+  // Nothing should keep uploading for a component that is gone, and the app
+  // shouldn't hear about uploads it no longer shows. The configure effect above
+  // puts the callbacks back if React mounts the component again (Strict Mode).
+  useEffect(
+    () => () => {
+      store.configure({
+        onChange: undefined,
+        onRejected: undefined,
+        onFileSuccess: undefined,
+        onFileError: undefined,
+        onComplete: undefined,
+      });
+      store.cancel();
+    },
+    [store],
+  );
 
   const snapshot = useSyncExternalStore(
     store.subscribe,

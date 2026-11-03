@@ -354,3 +354,96 @@ describe("engine", () => {
     expect(engine.store.getSnapshot().ui.pending).toEqual({});
   });
 });
+
+describe("audit fixes", () => {
+  it("handles row ids that collide with Object.prototype", () => {
+    const odd = ["constructor", "toString", "__proto__"].map((key, i) => ({ ...people[i], key }));
+    const engine = setup({ data: odd, getRowId: "key" as never });
+    // `setup` builds its model from the shared rows, so re-sync with these ids.
+    const resolved = resolveColumns(defs);
+    const oddRows = buildRows(odd, createRowIdGetter<(typeof odd)[number]>("key"));
+    engine.sync({ data: odd, columns: defs, getRowId: "key", enableRowSelection: true } as never, {
+      columns: resolved,
+      coreRows: oddRows,
+      sortedRows: oddRows,
+      page: paginate(oddRows, engine.api.getState().pagination, { enabled: true, server: false }),
+      layout: computeLayout(resolved, engine.api.getState()),
+      rowHeight: 40,
+      headerHeight: 40,
+      formatters,
+    } as never);
+
+    expect(engine.api.getSelectedRowIds()).toEqual([]);
+    expect(engine.api.getSelectedRows()).toEqual([]);
+    for (const id of ["constructor", "toString", "__proto__"]) engine.api.toggleRowSelected(id);
+    expect(engine.api.getSelectedRowIds().sort()).toEqual(["__proto__", "constructor", "toString"]);
+    expect(Object.getPrototypeOf(engine.api.getState().rowSelection)).toBe(Object.prototype);
+    engine.api.toggleRowSelected("constructor");
+    expect(engine.api.getSelectedRowIds().sort()).toEqual(["__proto__", "toString"]);
+  });
+
+  it("ignores an older async edit that settles after a newer one", async () => {
+    const settle: Array<{ resolve: () => void; reject: (e: Error) => void }> = [];
+    const onCellEdit = vi.fn(
+      () => new Promise<void>((resolve, reject) => settle.push({ resolve, reject })),
+    );
+    const engine = setup({ columns: [{ field: "id", type: "number" }, { field: "name", editable: true }], onCellEdit });
+    const flush = async () => {
+      for (let i = 0; i < 4; i++) await Promise.resolve();
+    };
+
+    engine.api.startEditing("1", "name");
+    engine.commitEdit("1", "name", "First");
+    engine.api.startEditing("1", "name");
+    engine.commitEdit("1", "name", "Second");
+
+    settle[0].reject(new Error("first failed"));
+    await flush();
+    expect(engine.store.getSnapshot().ui.pending).toEqual({ "1": { name: "Second" } });
+    expect(engine.store.getSnapshot().ui.errors).toEqual({});
+
+    settle[1].resolve();
+    await flush();
+    expect(engine.store.getSnapshot().ui.pending).toEqual({});
+  });
+
+  it("debounces search-only query changes in server mode", () => {
+    vi.useFakeTimers();
+    try {
+      const onQueryChange = vi.fn();
+      const engine = setup({ mode: "server", onQueryChange });
+      engine.api.setGlobalFilter("a");
+      engine.api.setGlobalFilter("al");
+      expect(onQueryChange).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(300);
+      expect(onQueryChange).toHaveBeenCalledTimes(1);
+      expect(onQueryChange.mock.calls[0][0].globalFilter).toBe("al");
+
+      // A sort flushes a waiting search at once, together with it.
+      engine.api.setGlobalFilter("ali");
+      engine.api.toggleSort("name");
+      expect(onQueryChange).toHaveBeenCalledTimes(2);
+      expect(onQueryChange.mock.calls[1][0]).toMatchObject({ globalFilter: "ali", sorting: [{ columnId: "name" }] });
+      vi.advanceTimersByTime(1000);
+      expect(onQueryChange).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("reports search at once in client mode, or when the debounce is 0", () => {
+    const client = vi.fn();
+    setup({ onQueryChange: client }).api.setGlobalFilter("a");
+    expect(client).toHaveBeenCalledTimes(1);
+
+    const server = vi.fn();
+    setup({ mode: "server", searchDebounceMs: 0, onQueryChange: server }).api.setGlobalFilter("a");
+    expect(server).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not match a search term across two columns", () => {
+    // Alice is 34 and lives in Paris: "34paris" spans the age and city columns.
+    expect(ids(filterRows(rows, columns, [], "paris", formatters))).toEqual([1, 4]);
+    expect(filterRows(rows, columns, [], "34paris", formatters)).toEqual([]);
+  });
+});

@@ -117,13 +117,23 @@ export function TabList(props: TabListProps) {
   }, []);
 
   // Without a matching value, select the first enabled tab so the list stays reachable by Tab.
+  // Asked once per mismatch: a controlled parent that keeps passing a value
+  // matching no tab would otherwise get onValueChange on every re-render.
+  const autoSelected = useRef<string | null>(null);
   useLayoutEffect(() => {
     const tabs = getTabs();
-    if (tabs.some((tab) => tab.dataset.value === context.value)) return;
+    if (tabs.some((tab) => tab.dataset.value === context.value)) {
+      autoSelected.current = null;
+      return;
+    }
     const first = tabs.find(
       (tab) => tab.getAttribute("aria-disabled") !== "true",
-    );
-    if (first?.dataset.value !== undefined) context.select(first.dataset.value);
+    )?.dataset.value;
+    if (first === undefined) return;
+    const attempt = JSON.stringify([context.value ?? null, first]);
+    if (autoSelected.current === attempt) return;
+    autoSelected.current = attempt;
+    context.select(first);
   }, [context, getTabs]);
 
   // Slide the indicator under the selected tab, and follow size changes.

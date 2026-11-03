@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { liveness } from "../core/live";
+import { announcementText, liveness } from "../core/live";
 
 describe("liveness", () => {
   it("interrupts for problems", () => {
@@ -13,5 +13,18 @@ describe("liveness", () => {
     for (const variant of ["info", "success", "neutral"] as const) {
       expect(liveness(variant)).toEqual({ role: "status", live: "polite" });
     }
+  });
+});
+
+describe("announcementText", () => {
+  it("joins the plain-text parts of an alert into one sentence", () => {
+    expect(announcementText(["Payment failed", "Your card was declined."])).toBe(
+      "Payment failed. Your card was declined.",
+    );
+  });
+
+  it("skips parts that cannot be spoken as text", () => {
+    expect(announcementText([undefined, { type: "b" }, "  ", 3])).toBe("3");
+    expect(announcementText([])).toBe("");
   });
 });

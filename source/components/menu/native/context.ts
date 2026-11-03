@@ -18,6 +18,8 @@ export type MenuStyles = Partial<{
 
 /** A submenu shown in place of its parent, in a sheet. */
 export interface SubmenuEntry {
+  /** The MenuSub's identity, so a later render can refresh its entry. */
+  id: string;
   label: ReactNode;
   children: ReactNode;
 }
@@ -33,6 +35,12 @@ export interface MenuContextValue {
   presentation: "sheet" | "popover";
   /** Sheet only: show a submenu in place of the current list. */
   push?(entry: SubmenuEntry): void;
+  /**
+   * Sheet only: replace an open submenu's label and children with the ones
+   * from its latest render, so checkboxes and radios in it stay current.
+   * Ignored when that submenu is not open.
+   */
+  refresh?(entry: SubmenuEntry): void;
   text: MenuLocaleText;
 }
 

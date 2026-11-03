@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { getSourceData } from "../../utils";
 import type { ItemsProps } from "./type";
 
@@ -10,15 +10,27 @@ export const useSelectData = (
   lazy: boolean,
   selectedItem?: string
 ) => {
+  // Only the newest request may set the items: an older, slower response
+  // arriving late would otherwise overwrite newer data.
+  const pending = useRef<AbortController | null>(null);
+
   const getSelectItems = useCallback(
     async (itemsApi: string) => {
-      const itemsData = await getSourceData(itemsApi);
-      setWorkingDataSource(itemsData.sourcedata);
+      pending.current?.abort();
+      const controller = typeof AbortController === "undefined" ? null : new AbortController();
+      pending.current = controller;
+      const itemsData = await getSourceData(itemsApi, controller ? { signal: controller.signal } : undefined);
+      if (controller?.signal.aborted) return;
+      if (pending.current === controller) pending.current = null;
+      // A failed request or an unexpected shape leaves an empty list, not a crash.
+      setWorkingDataSource(Array.isArray(itemsData?.sourcedata) ? itemsData.sourcedata : []);
     },
     [setWorkingDataSource]
   );
 
   useEffect(() => {
+    // New items replace whatever an earlier URL is still fetching.
+    pending.current?.abort();
     if (!items) {
       setWorkingDataSource([]);
       return;
@@ -30,6 +42,9 @@ export const useSelectData = (
       getSelectItems(items);
     }
   }, [items, getSelectItems, setWorkingDataSource]);
+
+  // Unmounting drops whatever is still in flight.
+  useEffect(() => () => pending.current?.abort(), []);
 
   const selectedDisplay = useMemo(() => {
     if (selectedItem && workingDataSource.length > 0) {
@@ -43,9 +58,11 @@ export const useSelectData = (
 
   const filteredItems = useMemo(() => {
     if (!searchTerm || lazy) return workingDataSource;
+    const needle = searchTerm.toLowerCase();
     return workingDataSource.filter((item) =>
-      Object.values(item).some((val) =>
-        val.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      Object.values(item).some(
+        // Data from an API can hold null or undefined fields; skip them.
+        (val) => val != null && String(val).toLowerCase().includes(needle)
       )
     );
   }, [workingDataSource, searchTerm, lazy]);

@@ -55,8 +55,8 @@ export interface PopoverProps {
   /** Open to begin with, when you are not controlling `open`. */
   defaultOpen?: boolean;
   /**
-   * `reason` is `outside` (tap outside or Android back), `trigger` or `api`,
-   * and undefined when opening.
+   * `reason` is `outside` (tap outside), `escape` (Android back), `trigger`
+   * or `api`, and undefined when opening.
    */
   onOpenChange?(open: boolean, reason?: PopoverCloseReason): void;
   /** Heading inside the panel, which also names it. */
@@ -206,6 +206,8 @@ export function Popover(props: PopoverProps) {
         <Sheet
           open={open}
           onDismiss={() => setOpen(false, "outside")}
+          // Android back stands in for the web's Escape key.
+          onBack={() => setOpen(false, "escape")}
           title={title}
           style={[slots?.panel, style]}
         >
@@ -224,6 +226,7 @@ export function Popover(props: PopoverProps) {
       <Anchored
         open={open}
         onDismiss={() => setOpen(false, "outside")}
+        onBack={() => setOpen(false, "escape")}
         anchorRef={anchorRef}
         side={side}
         align={align}

@@ -116,26 +116,37 @@ function DotsIndicator({ size, color, duration }: { size: number; color: string;
     loop.start();
     return () => loop.stop();
   }, [clock, cycle]);
+  // Built once rather than on every render: each interpolation is a node the
+  // native driver has to attach, and a parent re-rendering mid-spin would
+  // otherwise swap all six for identical copies.
+  const dots = useMemo(
+    () =>
+      [0, 1, 2].map((index) => {
+        const offset = (duration * 0.18 * index) / cycle;
+        const level = SAMPLES.map((t) => pulse((((t - offset) % 1) + 1) % 1));
+        return {
+          opacity: clock.interpolate({ inputRange: SAMPLES, outputRange: level.map((l) => 0.25 + 0.75 * l) }),
+          scale: clock.interpolate({ inputRange: SAMPLES, outputRange: level.map((l) => 0.7 + 0.3 * l) }),
+        };
+      }),
+    [clock, duration, cycle],
+  );
   const dot = size * 0.22;
   return (
     <View style={{ width: size, height: size, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: size * 0.1 }}>
-      {[0, 1, 2].map((index) => {
-        const offset = (duration * 0.18 * index) / cycle;
-        const level = SAMPLES.map((t) => pulse((((t - offset) % 1) + 1) % 1));
-        return (
-          <Animated.View
-            key={index}
-            style={{
-              width: dot,
-              height: dot,
-              borderRadius: dot / 2,
-              backgroundColor: color,
-              opacity: clock.interpolate({ inputRange: SAMPLES, outputRange: level.map((l) => 0.25 + 0.75 * l) }),
-              transform: [{ scale: clock.interpolate({ inputRange: SAMPLES, outputRange: level.map((l) => 0.7 + 0.3 * l) }) }],
-            }}
-          />
-        );
-      })}
+      {dots.map(({ opacity, scale }, index) => (
+        <Animated.View
+          key={index}
+          style={{
+            width: dot,
+            height: dot,
+            borderRadius: dot / 2,
+            backgroundColor: color,
+            opacity,
+            transform: [{ scale }],
+          }}
+        />
+      ))}
     </View>
   );
 }

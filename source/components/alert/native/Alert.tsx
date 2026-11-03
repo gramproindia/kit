@@ -1,5 +1,7 @@
-import { useMemo, type ComponentRef, type ReactNode, type Ref } from "react";
+import { useEffect, useMemo, type ComponentRef, type ReactNode, type Ref } from "react";
 import {
+  AccessibilityInfo,
+  Platform,
   Pressable,
   Text,
   View,
@@ -12,7 +14,7 @@ import { KitIcon } from "../../shared/native/icons";
 import { createThemedStyles, useKitTheme } from "../../shared/native/KitProvider";
 import { renderText } from "../../shared/native/primitives";
 import { mix, type KitTokens } from "../../shared/native/theme";
-import { liveness } from "../core/live";
+import { announcementText, liveness } from "../core/live";
 import { defaultAlertText } from "../core/locale";
 import type { AlertLocaleText, AlertSize, AlertVariant } from "../core/types";
 
@@ -151,6 +153,13 @@ export function Alert(props: AlertProps) {
   const accent = accentOf(tokens, variant);
   const fontSize = size === "sm" ? tokens.fontSize - 1 : tokens.fontSize;
   const lineHeight = Math.round(fontSize * 1.45);
+
+  // role="alert" becomes a live region on Android only; VoiceOver on iOS says
+  // nothing when an urgent alert appears, so speak it there explicitly.
+  const spoken = role === "alert" ? announcementText([title, description, children]) : "";
+  useEffect(() => {
+    if (Platform.OS === "ios" && spoken) AccessibilityInfo.announceForAccessibility(spoken);
+  }, [spoken]);
 
   return (
     <View

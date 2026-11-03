@@ -9,7 +9,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/identity.ts",
       "core/index.ts",
@@ -21,7 +21,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:620a2ebac222a6b7cf41238986f444a73f1078f2ce667d7343e1085af395b972"
+    "sourceHash": "sha256:46d53076217904f3e4394800dd3df6f82fdc5223be641415544abb087d297dcc"
   },
   "purpose": "A person as a picture or their initials, on a colour derived from their name, with a presence dot and an overflow count for groups.",
   "props": [

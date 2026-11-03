@@ -7,6 +7,8 @@ besides React 19.
 - Chunked uploads with per-file progress, pause, resume, retry and cancel.
 - Parallel files, automatic retries with backoff, per-chunk abort.
 - Validation (type, size, count, duplicates, custom) with readable reasons.
+  These checks are for the user's benefit only: anyone can bypass them, so the
+  server must check type and size again.
 - Image previews that you can turn off, and files already on the server.
 - Works with a plain form: without an endpoint, the files post with the form.
 - Keyboard, screen reader, dark mode and right-to-left support.
@@ -80,7 +82,7 @@ body of the last answer is kept as `item.response` (JSON is parsed). 5xx, 408,
 | `getFileId` | `(item) => string` | from response | The id posted for an uploaded file. |
 | `label`, `description`, `error`, `required`, `disabled`, `size`, `locale` | — | — | Field and display options. |
 | `className`, `classNames`, `style`, `localeText` | — | — | Slots: `root`, `label`, `dropzone`, `rejections`, `list`, `item`, `thumb`, `progress`, `actions`, `footer`. |
-| `onChange`, `onRejected`, `onFileSuccess`, `onFileError`, `onUploadComplete` | — | — | Events. |
+| `onChange`, `onRejected`, `onFileSuccess`, `onFileError`, `onUploadComplete` | — | — | Events. Not called after the uploader unmounts. |
 | `ref` | `Ref<FileUploaderHandle>` | — | `open`, `addFiles`, `upload`, `pause`, `cancel`, `clear`, `getFiles`, `getItems`. |
 
 ## Headless use
@@ -97,3 +99,18 @@ has no React imports.
 - Progress lives in memory: reloading the page loses it (the server may still
   hold the chunks under the `uploadId`).
 - Dropped folders are not expanded.
+- `headers` and `params` are read when each chunk is sent, so a function that
+  returns a fresh token is used for every chunk, including after a refresh.
+
+## React Native
+
+The native `FileUploader` takes a `pick` function (expo-document-picker,
+expo-image-picker or any picker returning `{ uri, name, size, type }`), and
+`onPickError` for a pick that fails. Differences from the web:
+
+- Each file is sent in **one request** (chunk `0` of `1`): React Native cannot
+  slice a file without a filesystem library. Pausing aborts that request and
+  resuming sends the whole file again, so uploads are not resumable.
+- When a picker gives no size (`size` 0 or missing), the file skips `maxSize`
+  and `minSize` and uploads with an indeterminate progress bar. Reject such
+  files in `validate` if you need a size; the server must enforce its limit.

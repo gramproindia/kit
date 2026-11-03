@@ -25,6 +25,8 @@ export interface ToasterProps {
   limit?: number;
   /** Default auto-close delay in milliseconds. Default 5000. */
   duration?: number;
+  /** Toasts allowed to wait beyond `limit`; the oldest waiting are dropped past it. Default 20. */
+  maxQueue?: number;
   /** Show a close button on dismissible toasts. Default true. */
   closeButton?: boolean;
   /**
@@ -76,6 +78,7 @@ export function Toaster(props: ToasterProps) {
     position = "top-right",
     limit,
     duration,
+    maxQueue,
     closeButton = true,
     hotkey = DEFAULT_HOTKEY,
     icons,
@@ -101,8 +104,8 @@ export function Toaster(props: ToasterProps) {
   const focusInside = useRef(false);
 
   useEffect(() => {
-    store.configure({ limit, duration });
-  }, [store, limit, duration]);
+    store.configure({ limit, duration, maxQueue });
+  }, [store, limit, duration, maxQueue]);
 
   /** Timers hold while someone is reading: pointer over, focus inside, or tab hidden. */
   const syncPause = useCallback(() => {

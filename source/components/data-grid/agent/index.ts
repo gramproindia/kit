@@ -62,6 +62,7 @@ export {
   createGridAgent,
   decodeGridView,
   encodeGridView,
+  sanitizeGridState,
   type GridAgent,
   type GridAgentOptions,
   type GridExecution,

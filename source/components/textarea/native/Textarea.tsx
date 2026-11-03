@@ -21,7 +21,7 @@ import {
 import { createThemedStyles, useKitTheme } from "../../shared/native/KitProvider";
 import { alpha } from "../../shared/native/theme";
 import { useControllableState } from "../../shared/react/useControllableState";
-import { countCharacters } from "../core/count";
+import { counterValue } from "../core/count";
 import { defaultTextareaText } from "../core/locale";
 import { fitHeight, heightForRows } from "../core/size";
 import type { FieldSize, TextareaLocaleText } from "../core/types";
@@ -63,7 +63,11 @@ export interface TextareaProps
   minRows?: number;
   /** Largest height in rows before the text scrolls. No limit by default. */
   maxRows?: number;
-  /** A character counter; shows `count / maxLength` when `maxLength` is set. */
+  /**
+   * A character counter; shows `count / maxLength` when `maxLength` is set.
+   * With a limit it counts as the limit does (UTF-16 units, so an emoji can
+   * count as 2 to 4); without one, characters as people see them.
+   */
   showCount?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
@@ -181,7 +185,8 @@ export function Textarea(props: TextareaProps) {
   };
 
   const invalid = Boolean(error);
-  const count = countCharacters(current);
+  // Counted only when shown: grapheme splitting is not free on every keystroke.
+  const count = showCount ? counterValue(current, maxLength) : 0;
   const st: TextareaStyleState = { focused, disabled, readOnly, invalid, size };
   const hint = [plain(error), plain(description), accessibilityHint].filter(Boolean).join(". ");
 

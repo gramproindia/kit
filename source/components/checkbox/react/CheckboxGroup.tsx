@@ -1,12 +1,13 @@
 "use client";
 
-import { useId, useMemo, type CSSProperties, type ReactNode } from "react";
+import { useId, useMemo, useRef, type CSSProperties, type ReactNode } from "react";
 import { useControllableState } from "../../shared/react/useControllableState";
 import { describeField } from "../../shared/core/field";
 import { groupState, toggleAll, toggleValue } from "../core/group";
 import type { CheckboxLocaleText, CheckboxOption, CheckboxSize } from "../core/types";
 import { Checkbox } from "./Checkbox";
 import { CheckboxGroupContext, type CheckboxGroupContextValue } from "./context";
+import { useFormReset } from "./domSync";
 import { defaultCheckboxText } from "./locale";
 import { cx, type CheckboxGroupSlot } from "./props";
 
@@ -71,7 +72,12 @@ export function CheckboxGroup(props: CheckboxGroupProps) {
   const reactId = useId();
   const id = idProp ?? reactId;
   const text = useMemo(() => ({ ...defaultCheckboxText, ...localeText }), [localeText]);
-  const [values, setValues] = useControllableState<string[]>(value, defaultValue ?? []);
+  const [values, setValues, controlled] = useControllableState<string[]>(value, defaultValue ?? []);
+
+  // A form reset puts every box back to its default, as it does natively; the
+  // values here would otherwise check them again on the next render.
+  const rootRef = useRef<HTMLFieldSetElement>(null);
+  useFormReset(rootRef, () => setValues(defaultValue ?? []), !controlled);
 
   const context = useMemo<CheckboxGroupContextValue>(() => {
     const commit = (next: string[]) => {
@@ -93,6 +99,7 @@ export function CheckboxGroup(props: CheckboxGroupProps) {
 
   return (
     <fieldset
+      ref={rootRef}
       id={id}
       className={cx("ck-group", classNames?.root, className)}
       style={style}

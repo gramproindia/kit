@@ -275,12 +275,15 @@ export function useDatePicker(params: UseDatePickerParams) {
     [editable, commit],
   );
 
-  /** Hovering only matters while a range is half-picked. */
+  /**
+   * Hovering only matters while a range is half-picked; otherwise every
+   * pointer move would re-render the whole grid for nothing.
+   */
   const onPreview = useCallback(
     (date: Date | null) => {
-      if (range) setPreview(date);
+      if (range && pendingStart) setPreview(date);
     },
-    [range],
+    [range, pendingStart],
   );
 
   const goToToday = useCallback(() => {
@@ -411,6 +414,11 @@ export function useDatePicker(params: UseDatePickerParams) {
     [drafts, formatValue, selection],
   );
 
+  /**
+   * Typing only moves the calendar; the value changes on blur or Enter. A
+   * half-typed `12/03/2` reads as a real date, and reporting it would hand
+   * the form a day nobody chose.
+   */
   const onInputChange = useCallback(
     (field: RangeField, raw: string) => {
       if (!editable) return;
@@ -419,31 +427,25 @@ export function useDatePicker(params: UseDatePickerParams) {
 
       const parsed = parseDate(raw, locale, focusedDate);
       if (!parsed || isDayDisabled(parsed, limits)) return;
-
       setFocusedDate(parsed);
       ensureVisible(parsed);
-      if (!range) {
-        commit({ start: parsed, end: null }, true);
-        return;
-      }
-      const next =
-        field === "start"
-          ? { start: parsed, end: selection.end }
-          : { start: selection.start, end: parsed };
-      commit(next.start && next.end ? normalizeRange(next) : next, Boolean(next.start && next.end));
     },
-    [editable, locale, focusedDate, limits, ensureVisible, range, commit, selection],
+    [editable, locale, focusedDate, limits, ensureVisible],
   );
 
-  /** Typing is committed as it parses; the blur decides what to do with leftovers. */
-  const onInputBlur = useCallback(
-    (field: RangeField) => {
+  /**
+   * Settles what was typed into the field. Text that is not an allowed date
+   * stays in the field with an error, and the value stays what it was before
+   * the typing began. Returns false in that case.
+   */
+  const commitInput = useCallback(
+    (field: RangeField): boolean => {
       const raw = drafts[field];
-      if (raw === null) return;
-      setDrafts((current) => ({ ...current, [field]: null }));
+      if (raw === null) return true;
 
       const trimmed = raw.trim();
       if (!trimmed) {
+        setDrafts((current) => ({ ...current, [field]: null }));
         setInputError(null);
         commit(
           range
@@ -451,22 +453,43 @@ export function useDatePicker(params: UseDatePickerParams) {
             : { start: null, end: null },
           true,
         );
-        return;
+        return true;
       }
 
       const parsed = parseDate(trimmed, locale, focusedDate);
-      if (!parsed) {
-        setInputError(text.invalidDate);
-        return;
+      if (!parsed || isDayDisabled(parsed, limits)) {
+        setInputError(parsed ? text.outOfRange : text.invalidDate);
+        return false;
       }
-      if (isDayDisabled(parsed, limits)) {
-        setInputError(text.outOfRange);
-        return;
-      }
+
+      setDrafts((current) => ({ ...current, [field]: null }));
       setInputError(null);
+      setFocusedDate(parsed);
+      ensureVisible(parsed);
+      if (!range) {
+        if (!isSameDay(parsed, selection.start)) commit({ start: parsed, end: null }, true);
+        return true;
+      }
+      if (isSameDay(parsed, selection[field])) return true;
+      const next =
+        field === "start"
+          ? { start: parsed, end: selection.end }
+          : { start: selection.start, end: parsed };
+      commit(next.start && next.end ? normalizeRange(next) : next, Boolean(next.start && next.end));
+      return true;
     },
-    [drafts, commit, range, selection, locale, focusedDate, limits, text],
+    [drafts, commit, range, selection, locale, focusedDate, limits, text, ensureVisible],
   );
+
+  const onInputBlur = useCallback(
+    (field: RangeField) => {
+      commitInput(field);
+    },
+    [commitInput],
+  );
+
+  /** Whether the field holds typed text not yet settled, so Enter settles it. */
+  const hasDraft = useCallback((field: RangeField) => drafts[field] !== null, [drafts]);
 
   const onTriggerPointerDown = useCallback(() => {
     dismissedByPointer.current = open;
@@ -544,6 +567,8 @@ export function useDatePicker(params: UseDatePickerParams) {
     inputValue,
     onInputChange,
     onInputBlur,
+    commitInput,
+    hasDraft,
     inputError,
     onTriggerPointerDown,
     onTriggerClick,

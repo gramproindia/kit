@@ -1,5 +1,180 @@
 # Changelog
 
+## 2.9.2
+
+Fixes from a full audit of every web and native component: security,
+correctness and performance. `shared` is now 1.8.0.
+
+### Security
+
+- **Long pasted text no longer freezes the date-time field.** Date and time
+  parsing runs in linear time, refuses anything over 100 characters, and the
+  inputs cap their length. Before, a few thousand pasted characters could lock
+  the tab for seconds.
+- **CSV, TSV and clipboard copy guard every formula-like cell.** The check is
+  now made on the exported text, so a number or date column with a custom
+  `format` can't produce `=HYPERLINK(...)`, while plain numbers like `-5` stay
+  unchanged.
+- **Saved grid views can no longer crash the grid.** `applyView` and
+  `decodeGridView` check each state key, drop malformed ones and merge the rest
+  over the current state, so a crafted view link is harmless.
+- **Agent fields enforce `pattern` the way browsers do.** The pattern must
+  match the whole value, so an agent can no longer write `abc1234567` into
+  `pattern="[0-9]{6}"`.
+- **The grid's AI agent follows prop changes.** New `data`, columns,
+  `semantics`, `locale` or a stricter `agentPolicy` after mount now reach the
+  agent; before, it kept the values it was created with.
+
+### Fixed
+
+**Forms**
+
+- **Form resets and react-hook-form stick on checkboxes, switches and
+  radios.** `form.reset()`, `reset()` and `setValue()` are no longer undone on
+  the next render, and groups reset to their default value.
+- **Input and Textarea follow resets.** The counter, clear button and
+  auto-resize height update after a form reset or a direct value write.
+- **Radios sharing a name deselect properly,** and `disabled={false}` on one
+  radio no longer re-enables a disabled group. `clearable` works with `<Radio>`
+  children.
+- **Mixed checkboxes keep their dash** when a parent keeps them indeterminate
+  after a click.
+- **Pasted codes keep every digit on native.** Pasting "123-456" into
+  OtpInput fills all six cells.
+- **Accordion headers let links work.** A link or button in a title,
+  description or meta no longer toggles the section, and sections the browser
+  opens for find-in-page stay in step.
+
+**Dates and numbers**
+
+- **Typing a date no longer reports half-finished dates.** The value changes
+  on blur or Enter. Invalid text keeps its error, and the value stays what it
+  was before typing.
+- **Dates read back in every locale.** Persian and Arabic digits, words like
+  "de" or "г.", CJK dates and local AM/PM words parse, and months and years are
+  always Gregorian to match the grid (Persian and Thai showed the wrong
+  calendar).
+- **Zoned ISO values keep their day.** `"2026-03-10T23:00:00Z"` is 10 March in
+  every time zone. Years before 1000 work.
+- **Percent fields are typed as they are shown.** Typing 45 in a percent
+  NumberInput means 45%, not 4,500%.
+- **NumberInput refuses what isn't a number.** "1e3" or "5-3" are no longer
+  read as 13 or 53, a comma-only keypad works in en-US fields, and holding a
+  stepper button at its limit no longer leaves a timer running.
+
+**Overlays**
+
+- **Toasts show above open dialogs, sheets and menus on native.** Toasts and
+  tooltips render inside the top-most open overlay, so a modal no longer hides
+  them.
+- **Bottom sheets that can't be dismissed stay open on Android back.**
+  `dismissible={false}` also blocks the back button, and a new optional
+  `onBack` lets you handle back yourself.
+- **Submenu arrow keys move focus once.** Keys pressed in a web submenu no
+  longer also move focus in the parent menu.
+- **Native menu ticks update inside submenus,** and Android back steps out one
+  submenu level before closing.
+- **Close reasons are reported correctly.** Android back on a bottom-sheet
+  Modal follows `closeOnEscape`, and Popover and Menu report `escape` for
+  Escape on the web and Android back on native.
+- **Modals and dialogs respect Escape guards in Chrome.**
+  `closeOnEscape={false}`, `dismissible={false}` and `onBeforeClose` hold, and
+  a dialog the browser closes anyway still settles its promise.
+- **Focus no longer gets lost.** One Escape closes a tooltip without also
+  closing the dialog under it, focus returns to the trigger after a run of
+  queued dialogs, and closing a toast no longer pauses the other toasts
+  indefinitely.
+- **A nested `AgentSurface` hands the page tool back cleanly.** The newest
+  surface's `onCall` is used, and unmounting it restores the previous one.
+
+**Combobox and file uploads**
+
+- **File uploads use refreshed tokens.** `headers`, `params` and `fieldNames`
+  are read when each chunk is sent, so a token refreshed mid-upload is used for
+  the next chunk instead of failing with 401.
+- **A throwing callback no longer fails the upload.** Errors thrown from
+  `onFileSuccess`, `onFileError` or `onUploadComplete` are reported separately
+  and leave the file's status alone. Callbacks stop once the uploader unmounts.
+- **Unknown file sizes on React Native.** When a picker gives no size, the
+  file skips size limits and shows an indeterminate bar instead of jumping to
+  100%. A failed pick goes to the new `onPickError`. `accept="*/*"` accepts
+  every file. The README now says type and size checks must be repeated on the
+  server.
+- **Combobox keyboard and screen reader fixes.** Enter that confirms Chinese,
+  Japanese or Korean input no longer selects an option, a non-searchable list
+  announces the active option, and `disabled` blocks `ref.open()` and
+  select-all.
+- **Combobox loads the next page after a new search,** and highlights are no
+  longer misplaced in labels like "İstanbul".
+
+**Data grid**
+
+- **Row ids like `constructor` or `__proto__` work.** Selection, pending
+  edits and edit errors no longer read or write the object prototype.
+- **An older async cell save no longer clears or fails a newer one,** and a
+  denied clipboard no longer causes an unhandled promise rejection.
+
+**Display and mobile**
+
+- **Avatars recover when the image URL changes,** including in recycled list
+  rows.
+- **BottomNavigation fits five tabs on small phones.** Labels truncate
+  instead of overflowing on 360dp screens.
+- **SpeedDial opens when controlled** (`open={true}`) and repositions on
+  rotation.
+- **Breadcrumb structured data no longer crashes on bad links.**
+- **Progress never reports a value above its max,** and `aria-valuemax`
+  reports the corrected max.
+- **Screen readers hear urgent alerts and capped badges.** On iOS, danger and
+  warning Alerts are spoken when they appear. Native Badge's "more than 99" is
+  read, and translatable with the new `localeText.moreThan`.
+- **Larger touch targets and steadier taps.** Breadcrumb crumbs have 44dp tap
+  targets, a fast double tap on an async Button fires once, and SearchBar's
+  Cancel no longer truncates and slides correctly right-to-left.
+
+### Changed
+
+- **Smoother native animations.** Fab extend/collapse, Accordion panels, the
+  Tabs indicator and the SegmentedControl thumb now animate on the UI thread,
+  so they no longer stutter while scrolling. An extended Fab no longer appears
+  too narrow and then jumps.
+- **Fewer re-renders.**
+  - An inline `theme` or `icons` on `KitProvider` no longer rebuilds styles
+    every render.
+  - Reduce Motion is read through one shared listener, and closed sheets don't
+    listen to the keyboard.
+  - Native Tabs measurements no longer re-render every tab, and switching
+    BottomNavigation tabs re-renders only the two involved.
+  - Native Accordion panels mount on first open (new optional `keepMounted`).
+- **Smoother data grid scrolling.** Rows and the header no longer re-render
+  when only the visible row range changes, and inline `classNames`/`localeText`
+  objects no longer re-render every cell.
+- **Faster everywhere else.** Web popovers reposition at most once per frame
+  while scrolling. Calendar day cells are memoised and format once per month.
+  Combobox caches its lowercased search text. Uploader thumbnails load lazily,
+  and toasts re-render less while pausing and swiping.
+- **Server-mode grid search is debounced.** `onQueryChange` fires 300 ms after
+  the last keystroke (new `searchDebounceMs`; `0` restores the old behaviour).
+  Sorting, filtering and paging still report immediately.
+- **Toast queue is capped with `maxQueue`.** At most 20 toasts wait beyond
+  `limit` by default; the oldest are dropped.
+- **Counters count what `maxLength` counts.** With a limit set, emoji count as
+  their UTF-16 length, so the counter reads full exactly when typing stops.
+- **Better mobile keyboards for negative numbers.** NumberInput fields that can
+  go below zero get a keyboard with a minus key on iOS.
+
+### Upgrading
+
+Behaviour that changes for existing code:
+
+- **Typed dates update on blur or Enter,** not on every keystroke.
+- **Server-mode grid search waits 300 ms.** Pass `searchDebounceMs={0}` to
+  keep the old timing.
+- **Separators are read by position.** With a de-DE keypad in an en-US field,
+  "1.5" reads as 1.5, not 15.
+- **Currencies written in letters need `currency`.** A NumberInput only
+  accepts a sign like "zł" or "CHF" when `currency` is passed.
+
 ## 2.9.1
 
 React Native edition (beta). No web changes.

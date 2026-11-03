@@ -20,7 +20,7 @@ import type { Density, GridOptions } from "../core/types";
 import { createFormatters } from "../core/values";
 import { ColumnMenu } from "./ColumnMenu";
 import { GridContext, cx, type GridContextValue, type GridSlot } from "./context";
-import { usePopoverState, useStoreSelector } from "./hooks";
+import { shallowEqualNested, usePopoverState, useStableValue, useStoreSelector } from "./hooks";
 import { defaultLocaleText, type LocaleText } from "./locale";
 import { Pagination } from "./Pagination";
 import { Popover } from "./Popover";
@@ -123,11 +123,11 @@ export function DataGrid<T>(props: DataGridProps<T>) {
     pageSizeOptions = DEFAULT_PAGE_SIZES,
     emptyState,
     getRowClassName,
-    classNames = EMPTY_CLASSNAMES,
+    classNames: classNamesProp,
     className,
     style,
     locale,
-    localeText: localeOverrides,
+    localeText: localeOverridesProp,
     ai = false,
     semantics,
     agentPolicy,
@@ -155,6 +155,11 @@ export function DataGrid<T>(props: DataGridProps<T>) {
   // A grid that comes to need one later — moved into a surface — gets it then.
   if (wantsAgent && !agent) setAgent(build());
   useAgentSurfaceGrid(agent, props["aria-label"]);
+  // Keep the agent on this render's props, so new data, flags or a stricter
+  // `agentPolicy` reach it rather than the values it was built with.
+  useLayoutEffect(() => {
+    agent?.update(props, { semantics, policy: agentPolicy, locale });
+  });
 
   // Selection and UI state are deliberately not selected here: changing them
   // re-renders only the rows and cells that subscribe to them.
@@ -169,6 +174,10 @@ export function DataGrid<T>(props: DataGridProps<T>) {
   const columnPinning = controlled?.columnPinning ?? internal.columnPinning;
   const density = controlled?.density ?? internal.density;
 
+  // Inline `classNames` / `localeText` objects keep their identity while their
+  // contents match, so the context (and every cell) does not churn.
+  const classNames = useStableValue(classNamesProp, shallowEqualNested) ?? EMPTY_CLASSNAMES;
+  const localeOverrides = useStableValue(localeOverridesProp, shallowEqualNested);
   const localeText = useMemo(() => ({ ...defaultLocaleText, ...localeOverrides }), [localeOverrides]);
   const formatters = useMemo(
     () => createFormatters(locale, { yes: localeText.yes, no: localeText.no }),

@@ -14,7 +14,8 @@ import "@/components/number-input/styles.css";
 
 <NumberInput label="Amount" format="currency" currency="USD" decimals={2} locale="en-US" />
 
-{/* 45% in the field is 0.45 in the value, as Intl and CSS both have it. */}
+{/* 45% in the field is 0.45 in the value, as Intl and CSS both have it.
+    It is typed as 45 too: the field edits in the units it shows. */}
 <NumberInput label="Discount" format="percent" step={0.01} min={0} max={1} />
 ```
 
@@ -42,9 +43,16 @@ every `<input>` attribute.
 The field shows a grouped, formatted number at rest and the plain number while
 it has focus, so separators never appear under the caret. An entry that cannot
 be read falls back to the last good value on blur rather than being discarded.
+Letters, exponents (`1e3`) and a minus anywhere but the front make an entry
+unreadable rather than being stripped. A lone `.` or `,` that is not followed by
+exactly three digits is read as the decimal point, so a phone keypad that only
+offers its own separator still works (`1,5` is 1.5 in `en-US`). iOS number
+pads have no minus key, so on the web a field with `min` below zero uses the
+text keyboard, and on native any field that can go negative (no `min`, or `min`
+below zero) uses numbers-and-punctuation on iOS.
 
 `parseNumber`, `formatNumber`, `toEditText`, `localeParts`, `stepBy`,
-`snapToStep`, `clamp`, `round` and `decimalsOf` are exported from the
+`snapToStep`, `clamp`, `round`, `shiftDecimal` and `decimalsOf` are exported from the
 framework-free `core` — the same parsing a server can reuse to accept what the
 field sends.
 

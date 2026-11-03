@@ -59,6 +59,11 @@ them stable: define columns at module level or with `useMemo`, and pass
 `getRowId` as a property name (`getRowId="id"`). With React Compiler enabled,
 inline values are memoized for you.
 
+`classNames` and `localeText` are compared by content, so inline objects are
+fine. Functions are compared by identity: an inline `enableRowSelection={(row) => …}`
+or a function inside `localeText` re-renders every cell on each parent render,
+so wrap them in `useCallback` or define them at module level.
+
 ## Columns
 
 | Option | Purpose |
@@ -96,6 +101,10 @@ const { data, isFetching } = useQuery({ queryKey: ["orders", query], queryFn: ()
 `onQueryChange` receives `{ sorting, filters, globalFilter, pagination }`
 whenever one of them changes. Changing filters, search or sorting resets to the
 first page. The previous rows stay visible while `loading`.
+
+Typing in the search box reports once the user pauses: `searchDebounceMs`
+defaults to 300 in server mode and 0 in client mode. Sorting, filters and
+paging always report at once, carrying any search still waiting with them.
 
 The framework-free core (`component-lib/data-grid/core`) exports `filterRows`,
 `sortRows` and `paginate`, so a Node or Next.js route handler can apply exactly
@@ -160,7 +169,7 @@ Export code is split into chunks loaded on first use.
 
 | Format | Notes |
 | --- | --- |
-| CSV | UTF-8 with BOM (opens correctly in Excel). Cells starting with `= + - @` are prefixed with `'` to prevent formula injection. |
+| CSV | UTF-8 with BOM (opens correctly in Excel). Text starting with `= + - @`, tab or carriage return is prefixed with `'` to prevent formula injection, unless it is a plain number such as `-5`. The same guard applies to clipboard copy. |
 | Excel | Real `.xlsx`: typed numbers, booleans and dates, bold frozen header, auto-filter, column widths. Written without a library. |
 | PDF | Writes a real `.pdf` and downloads it: chosen paper size and orientation, a repeated header row, page numbers and your own header/footer bands. Uses the standard PDF fonts, so text must be Latin-1. |
 | Print | `api.print()` opens the browser's print dialog instead, for paper or for text the standard fonts cannot encode. |
@@ -212,6 +221,10 @@ the URL (e.g. with `nuqs`) through `state` + `onQueryChange`.
 - Updates from the grid's store render synchronously; heavy client-side filtering is
   deferred with `useDeferredValue`, but a single filter pass over very large data
   (1M+ rows) still runs on the main thread. For that scale, use server mode or a worker.
+- Without pagination the scroll area is one element `rows × rowHeight` tall, and
+  browsers cap element height (roughly 17.9 million px in Firefox, 33.5 million in
+  Chrome). Past about 400,000 rows at 40px the last rows cannot be scrolled to;
+  paginate or use server mode.
 - Row grouping, tree data and pivoting are not implemented.
 
 ## Migrating from `component-lib/datagrid`

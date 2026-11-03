@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/agent.ts",
       "core/count.ts",
@@ -18,10 +18,11 @@
       "core/types.ts",
       "index.ts",
       "react/Textarea.tsx",
+      "react/domSync.ts",
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:f2941d16ef58b5bc0eaa2c86e82adbc617f0c17890fdb9f3b21001a3a6c762a1"
+    "sourceHash": "sha256:14ec115ba2634b312925f5a8fd2784989311b75a97356a3b31e170cb0bee668d"
   },
   "purpose": "A multi-line text field that can grow with its content, with the same label, hint, error and counter wiring as Input.",
   "props": [
@@ -261,7 +262,7 @@
       "required": false,
       "default": false,
       "origin": "derived",
-      "description": "A character counter; shows `count / maxLength` when `maxLength` is set.",
+      "description": "A character counter; shows `count / maxLength` when `maxLength` is set.\r\nWith a limit it counts as the limit does (UTF-16 units, so an emoji can\r\ncount as 2 to 4); without one, characters as people see them.",
       "descriptionOrigin": "jsdoc"
     },
     {

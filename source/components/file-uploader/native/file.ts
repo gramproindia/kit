@@ -8,7 +8,11 @@ export interface NativeFile {
   /** `file://`, `content://` or `ph://` — whatever the picker returned. */
   uri: string;
   name: string;
-  /** Bytes. 0 when the picker did not say. */
+  /**
+   * Bytes. 0 (or missing) when the picker did not say: such a file skips the
+   * `maxSize`/`minSize` checks and uploads without a percentage. Reject it in
+   * `validate` if you need a size, and always enforce limits on the server.
+   */
   size: number;
   /** MIME type, e.g. `image/jpeg`. Empty when unknown. */
   type: string;
@@ -30,14 +34,22 @@ export type PickFiles = () => Promise<readonly NativeFile[] | null | undefined>;
  */
 export interface UploadableNativeFile extends NativeFile {
   lastModified: number;
+  /** The picker gave no size; `size` is 0 as a placeholder. Read by the engine. */
+  sizeUnknown: boolean;
   slice(): UploadableNativeFile;
 }
 
+/** Pickers report a missing size as 0, undefined, null or -1; all mean "unknown". */
+const knownSize = (size: unknown): size is number =>
+  typeof size === "number" && Number.isFinite(size) && size > 0;
+
 export function toUploadable(file: NativeFile): File {
+  const sized = knownSize(file.size);
   const uploadable: UploadableNativeFile = {
     uri: file.uri,
     name: file.name,
-    size: file.size,
+    size: sized ? file.size : 0,
+    sizeUnknown: !sized,
     type: file.type,
     lastModified: file.lastModified ?? 0,
     slice: () => uploadable,

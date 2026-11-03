@@ -26,7 +26,9 @@ export function parseISODate(text: string): Date | null {
   const year = Number(match[1]);
   const month = Number(match[2]) - 1;
   const day = Number(match[3]);
-  const date = new Date(year, month, day);
+  // setFullYear, because `new Date(25, 0, 1)` means 1925.
+  const date = new Date(2000, 0, 1);
+  date.setFullYear(year, month, day);
   date.setHours(0, 0, 0, 0);
   const valid =
     date.getFullYear() === year && date.getMonth() === month && date.getDate() === day;
@@ -36,14 +38,22 @@ export function parseISODate(text: string): Date | null {
 export function toISODate(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-  return `${date.getFullYear()}-${month}-${day}`;
+  return `${String(date.getFullYear()).padStart(4, "0")}-${month}-${day}`;
 }
 
-/** Normalizes a prop value. ISO strings are read as local dates, not UTC. */
+/** `yyyy-mm-dd` at the start of an ISO date-time, zone or not. */
+const ISO_DATE_PREFIX = /^(\d{4}-\d{2}-\d{2})T/;
+
+/**
+ * Normalizes a prop value. ISO strings are read as local dates, not UTC: a
+ * date-time like `2026-03-10T23:00:00Z` is 10 March wherever the reader is,
+ * rather than 11 March in India or 9 March in the US.
+ */
 export function toDate(value: DateInput | null | undefined): Date | null {
   if (value === null || value === undefined) return null;
   if (typeof value === "string") {
-    const iso = parseISODate(value);
+    const text = value.trim();
+    const iso = parseISODate(text) ?? parseISODate(ISO_DATE_PREFIX.exec(text)?.[1] ?? "");
     if (iso) return iso;
   }
   const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);

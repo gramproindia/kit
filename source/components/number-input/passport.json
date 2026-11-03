@@ -8,7 +8,7 @@
     ]
   },
   "source": {
-    "libraryVersion": "2.9.1",
+    "libraryVersion": "2.9.2",
     "files": [
       "core/agent.ts",
       "core/format.ts",
@@ -23,7 +23,7 @@
       "react/locale.ts",
       "react/props.ts"
     ],
-    "sourceHash": "sha256:04132ce3c541ab69381cc8619c663d1461d094075b2d7de1cb0b4596d2aab2c8"
+    "sourceHash": "sha256:091a66ccfa82c898044197894da4a8036706a14cae413efab8dbecb6cd929a02"
   },
   "purpose": "A numeric field that reads and writes numbers the way the locale does, with a stepper, clamping and currency formatting.",
   "props": [
