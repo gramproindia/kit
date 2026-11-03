@@ -14,6 +14,8 @@ import {
   type TextStyle,
   type ViewStyle,
 } from "react-native";
+import { KitIconsContext, type KitIcons } from "./icons";
+import { mergeIcons } from "./icons-merge";
 import { resolveTokens, type ColorScheme, type KitTheme, type KitTokens } from "./theme";
 
 interface ThemeValue {
@@ -52,6 +54,12 @@ export interface KitProviderProps {
    * `react-native-safe-area-context`: `insets={useSafeAreaInsets()}`.
    */
   insets?: Partial<Insets>;
+  /**
+   * Your icon pack for Kit's built-in marks (chevrons, close, check, search…),
+   * e.g. `{ close: ({ size, color }) => <Ionicons name="close" size={size} color={color} /> }`.
+   * Marks you leave out keep Kit's drawing. A nested provider adds to the outer one's.
+   */
+  icons?: Partial<KitIcons>;
   children?: ReactNode;
 }
 
@@ -60,13 +68,15 @@ export interface KitProviderProps {
  * the device's light/dark setting, and hosts overlays (toasts, dialogs, menus)
  * above the rest of the app.
  */
-export function KitProvider({ theme, colorScheme = "system", insets, children }: KitProviderProps) {
+export function KitProvider({ theme, colorScheme = "system", insets, icons, children }: KitProviderProps) {
   const device = useColorScheme();
   const scheme: ColorScheme =
     colorScheme === "system" ? (device === "dark" ? "dark" : "light") : colorScheme;
   const value = useMemo(() => ({ tokens: resolveTokens(scheme, theme), scheme }), [scheme, theme]);
   const { top = 0, right = 0, bottom = 0, left = 0 } = insets ?? {};
   const edges = useMemo(() => ({ top, right, bottom, left }), [top, right, bottom, left]);
+  const outerIcons = useContext(KitIconsContext);
+  const iconSet = useMemo(() => mergeIcons(outerIcons, icons), [outerIcons, icons]);
 
   const [entries, setEntries] = useState<PortalEntry[]>([]);
   const nextKey = useRef(0);
@@ -90,6 +100,7 @@ export function KitProvider({ theme, colorScheme = "system", insets, children }:
   return (
     <ThemeContext.Provider value={value}>
       <InsetsContext.Provider value={edges}>
+      <KitIconsContext.Provider value={iconSet}>
       <PortalContext.Provider value={portal}>
         <View style={styles.root}>
           {children}
@@ -104,6 +115,7 @@ export function KitProvider({ theme, colorScheme = "system", insets, children }:
           )}
         </View>
       </PortalContext.Provider>
+      </KitIconsContext.Provider>
       </InsetsContext.Provider>
     </ThemeContext.Provider>
   );

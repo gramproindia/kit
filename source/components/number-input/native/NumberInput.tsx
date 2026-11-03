@@ -21,6 +21,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { CloseGlyph } from "../../shared/native/glyphs";
+import { KitIcon } from "../../shared/native/icons";
 import { createThemedStyles, useKitTheme } from "../../shared/native/KitProvider";
 import { alpha } from "../../shared/native/theme";
 import { formatNumber } from "../core/format";
@@ -147,8 +148,15 @@ function apply<S>(value: Styleable<S> | undefined, state: NumberInputStyleState)
 const plain = (node: ReactNode) =>
   typeof node === "string" || typeof node === "number" ? String(node) : undefined;
 
-/** + and −, drawn so no icon font is needed. */
+/** + and −: the app's `plus`/`minus` icons if KitProvider has them, else drawn. */
 function StepGlyph({ plus, color }: { plus: boolean; color: string }) {
+  return (
+    <KitIcon name={plus ? "plus" : "minus"} size={14} color={color} fallback={<DrawnStep plus={plus} color={color} />} />
+  );
+}
+
+/** + and −, drawn so no icon font is needed. */
+function DrawnStep({ plus, color }: { plus: boolean; color: string }) {
   return (
     <View style={{ width: 14, height: 14, alignItems: "center", justifyContent: "center" }} aria-hidden>
       <View style={{ position: "absolute", width: 14, height: 2, borderRadius: 1, backgroundColor: color }} />

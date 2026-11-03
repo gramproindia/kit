@@ -1,8 +1,11 @@
 import { View } from "react-native";
+import { KitIcon } from "./icons";
 
 /**
  * Small icons drawn with Views, so no SVG library is needed. All are
  * decorative (`aria-hidden`); the control around them carries the label.
+ * Each one gives way to the app's icon pack when `KitProvider icons` has an
+ * entry for it (see icons.tsx), so every component using them follows.
  */
 
 export interface GlyphProps {
@@ -17,6 +20,10 @@ const strokeOf = (size: number, stroke?: number) => stroke ?? Math.max(1.5, size
 
 /** ×: close, dismiss, clear. */
 export function CloseGlyph({ size = 16, color, stroke }: GlyphProps) {
+  return <KitIcon name="close" size={size} color={color} fallback={<DrawnClose size={size} color={color} stroke={stroke} />} />;
+}
+
+function DrawnClose({ size = 16, color, stroke }: GlyphProps) {
   const w = strokeOf(size, stroke);
   const bar = { position: "absolute" as const, width: size * 0.9, height: w, borderRadius: w, backgroundColor: color };
   return (
@@ -29,6 +36,23 @@ export function CloseGlyph({ size = 16, color, stroke }: GlyphProps) {
 
 /** Chevron pointing `direction`: disclosure, select, steppers, month paging. */
 export function ChevronGlyph({
+  size = 16,
+  color,
+  stroke,
+  direction = "down",
+}: GlyphProps & { direction?: "up" | "down" | "left" | "right" }) {
+  return (
+    <KitIcon
+      name="chevron"
+      size={size}
+      color={color}
+      direction={direction}
+      fallback={<DrawnChevron size={size} color={color} stroke={stroke} direction={direction} />}
+    />
+  );
+}
+
+function DrawnChevron({
   size = 16,
   color,
   stroke,
@@ -57,6 +81,10 @@ export function ChevronGlyph({
 
 /** ✓: selected, done. */
 export function CheckGlyph({ size = 16, color, stroke }: GlyphProps) {
+  return <KitIcon name="check" size={size} color={color} fallback={<DrawnCheck size={size} color={color} stroke={stroke} />} />;
+}
+
+function DrawnCheck({ size = 16, color, stroke }: GlyphProps) {
   const w = strokeOf(size, stroke);
   return (
     <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }} aria-hidden>

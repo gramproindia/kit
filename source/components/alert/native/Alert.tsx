@@ -8,6 +8,7 @@ import {
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import { KitIcon } from "../../shared/native/icons";
 import { createThemedStyles, useKitTheme } from "../../shared/native/KitProvider";
 import { renderText } from "../../shared/native/primitives";
 import { mix, type KitTokens } from "../../shared/native/theme";
@@ -187,8 +188,17 @@ export function Alert(props: AlertProps) {
           hitSlop={10}
           style={({ pressed }) => [s.dismiss, pressed && { backgroundColor: tokens.hover }, slots?.dismiss]}
         >
-          <View style={[s.xBar, { transform: [{ rotate: "45deg" }] }]} />
-          <View style={[s.xBar, { transform: [{ rotate: "-45deg" }] }]} />
+          <KitIcon
+            name="close"
+            size={14}
+            color={tokens.muted}
+            fallback={
+              <>
+                <View style={[s.xBar, { transform: [{ rotate: "45deg" }] }]} />
+                <View style={[s.xBar, { transform: [{ rotate: "-45deg" }] }]} />
+              </>
+            }
+          />
         </Pressable>
       )}
     </View>

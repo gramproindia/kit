@@ -8,6 +8,7 @@ import {
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import { KitIcon } from "../../shared/native/icons";
 import { createThemedStyles, useKitTheme } from "../../shared/native/KitProvider";
 import { renderText } from "../../shared/native/primitives";
 import { mix, type KitTokens } from "../../shared/native/theme";
@@ -255,8 +256,17 @@ export function Tag(props: TagProps) {
             slots?.remove,
           ]}
         >
-          <View style={[s.xBar, { backgroundColor: c.ink, transform: [{ rotate: "45deg" }] }]} />
-          <View style={[s.xBar, { backgroundColor: c.ink, transform: [{ rotate: "-45deg" }] }]} />
+          <KitIcon
+            name="close"
+            size={12}
+            color={c.ink}
+            fallback={
+              <>
+                <View style={[s.xBar, { backgroundColor: c.ink, transform: [{ rotate: "45deg" }] }]} />
+                <View style={[s.xBar, { backgroundColor: c.ink, transform: [{ rotate: "-45deg" }] }]} />
+              </>
+            }
+          />
         </Pressable>
       )}
     </View>

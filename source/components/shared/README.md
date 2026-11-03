@@ -15,6 +15,8 @@ import { AnchoredPopover } from "../../shared/react/Popover";
 | `cx(...names)` | `core/cx` | Joins class names, dropping anything falsy. |
 | `countCharacters(value)` | `core/text` | Grapheme-accurate length for character counters. |
 | `graphemes(value)` | `core/text` | Splits text into user-perceived characters; close fallback where `Intl.Segmenter` is missing (Hermes, React Native). |
+| `KitProvider` | `native/KitProvider` | React Native root: theme tokens, light/dark, safe-area insets, overlay host, and `icons` overrides. |
+| `useKitIcons()`, `KitIcon` | `native/icons` | React Native: the app's icon pack for Kit's built-in marks (chevron, close, check, search, eye, eyeOff, calendar, plus, minus, upload, pause, play, retry), falling back to Kit's drawings. |
 | `describeField(id, parts)` | `core/field` | The `aria-describedby` for a control, from its hint, description and error. |
 | `useControllableState(value, default)` | `react/useControllableState` | One value that may be controlled or owned by the component. |
 | `AnchoredPopover` | `react/Popover` | Anchored popover on the native Popover API: top layer, light dismiss, flipping. |

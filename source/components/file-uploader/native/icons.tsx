@@ -1,9 +1,14 @@
 import { Text, View } from "react-native";
+import { KitIcon } from "../../shared/native/icons";
 import type { FileKind } from "../core/types";
 
-/** Drawn with Views, so no SVG library is needed. All decorative. */
+/**
+ * Drawn with Views, so no SVG library is needed. All decorative. Upload, pause,
+ * play and retry give way to the app's icon pack (`KitProvider icons`); the
+ * error mark and file-kind labels are status, not icons, and stay drawn.
+ */
 
-export function UploadGlyph({ color, size = 24 }: { color: string; size?: number }) {
+function DrawnUpload({ color, size = 24 }: { color: string; size?: number }) {
   const w = Math.max(2, size / 12);
   return (
     <View style={{ width: size, height: size, alignItems: "center" }} aria-hidden>
@@ -40,7 +45,7 @@ export function UploadGlyph({ color, size = 24 }: { color: string; size?: number
   );
 }
 
-export function PauseGlyph({ color, size = 14 }: { color: string; size?: number }) {
+function DrawnPause({ color, size = 14 }: { color: string; size?: number }) {
   const bar = { width: size * 0.28, height: size * 0.8, borderRadius: 1, backgroundColor: color };
   return (
     <View style={{ width: size, height: size, flexDirection: "row", gap: size * 0.2, alignItems: "center", justifyContent: "center" }} aria-hidden>
@@ -50,7 +55,7 @@ export function PauseGlyph({ color, size = 14 }: { color: string; size?: number 
   );
 }
 
-export function PlayGlyph({ color, size = 14 }: { color: string; size?: number }) {
+function DrawnPlay({ color, size = 14 }: { color: string; size?: number }) {
   return (
     <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }} aria-hidden>
       <View
@@ -70,7 +75,7 @@ export function PlayGlyph({ color, size = 14 }: { color: string; size?: number }
   );
 }
 
-export function RetryGlyph({ color, size = 14 }: { color: string; size?: number }) {
+function DrawnRetry({ color, size = 14 }: { color: string; size?: number }) {
   return (
     <Text aria-hidden style={{ color, fontSize: size + 2, lineHeight: size + 4, fontWeight: "700" }}>
       ↻
@@ -115,4 +120,20 @@ export function KindLabel({ kind, color }: { kind: FileKind; color: string }) {
       {KIND_LABEL[kind]}
     </Text>
   );
+}
+
+export function UploadGlyph({ color, size = 24 }: { color: string; size?: number }) {
+  return <KitIcon name="upload" size={size} color={color} fallback={<DrawnUpload color={color} size={size} />} />;
+}
+
+export function PauseGlyph({ color, size = 14 }: { color: string; size?: number }) {
+  return <KitIcon name="pause" size={size} color={color} fallback={<DrawnPause color={color} size={size} />} />;
+}
+
+export function PlayGlyph({ color, size = 14 }: { color: string; size?: number }) {
+  return <KitIcon name="play" size={size} color={color} fallback={<DrawnPlay color={color} size={size} />} />;
+}
+
+export function RetryGlyph({ color, size = 14 }: { color: string; size?: number }) {
+  return <KitIcon name="retry" size={size} color={color} fallback={<DrawnRetry color={color} size={size} />} />;
 }

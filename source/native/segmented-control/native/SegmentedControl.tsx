@@ -67,6 +67,14 @@ export type SegmentedControlProps = SingleSegmentedControlProps | MultipleSegmen
 
 const HEIGHT = { sm: 34, md: 40 } as const;
 
+/** Whether a #rrggbb surface is dark, so the thumb can sit lighter than the track. */
+function isDark(hex: string): boolean {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex);
+  if (!m) return false;
+  const v = parseInt(m[1], 16);
+  return ((v >> 16) & 255) * 0.299 + ((v >> 8) & 255) * 0.587 + (v & 255) * 0.114 < 128;
+}
+
 const themed = createThemedStyles((t) => ({
   track: {
     flexDirection: "row",
@@ -94,7 +102,10 @@ const themed = createThemedStyles((t) => ({
     top: 2,
     bottom: 2,
     borderRadius: t.radius,
-    backgroundColor: t.raised,
+    // Light: a white thumb on a grey track (iOS). Dark: shadows do not show and
+    // the raised surface is darker than the track, so lift the thumb towards
+    // the text colour instead, as iOS does in dark mode.
+    backgroundColor: isDark(t.bg) ? mix(t.subtle, t.fg, 0.16) : t.raised,
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.18)",
   },
   label: { fontWeight: "600", color: t.fg },

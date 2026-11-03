@@ -3,6 +3,7 @@ import { Pressable, Text, View, type StyleProp, type TextStyle, type ViewStyle }
 import { Anchored, usePresentation } from "../../shared/native/Anchored";
 import { createThemedStyles, useKitTheme } from "../../shared/native/KitProvider";
 import { CloseGlyph } from "../../shared/native/glyphs";
+import { KitIcon } from "../../shared/native/icons";
 import { renderText } from "../../shared/native/primitives";
 import { Sheet } from "../../shared/native/Sheet";
 import { alpha } from "../../shared/native/theme";
@@ -43,8 +44,13 @@ const themed = createThemedStyles((t) => ({
   error: { fontSize: t.fontSize - 2, color: t.danger },
 }));
 
-/** A calendar icon drawn with Views: a box with a heavier top edge and two rings. */
+/** The field's calendar mark: the app's `calendar` icon if KitProvider has one, else drawn. */
 function CalendarGlyph({ color }: { color: string }) {
+  return <KitIcon name="calendar" size={18} color={color} fallback={<DrawnCalendar color={color} />} />;
+}
+
+/** A calendar icon drawn with Views: a box with a heavier top edge and two rings. */
+function DrawnCalendar({ color }: { color: string }) {
   return (
     <View style={{ width: 18, height: 18, justifyContent: "flex-end" }} aria-hidden>
       <View style={{ height: 15, borderWidth: 1.5, borderTopWidth: 4, borderColor: color, borderRadius: 3 }} />

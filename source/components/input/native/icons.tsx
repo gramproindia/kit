@@ -1,9 +1,15 @@
 import { View } from "react-native";
+import { KitIcon } from "../../shared/native/icons";
 
-// Drawn with Views rather than SVG, so no SVG library is needed.
+// Drawn with Views rather than SVG, so no SVG library is needed. Each gives way
+// to the app's icon pack when `KitProvider icons` has an entry for it.
 
 /** Two crossed bars. */
 export function XIcon({ color, size = 14 }: { color: string; size?: number }) {
+  return <KitIcon name="close" size={size} color={color} fallback={<DrawnX color={color} size={size} />} />;
+}
+
+function DrawnX({ color, size = 14 }: { color: string; size?: number }) {
   const bar = { position: "absolute" as const, width: size, height: 1.75, borderRadius: 1, backgroundColor: color };
   return (
     <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }} aria-hidden>
@@ -15,6 +21,17 @@ export function XIcon({ color, size = 14 }: { color: string; size?: number }) {
 
 /** An eye: an outlined lens and a pupil; `crossed` adds a slash for "hide". */
 export function EyeIcon({ color, size = 18, crossed = false }: { color: string; size?: number; crossed?: boolean }) {
+  return (
+    <KitIcon
+      name={crossed ? "eyeOff" : "eye"}
+      size={size}
+      color={color}
+      fallback={<DrawnEye color={color} size={size} crossed={crossed} />}
+    />
+  );
+}
+
+function DrawnEye({ color, size = 18, crossed = false }: { color: string; size?: number; crossed?: boolean }) {
   const height = Math.round(size * 0.62);
   const pupil = Math.round(size * 0.3);
   return (

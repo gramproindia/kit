@@ -10,6 +10,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { CloseGlyph } from "../../../components/shared/native/glyphs";
+import { KitIcon } from "../../../components/shared/native/icons";
 import { createThemedStyles, useKitTheme } from "../../../components/shared/native/KitProvider";
 import { useReducedMotion } from "../../../components/shared/native/motion";
 import { Ring } from "../../../components/shared/native/primitives";
@@ -66,8 +67,13 @@ const themed = createThemedStyles((t) => ({
   cancel: { fontSize: t.fontSize, color: t.accent, fontWeight: "600" },
 }));
 
-/** A magnifier drawn with Views: a ring and a rotated handle. */
+/** The magnifier: the app's `search` icon if KitProvider has one, else drawn. */
 function Magnifier({ color, size = 16 }: { color: string; size?: number }) {
+  return <KitIcon name="search" size={size} color={color} fallback={<DrawnMagnifier color={color} size={size} />} />;
+}
+
+/** A magnifier drawn with Views: a ring and a rotated handle. */
+function DrawnMagnifier({ color, size = 16 }: { color: string; size?: number }) {
   const ring = size * 0.7;
   return (
     <View style={{ width: size, height: size }} aria-hidden>

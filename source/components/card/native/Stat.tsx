@@ -93,7 +93,15 @@ export function Stat(props: StatProps) {
                 : undefined
             }
           >
-            {renderText(value, [s.value, slots?.value])}
+            {typeof value === "string" || typeof value === "number" ? (
+              // A figure never wraps mid-number ("₹12,40,00" / "0"): one line,
+              // shrunk to fit a narrow tile.
+              <Text style={[s.value, slots?.value]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>
+                {value}
+              </Text>
+            ) : (
+              renderText(value, [s.value, slots?.value])
+            )}
           </View>
 
           {trend && (
