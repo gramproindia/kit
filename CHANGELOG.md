@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.9.1
+
+React Native edition (beta). No web changes.
+
+### Added
+
+- **Swap Kit's built-in icons for your icon pack.** `KitProvider` takes an
+  `icons` prop: render functions for `chevron` (with a direction), `close`,
+  `check`, `search`, `eye`, `eyeOff`, `calendar`, `plus`, `minus`, `upload`,
+  `pause`, `play` and `retry`. Missing keys keep Kit's drawn marks, and a nested
+  `KitProvider` merges over the outer one. Works with `@expo/vector-icons`,
+  `lucide-react-native` or anything that renders a React element. `shared` is
+  now 1.7.0.
+- **Agent skill:** the `gbs-native` skill gains references for NativeWind and
+  Uniwind, Expo Router (Kit's BottomNavigation as the tab bar, native tabs), and
+  icons.
+
+### Fixed
+
+- **Stat values never wrap mid-number.** A figure such as ₹12,40,000 stays on
+  one line and shrinks to fit a narrow tile.
+- **SegmentedControl's thumb is visible in dark mode.** It was darker than its
+  track; it is now lifted towards the text colour, as on iOS.
+
 ## 2.9.0
 
 ### Added

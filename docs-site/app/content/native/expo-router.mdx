@@ -1,0 +1,190 @@
+---
+title: "Expo Router"
+description: "Use Kit with Expo Router: Kit's BottomNavigation as the Tabs tab bar, or the platform's native tabs with Kit inside the screens, plus Kit's AppBar as every screen's header."
+group: "Get started"
+order: 6
+---
+
+Kit does not replace a router. Expo Router keeps routes, history and deep
+links; Kit draws the screens, and can draw the tab bar too. There are two ways
+to do tabs, and the repository's demo app,
+[`native-playground`](https://github.com/gramproindia/kit/tree/main/native-playground)
+(GramproKit Demo, Expo SDK 58, runs in Expo Go), shows both:
+
+- **Kit tab bar:** the app's own tabs.
+  [`src/app/(tabs)/_layout.tsx`](https://github.com/gramproindia/kit/blob/main/native-playground/src/app/(tabs)/_layout.tsx)
+  draws Expo Router's `Tabs` with Kit's BottomNavigation. Each tab has its own
+  stack, such as `(tabs)/(home)/invoice/[id].tsx`, which opens from the link
+  `gramprokit://invoice/INV-2041`.
+- **Native tabs:** Components → Native tabs.
+  [`src/app/native-tabs/`](https://github.com/gramproindia/kit/tree/main/native-playground/src/app/native-tabs)
+  uses the platform's tab bar with Kit inside the screens.
+- **Root layout:**
+  [`src/app/_layout.tsx`](https://github.com/gramproindia/kit/blob/main/native-playground/src/app/_layout.tsx)
+  mounts `KitProvider`, `Toaster` and `DialogHost` once.
+
+## Mount Kit once
+
+Wrap the whole router in `KitProvider`, mount `Toaster` and `DialogHost` once,
+and turn the router's own header off: screens use Kit's `AppBar`.
+
+```tsx
+// app/_layout.tsx
+import { Stack } from "expo-router";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
+import { DialogHost } from "@/component-lib/dialog";
+import { KitProvider } from "@/component-lib/shared/native";
+import { Toaster } from "@/component-lib/toaster";
+
+function Root() {
+  const insets = useSafeAreaInsets();
+  return (
+    <KitProvider insets={insets}>
+      <Stack screenOptions={{ headerShown: false }} />
+      <Toaster />
+      <DialogHost />
+    </KitProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <Root />
+    </SafeAreaProvider>
+  );
+}
+```
+
+On a pushed screen, the AppBar's back button goes back through the router:
+
+```tsx
+<AppBar title={id} onBack={() => router.back()} />
+```
+
+## Pattern 1: Kit's BottomNavigation as the tab bar
+
+Pass Kit's `BottomNavigation` to Expo Router's `Tabs` as its `tabBar`. Titles,
+icons and badges stay ordinary `Tabs.Screen` options; the tab bar maps them onto
+Kit's items.
+
+In SDK 58 a custom tab bar receives `{ state, descriptors, emitter,
+navigateToTab, insets }`, not a `navigation` object. Do what the default tab
+bar does: emit `tabPress`, so a nested stack pops to its first screen when its
+tab is pressed again, then call `navigateToTab`.
+
+```tsx
+// app/(tabs)/_layout.tsx
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Tabs } from "expo-router";
+import type { ComponentProps } from "react";
+import { BottomNavigation, type BottomNavigationItem } from "@/component-lib/bottom-navigation";
+
+type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>["tabBar"]>>[0];
+
+function KitTabBar({ state, descriptors, emitter, navigateToTab }: TabBarProps) {
+  const items: BottomNavigationItem[] = state.routes.map((route) => {
+    const { options } = descriptors[route.key];
+    const badge = options.tabBarBadge;
+    return {
+      key: route.name,
+      label: typeof options.title === "string" ? options.title : route.name,
+      icon: options.tabBarIcon
+        ? ({ active, color }) => options.tabBarIcon!({ focused: active, color, size: 24 })
+        : undefined,
+      badge: typeof badge === "number" ? badge : badge !== undefined ? true : undefined,
+    };
+  });
+
+  const press = (name: string) => {
+    const index = state.routes.findIndex((r) => r.name === name);
+    if (index === -1) return;
+    const route = state.routes[index];
+    const event = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
+    if (index !== state.index && !event.defaultPrevented) navigateToTab(route.key);
+  };
+
+  return (
+    <BottomNavigation
+      items={items}
+      value={state.routes[state.index].name}
+      onValueChange={press}
+      onReselect={press}
+    />
+  );
+}
+
+export default function TabLayout() {
+  return (
+    <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <KitTabBar {...props} />}>
+      <Tabs.Screen
+        name="invoices"
+        options={{
+          title: "Invoices",
+          tabBarBadge: 2,
+          tabBarIcon: ({ color, size }) => <Ionicons name="document-text-outline" size={size} color={color as string} />,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+          tabBarIcon: ({ color, size }) => <Ionicons name="settings-outline" size={size} color={color as string} />,
+        }}
+      />
+    </Tabs>
+  );
+}
+```
+
+- A tab can hold its own stack (`app/(tabs)/invoices/_layout.tsx` with
+  `<Stack screenOptions={{ headerShown: false }} />`); pushed screens keep the
+  tab bar.
+- A `Fab` in a tab screen needs no `offset`: the tab bar sits below the screen.
+
+## Pattern 2: native tabs, Kit inside
+
+Expo Router's native tabs (`expo-router/native-tabs`, stable in SDK 58) use the
+platform's own tab bar. It is native UI, so it cannot be Kit's
+BottomNavigation; Kit components go inside the screens.
+
+```tsx
+// app/(tabs)/_layout.tsx
+import { NativeTabs } from "expo-router/native-tabs";
+
+export default function TabLayout() {
+  return (
+    <NativeTabs>
+      <NativeTabs.Trigger name="inbox">
+        <NativeTabs.Trigger.Label>Inbox</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="tray.fill" md="inbox" />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="profile">
+        <NativeTabs.Trigger.Icon sf="person.crop.circle" md="person" />
+        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
+  );
+}
+```
+
+Icons are SF Symbols on iOS and Material Symbols on Android; the `md` icons need
+`npx expo install expo-symbols`. On iOS, content can run under the tab bar, so
+give scroll views `contentInsetAdjustmentBehavior="automatic"`.
+
+## Which to choose
+
+| | Kit tab bar | Native tabs |
+| --- | --- | --- |
+| Look | The same on iOS, Android and web | The platform's own, different per platform |
+| Theming | Kit's tokens, light and dark, badges, active pill | Styled through the router's options |
+| Feel | Kit's animation and touch targets | Native, including iOS Liquid Glass |
+| Works in Expo Go | Yes | Yes |
+
+Pick one per tab group, never both at once.
+
+## Icons
+
+Kit ships no icon set. Every icon slot (Button `icon`, Fab `icon`,
+BottomNavigation `icon`, AppBar actions, ListItem `leading`) takes any React
+element, so `@expo/vector-icons`, which every Expo app can use, works as is.

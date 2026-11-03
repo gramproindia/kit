@@ -13,17 +13,16 @@ import { useKitTheme } from "../../../source/components/shared/native";
 import { BottomSheet } from "../../../source/native/bottom-sheet";
 import { List, ListItem } from "../../../source/native/list-item";
 import { STATUS_BADGE, formatINR, formatShortDate, useInvoices } from "../data/invoices";
-import { useNav, useRoute } from "../navigation/Navigator";
+import { router, useLocalSearchParams } from "expo-router";
 import { Icon, Muted, Screen } from "../ui/kit";
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export function InvoiceScreen() {
   const { tokens } = useKitTheme();
-  const nav = useNav();
-  const { params } = useRoute<{ id: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { byId, setStatus, remove } = useInvoices();
-  const invoice = byId(params.id);
+  const invoice = byId(id);
 
   if (!invoice) {
     return (
@@ -61,7 +60,7 @@ export function InvoiceScreen() {
       confirmLabel: "Delete",
     });
     if (!ok) return;
-    nav.pop();
+    router.back();
     setTimeout(() => remove(invoice.id), 250);
     toast("Invoice deleted");
   };
@@ -71,7 +70,7 @@ export function InvoiceScreen() {
       <Breadcrumb
         size="sm"
         items={[{ label: "Home", href: "home" }, { label: "Invoices", href: "invoices" }, { label: invoice.id }]}
-        onNavigate={() => nav.popToTop()}
+        onNavigate={() => router.dismissTo("/")}
       />
 
       <Card variant="elevated">

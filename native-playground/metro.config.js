@@ -24,7 +24,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return context.resolveRequest(context, target, platform);
   }
   if (SINGLETONS.includes(moduleName) || moduleName.startsWith('react-native/')) {
-    const fromApp = { ...context, originModulePath: path.join(projectRoot, 'index.ts') };
+    const fromApp = { ...context, originModulePath: path.join(projectRoot, 'package.json') };
     return (upstream ?? context.resolveRequest)(fromApp, moduleName, platform);
   }
   return (upstream ?? context.resolveRequest)(context, moduleName, platform);

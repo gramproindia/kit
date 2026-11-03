@@ -17,6 +17,11 @@ npx expo start          # scan the QR code with Expo Go (Android or iPhone)
 Over USB on Android: `adb reverse tcp:8081 tcp:8081`, then open
 `exp://127.0.0.1:8081` in Expo Go.
 
+Deep links: the scheme is `gramprokit`, so `gramprokit://invoice/INV-2041`
+opens an invoice and `gramprokit://settings/theme` opens the theme editor. In
+Expo Go, put the path after the dev server's address instead, for example
+`exp://127.0.0.1:8081/--/invoice/INV-2041`.
+
 ## Build an APK
 
 ```sh
@@ -40,6 +45,15 @@ android.externalNativeBuild.cmake.buildStagingDirectory = file('D:/c')
 Note: `expo prebuild` rewrites the `android`/`ios` scripts in package.json to
 `expo run:*`; restore them to `expo start --*` for the Expo Go workflow.
 
+**Rebuilding after a change to `../source` only:** Gradle does not watch
+Kit's source, so it marks the JS bundle step UP-TO-DATE and repacks the old
+bundle into a "successful" build. Force the bundle step:
+
+```sh
+cd android
+./gradlew :app:createBundleReleaseJsAndAssets --rerun assembleRelease -PreactNativeArchitectures=arm64-v8a
+```
+
 ## What's inside
 
 | Tab | Shows |
@@ -49,18 +63,31 @@ Note: `expo prebuild` rewrites the `android`/`ios` scripts in package.json to
 | Components | Every demo in `demos/`, grouped and searchable (the same files the docs preview). |
 | Settings | Colour scheme, presets, radius, text size, live preview, a scoped theme (nested KitProvider), the full **Theme editor** (every token per scheme, export `gbs.theme.ts`), and Diagnostics (Hermes Intl checks). |
 
-Navigation is a ~200-line stack per tab in `src/navigation/` (no navigation
-library), so the app dogfoods Kit's AppBar and BottomNavigation.
+Navigation is Expo Router (SDK 58). It shows both ways to do tabs with Kit:
+
+- **Kit tab bar.** This is the app's own tabs. Expo Router's `Tabs` is drawn
+  with Kit's BottomNavigation (`src/app/(tabs)/_layout.tsx`). Each tab has its
+  own stack, and pressing the current tab again returns to its first screen.
+  The router's header is off and every screen draws Kit's AppBar
+  (`src/ui/kit.tsx` `Screen`).
+- **Native tabs.** Open Components → Native tabs. Expo Router's native tabs
+  (`src/app/native-tabs/`) use the platform's own tab bar, with Kit inside the
+  screens. Back returns to the catalogue.
 
 ## Layout
 
 ```
-App.tsx               providers, tab bar, root Toaster/DialogHost
-src/navigation/       per-tab stacks, Android back
-src/screens/          Home, Invoice, Create, Components (+ Demo), Settings, ThemeEditor, Diagnostics
+src/app/_layout.tsx                 providers, Kit icons, root Toaster/DialogHost, root Stack
+src/app/(tabs)/_layout.tsx          Expo Router Tabs with Kit's BottomNavigation as the tab bar
+src/app/(tabs)/(home)/              /             and /invoice/[id]
+src/app/(tabs)/create.tsx           /create
+src/app/(tabs)/components/          /components   and /components/demo/[id]
+src/app/(tabs)/settings/            /settings,    /settings/theme, /settings/diagnostics
+src/app/native-tabs/                /native-tabs/inbox, /native-tabs/profile (native tab bar)
+src/screens/          the screens the route files render: Home, Invoice, Create, Components (+ Demo), Settings, ThemeEditor, Diagnostics
 src/theme/            presets (from the web playground), token metadata, settings context
 src/data/             sample invoices
-src/ui/               Screen wrapper, glyph icons, root-host control
+src/ui/               Screen wrapper (Kit AppBar, back from the router), Ionicons Icon, root-host control
 demos/                one file per component; also rendered by the docs site
 spikes/intl/          Phase 0 Intl-on-Hermes checks
 ```

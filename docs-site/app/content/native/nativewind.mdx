@@ -1,0 +1,322 @@
+---
+title: "NativeWind and Uniwind"
+description: "Style Kit's native components with Tailwind className through NativeWind 4 or Uniwind, without changing Kit: verified setup, the interop wrappers, what works on iOS/Android and on the web, and keeping Tailwind colours in sync with Kit's tokens."
+group: "Get started"
+order: 5
+---
+
+Kit's native components are styled with `style`, `styles={{ slot }}` and
+Kit's tokens. They take no `className` of their own. If your app already uses
+Tailwind through NativeWind or Uniwind, you can still give them a `className`:
+both tools have an adapter that turns `className` into the `style` prop the
+component already accepts. Nothing in Kit changes.
+
+<Notice message="Beta. This page records a spike on Expo SDK 58 (React Native 0.88, TypeScript 6) with NativeWind 4.2.7 (Tailwind 3.4) and Uniwind 1.13.1 (Tailwind 4.3). Each claim says how it was checked. Nothing here has been run on a phone yet, so check your key screens on a device. NativeWind 5 was not tested." />
+
+How each claim was checked:
+
+- **Built:** the app type-checks and `npx expo export` succeeds for Android and for web.
+- **Web, measured:** the exported web build was loaded in Playwright, and computed styles were read in light and dark mode.
+- **Native runtime, tested:** rendered through NativeWind's own native test harness in Jest (NativeWind only).
+- **Source:** read from the library's runtime code, not run.
+
+## Quick comparison
+
+| | NativeWind 4.2.7 | Uniwind 1.13.1 |
+| --- | --- | --- |
+| Setup | Babel preset and Metro wrapper | Metro wrapper only |
+| Kit's own components unchanged | **Needs a Babel override** (below) | Yes, no workaround (source) |
+| `className` overrides Kit's values on iOS/Android | Yes (native runtime, tested) | Yes (source) |
+| `className` on the web | Partly: Kit's computed values win (measured) | Less: Kit's values win, radius included (measured) |
+| Slots (`styles.label`) | Through a flat adapter (tested, measured) | Through a flat adapter (built, letter-spacing measured) |
+| Kit tokens as Tailwind colours | `vars()` (tested and measured) | `ScopedVariables` (measured) |
+| Function `style` together with `className` | Function dropped (tested) | Function dropped (source) |
+
+## NativeWind 4
+
+### Setup (built)
+
+```bash
+npx expo install nativewind react-native-reanimated react-native-worklets react-native-safe-area-context
+npx expo install --dev tailwindcss@^3.4.17 babel-preset-expo
+```
+
+`metro.config.js`:
+
+```js
+const { getDefaultConfig } = require("expo/metro-config");
+const { withNativeWind } = require("nativewind/metro");
+
+const config = getDefaultConfig(__dirname);
+module.exports = withNativeWind(config, { input: "./global.css" });
+```
+
+`global.css`, imported once from `App.tsx` (`import "./global.css"`):
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+`tailwind.config.js` uses `presets: [require("nativewind/preset")]` and
+lists your own files in `content`.
+
+`nativewind-env.d.ts`. TypeScript 6 checks side-effect imports, and
+`nativewind/types` does not declare `.css`, so add the second line:
+
+```ts
+/// <reference types="nativewind/types" />
+declare module "*.css";
+```
+
+### Keep NativeWind's JSX runtime out of Kit's folder (required)
+
+NativeWind compiles JSX through its own runtime. That runtime swaps every
+component it knows about, React Native's `Pressable` included, for an
+interop wrapper, whether or not the element has a `className`. On iOS and
+Android that wrapper drops `Pressable` style functions
+(`style={({ pressed }) => …}`). Kit's pressable components use them, so with
+NativeWind's default setup a Kit Button renders with no style at all.
+
+Tested on NativeWind's native runtime:
+
+- **With NativeWind's runtime:** a bare React Native `Pressable` with a style function had no style, and a plain Kit Button had none either.
+- **Without it, as a control:** both kept their styles.
+
+`nativewind/babel` adds its own JSX transform, so overriding
+`babel-preset-expo`'s option for Kit's folder is not enough. Invert the
+config: React's runtime by default, NativeWind's for every file except Kit's
+folder. Use a function pattern, because Metro loads the config once without a
+filename and Babel rejects RegExp patterns then.
+
+```js
+// babel.config.js
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ["babel-preset-expo"],
+    overrides: [
+      {
+        // Everything except the folder `add` put Kit in.
+        exclude: (filename) => !!filename && /[\\/]components[\\/]kit[\\/]/.test(filename),
+        presets: [["babel-preset-expo", { jsxImportSource: "nativewind" }], "nativewind/babel"],
+      },
+    ],
+  };
+};
+```
+
+With this config, Kit's components kept their own styles on the native
+runtime and every case below passed. Android and web exports built.
+
+<Notice message="Your own Pressables with a style function have the same problem under NativeWind 4. Use NativeWind's active: variants, or keep those files out of NativeWind's runtime as above." />
+
+### Give Kit components a className
+
+Register each Kit component once, in your app (not in Kit's folder):
+
+```tsx
+// kit-tw.tsx
+import type { ComponentType } from "react";
+import { cssInterop } from "nativewind";
+import { Button, type ButtonProps } from "./components/kit/button";
+import { Card, type CardProps } from "./components/kit/card";
+
+cssInterop(Button, { className: "style" });
+cssInterop(Card, { className: "style" });
+
+type WithClassName<P> = P & { className?: string };
+export const TwButton = Button as ComponentType<WithClassName<ButtonProps>>;
+export const TwCard = Card as ComponentType<WithClassName<CardProps>>;
+```
+
+```tsx
+<TwButton className="px-8 rounded-full bg-emerald-600">Save</TwButton>
+```
+
+**On iOS and Android (native runtime, tested):** Kit applies your `style`
+after its own, so a `className` overrides Kit's values. That includes a
+Button's fill, padding and radius, a Card's background, padding and radius,
+and a Badge's fill, padding and radius. NativeWind's native `rem` is 14, so
+`px-8` is 28, not 32.
+
+**On the web (measured):** NativeWind emits CSS classes, while Kit's per-state
+values (a Button's or Badge's fill, border colour, height, horizontal
+padding, and a label's colour) are inline styles, which always win.
+
+| On the web | Result |
+| --- | --- |
+| Radius, margin, letter-spacing | Applied |
+| A Card's background and padding | Applied |
+| A Badge's radius and padding | Applied |
+| A Button's or Badge's fill, border colour, height, horizontal padding | Kit's value wins |
+| A Button's label colour | Kit's value wins |
+
+### Slots
+
+Kit's slot styles are nested (`styles={{ label }}`). Map a flat prop through
+a thin adapter:
+
+```tsx
+function LabelButton({ labelStyle, styles, ...props }: ButtonProps & { labelStyle?: StyleProp<TextStyle> }) {
+  return <Button {...props} styles={{ ...styles, label: [styles?.label as StyleProp<TextStyle>, labelStyle] }} />;
+}
+cssInterop(LabelButton, { className: "style", labelClassName: "labelStyle" });
+```
+
+- **Native runtime, tested:** `labelClassName="text-yellow-300 tracking-widest"` coloured the label and spaced the letters.
+- **Web, measured:** letter-spacing applied; the colour lost to Kit's inline colour.
+
+A dotted target (`labelClassName: "styles.label"`) appears in NativeWind's
+source but did not reach the slot when tested. Use the adapter.
+
+### A function style with className
+
+Don't combine them on one Kit component. On the native runtime the
+`className` styles applied, but the function `style` was dropped (tested).
+
+### Dark mode
+
+`dark:` variants follow the device scheme, as Kit does by default (tested on
+the native runtime with the dark scheme). If you force Kit's scheme with
+`KitProvider colorScheme`, set NativeWind's to match with `colorScheme.set()`.
+
+## Uniwind
+
+### Setup (built)
+
+No Babel changes. Uniwind replaces React Native's core components through
+Metro. Its `Pressable` calls a function `style` itself (source), so Kit's
+components need no workaround.
+
+```bash
+npm install uniwind tailwindcss
+```
+
+```js
+// metro.config.js: withUniwindConfig must be the outermost wrapper
+const { getDefaultConfig } = require("expo/metro-config");
+const { withUniwindConfig } = require("uniwind/metro");
+
+module.exports = withUniwindConfig(getDefaultConfig(__dirname), {
+  cssEntryFile: "./global.css",
+  dtsFile: "./uniwind-types.d.ts",
+});
+```
+
+```css
+/* global.css, imported once from App.tsx */
+@import "tailwindcss";
+@import "uniwind";
+```
+
+Run Metro (or an export) once to generate `uniwind-types.d.ts`. With
+TypeScript 6, also add a `.d.ts` file containing `declare module "*.css";`.
+
+### Give Kit components a className
+
+```tsx
+import { withUniwind } from "uniwind";
+import { Button, type ButtonProps } from "./components/kit/button";
+
+export const TwButton = withUniwind(Button) as ComponentType<ButtonProps & { className?: string }>;
+```
+
+**On iOS and Android (source):** `withUniwind` resolves `className` to a style
+and passes `[classNameStyle, yourStyle]` as `style`, which Kit applies after
+its own. So `className` should override Kit's values there. This hasn't been
+run on a device.
+
+**On the web (measured):**
+
+| | Result |
+| --- | --- |
+| Margin, Card padding, letter-spacing | Applied |
+| Radius, a Card's background | Kit's value wins |
+| Kit's computed values (fill, border, height, padding, label colour) | Kit's value wins |
+
+### Slots
+
+Uniwind maps to flat props only, so use the same adapter. Once you pass
+options, `className` is no longer mapped automatically (source), so add it
+too:
+
+```tsx
+export const TwLabelButton = withUniwind(LabelButton, {
+  style: { fromClassName: "className" },
+  labelStyle: { fromClassName: "labelClassName" },
+});
+```
+
+Measured on the web: `labelClassName="tracking-widest"` reached the label.
+
+### A function style with className
+
+As with NativeWind, `[classNameStyle, fn]` drops the function (source).
+
+## Kit's tokens as Tailwind colours
+
+Keep one palette. Publish Kit's live tokens as CSS variables and point
+Tailwind colours at them. Tailwind then follows Kit's theme, scheme and
+overrides, including edits at runtime.
+
+**NativeWind.** Colours on variables, filled with `vars()` (tested on the
+native runtime, measured on the web in light and dark):
+
+```js
+// tailwind.config.js, theme.extend
+colors: { kit: { bg: "var(--kit-bg)", fg: "var(--kit-fg)", accent: "var(--kit-accent)", danger: "var(--kit-danger)" } },
+```
+
+```tsx
+import { View } from "react-native";
+import { vars } from "nativewind";
+import { useKitTheme } from "./components/kit/shared/native";
+
+/** Inside KitProvider: Kit's current tokens as CSS variables. */
+export function KitTailwindVars({ children }: { children: React.ReactNode }) {
+  const { tokens } = useKitTheme();
+  return (
+    <View style={[{ flex: 1 }, vars({ "--kit-bg": tokens.bg, "--kit-fg": tokens.fg, "--kit-accent": tokens.accent, "--kit-danger": tokens.danger })]}>
+      {children}
+    </View>
+  );
+}
+```
+
+**Uniwind.** Declare the colours in `@theme`, then override them with
+`ScopedVariables` (measured on the web in light and dark):
+
+```css
+@theme {
+  --color-kit-bg: #ffffff;
+  --color-kit-fg: #18181b;
+  --color-kit-accent: #2563eb;
+  --color-kit-danger: #dc2626;
+}
+```
+
+```tsx
+import { useMemo } from "react";
+import { ScopedVariables } from "uniwind";
+
+export function KitTailwindVars({ children }: { children: React.ReactNode }) {
+  const { tokens } = useKitTheme();
+  const variables = useMemo(
+    () => ({ "--color-kit-bg": tokens.bg, "--color-kit-fg": tokens.fg, "--color-kit-accent": tokens.accent, "--color-kit-danger": tokens.danger }),
+    [tokens],
+  );
+  return <ScopedVariables variables={variables}>{children}</ScopedVariables>;
+}
+```
+
+With `KitProvider theme={{ light: { accent: "#7c3aed" }, dark: { accent: "#c4b5fd" } }}`,
+a `View` with `className="bg-kit-accent"` rendered `#7c3aed` in light mode and
+`#c4b5fd` in dark mode, with both tools.
+
+## Planned in Kit
+
+Kit's pressable components will track their pressed state themselves instead
+of passing a style function to `Pressable`. NativeWind will then work without
+the Babel override, and `className` will combine with a function `style`.

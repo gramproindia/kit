@@ -16,7 +16,7 @@ import { List, ListItem } from "../../../source/native/list-item";
 import { SearchBar } from "../../../source/native/search-bar";
 import { SegmentedControl } from "../../../source/native/segmented-control";
 import { STATUS_BADGE, formatINR, formatShortDate, useInvoices } from "../data/invoices";
-import { useNav } from "../navigation/Navigator";
+import { router } from "expo-router";
 import { BarAction, Heading, Icon, Muted, Screen } from "../ui/kit";
 
 type Period = "week" | "month" | "quarter";
@@ -30,7 +30,6 @@ const PERIOD_NUMBERS: Record<Period, { revenue: number; trend: number; collected
 
 export function HomeScreen() {
   const { tokens } = useKitTheme();
-  const nav = useNav();
   const { invoices } = useInvoices();
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>("month");
@@ -78,7 +77,7 @@ export function HomeScreen() {
             Refresh
           </MenuItem>
           <MenuSeparator />
-          <MenuItem onSelect={() => nav.setTab("settings")}>Settings</MenuItem>
+          <MenuItem onSelect={() => router.navigate("/settings")}>Settings</MenuItem>
         </Menu>,
       ]}
       header={
@@ -105,7 +104,7 @@ export function HomeScreen() {
           label="New invoice"
           extended={extended}
           icon={<Icon glyph="+" size={24} color={tokens.accentFg} />}
-          onPress={() => nav.setTab("create")}
+          onPress={() => router.navigate("/create")}
         />
       }
     >
@@ -232,7 +231,7 @@ export function HomeScreen() {
               title={invoice.customer}
               description={`${invoice.id} · ${formatINR(invoice.amount)} · due ${formatShortDate(invoice.due)}`}
               trailing={<Badge variant={STATUS_BADGE[invoice.status].variant}>{STATUS_BADGE[invoice.status].label}</Badge>}
-              onPress={() => nav.push("invoice", { id: invoice.id })}
+              onPress={() => router.push(`/invoice/${invoice.id}`)}
             />
           ))}
         </List>

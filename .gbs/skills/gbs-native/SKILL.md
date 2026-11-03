@@ -196,6 +196,7 @@ async function invite(_: { email: string; role: string | null }) {}
 
 - `install.md`: CLI, folders, root setup, Expo Router layout.
 - `theming.md`: tokens, light/dark, presets, scoped themes, your own views.
+- `nativewind.md`: Tailwind `className` on Kit via NativeWind 4 or Uniwind; NativeWind needs Kit's folder excluded from its JSX runtime.
 - `navigation-and-layout.md`: AppBar, BottomNavigation, Fab, SpeedDial,
   ListItem, SegmentedControl, SearchBar, with Expo Router.
 - `forms.md`: every field's native props and a full form.

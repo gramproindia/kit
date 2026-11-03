@@ -127,3 +127,69 @@ export function Panel() {
 
 `createThemedStyles` caches one StyleSheet per token object. `mix(a, b, amount)`
 and `alpha(color, opacity)` from the same module derive tints.
+
+## Icons
+
+Kit ships no icon set. Its small built-in marks (chevrons, the clear and close
+×, checkmarks, the search magnifier, and so on) are drawn with views, so no icon
+or SVG library is needed. To make them match the icon pack the rest of your app
+uses, pass `icons` to `KitProvider`. Each entry receives the size and colour Kit
+wants and returns any element; marks you leave out keep Kit's drawing.
+
+```tsx
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { KitProvider, type KitIcons } from "@/component-lib/shared/native";
+
+// Outside any component, so KitProvider gets the same object every render.
+const CHEVRON = { up: "chevron-up", down: "chevron-down", left: "chevron-back", right: "chevron-forward" } as const;
+
+const icons: Partial<KitIcons> = {
+  chevron: ({ size, color, direction = "down" }) => <Ionicons name={CHEVRON[direction]} size={size} color={color} />,
+  close: ({ size, color }) => <Ionicons name="close" size={size} color={color} />,
+  check: ({ size, color }) => <Ionicons name="checkmark" size={size} color={color} />,
+  search: ({ size, color }) => <Ionicons name="search" size={size} color={color} />,
+};
+
+<KitProvider theme={theme} insets={insets} icons={icons}>
+```
+
+Any pack works the same way. With lucide-react-native (which needs
+react-native-svg; Expo Go includes it):
+
+```tsx
+import { Check, ChevronDown, X } from "lucide-react-native";
+
+const icons: Partial<KitIcons> = {
+  close: ({ size, color }) => <X size={size} color={color} />,
+  check: ({ size, color }) => <Check size={size} color={color} />,
+  chevron: ({ size, color, direction = "down" }) => (
+    <ChevronDown size={size} color={color} style={{ transform: [{ rotate: { down: "0deg", up: "180deg", left: "90deg", right: "-90deg" }[direction] }] }} />
+  ),
+};
+```
+
+The keys:
+
+| Key | Used by |
+| --- | --- |
+| `chevron` | Accordion, Select and date fields, calendar month paging, Menu submenus, ListItem, Breadcrumb, AppBar back. Receives `direction`. |
+| `close` | Clear buttons (Input, NumberInput, Select, date fields, SearchBar), Tag remove, Alert dismiss, Modal close, toast dismiss, SpeedDial close, FileUploader remove. |
+| `check` | Selected rows in Menu and Select, SegmentedControl in check mode, and the success marks in Dialog and toasts. |
+| `search` | SearchBar. |
+| `eye`, `eyeOff` | Input's password reveal button, hidden and shown. |
+| `calendar` | DatePicker, DateRangePicker and DateTimePicker fields. |
+| `plus`, `minus` | NumberInput steppers. |
+| `upload`, `pause`, `play`, `retry` | FileUploader. |
+
+Each icon is placed in a fixed, centred box of the requested size and hidden
+from screen readers; the control around it carries the label. A nested
+`KitProvider` adds to the outer one's icons, so a section can change one mark.
+
+Not overridable, because they are part of the control rather than an icon: the
+checkbox tick and radio dot, the Switch thumb, spinners and progress rings, the
+intent marks in Alert, the warning and info marks in Dialog and toasts, and
+FileUploader's error mark and file-type labels.
+
+Icons you pass to components yourself (Button `icon`/`leading`/`trailing`, Fab
+`icon`, BottomNavigation `icon`, AppBar actions, ListItem `leading`) take any
+element already and need none of this.

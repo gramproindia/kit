@@ -15,7 +15,7 @@ import { Switch } from "../../../source/components/switch";
 import { Textarea } from "../../../source/components/textarea";
 import { toast } from "../../../source/components/toaster";
 import { formatINR, useInvoices } from "../data/invoices";
-import { useNav } from "../navigation/Navigator";
+import { router } from "expo-router";
 import { Heading, Screen } from "../ui/kit";
 
 const STATES: ComboboxOption[] = [
@@ -109,7 +109,6 @@ function validate(d: Draft): Errors {
 }
 
 export function CreateScreen() {
-  const nav = useNav();
   const { add } = useInvoices();
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
@@ -159,7 +158,7 @@ export function CreateScreen() {
       action: {
         label: "View",
         onClick: () => {
-          nav.setTab("home");
+          router.navigate("/");
         },
       },
     });

@@ -9,7 +9,7 @@ import { KitProvider, useKitTheme } from "../../../source/components/shared/nati
 import { ListItem, ListSection } from "../../../source/native/list-item";
 import { SegmentedControl } from "../../../source/native/segmented-control";
 import app from "../../app.json";
-import { useNav } from "../navigation/Navigator";
+import { router } from "expo-router";
 import { useAppSettings } from "../theme/AppSettings";
 import { presetById } from "../theme/presets";
 import { PresetSwatches, SchemeControl, ThemePreview } from "../theme/ThemeControls";
@@ -19,7 +19,6 @@ const RADII = [0, 4, 8, 12, 16];
 
 export function SettingsScreen() {
   const { tokens } = useKitTheme();
-  const nav = useNav();
   const settings = useAppSettings();
   const teal = presetById("teal");
 
@@ -56,7 +55,7 @@ export function SettingsScreen() {
             onValueChange={(v) => v && settings.setToken(settings.resolved, "fontSize", v)}
           />
         </View>
-        <ListItem title="Theme editor" description="Edit every token, export gbs.theme.ts" chevron onPress={() => nav.push("theme")} />
+        <ListItem title="Theme editor" description="Edit every token, export gbs.theme.ts" chevron onPress={() => router.push("/settings/theme")} />
         <ListItem title="Reset appearance" destructive onPress={() => settings.setPreset("default")} />
       </ListSection>
 
@@ -91,8 +90,8 @@ export function SettingsScreen() {
       <ListSection header="About">
         <ListItem title="App" value={`${app.expo.name} ${app.expo.version}`} />
         <ListItem title="Kit" value="React Native · beta" />
-        <ListItem title="Diagnostics" description="Hermes Intl checks (Phase 0, S1)" chevron onPress={() => nav.push("diagnostics")} />
-        <ListItem title="Components" description="Browse every demo" chevron onPress={() => nav.setTab("components")} />
+        <ListItem title="Diagnostics" description="Hermes Intl checks (Phase 0, S1)" chevron onPress={() => router.push("/settings/diagnostics")} />
+        <ListItem title="Components" description="Browse every demo" chevron onPress={() => router.navigate("/components")} />
       </ListSection>
 
       <Alert
