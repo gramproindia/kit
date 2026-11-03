@@ -12,7 +12,9 @@
  */
 const SITE = "https://kit.gramproindia.com";
 const KEY = "75324856c2512bcaf3f871256d60d958";
-const ENDPOINT = "https://api.indexnow.org/indexnow";
+// Bing's own endpoint: it shares submissions with the other IndexNow engines,
+// and api.indexnow.org fails TLS on some networks (ERR_SSL_WRONG_VERSION_NUMBER).
+const ENDPOINT = "https://www.bing.com/indexnow";
 
 const args = new Set(process.argv.slice(2));
 const nativeOnly = args.has("--native");
@@ -57,6 +59,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error.message);
+  console.error(error.cause ? `${error.message}: ${error.cause.code ?? error.cause.message}` : error.message);
   process.exitCode = 1;
 });
