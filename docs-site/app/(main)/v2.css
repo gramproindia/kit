@@ -1891,6 +1891,16 @@
   background: var(--v2-code-bg);
 }
 
+/* The highlighter wraps each code block in a <figure>; it has to take part in
+   the flex chain too, or it grows to the code's full height and nothing scrolls. */
+.v2-native-preview-code > figure {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  margin: 0;
+}
+
 .v2-native-preview-code .v2-code {
   display: flex;
   min-height: 0;
