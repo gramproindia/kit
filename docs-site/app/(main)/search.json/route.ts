@@ -1,6 +1,7 @@
 import { getDocs, getHeadings } from "../_lib/docs";
 import { agentConfig, getAgentDocs, getAgentHeadings } from "../_lib/agent-docs";
 import { DEFAULT_LOCALE, LOCALE_CODES, type Locale } from "../_lib/i18n";
+import { getNativeDocs, getNativeHeadings } from "../_lib/native-docs";
 
 export const dynamic = "force-static";
 
@@ -46,6 +47,24 @@ export async function GET() {
     const group = `${agentConfig.name} · ${doc.group}`;
     entries.push({ type: "page", title: doc.title, page: doc.title, group, href: doc.href, locale: DEFAULT_LOCALE });
     for (const heading of await getAgentHeadings(doc.slug)) {
+      if (heading.level > 3) continue;
+      entries.push({
+        type: "section",
+        title: heading.title,
+        page: doc.title,
+        group,
+        href: `${doc.href}#${heading.id}`,
+        locale: DEFAULT_LOCALE,
+      });
+    }
+  }
+
+  // The React Native pages, English only. Component names repeat the web ones
+  // (Button, Input…), so the group says which edition a result belongs to.
+  for (const doc of await getNativeDocs()) {
+    const group = `React Native · ${doc.group}`;
+    entries.push({ type: "page", title: doc.title, page: doc.title, group, href: doc.href, locale: DEFAULT_LOCALE });
+    for (const heading of await getNativeHeadings(doc.slug)) {
       if (heading.level > 3) continue;
       entries.push({
         type: "section",

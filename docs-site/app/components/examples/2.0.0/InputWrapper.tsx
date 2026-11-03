@@ -19,7 +19,7 @@ export function InputWrapper() {
         clearable
         description="We'll send the receipt here."
       />
-      <Input label="Password" type="password" defaultValue="correct horse" required />
+      <Input label="Password" type="password" placeholder="At least 8 characters" autoComplete="new-password" required />
       <Input label="Headline" maxLength={40} showCount placeholder="Say something short" />
       <Input
         label="Weight"

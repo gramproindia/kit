@@ -1,31 +1,40 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, ChevronRight, TriangleAlert } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, Globe, TriangleAlert } from "lucide-react";
 import { getNativeDocs, getNativeNav, nativeConfig, readNativeSource, NATIVE_BASE } from "../../_lib/native-docs";
 import { compileSource } from "../../_lib/render";
 import { markdownHref } from "../../_lib/markdown";
 import { BRAND, articleGraph } from "../../_lib/seo";
 import { v2Config } from "../../_lib/config";
 import { JsonLd } from "../JsonLd";
+import { webTwinOf } from "../../_lib/native-components";
 import { TableOfContents } from "../TableOfContents";
 import { PageActions } from "../PageActions";
 import { NativeSidebarNav } from "./NativeSidebarNav";
 
-const pageTitle = (title: string) => `${title} | ${nativeConfig.shortName}`;
+const pageTitle = (title: string) => `${title} | ${v2Config.name}`;
+
+/** Say "React Native" in every description, for searches that do. */
+const nativeDescription = (description: string, component: boolean) =>
+  /react native/i.test(description)
+    ? description
+    : `${description} ${component ? "A React Native component for iOS and Android" : "React Native (iOS and Android)"}, from ${v2Config.name} (beta).`;
 
 /** Metadata for one /native/docs page. */
 export async function nativeMetadata(slug: string): Promise<Metadata> {
   const doc = (await getNativeDocs()).find((d) => d.slug === slug);
   if (!doc) return {};
-  const title = pageTitle(doc.kind === "component" ? `${doc.title} for React Native` : doc.title);
+  const component = doc.kind === "component";
+  const title = pageTitle(component ? `${doc.title} for React Native (iOS & Android)` : `${doc.title} · React Native`);
+  const description = nativeDescription(doc.description, component);
   return {
     title: { absolute: title },
-    description: doc.description,
+    description,
     alternates: { canonical: doc.href, types: { "text/markdown": markdownHref(doc) } },
     openGraph: {
       title,
-      description: doc.description,
+      description,
       type: "article",
       url: doc.href,
       locale: "en",
@@ -64,10 +73,21 @@ export async function NativeDocPage({ slug }: { slug: string }) {
   const prev = docs[index - 1];
   const next = docs[index + 1];
   const { content, toc } = await compileSource(source);
+  const web = webTwinOf(slug);
 
   return (
     <div className="v2-container md:grid md:grid-cols-[13.5rem_minmax(0,1fr)] md:gap-10 xl:grid-cols-[13.5rem_minmax(0,1fr)_13rem] xl:gap-12">
-      <JsonLd data={articleGraph({ title: doc.title, description: doc.description, href: doc.href, locale: "en" })} />
+      <JsonLd
+        data={articleGraph({
+          title: `${doc.title} for React Native`,
+          description: doc.description,
+          href: doc.href,
+          locale: "en",
+          related: web ?? undefined,
+        })}
+      />
+      {/* Hoisted into <head> by React 19: the same component on the web. */}
+      {web && <link rel="alternate" href={web} title={`${doc.title} for React (web)`} />}
       <aside className="hidden md:block">
         <div className="v2-sidebar">
           <NativeSidebarNav nav={nav} />
@@ -103,6 +123,15 @@ export async function NativeDocPage({ slug }: { slug: string }) {
           <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{doc.title}</h1>
           {doc.description && (
             <p className="mt-3 max-w-2xl text-base text-pretty text-(--v2-muted) sm:text-lg">{doc.description}</p>
+          )}
+          {web && (
+            <p className="mt-4 text-sm">
+              <Link href={web} className="inline-flex items-center gap-1.5 font-medium text-(--v2-accent)">
+                <Globe className="size-4" aria-hidden />
+                {doc.title} for React on the web
+                <ArrowRight className="size-3.5" aria-hidden />
+              </Link>
+            </p>
           )}
         </header>
 

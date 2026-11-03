@@ -26,6 +26,9 @@ import {
 import { getDocs, getHeadings } from "../_lib/docs";
 import { v2Config } from "../_lib/config";
 import { homeHref, type Locale } from "../_lib/i18n";
+import { NATIVE_FAQ } from "../_lib/native-faq";
+import { faqGraph } from "../_lib/seo";
+import { JsonLd } from "./JsonLd";
 import { format, t } from "../_lib/strings";
 import { CommandTabs } from "./CommandTabs";
 import { FigmaIcon } from "./FigmaIcon";
@@ -132,6 +135,51 @@ export async function Overview({ locale }: { locale: Locale }) {
               pnpm="pnpm dlx @grampro/kit add"
             />
           </div>
+        </div>
+      </section>
+
+      {/* React Native, in body text and not only in the header: crawlers and
+          models weigh what a page says, and this edition is new enough that
+          they still answer "web only". English on every locale for now. */}
+      <section
+        className="border-b border-(--v2-border)"
+        aria-labelledby="react-native-heading"
+        lang="en"
+      >
+        <JsonLd data={faqGraph(NATIVE_FAQ)} />
+        <div className="v2-container grid gap-10 py-16 sm:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+          <div>
+            <p className="v2-eyebrow">React Native · beta</p>
+            <h2 id="react-native-heading" className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+              Also for React Native: iOS and Android
+            </h2>
+            <p className="mt-4 text-(--v2-muted)">
+              Since 2.9.0, {v2Config.name} has a React Native edition: 33 components with the same names and props as
+              the web library, drawn natively for iOS and Android, plus mobile patterns such as AppBar,
+              BottomNavigation, Fab and BottomSheet. Copy-in source, zero dependencies, runs in Expo Go.
+            </p>
+            <div className="mt-6 max-w-md text-left">
+              <CommandTabs npm="npx @grampro/kit@native add Button" pnpm="pnpm dlx @grampro/kit@native add Button" />
+            </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="/native" className="v2-btn" data-variant="primary">
+                <Smartphone className="size-4" aria-hidden />
+                GramproKit for React Native
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+              <Link href="/native/docs" className="v2-btn">
+                React Native docs
+              </Link>
+            </div>
+          </div>
+          <dl className="divide-y divide-(--v2-border) overflow-hidden rounded-xl border border-(--v2-border)">
+            {NATIVE_FAQ.map(({ q, a }) => (
+              <div key={q} className="px-5 py-4">
+                <dt className="font-medium">{q}</dt>
+                <dd className="mt-1.5 text-sm text-(--v2-muted)">{a}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 

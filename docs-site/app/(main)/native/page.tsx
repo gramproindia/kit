@@ -15,9 +15,11 @@ import {
 import { CommandTabs } from "../_components/CommandTabs";
 import { PhoneFrame } from "../_components/native/PhoneFrame";
 import { demoApp, getNativeDocs, nativeConfig, NATIVE_BASE, NATIVE_DOCS, NATIVE_GROUPS } from "../_lib/native-docs";
-import { BRAND } from "../_lib/seo";
+import { BRAND, faqGraph } from "../_lib/seo";
+import { NATIVE_FAQ } from "../_lib/native-faq";
+import { JsonLd } from "../_components/JsonLd";
 
-const TITLE = "GramproKit for React Native (beta)";
+const TITLE = "GramproKit for React Native — iOS and Android components (beta)";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -29,6 +31,12 @@ export const metadata: Metadata = {
     url: NATIVE_BASE,
     type: "website",
     images: [{ url: BRAND.ogImage, width: 1200, height: 630, alt: nativeConfig.name }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: nativeConfig.description,
+    images: [BRAND.ogImage],
   },
 };
 
@@ -220,6 +228,22 @@ export default async function NativeHome() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="v2-container pb-16 sm:pb-20" aria-labelledby="native-faq-heading">
+        <JsonLd data={faqGraph(NATIVE_FAQ)} />
+        <p className="v2-eyebrow">FAQ</p>
+        <h2 id="native-faq-heading" className="mt-2 mb-6 text-2xl font-semibold tracking-tight sm:text-3xl">
+          React Native questions
+        </h2>
+        <dl className="divide-y divide-(--v2-border) overflow-hidden rounded-xl border border-(--v2-border)">
+          {NATIVE_FAQ.map(({ q, a }) => (
+            <div key={q} className="px-5 py-4">
+              <dt className="font-medium">{q}</dt>
+              <dd className="mt-1.5 text-sm text-(--v2-muted)">{a}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       <section className="border-t border-(--v2-border)" aria-labelledby="native-cta-heading">

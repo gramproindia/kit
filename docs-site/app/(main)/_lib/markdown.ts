@@ -4,6 +4,7 @@ import { siteConfig } from "@/site.config";
 import { getDocs, readSourceWithFallback, type DocMeta } from "./docs";
 import { agentConfig, getAgentDocs, readAgentSource } from "./agent-docs";
 import { demoApp, getNativeDocs, nativeConfig, readNativeSource, NATIVE_BASE } from "./native-docs";
+import { nativeTwinOf } from "./native-components";
 import { v2Config } from "./config";
 import { DEFAULT_LOCALE, homeHref, LOCALE_CODES, localeInfo, type Locale } from "./i18n";
 import { t } from "./strings";
@@ -36,6 +37,15 @@ function toMarkdown(source: string, doc: DocMeta) {
     `GramproKit ${v2Config.version} · ${doc.group} · ${s.mdBetaLine} · ${s.mdSource}: ${pageUrl}`,
     "",
   ];
+  // The same component for React Native, so a model reading only this page
+  // still learns the library is not web-only.
+  const twin = nativeTwinOf(doc.slug);
+  if (twin) {
+    header.push(
+      `Also available for React Native (iOS and Android, beta): ${absoluteUrl(`${twin.href}.md`)}`,
+      "",
+    );
+  }
   return finish(header, convertBody(source, doc.locale, pageUrl));
 }
 
@@ -216,7 +226,7 @@ async function nativeLlmsLines() {
     "- Pickers and menus take `presentation`: `auto` (a bottom sheet on phones, a popover on tablets), `sheet` or `popover`. FileUploader needs an injected `pick()`; Kit adds no picker dependency.",
     "- Everything is pure JavaScript with no native modules, so it runs in Expo Go. Requires React Native 0.83 or later, React 19.2, and the New Architecture. DataGrid is not available on native yet.",
     `- Agent tooling: \`npx @grampro/kit@${nativeConfig.npmTag} skill\` installs the \`gbs-native\` skill for Claude Code, Codex and Antigravity (\`--platform both\` installs web and native). The MCP server's tools take \`platform: "native"\`: \`list_components\`, \`get_component\`, \`get_example\`, \`get_guidance\`, \`install_component\`, and \`validate_usage\`, which flags web-only props such as \`className\` and \`onClick\`.`,
-    `- A sample Android app built only from Kit, ${demoApp.name}: ${demoApp.apkUrl}`,
+    `- A sample Android app built only from Kit, ${demoApp.name} ${demoApp.version}: ${absoluteUrl(demoApp.apkUrl)}`,
     "",
   ];
   for (const doc of await getNativeDocs()) {

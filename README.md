@@ -1,10 +1,19 @@
 # GramproKit
 
-**An agent-native UI runtime for React.**
+**An agent-native UI runtime for React and React Native.**
 
-React components you own — styled, dependency-free, and machine-readable. Each
-component arrives in your project as source, with its stylesheet, and with a
-contract describing what it is and what can safely be done to it.
+Components you own, for the web and for iOS and Android: styled,
+dependency-free, and machine-readable. Each component arrives in your project
+as source, with its stylesheet, and with a contract describing what it is and
+what can safely be done to it.
+
+**React Native (beta, since 2.9.0):** the same components and props, drawn
+natively for iOS and Android, plus mobile-only ones such as AppBar,
+BottomNavigation, Fab and BottomSheet. Runs in Expo Go, zero dependencies.
+`npx @grampro/kit@native add Button`, or plain `npx @grampro/kit add` in a React
+Native or Expo project. Docs:
+[kit.gramproindia.com/native](https://kit.gramproindia.com/native). Details in
+[React Native (beta)](#react-native-beta) below.
 
 It ships an **MCP server**, so Claude Code, Codex and Cursor can read that
 contract instead of guessing at it — and build a screen straight from a

@@ -1,7 +1,7 @@
 {
   "name": "@grampro/kit",
   "version": "2.9.1",
-  "description": "GramproKit — an agent-native UI runtime for React. Copy-in components you own, each publishing a contract that software can read.",
+  "description": "GramproKit — an agent-native UI runtime for React (web) and React Native (iOS/Android, beta). Copy-in components you own, each publishing a contract that software can read.",
   "type": "module",
   "files": [
     "index.cjs",
@@ -40,7 +40,13 @@
     "webmcp",
     "data-grid",
     "copy-in",
-    "accessibility"
+    "accessibility",
+    "react-native",
+    "expo",
+    "ios",
+    "android",
+    "mobile",
+    "react-native-components"
   ],
   "author": "Anandhu Remanan",
   "license": "ISC",

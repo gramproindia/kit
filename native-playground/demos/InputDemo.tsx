@@ -19,7 +19,7 @@ export function InputDemo() {
           description="We never share it."
           required
         />
-        <Input label="Password" type="password" defaultValue="hunter22" />
+        <Input label="Password" type="password" placeholder="At least 8 characters" />
         <Input
           label="Website"
           type="url"

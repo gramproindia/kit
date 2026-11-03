@@ -18,7 +18,7 @@ export const v2Config = {
    * nobody types into a search box.
    */
   description:
-    "GramproKit (Grampro Kit) is an open-source React component library you copy into your project, with zero runtime dependencies and an MCP server for AI coding agents.",
+    "GramproKit (Grampro Kit) is an open-source component library for React and React Native (iOS and Android, beta) that you copy into your project: zero dependencies, plus an MCP server for AI coding agents.",
   legacyDocsHref: "/1.x.x-legacy/docs/getting-started",
   github: "https://github.com/gramproindia/kit",
   /** GBS SE Agent: a coding agent with skills for building with these components.

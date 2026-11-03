@@ -122,8 +122,19 @@ export function CommandMenu({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
       >
         <div className="flex items-center gap-3 border-b border-(--v2-border) px-4">
           <Search className="size-4 shrink-0 text-(--v2-faint)" aria-hidden />
+          {/* A search box, said every way browsers and password managers listen
+              for: a bare text input is a username candidate, so Chrome offered
+              to save the query as a login next to a demo's password field. */}
           <input
             ref={input}
+            type="search"
+            name="docs-search"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            data-1p-ignore=""
+            data-lpignore="true"
+            data-form-type="other"
             autoFocus
             value={query}
             onChange={(event) => {

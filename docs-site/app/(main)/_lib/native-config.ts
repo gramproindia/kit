@@ -23,15 +23,16 @@ export const nativeConfig = {
 
 /**
  * The GramproKit Demo app (native-playground) as an installable Android APK.
- * Hosted as an asset on the repo's GitHub Releases: `releases/latest/download/<name>`
- * always serves the newest release's file, so the link never needs updating.
- * Upload each new build under exactly this file name.
+ * Served by this site from public/downloads/. Replace that file (same name)
+ * with each new build; the link never changes. Git keeps every version of a
+ * binary, ~30 MB each, so move to Git LFS or GitHub Releases if builds get
+ * frequent.
  */
 export const demoApp = {
   name: "GramproKit Demo",
-  apkUrl: "https://github.com/gramproindia/kit/releases/latest/download/GramproKit-Demo.apk",
-  releasesUrl: "https://github.com/gramproindia/kit/releases",
-  requirements: "Android 7.0 or later, 64-bit (arm64). About 21 MB.",
+  apkUrl: "/downloads/GramproKit-Demo.apk",
+  version: "1.1.0",
+  requirements: "Android 7.0 or later, 64-bit (arm64). About 30 MB.",
   /** Installing outside the Play Store needs the user to allow it once. */
   sideloadNote:
     "Android asks you to allow installs from your browser the first time. The demo is debug-signed, for trying Kit, not for production.",

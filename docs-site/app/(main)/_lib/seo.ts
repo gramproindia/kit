@@ -29,15 +29,17 @@ export const BRAND = {
  * a search engine had learned about each title, and it spent characters a
  * results page truncates on something no one searches for.
  */
-export const HOME_TITLE = `${v2Config.name} — copy-paste React components with an MCP server`;
+export const HOME_TITLE = `${v2Config.name} — copy-paste React and React Native components with an MCP server`;
 export const TITLE_TEMPLATE = `%s | ${v2Config.name} React components`;
 
 const site = siteConfig.baseUrl.replace(/\/$/, "");
 const absolute = (path: string) => (path.startsWith("http") ? path : `${site}${path === "/" ? "" : path}`);
 
-const ids = {
+export const ids = {
   website: `${site}/#website`,
   software: `${site}/#software`,
+  /** The React Native edition (beta), same package, shipped since 2.9.0. */
+  native: `${site}/native#software`,
   organization: `${site}/#organization`,
 };
 
@@ -73,8 +75,10 @@ export function siteGraph() {
         description: v2Config.description,
         url: site,
         codeRepository: v2Config.github,
-        programmingLanguage: ["TypeScript", "React"],
-        runtimePlatform: "React 19",
+        programmingLanguage: ["TypeScript", "React", "React Native"],
+        // Web and mobile: the same package carries a React Native edition.
+        runtimePlatform: ["React 19 (web browsers)", "React Native 0.83+ (iOS and Android)", "Expo"],
+        hasPart: { "@id": ids.native },
         license: "https://spdx.org/licenses/ISC.html",
         version: v2Config.version,
         author: { "@id": ids.organization },
@@ -87,14 +91,64 @@ export function siteGraph() {
           "MCP server",
           "AI coding agents",
           "Figma to React",
+          "React Native component library",
+          "Expo components",
+          "iOS and Android UI components",
         ],
       },
+      nativeApplication(),
     ],
   };
 }
 
+/*
+ * The React Native edition as its own entity, so "does GramproKit support React
+ * Native?" has a direct, structured answer. Every claim here is on /native.
+ */
+export function nativeApplication() {
+  return {
+    "@type": "SoftwareApplication",
+    "@id": ids.native,
+    name: `${BRAND.name} for React Native`,
+    alternateName: ["GramproKit Native", "Grampro Kit for React Native", "@grampro/kit (React Native edition)"],
+    description:
+      "The React Native edition of GramproKit (beta, since 2.9.0): the same components and props as the web library, drawn natively for iOS and Android, plus mobile-only components such as AppBar, BottomNavigation, Fab, SegmentedControl, ListItem, BottomSheet and SearchBar. Copy-in source with zero dependencies; runs in Expo Go.",
+    url: absolute("/native"),
+    applicationCategory: "DeveloperApplication",
+    applicationSubCategory: "UI component library",
+    operatingSystem: ["iOS", "Android"],
+    runtimePlatform: ["React Native 0.83+", "Expo"],
+    softwareVersion: v2Config.version,
+    softwareHelp: { "@type": "CreativeWork", url: absolute("/native/docs") },
+    installUrl: BRAND.npm,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    isPartOf: { "@id": ids.software },
+    publisher: { "@id": ids.organization },
+  };
+}
+
+/* Questions and answers that are also shown, word for word, on the page. */
+export function faqGraph(items: readonly { q: string; a: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
+  };
+}
+
 /* One documentation page, tied back to the site and the software it documents. */
-export function articleGraph(page: { title: string; description?: string; href: string; locale: string }) {
+export function articleGraph(page: {
+  title: string;
+  description?: string;
+  href: string;
+  locale: string;
+  /** The same component's page in the other edition (web ↔ React Native). */
+  related?: string;
+}) {
   const url = absolute(page.href);
   return {
     "@context": "https://schema.org",
@@ -110,6 +164,9 @@ export function articleGraph(page: { title: string; description?: string; href: 
         about: { "@id": ids.software },
         publisher: { "@id": ids.organization },
       },
+      ...(page.related
+        ? [{ "@type": "WebPage", "@id": url, url, mainEntity: { "@id": `${url}#article` }, relatedLink: [absolute(page.related)] }]
+        : []),
       {
         "@type": "BreadcrumbList",
         itemListElement: [

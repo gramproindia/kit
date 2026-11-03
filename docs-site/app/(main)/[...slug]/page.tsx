@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, ChevronRight, Languages } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, Languages, Smartphone } from "lucide-react";
 import { getDocs, getNav } from "../_lib/docs";
 import { renderDoc } from "../_lib/render";
 import { markdownHref } from "../_lib/markdown";
 import { v2Config } from "../_lib/config";
 import { BRAND, HOME_TITLE, TITLE_TEMPLATE, articleGraph } from "../_lib/seo";
 import { JsonLd } from "../_components/JsonLd";
+import { nativeTwinOf } from "../_lib/native-components";
 import {
   DEFAULT_LOCALE,
   docHref,
@@ -128,12 +129,22 @@ export default async function DocPage({ params }: Props) {
   const { content, toc, translated } = rendered;
   const [feedbackBefore, feedbackAfter] = splitAround(s.feedbackNote, "bugTracker");
   const lang = localeInfo(locale).htmlLang;
+  // The React Native edition of this component, when there is one.
+  const twin = nativeTwinOf(slug);
 
   return (
     <div className="v2-container md:grid md:grid-cols-[13.5rem_minmax(0,1fr)] md:gap-10 xl:grid-cols-[13.5rem_minmax(0,1fr)_13rem] xl:gap-12">
       <JsonLd
-        data={articleGraph({ title: doc.title, description: doc.description, href: doc.href, locale: lang })}
+        data={articleGraph({
+          title: doc.title,
+          description: doc.description,
+          href: doc.href,
+          locale: lang,
+          related: twin?.href,
+        })}
       />
+      {/* React 19 hoists this into <head>: the same component, for React Native. */}
+      {twin && <link rel="alternate" href={twin.href} title={`${twin.title} for React Native (iOS and Android)`} />}
       <aside className="hidden md:block" lang={lang}>
         <div className="v2-sidebar">
           <SidebarNav nav={nav} locale={locale} />
@@ -164,6 +175,15 @@ export default async function DocPage({ params }: Props) {
           <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{doc.title}</h1>
           {doc.description && (
             <p className="mt-3 max-w-2xl text-base text-pretty text-(--v2-muted) sm:text-lg">{doc.description}</p>
+          )}
+          {twin && (
+            <p className="mt-4 text-sm" lang="en">
+              <Link href={twin.href} className="inline-flex items-center gap-1.5 font-medium text-(--v2-accent)">
+                <Smartphone className="size-4" aria-hidden />
+                Also available for React Native (iOS and Android, beta): {twin.title} for React Native
+                <ArrowRight className="size-3.5" aria-hidden />
+              </Link>
+            </p>
           )}
           <p className="mt-5 text-sm text-(--v2-muted)">
             {feedbackBefore}

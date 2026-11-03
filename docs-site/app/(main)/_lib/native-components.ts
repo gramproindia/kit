@@ -623,3 +623,19 @@ const ok = await dialog.confirm({ title: "Delete invoice?", intent: "danger" });
     web: "/skeleton",
   },
 ];
+
+/**
+ * The React Native page for a web component page, e.g. "button" →
+ * { title: "Button", href: "/native/docs/button" }; null when the component
+ * has no native edition (DataGrid). Read by the web doc pages and their
+ * Markdown copies, so each edition links to the other.
+ */
+export function nativeTwinOf(webSlug: string): { title: string; href: string } | null {
+  const entry = NATIVE_COMPONENTS.find((c) => c.web === `/${webSlug}`);
+  return entry ? { title: entry.title, href: `/native/docs/${entry.slug}` } : null;
+}
+
+/** The web page for a React Native component page, e.g. "button" → "/button". */
+export function webTwinOf(nativeSlug: string): string | null {
+  return NATIVE_COMPONENTS.find((c) => c.slug === nativeSlug)?.web ?? null;
+}
