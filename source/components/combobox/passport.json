@@ -235,7 +235,7 @@
       "signature": "((value: NoInfer<V> | null, option: ComboboxOption<NoInfer<V>> | null) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The chosen value, and the whole option beside it so the label and\r\nanything else it carries need not be looked up again. Both are\r\n`null` once the control is cleared.",
+      "description": "The chosen value, and the whole option beside it so the label and\nanything else it carries need not be looked up again. Both are\n`null` once the control is cleared.",
       "descriptionOrigin": "jsdoc"
     },
     {

@@ -175,7 +175,7 @@
       "signature": "((open: boolean, reason?: MenuCloseReason) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "`reason` says what closed it - `escape`, `outside`, `trigger`,\r\n`select` or `api` - and is undefined when opening.",
+      "description": "`reason` says what closed it - `escape`, `outside`, `trigger`,\n`select` or `api` - and is undefined when opening.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -251,7 +251,7 @@
       "typeText": "ReactElement<{ [attribute: string]: unknown; }, string | import(\"react\").JSXElementConstructor<any>>",
       "required": true,
       "origin": "derived",
-      "description": "The element that opens the menu. It is cloned with the ARIA wiring, so pass\r\na single element — any button in this library works.",
+      "description": "The element that opens the menu. It is cloned with the ARIA wiring, so pass\na single element — any button in this library works.",
       "descriptionOrigin": "jsdoc"
     },
     {

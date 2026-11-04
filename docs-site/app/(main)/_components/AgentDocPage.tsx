@@ -12,6 +12,7 @@ import { TableOfContents } from "./TableOfContents";
 import { PageActions } from "./PageActions";
 import { AgentSidebarNav } from "./AgentSidebarNav";
 import { GitHubIcon } from "./GitHubIcon";
+import { SidebarScroll } from "./SidebarScroll";
 
 const pageTitle = (title: string) => (title === agentConfig.name ? title : `${title} | ${agentConfig.name}`);
 
@@ -54,9 +55,9 @@ export async function AgentDocPage({ slug }: { slug: string }) {
     <div className="v2-container md:grid md:grid-cols-[13.5rem_minmax(0,1fr)] md:gap-10 xl:grid-cols-[13.5rem_minmax(0,1fr)_13rem] xl:gap-12">
       <JsonLd data={articleGraph({ title: doc.title, description: doc.description, href: doc.href, locale: "en" })} />
       <aside className="hidden md:block">
-        <div className="v2-sidebar">
+        <SidebarScroll section="agent">
           <AgentSidebarNav nav={nav} />
-        </div>
+        </SidebarScroll>
       </aside>
 
       <main id="v2-main" className="min-w-0 pt-8 pb-20 md:pt-10" lang="en">

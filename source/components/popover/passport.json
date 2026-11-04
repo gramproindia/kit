@@ -125,7 +125,7 @@
       "signature": "((open: boolean, reason?: PopoverCloseReason) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "`reason` says what closed it - `escape`, `outside`, `trigger` or\r\n`api` - and is undefined when opening.",
+      "description": "`reason` says what closed it - `escape`, `outside`, `trigger` or\n`api` - and is undefined when opening.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -193,7 +193,7 @@
       "typeText": "ReactElement<{ [attribute: string]: unknown; ref?: Ref<HTMLElement>; }, string | import(\"react\").JSXElementConstructor<any>>",
       "required": true,
       "origin": "derived",
-      "description": "The element that opens it. It is cloned with a ref and the ARIA attributes\r\nthat tie it to the panel, so pass a single element that forwards both — any\r\nbutton in this library does.",
+      "description": "The element that opens it. It is cloned with a ref and the ARIA attributes\nthat tie it to the panel, so pass a single element that forwards both — any\nbutton in this library does.",
       "descriptionOrigin": "jsdoc"
     }
   ],

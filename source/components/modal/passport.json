@@ -110,7 +110,7 @@
       "typeText": "Renderable",
       "required": false,
       "origin": "derived",
-      "description": "The actions row, pinned below the scrolling content so it stays\r\nreachable however long the body is.",
+      "description": "The actions row, pinned below the scrolling content so it stays\nreachable however long the body is.",
       "descriptionOrigin": "jsdoc"
     },
     {

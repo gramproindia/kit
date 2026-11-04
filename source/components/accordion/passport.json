@@ -140,7 +140,7 @@
       "signature": "((value: string[]) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The open panels after a change, always an array even with `multiple`\r\noff - where it holds one value, or none once a panel is closed.",
+      "description": "The open panels after a change, always an array even with `multiple`\noff - where it holds one value, or none once a panel is closed.",
       "descriptionOrigin": "jsdoc"
     },
     {

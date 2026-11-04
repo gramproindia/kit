@@ -164,7 +164,7 @@
       "typeText": "ReactNode",
       "required": false,
       "origin": "derived",
-      "description": "The validation message. Setting it is enough on its own: the field\r\nreads as invalid to assistive technology and the message is announced.",
+      "description": "The validation message. Setting it is enough on its own: the field\nreads as invalid to assistive technology and the message is announced.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -286,7 +286,7 @@
       "typeText": "number | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Smallest accepted value. By default it is applied on blur rather than on\r\neach keystroke, so the field does not fight someone mid-number — see\r\n`clampBehavior` for `strict` or `none`.",
+      "description": "Smallest accepted value. By default it is applied on blur rather than on\neach keystroke, so the field does not fight someone mid-number — see\n`clampBehavior` for `strict` or `none`.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -459,7 +459,7 @@
       "required": false,
       "default": false,
       "origin": "derived",
-      "description": "Let the wheel change the value while the field has focus. Default **false**:\r\na wheel that edits a focused field turns an ordinary page scroll into a\r\nsilent change to someone's data.",
+      "description": "Let the wheel change the value while the field has focus. Default **false**:\na wheel that edits a focused field turns an ordinary page scroll into a\nsilent change to someone's data.",
       "descriptionOrigin": "jsdoc",
       "note": "Scroll-to-change is off by default because it fires while a page is being scrolled past."
     }

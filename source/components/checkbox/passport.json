@@ -136,7 +136,7 @@
       "typeText": "ReactNode",
       "required": false,
       "origin": "derived",
-      "description": "The validation message. Setting it is enough on its own: the box reads as\r\ninvalid to assistive technology and the message is announced, so no extra\r\n`aria-invalid` is needed.",
+      "description": "The validation message. Setting it is enough on its own: the box reads as\ninvalid to assistive technology and the message is announced, so no extra\n`aria-invalid` is needed.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -236,7 +236,7 @@
       "signature": "ChangeEventHandler<HTMLInputElement> | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The underlying DOM event, for form libraries that want the native\r\nhandler. For reading the new state, `onCheckedChange` is simpler.",
+      "description": "The underlying DOM event, for form libraries that want the native\nhandler. For reading the new state, `onCheckedChange` is simpler.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -245,7 +245,7 @@
       "signature": "((checked: boolean) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The state after a change, as a plain boolean — the handler to reach for.\r\nNever fires with `\"indeterminate\"`: clicking a mixed box resolves it.",
+      "description": "The state after a change, as a plain boolean — the handler to reach for.\nNever fires with `\"indeterminate\"`: clicking a mixed box resolves it.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -254,7 +254,7 @@
       "signature": "((values: string[]) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The checked values after a change. They accumulate in the order they were\r\nchecked, not the order the options are declared, so sort before comparing\r\ntwo selections for equality.",
+      "description": "The checked values after a change. They accumulate in the order they were\nchecked, not the order the options are declared, so sort before comparing\ntwo selections for equality.",
       "descriptionOrigin": "jsdoc"
     },
     {

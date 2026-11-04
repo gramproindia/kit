@@ -101,7 +101,7 @@
       "required": false,
       "default": false,
       "origin": "derived",
-      "description": "Offer a button that empties the group. Radios cannot be unselected by\r\nclicking or by keyboard — that is the control's nature, not an oversight —\r\nso an optional choice needs either this or a \"None\" option of its own.",
+      "description": "Offer a button that empties the group. Radios cannot be unselected by\nclicking or by keyboard — that is the control's nature, not an oversight —\nso an optional choice needs either this or a \"None\" option of its own.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -146,7 +146,7 @@
       "typeText": "ReactNode",
       "required": false,
       "origin": "derived",
-      "description": "The validation message for this one choice. A message that applies to the\r\nwhole question belongs on the RadioGroup instead.",
+      "description": "The validation message for this one choice. A message that applies to the\nwhole question belongs on the RadioGroup instead.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -246,7 +246,7 @@
       "signature": "ChangeEventHandler<HTMLInputElement> | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The underlying DOM event, for form libraries that want the native\r\nhandler.",
+      "description": "The underlying DOM event, for form libraries that want the native\nhandler.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -255,7 +255,7 @@
       "signature": "((checked: boolean) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "This radio was chosen. Only ever fires with `true`, since choosing\r\nanother radio deselects this one rather than firing on it — to follow a\r\ngroup's choice, use `onValueChange` on the RadioGroup.",
+      "description": "This radio was chosen. Only ever fires with `true`, since choosing\nanother radio deselects this one rather than firing on it — to follow a\ngroup's choice, use `onValueChange` on the RadioGroup.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -264,7 +264,7 @@
       "signature": "((value: string | null) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The chosen value, or `null` when the group was emptied with `clearable`.\r\nThis is the handler to use for a group; the individual radios do not need\r\none.",
+      "description": "The chosen value, or `null` when the group was emptied with `clearable`.\nThis is the handler to use for a group; the individual radios do not need\none.",
       "descriptionOrigin": "jsdoc"
     },
     {

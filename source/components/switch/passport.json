@@ -122,7 +122,7 @@
       "typeText": "ReactNode",
       "required": false,
       "origin": "derived",
-      "description": "The validation message. Setting it is enough on its own: the switch reads\r\nas invalid to assistive technology and the message is announced, so no\r\nextra `aria-invalid` is needed.",
+      "description": "The validation message. Setting it is enough on its own: the switch reads\nas invalid to assistive technology and the message is announced, so no\nextra `aria-invalid` is needed.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -245,7 +245,7 @@
       "signature": "ChangeEventHandler<HTMLInputElement> | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The underlying DOM event, for form libraries that want the native\r\nhandler. For the new state, and for the async behaviour above, use\r\n`onCheckedChange`.",
+      "description": "The underlying DOM event, for form libraries that want the native\nhandler. For the new state, and for the async behaviour above, use\n`onCheckedChange`.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -254,7 +254,7 @@
       "signature": "((checked: boolean) => void | Promise<unknown>) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Fires with the new state. Return a promise and the switch stays on the new\r\nsetting with a busy indicator until it resolves, then puts itself back if\r\nit rejects — see [Saving](#saving).",
+      "description": "Fires with the new state. Return a promise and the switch stays on the new\nsetting with a busy indicator until it resolves, then puts itself back if\nit rejects — see [Saving](#saving).",
       "descriptionOrigin": "jsdoc"
     },
     {

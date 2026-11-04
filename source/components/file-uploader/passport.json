@@ -50,7 +50,7 @@
       "typeText": "boolean | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Accept the same file twice. Default false, where a file matching one\r\nalready selected by name, size and last-modified time is rejected.",
+      "description": "Accept the same file twice. Default false, where a file matching one\nalready selected by name, size and last-modified time is rejected.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -102,7 +102,7 @@
       "typeText": "ReactNode",
       "required": false,
       "origin": "derived",
-      "description": "A hint under the label, linked as the field's description. The place\r\nto say what is accepted and how large it may be.",
+      "description": "A hint under the label, linked as the field's description. The place\nto say what is accepted and how large it may be.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -147,7 +147,7 @@
       "typeText": "Partial<import(\"..\").ChunkFieldNames> | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Rename the form fields each chunk is sent under, for a server whose\r\ncontract you do not control.",
+      "description": "Rename the form fields each chunk is sent under, for a server whose\ncontract you do not control.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -165,7 +165,7 @@
       "typeText": "Record<string, string> | ((request: import(\"..\").ChunkRequest) => Record<string, string> | Promise<Record<string, string>>) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Static headers, or a function - async allowed - called per chunk, which\r\nis what to use for a token that expires mid-upload.",
+      "description": "Static headers, or a function - async allowed - called per chunk, which\nis what to use for a token that expires mid-upload.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -257,7 +257,7 @@
       "typeText": "string | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Form field name. With an endpoint, the stored file ids are posted; without\r\none, the files themselves are, so a plain form or Server Action gets them.",
+      "description": "Form field name. With an endpoint, the stored file ids are posted; without\none, the files themselves are, so a plain form or Server Action gets them.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -275,7 +275,7 @@
       "signature": "((item: UploadItem, error: unknown) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "One file failed, after its retries were used up. `error` is an\r\n`UploadHttpError` carrying `status` and the parsed `body` when the\r\nserver answered, and whatever was thrown otherwise.",
+      "description": "One file failed, after its retries were used up. `error` is an\n`UploadHttpError` carrying `status` and the parsed `body` when the\nserver answered, and whatever was thrown otherwise.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -293,7 +293,7 @@
       "signature": "((rejections: FileRejection[]) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Files that never made it in - wrong type, too large, a duplicate, or\r\nrefused by `validate`. Each rejection carries the file and the reason,\r\nso this is the hook for reporting why.",
+      "description": "Files that never made it in - wrong type, too large, a duplicate, or\nrefused by `validate`. Each rejection carries the file and the reason,\nso this is the hook for reporting why.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -302,7 +302,7 @@
       "signature": "((file: ExistingFile) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Someone removed one of the already-stored files. Removing it for real\r\nis yours to do; the component only reports it.",
+      "description": "Someone removed one of the already-stored files. Removing it for real\nis yours to do; the component only reports it.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -329,7 +329,7 @@
       "signature": "((body: string, xhr: XMLHttpRequest) => unknown) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Turn the response body into the value stored on the item, which is\r\nwhere `getFileId` then looks. Default: JSON, falling back to text.",
+      "description": "Turn the response body into the value stored on the item, which is\nwhere `getFileId` then looks. Default: JSON, falling back to text.",
       "descriptionOrigin": "jsdoc"
     },
     {

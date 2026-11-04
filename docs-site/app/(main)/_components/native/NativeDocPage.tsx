@@ -12,6 +12,7 @@ import { webTwinOf } from "../../_lib/native-components";
 import { TableOfContents } from "../TableOfContents";
 import { PageActions } from "../PageActions";
 import { NativeSidebarNav } from "./NativeSidebarNav";
+import { SidebarScroll } from "../SidebarScroll";
 
 const pageTitle = (title: string) => `${title} | ${v2Config.name}`;
 
@@ -89,9 +90,9 @@ export async function NativeDocPage({ slug }: { slug: string }) {
       {/* Hoisted into <head> by React 19: the same component on the web. */}
       {web && <link rel="alternate" href={web} title={`${doc.title} for React (web)`} />}
       <aside className="hidden md:block">
-        <div className="v2-sidebar">
+        <SidebarScroll section="native">
           <NativeSidebarNav nav={nav} />
-        </div>
+        </SidebarScroll>
       </aside>
 
       <main id="v2-main" className="min-w-0 pt-8 pb-20 md:pt-10" lang="en">

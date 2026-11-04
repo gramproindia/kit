@@ -360,7 +360,7 @@
       "required": false,
       "default": false,
       "origin": "derived",
-      "description": "A character counter under the field; shows `count / maxLength` when\r\n`maxLength` is set. With a limit it counts as the limit does (UTF-16 units,\r\nso an emoji can count as 2 to 4); without one, characters as people see them.",
+      "description": "A character counter under the field; shows `count / maxLength` when\n`maxLength` is set. With a limit it counts as the limit does (UTF-16 units,\nso an emoji can count as 2 to 4); without one, characters as people see them.",
       "descriptionOrigin": "jsdoc"
     },
     {

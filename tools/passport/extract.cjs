@@ -165,11 +165,19 @@ function describeType(ts, checker, type, node) {
   return { type: "other", typeText: text.length > 200 ? `${text.slice(0, 197)}…` : text };
 }
 
+/**
+ * Text copied out of source files keeps the file's line endings, and a Windows
+ * checkout (core.autocrlf) has CRLF where CI's Linux checkout has LF. Without
+ * this, the same comment makes a different passport on each, and the CI drift
+ * check fails for a passport generated on Windows.
+ */
+const lf = (text) => text.replace(/\r\n?/g, "\n");
+
 /** First JSDoc sentence attached to a symbol, or undefined. Never invented. */
 function jsDocOf(ts, sym) {
   const parts = sym.getDocumentationComment(undefined);
   if (!parts || parts.length === 0) return undefined;
-  const text = ts.displayPartsToString(parts).trim();
+  const text = lf(ts.displayPartsToString(parts)).trim();
   return text || undefined;
 }
 
@@ -204,7 +212,7 @@ function collectDefaults(ts, sourceFileList, program) {
         if (!ts.isObjectBindingPattern(param.name)) continue;
         for (const el of param.name.elements) {
           if (!el.initializer || !ts.isIdentifier(el.name)) continue;
-          const init = normaliseDefault(el.initializer.getText(sf));
+          const init = normaliseDefault(lf(el.initializer.getText(sf)));
           if (init !== undefined) defaults.set(`${comp}.${el.name.text}`, init);
         }
       }
@@ -216,7 +224,7 @@ function collectDefaults(ts, sourceFileList, program) {
             if (!ts.isObjectBindingPattern(d.name)) continue;
             for (const el of d.name.elements) {
               if (!el.initializer || !ts.isIdentifier(el.name)) continue;
-              const init = normaliseDefault(el.initializer.getText(sf));
+              const init = normaliseDefault(lf(el.initializer.getText(sf)));
               if (init !== undefined) defaults.set(`${comp}.${el.name.text}`, init);
             }
           }
@@ -237,7 +245,7 @@ function collectSlots(ts, files, program) {
     sf.forEachChild((node) => {
       if (!ts.isTypeAliasDeclaration(node)) return;
       if (!/Slot$/.test(node.name.text)) return;
-      const text = node.type.getText(sf);
+      const text = lf(node.type.getText(sf));
       for (const m of text.matchAll(/"([a-zA-Z][\w-]*)"/g)) {
         if (!slots.includes(m[1])) slots.push(m[1]); // declaration order is meaningful
       }
@@ -350,7 +358,7 @@ function extractComponent(ts, program, checker, { name, dir, libRoot, libraryVer
     // Record external base types as an inheritance edge rather than flattening.
     for (const clause of decl.heritageClauses ?? []) {
       for (const typeNode of clause.types) {
-        const text = typeNode.getText(decl.getSourceFile());
+        const text = lf(typeNode.getText(decl.getSourceFile()));
         const omitMatch = text.match(/^Omit<\s*([^,]+),\s*(.+)>$/s);
         const inner = omitMatch ? omitMatch[1].trim() : text;
         const omitted = omitMatch

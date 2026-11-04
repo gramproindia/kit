@@ -65,7 +65,8 @@ function useKeyboardHeight(active: boolean): number {
   useEffect(() => {
     if (!active) return undefined;
     // A keyboard already up when the sheet opens sent its event before we listened.
-    const metrics = Keyboard.metrics();
+    // Optional: react-native-web (Expo web, the docs previews) has no metrics().
+    const metrics = Keyboard.metrics?.();
     setHeight(metrics ? metrics.height : 0);
     const show = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
     const hide = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";

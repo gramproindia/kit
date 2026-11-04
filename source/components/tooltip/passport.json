@@ -42,7 +42,7 @@
       "typeText": "ReactElement<{ [attribute: string]: unknown; }, string | import(\"react\").JSXElementConstructor<any>>",
       "required": true,
       "origin": "derived",
-      "description": "The control it describes: a single element, cloned with a ref, the pointer\r\nand focus handlers, and `aria-describedby`.",
+      "description": "The control it describes: a single element, cloned with a ref, the pointer\nand focus handlers, and `aria-describedby`.",
       "descriptionOrigin": "jsdoc"
     },
     {

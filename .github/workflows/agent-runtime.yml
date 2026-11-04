@@ -43,6 +43,12 @@ jobs:
       # toolchain (vitest, React types) is installed.
       - run: pnpm install --frozen-lockfile
 
+      # Some tests run the Kit CLI (index.cjs at the root), which needs the
+      # root package's own dependencies (fs-extra, yargs).
+      - name: Install the CLI's dependencies
+        working-directory: .
+        run: npm ci
+
       - name: Typecheck the library
         run: pnpm exec tsc -p tsconfig.app.json --noEmit
 

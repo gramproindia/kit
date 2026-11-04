@@ -254,7 +254,7 @@
       "signature": "((date: Date | null) => void) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "The chosen day as a `Date` at local midnight, or `null` once cleared.\r\nAccepts a string or a number in `value`, but always hands back a\r\n`Date`.",
+      "description": "The chosen day as a `Date` at local midnight, or `null` once cleared.\nAccepts a string or a number in `value`, but always hands back a\n`Date`.",
       "descriptionOrigin": "jsdoc"
     },
     {

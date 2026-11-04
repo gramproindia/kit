@@ -67,7 +67,7 @@
       "typeText": "'auto' | 'ltr' | 'rtl' | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Writing direction, which decides which corner `position` means.\r\nDefault `auto`, taken from the document.",
+      "description": "Writing direction, which decides which corner `position` means.\nDefault `auto`, taken from the document.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -86,7 +86,7 @@
       "required": false,
       "default": "DEFAULT_HOTKEY",
       "origin": "derived",
-      "description": "Keys that move focus to the notifications: `KeyboardEvent` modifier names\r\nplus a `code`. Default `[\"altKey\", \"KeyT\"]`.",
+      "description": "Keys that move focus to the notifications: `KeyboardEvent` modifier names\nplus a `code`. Default `[\"altKey\", \"KeyT\"]`.",
       "descriptionOrigin": "jsdoc"
     },
     {

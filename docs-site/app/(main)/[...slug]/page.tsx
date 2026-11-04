@@ -25,6 +25,7 @@ import { PageActions } from "../_components/PageActions";
 import { SidebarNav } from "../_components/SidebarNav";
 import { Overview } from "../_components/Overview";
 import { Playground } from "../_components/playground/Playground";
+import { SidebarScroll } from "../_components/SidebarScroll";
 
 /** Pages that are not docs: no sidebar entry, reachable from the header. */
 const PLAYGROUND = "playground";
@@ -146,9 +147,9 @@ export default async function DocPage({ params }: Props) {
       {/* React 19 hoists this into <head>: the same component, for React Native. */}
       {twin && <link rel="alternate" href={twin.href} title={`${twin.title} for React Native (iOS and Android)`} />}
       <aside className="hidden md:block" lang={lang}>
-        <div className="v2-sidebar">
+        <SidebarScroll section="docs">
           <SidebarNav nav={nav} locale={locale} />
-        </div>
+        </SidebarScroll>
       </aside>
 
       <main id="v2-main" className="min-w-0 pt-8 pb-20 md:pt-10" lang={lang}>

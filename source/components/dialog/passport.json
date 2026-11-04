@@ -185,7 +185,7 @@
       "signature": "((value: string) => void | Promise<void>) | undefined",
       "required": false,
       "origin": "derived",
-      "description": "Runs on Confirm, with the prompt's value. While its promise is pending the\r\nbuttons show progress; if it throws, the error message is shown and the\r\ndialog stays open.",
+      "description": "Runs on Confirm, with the prompt's value. While its promise is pending the\nbuttons show progress; if it throws, the error message is shown and the\ndialog stays open.",
       "descriptionOrigin": "jsdoc"
     },
     {
@@ -203,7 +203,7 @@
       "typeText": "boolean",
       "required": true,
       "origin": "derived",
-      "description": "Whether the dialog is on screen. Required: this component is always\r\ncontrolled, so set it to false in `onClose`.",
+      "description": "Whether the dialog is on screen. Required: this component is always\ncontrolled, so set it to false in `onClose`.",
       "descriptionOrigin": "jsdoc"
     },
     {
