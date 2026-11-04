@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { NavGroup } from "../_lib/docs";
 import { isAgentPath, type AgentNavGroup } from "../_lib/agent-config";
-import { isNativePath, NATIVE_BASE, type NativeNavGroup } from "../_lib/native-config";
+import { isNativePath, NATIVE_BASE, NATIVE_DOCS, type NativeNavGroup } from "../_lib/native-config";
 import { v2Config } from "../_lib/config";
 import { Palette, Smartphone, Sparkles } from "lucide-react";
 import { localeInfo, parsePath, sectionHref, type Locale } from "../_lib/i18n";
@@ -43,6 +43,9 @@ export function SiteHeader({
   const onAgentPage = isAgentPath(pathname);
   // So are the React Native pages.
   const onNativePage = isNativePath(pathname);
+  // In the React Native section, "Components" leads to the native docs, and
+  // the playground (web components only) is left out.
+  const componentsHref = onNativePage ? NATIVE_DOCS : firstDoc?.href;
 
   return (
     <header className="v2-header" lang={localeInfo(locale).htmlLang}>
@@ -57,14 +60,16 @@ export function SiteHeader({
         <span className="v2-pill">{version}</span>
 
         <nav aria-label="Main" className="ml-4 hidden items-center gap-1 text-sm whitespace-nowrap lg:flex">
-          {firstDoc && (
-            <Link href={firstDoc.href} className="v2-top-link">
+          {componentsHref && (
+            <Link href={componentsHref} className="v2-top-link">
               {s.components}
             </Link>
           )}
-          <Link href={sectionHref("playground", locale)} className="v2-top-link">
-            {s.playground}
-          </Link>
+          {!onNativePage && (
+            <Link href={sectionHref("playground", locale)} className="v2-top-link">
+              {s.playground}
+            </Link>
+          )}
           <Link
             href={NATIVE_BASE}
             aria-current={onNativePage ? "page" : undefined}
@@ -95,14 +100,16 @@ export function SiteHeader({
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <CommandMenu locale={locale} />
-          <Link
-            href={sectionHref("playground", locale)}
-            className="v2-icon-btn lg:hidden"
-            aria-label={s.pgTitle}
-            title={s.pgTitle}
-          >
-            <Palette className="size-4" aria-hidden />
-          </Link>
+          {!onNativePage && (
+            <Link
+              href={sectionHref("playground", locale)}
+              className="v2-icon-btn lg:hidden"
+              aria-label={s.pgTitle}
+              title={s.pgTitle}
+            >
+              <Palette className="size-4" aria-hidden />
+            </Link>
+          )}
           {!onAgentPage && !onNativePage && <LanguageSwitcher locale={locale} />}
           <a
             href={v2Config.github}
