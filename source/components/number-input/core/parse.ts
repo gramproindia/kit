@@ -164,6 +164,9 @@ function withDecimalPoint(text: string, parts: NumberLocaleParts): string {
   // Group separators go; the locale's decimal separator becomes a point. Doing
   // it in this order matters where one locale's group is another's decimal.
   if (parts.group !== "") value = value.split(parts.group).join("");
+  // Swiss grouping is an apostrophe, but which one depends on the locale data
+  // (CLDR 48 moved de-CH from ’ to '), and people type either. Never a decimal.
+  if (/['’ʼ]/.test(parts.group)) value = value.replace(/['’ʼ]/g, "");
   if (parts.decimal !== ".") value = value.split(parts.decimal).join(".");
   return value;
 }

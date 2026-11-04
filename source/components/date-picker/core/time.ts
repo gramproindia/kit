@@ -160,6 +160,12 @@ function takeDayPeriod(text: string, locale?: string): { text: string; period: "
     const rest = `${spaced.slice(0, at)} ${spaced.slice(at + name.length)}`.trim();
     return { text: rest, period: index === 0 ? "am" : "pm" };
   }
+  // A Latin "am"/"pm" ending the text, as its own word, comes out too: a word
+  // can sit between it and the time (Bulgarian "2:30 ч. pm" in CLDR 48).
+  const latin = /\s([ap])\.? ?m\.?$/.exec(spaced);
+  if (latin) {
+    return { text: spaced.slice(0, latin.index).trim(), period: latin[1] === "a" ? "am" : "pm" };
+  }
   return { text, period: null };
 }
 

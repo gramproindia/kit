@@ -28,6 +28,9 @@ describe("parseNumber refuses what is not a number", () => {
     expect(parseNumber("-1234,50 zł", "pl-PL", "PLN")).toBe(-1234.5);
     expect(parseNumber("-R$ 1.234,50", "pt-BR", "BRL")).toBe(-1234.5);
     expect(parseNumber("CHF-1’234.50", "de-CH", "CHF")).toBe(-1234.5);
+    // CLDR 48 groups de-CH with a plain apostrophe; either one reads.
+    expect(parseNumber("CHF-1'234.50", "de-CH", "CHF")).toBe(-1234.5);
+    expect(parseNumber("1'234'567", "de-CH")).toBe(1234567);
     expect(parseNumber("USD 12", "en-US", "USD")).toBe(12);
     // Without the currency, letters are letters.
     expect(parseNumber("12 zł", "pl-PL")).toBeNull();

@@ -23,7 +23,14 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("weekStartFromTag", () => {
   it("matches Intl for every two-letter region", () => {
-    const wrong = REGIONS.filter((r) => weekStartFromTag(`und-${r}`) !== intlWeekStart(`und-${r}`));
+    // The table follows CLDR 48. An older runtime (Node's ICU, the CLDR it
+    // ships) still has the previous answer for the regions that changed.
+    const runtime = globalThis as { process?: { versions?: { cldr?: string } } };
+    const cldr = Number(runtime.process?.versions?.cldr ?? "0");
+    const changedIn48 = new Set(cldr < 48 ? ["IS"] : []);
+    const wrong = REGIONS.filter(
+      (r) => !changedIn48.has(r) && weekStartFromTag(`und-${r}`) !== intlWeekStart(`und-${r}`),
+    );
     expect(wrong).toEqual([]);
   });
 

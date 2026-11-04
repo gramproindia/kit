@@ -4,7 +4,7 @@
  * all, and Firefox has no `getWeekInfo`. Without this they all start on Monday,
  * which is wrong for India, the US and most of the Gulf.
  *
- * Data: CLDR 46 `weekData/firstDay` (Node 22, ICU 76.1). Regions not listed
+ * Data: CLDR 48 `weekData/firstDay` (Node 22.23, ICU 78.3). Regions not listed
  * start on Monday. A test compares every region against `Intl.Locale`, so a
  * CLDR change shows up as a failing test, not a silent drift.
  */
@@ -12,7 +12,7 @@
 const FRIDAY = "MV";
 const SATURDAY = "AF BH DJ DZ EG IQ IR JO KW LY OM QA SD SY";
 const SUNDAY =
-  "AG AS BD BR BS BT BU BW BZ CA CO DM DO ET GT GU HK HN ID IL IN JM JP JT KE KH KR LA MH MI " +
+  "AG AS BD BR BS BT BU BW BZ CA CO DM DO ET GT GU HK HN ID IL IN IS JM JP JT KE KH KR LA MH MI " +
   "MM MO MT MX MZ NI NP NT PA PE PH PK PR PT PU PY PZ RH SA SG SV TH TT TW UM US VE VI WK WS " +
   "YD YE ZA ZW";
 
