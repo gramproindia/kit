@@ -1,5 +1,33 @@
 # Changelog
 
+## 2.9.3
+
+`shared` is now 1.8.1.
+
+### Fixed
+
+- **Sheets open on React Native for Web.** BottomSheet, and every Select,
+  Menu or bottom Modal that opens as a sheet, crashed on react-native-web
+  (Expo's web target, and the docs' live previews), which has no
+  `Keyboard.metrics()`. Phone apps were not affected.
+- **Swiss numbers read with either apostrophe.** Newer browsers (CLDR 48) group
+  de-CH thousands with `'` instead of `’`; NumberInput now reads `1'234.50` and
+  `1’234.50` alike.
+- **Bulgarian date-times read back in newer browsers.** CLDR 48 writes
+  "2:30 ч. pm", with the hours word before AM/PM; the date-time field reads it
+  again.
+- **Iceland's week starts on Sunday on React Native too,** following CLDR 48.
+  Browsers already used their own week data; this is the table Hermes uses,
+  since it has none.
+
+### Internal
+
+- Passports are now the same whether generated on Windows or Linux: line
+  endings in doc comments are normalised, so the CI drift check no longer
+  fails on passports made on Windows.
+- The agent-runtime workflow installs the root package's dependencies, which
+  the CLI tests need.
+
 ## 2.9.2
 
 Fixes from a full audit of every web and native component: security,
