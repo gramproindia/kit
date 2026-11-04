@@ -1,38 +1,18 @@
 import { v2Config } from "./config";
 
-const REGISTRY = "https://registry.npmjs.org/@grampro/kit/latest";
-
-/** An hour: long enough to be free, short enough that a release shows up. */
-const REVALIDATE_SECONDS = 3600;
-
 /**
- * The version the registry is serving.
+ * The version shown in the header badge.
  *
- * The badge in the header used to be a number typed into a config file, and
- * it drifted -- the site read 2.3.0 while `npx @grampro/kit` installed 2.4.0.
- * Asking npm means the badge says what a reader would actually get.
+ * This is the library's own package.json version, stamped in at build time.
+ * Every release is pushed to main, and every push redeploys the site, so the
+ * badge moves with the release.
  *
- * Fetched on the server and revalidated hourly, so a publish appears without
- * a redeploy and no reader pays for the request. The built-in version is the
- * fallback: a registry that is slow, rate-limiting or down must not take a
- * page down with it, and that version is itself stamped from the library's
- * own package.json at build time, so it is never more than a release behind.
+ * It used to ask the npm registry with an hourly revalidate. The layout calls
+ * this, so that one timer made every page on the site an ISR page: each was
+ * re-rendered on Vercel up to once an hour whenever a reader, a crawler or a
+ * link prefetch reached it. That was nearly all of the project's Active CPU
+ * use. Keep this free of fetches so every page stays a static file.
  */
 export async function getPublishedVersion(): Promise<string> {
-  try {
-    const response = await fetch(REGISTRY, {
-      next: { revalidate: REVALIDATE_SECONDS },
-    });
-    if (!response.ok) return v2Config.version;
-
-    const body: unknown = await response.json();
-    const version =
-      typeof body === "object" && body !== null
-        ? (body as { version?: unknown }).version
-        : undefined;
-
-    return typeof version === "string" && version ? version : v2Config.version;
-  } catch {
-    return v2Config.version;
-  }
+  return v2Config.version;
 }
