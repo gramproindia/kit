@@ -254,7 +254,7 @@ export const getLlmsTxt = cache(async () => {
     // them can connect it to this site rather than answer that it does not know.
     "Also known as Grampro Kit, GBS Kit and GBS Components. The npm package is `@grampro/kit`, the source is at https://github.com/gramproindia/kit, and the published documentation is https://kit.gramproindia.com.",
     "",
-    "Components are copy-in blocks: `npx @grampro/kit add <Component>` (or `pnpm dlx @grampro/kit add <Component>`) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once. Run `npx @grampro/kit add` with no names, in a terminal, to pick from a searchable list.",
+    "Components are copy-in blocks: `npx @grampro/kit add <Component>` (or `pnpm dlx --package=@grampro/kit grampro-kit add <Component>`; pnpm needs the binary named because the package has two) copies the source into your project, so you own and can edit the code. Each component ships a `styles.css` that is imported once. Run `npx @grampro/kit add` with no names, in a terminal, to pick from a searchable list.",
     "",
     `There is a React Native edition, in beta: \`${nativeConfig.install}\` in a React Native or Expo project installs the native version of the same components, plus mobile-only ones (AppBar, BottomNavigation, Fab, SegmentedControl, ListItem, BottomSheet, SearchBar). The CLI detects the platform; do not mix web and native APIs. See the "${nativeConfig.name} (beta)" section below.`,
     "",

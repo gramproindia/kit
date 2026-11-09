@@ -132,7 +132,7 @@ export async function Overview({ locale }: { locale: Locale }) {
           <div className="mx-auto mt-10 max-w-md text-left">
             <CommandTabs
               npm="npx @grampro/kit add"
-              pnpm="pnpm dlx @grampro/kit add"
+              pnpm="pnpm dlx --package=@grampro/kit grampro-kit add"
             />
           </div>
         </div>
@@ -159,7 +159,7 @@ export async function Overview({ locale }: { locale: Locale }) {
               BottomNavigation, Fab and BottomSheet. Copy-in source, zero dependencies, runs in Expo Go.
             </p>
             <div className="mt-6 max-w-md text-left">
-              <CommandTabs npm="npx @grampro/kit@native add Button" pnpm="pnpm dlx @grampro/kit@native add Button" />
+              <CommandTabs npm="npx @grampro/kit@native add Button" pnpm="pnpm dlx --package=@grampro/kit@native grampro-kit add Button" />
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/native" className="v2-btn" data-variant="primary">

@@ -16,7 +16,7 @@ export const nativeConfig = {
   description:
     "GramproKit for React Native: the same components and props as the web Kit, drawn natively for iOS and Android, plus mobile patterns such as AppBar, BottomNavigation and Fab. Copy-in source, zero dependencies, works in Expo Go. Beta.",
   install: "npx @grampro/kit@native add Button",
-  installPnpm: "pnpm dlx @grampro/kit@native add Button",
+  installPnpm: "pnpm dlx --package=@grampro/kit@native grampro-kit add Button",
   npmTag: "native",
   beta: "React Native support is in beta. APIs may change or break between prereleases (npm tag `native`).",
 };

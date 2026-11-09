@@ -8,9 +8,23 @@
 
 const SHELL = new Set(["bash", "sh", "shell", "console", "zsh"]);
 
+/*
+ * @grampro/kit ships two binaries (grampro-kit and gbs-add-block). npx copes,
+ * but `pnpm dlx @grampro/kit` stops with ERR_PNPM_DLX_MULTIPLE_BINS, so the
+ * pnpm form has to name the package and the binary separately.
+ */
+const KIT_NPX = /^npx\s+(?:-y\s+)?(@grampro\/kit(?:@\S+)?)(?=\s|$)(.*)$/;
+
+/** `npx @grampro/kit@native add Button` -> `pnpm dlx --package=@grampro/kit@native grampro-kit add Button`. */
+export function kitDlx(packageSpec: string, rest: string): string {
+  return `pnpm dlx --package=${packageSpec} grampro-kit${rest}`;
+}
+
 /** npm-style command -> the pnpm equivalent, or null when there is no mapping. */
 export function toPnpm(command: string): string | null {
   const line = command.trim();
+  const kit = KIT_NPX.exec(line);
+  if (kit) return kitDlx(kit[1], kit[2]);
   if (line.startsWith("npx ")) return `pnpm dlx ${line.slice(4)}`;
   if (line.startsWith("npm install ")) return `pnpm add ${line.slice(12)}`;
   if (line.startsWith("npm i ")) return `pnpm add ${line.slice(6)}`;
